@@ -54,6 +54,13 @@
 
 - 커밋 메시지에 큰따옴표가 들어가면 네이티브 인자 전달에서 깨집니다. **메시지를 파일에 쓰고 `git commit -F` 를 쓰세요.**
 - here-string 은 `@'...'@` 를 쓰고 닫는 `'@` 는 반드시 열 0 에 두세요.
+- **한글이 들어간 `.ps1` 파일은 UTF-8 BOM 으로 저장해야 합니다.** PowerShell 5.1 은 BOM 이 없으면 스크립트를 ANSI 로 읽어서 한글이 깨지고 파서 에러가 납니다. 편집 후 아래로 BOM 을 다시 붙이세요.
+  ```powershell
+  $noBom = New-Object System.Text.UTF8Encoding($false)
+  $withBom = New-Object System.Text.UTF8Encoding($true)
+  [IO.File]::WriteAllText($p, [IO.File]::ReadAllText($p, $noBom), $withBom)
+  ```
+- Windows 의 `python` / `python3` 은 실제 설치 없이도 Microsoft Store 스텁이 PATH 에 잡힙니다. `Get-Command` 로 존재 여부만 확인하면 오탐이 나므로, 버전 출력까지 확인해야 합니다. `tools/check-env.ps1` 이 이 케이스를 구분해 줍니다.
 
 ### .gitignore
 
