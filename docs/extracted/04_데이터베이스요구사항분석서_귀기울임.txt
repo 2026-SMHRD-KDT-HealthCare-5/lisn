@@ -1,0 +1,167 @@
+﻿
+
+데이터베이스 요구사항분석서
+
+
+
+
+
+데이터베이스
+
+요구사항 분석서
+
+
+
+과제명 :
+
+멀티모달 라이프로그 감정 분석 기반 맞춤형 LLM 케어 및 모니터링 시스템
+
+
+
+2026. 08. 28. 
+
+1. 요구사항 정의서
+
+인증 외부화 및 비밀번호 미저장
+
+외부 인증 솔루션 의존성을 배제하고 자체 인증 체제를 구축한다. USERS 테이블 내에 단방향 암호화 해시(password_hash: Bcrypt/Argon2)를 보관하며, 필수 회원가입 정보인 연락처(phone), 약관 동의 여부(terms_agreed), 약관 동의 일시(terms_agreed_at)를 함께 관리한다. Primary Key는 user_id (UUID v4)를 사용한다.
+
+식별자 및 시각 컬럼 표준화
+
+모든 테이블의 Primary Key(PK)는 UUID(v4) 사용을 원칙으로 하며 기본값으로 
+
+gen_random_uuid()를 사용한다. 모든 날짜/시간 컬럼은 TIMESTAMPTZ (타임존 포함) 
+
+규격으로 통일한다. 별도의 생성 일시(created_at)·수정 일시(updated_at) 감사 컬럼은 
+
+두지 않으며, 각 테이블의 업무상 의미를 가진 시각 컬럼(collected_at, measured_at, 
+
+evaluated_at, started_at, agreed_at 등)으로 시점 정보를 대체한다. 이는 본 프로젝트가 
+
+캡스톤 범위의 단일 배포 데모로 운영되어 별도의 이력 추적·감사 로그 조회 기능을 
+
+제공하지 않기 때문이며, 추후 상용화 단계에서 감사 컬럼 재도입을 검토한다.
+
+3) 개인정보 보호 및 민감 데이터 보안(ZDR & Masking)
+
+비밀번호는 단방향 해시 알고리즘(Bcrypt/Argon2)을 적용하여 password_hash에 안전하게 저장한다. 챗봇 대화 내용 저장 시 성명, 전화번호, 주소 등 개인식별정보(PII)는 정규식 기반으로 제거([MASK] 대체) 후 JSONB 형태로 저장한다. DB에 저장되는 헬스케어 API 접근 토큰(access_token) 등 민감 정보는 AES-256 암호화를 적용한다.
+
+4) 단일 PostgreSQL 기반의 물리적 무결성(FK) 보장
+
+PostgreSQL 단일 DB 체제로 통합 구축함에 따라, 참조 관계는 DB 레벨의 물리적 Foreign Key(FK) 제약조건을 명확히 적용한다.
+
+참조 삭제 정책:
+
+CASCADE: 사용자 탈퇴 시 연관 데이터(LIFELOG_METRICS, CHAT_SESSIONS, BODY_COMPOSITION_METRICS, EMOTION_RISK_SCORES, DEVICE_HEALTH_CONNECTIONS) 자동 삭제
+
+RESTRICT: EMOTIONS 삭제 시 연관 데이터 존재하면 삭제 제한
+
+5) 시계열 데이터 인덱싱 최적화
+
+LIFELOG_METRICS와 같이 고빈도로 적재되는 시계열 대용량 라이프로그 테이블은 (user_id, collected_at DESC) 복합 인덱스(Composite Index)를 필수 적용하여 최신 생체 데이터 조회 성능을 최적화한다. 또한 동일 사용자·동일 수집 시각(user_id, collected_at)의 중복 적재를 방지하기 위해 UNIQUE 제약을 적용하며, 재시도 전송 등으로 동일 시각 데이터가 재수신될 경우 신규 삽입이 아닌 갱신(UPSERT) 으로 처리한다.
+
+6) 감정 체계 및 위험도 매핑 규칙
+
+감정 마스터: JOY(기쁨), DELIGHT(즐거움), HAPPINESS(행복), SADNESS(슬픔), ANXIETY(불안), LONELINESS(외로움), DESPAIR(절망), ANGER(분노), CRISIS(위기)
+
+감정 마스터의 category 컬럼(NORMAL/CAUTION/CRITICAL)이 곧 기본 위험도 값이며, ANGER만 emotion_score에 따라 동적으로 재분류된다.
+
+안정 (NORMAL) — category=NORMAL: HAPPINESS, JOY, DELIGHT 감지 시
+
+주의 (CAUTION) — category=CAUTION: SADNESS, ANXIETY, LONELINESS 감지 시, 또는 ANGER 감지 및 emotion_score < 70 조건 충족 시
+
+심각 (CRITICAL) — category=CRITICAL: DESPAIR, CRISIS 감지 시, 또는 ANGER 감지 및 emotion_score ≥ 70 조건 충족 시(CRISIS는 emotion_score와 무관하게 즉시 CRITICAL 확정)
+
+7) 힐링 콘텐츠 안전 검수 원칙
+
+HEALING_CONTENTS에 등록되는 모든 콘텐츠는 AI의 감정 매칭 정확도와 무관하게 사용자에게 부정적 영향을 주지 않아야 한다. 이에 따라 자극적이거나 특정 감정에만 극단적으로 특화된 콘텐츠는 배제하고, 중립적이고 보편적으로 안정감을 주는 콘텐츠(명상 가이드, 잔잔한 음악, 담백한 배경화면/자연 풍경, 위로가 되는 짧은 글귀 등)만 사전 검수 후 등록하는 것을 원칙으로 한다.
+
+2. 객체 정의서
+
+
+
+객체 명
+
+속성 명
+
+사용자 정보 (USERS)
+
+user_id, email, password_hash, name, phone, terms_agreed, 
+
+terms_agreed_at, birth_date, gender, height_cm, fcm_token, 
+
+persona_type(FRIEND/COUNSELOR)
+
+디바이스 헬스 연동 정보
+
+(DEVICE_HEALTH_
+
+CONNECTIONS)
+
+connection_id(PK, UUID), USERS.user_id(FK), device_name, 
+
+platform_type(HEALTH_CONNECT/APPLE_HEALTH), 
+
+access_token(암호화), agreed_at, consent_scopes
+
+시계열 라이프로그 (LIFELOG_METRICS)
+
+metric_id(PK, UUID), USERS.user_id(FK), steps, distance, calories, 
+
+sleep_start_at, sleep_end_at, total_sleep_min, deep_sleep_min, 
+
+light_sleep_min, rem_sleep_min, awake_min, sleep_onset_min, 
+
+sleep_efficiency_pct, heart_rate, hrv, raw_payload(JSONB), 
+
+collected_at
+
+감정 마스터 (EMOTIONS)
+
+emotion_id(PK, UUID), emotion_code(UK), emotion_name, 
+
+category(NORMAL/CAUTION/CRITICAL)
+
+챗봇 대화 세션 (CHAT_SESSIONS)
+
+session_id(PK, UUID), USERS.user_id(FK), 
+
+persona_type(FRIEND/COUNSELOR), messages(JSONB - PII 마스킹), 
+
+session_summary, started_at, ended_at
+
+정서 위험도 예측 결과 (EMOTION_RISK_
+
+SCORES)
+
+score_id(PK, UUID), USERS.user_id(FK), EMOTIONS.emotion_id(FK), 
+
+emotion_score, risk_level(NORMAL/CAUTION/CRITICAL), risk_score, 
+
+model_version, evaluated_at
+
+힐링 콘텐츠 마스터 (HEALING_
+
+CONTENTS)
+
+content_id(PK, UUID), EMOTIONS.emotion_id(FK), 
+
+category(MUSIC/FOOD/EXERCISE/ARTICLE), title, description, 
+
+external_url
+
+체성분 데이터
+
+(BODY_COMPOSITION_METRICS)
+
+body_metric_id(PK, UUID), USERS.user_id(FK), weight_kg, 
+
+body_water_kg, body_fat_kg, muscle_mass_kg, muscle_mass_min_kg, 
+
+muscle_mass_max_kg, skeletal_muscle_kg, bmr_kcal, measured_at
+
+3. E-R Diagram
+
+
+
+

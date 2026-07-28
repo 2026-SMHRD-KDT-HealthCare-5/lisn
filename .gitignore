@@ -14,8 +14,9 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+# NOTE: Flutter 소스가 frontend/lib/ 에 위치하므로 루트 한정으로 범위를 좁힘
+/lib/
+/lib64/
 parts/
 sdist/
 var/
@@ -216,3 +217,42 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ==========================================================
+# 귀기울임(LISN) 프로젝트 추가 규칙
+# ==========================================================
+
+# --- OS / OneDrive ---
+desktop.ini
+Thumbs.db
+.DS_Store
+
+# --- 한컴오피스 / MS Office 임시·잠금 파일 ---
+~$*
+*.hwp.bak
+*.gid
+*.tmp
+
+# --- 시크릿 (OpenAI API 키 등 절대 커밋 금지) ---
+.env.*
+!.env.example
+*.pem
+*.key
+
+# --- Claude Code 로컬 설정 ---
+.claude/settings.local.json
+
+# --- Node / Flutter ---
+node_modules/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+
+# --- 모델 산출물 / 원본 데이터셋 (용량) ---
+*.pt
+*.pth
+*.pkl
+*.joblib
+data/raw/
+data/interim/
