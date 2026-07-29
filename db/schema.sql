@@ -5,10 +5,11 @@
 --  출처   : Documents/05_테이블명세서_귀기울임.hwp (2026.07.23 / 작성자 이응균)
 --  대상   : PostgreSQL 13 이상
 --
---  ※ 이 파일은 05 테이블명세서 원문을 그대로 옮긴 baseline 입니다.
---    개정 대기 항목은 [05-A] [05-B] [05-C] 태그 주석으로 병기했으며,
---    팀 논의로 확정되기 전까지 적용하지 않습니다.
+--  ※ 이 파일은 05 테이블명세서 원문을 baseline 으로 하되,
+--    2026.07.29 팀 회의에서 확정된 개정안 [05-A] [05-B] [05-C] 를 반영한 상태입니다.
+--    ⚠ 05 테이블명세서(HWP) 원문은 아직 미반영입니다. 문서 개정 시 이 파일을 기준으로 맞추세요.
 --    개정 내역: docs/review/문서개정_체크리스트.md
+--    회의 결정: docs/review/회의안건_20260729.md
 -- =====================================================================
 
 
@@ -40,12 +41,13 @@ CREATE TABLE USERS (
     email           VARCHAR(255) NOT NULL UNIQUE,
     password_hash   VARCHAR(255) NOT NULL,
     name            VARCHAR(100) NOT NULL,
-    phone           VARCHAR(20),
+    phone           TEXT,   -- [05-B] AES-256-GCM 암호문(Base64) 저장
     birth_date      DATE,
     gender          VARCHAR(10) CHECK (gender IN ('MALE', 'FEMALE', 'OTHER')),
     fcm_token       TEXT,
     height_cm       NUMERIC(5,2) CHECK (height_cm > 0),
-    persona_type    VARCHAR(50) NOT NULL CHECK (persona_type IN ('FRIEND', 'COUNSELOR')),
+    persona_type    VARCHAR(20) NOT NULL DEFAULT 'FRIEND'   -- [05-C]
+                        CHECK (persona_type IN ('FRIEND', 'COUNSELOR')),
     terms_agreed    BOOLEAN NOT NULL DEFAULT FALSE,
     terms_agreed_at TIMESTAMPTZ,
     CONSTRAINT chk_terms_logic CHECK (
@@ -54,31 +56,24 @@ CREATE TABLE USERS (
     )
 );
 
--- [05-C] ★ 실제 결함 — 확정 시 반드시 반영
---   persona_type 이 NOT NULL 인데 DEFAULT 가 없습니다.
+-- [05-C] ✅ 2026.07.29 확정 — DEFAULT 'FRIEND' 추가
+--   persona_type 이 NOT NULL 인데 DEFAULT 가 없어 회원가입 INSERT 가 실패했습니다.
 --   회원가입 화면(MAIN_JOIN_02)은 이메일/비밀번호/이름/생년월일/성별만 받고,
---   페르소나 선택은 로그인 이후 MLCM_300 에서 이루어집니다.
---   => 현재 정의대로면 회원가입 INSERT 가 실패합니다.
---   CHAT_SESSIONS.persona_type 에는 DEFAULT 'FRIEND' 가 있는데 USERS 에만 없는
---   비대칭도 함께 정리해야 합니다.
---
---   (권장) DEFAULT 추가 — CHAT_SESSIONS 와 일관
---       persona_type VARCHAR(50) NOT NULL DEFAULT 'FRIEND'
---           CHECK (persona_type IN ('FRIEND', 'COUNSELOR')),
---   (대안) NULL 허용 — 미선택 상태를 명시적으로 표현
---       persona_type VARCHAR(50)
---           CHECK (persona_type IS NULL OR persona_type IN ('FRIEND', 'COUNSELOR')),
+--   페르소나 선택은 로그인 이후 MLCM_300 에서 이루어지기 때문입니다.
+--   DEFAULT 'FRIEND' 로 해소했으며 CHAT_SESSIONS.persona_type 과 정의가 일치합니다.
 
--- [05-B] phone 컬럼 길이
---   개정안(02-F)에서 연락처를 AES-256-GCM 컬럼 암호화 대상에 포함시켰습니다.
---   IV·인증태그를 포함한 암호문을 Base64 로 담으면 60자를 넘어
---   VARCHAR(20) 에는 저장할 수 없습니다.
---       phone TEXT,   -- AES-256-GCM 암호화 저장
+-- [05-B] ✅ 2026.07.29 확정 — VARCHAR(20) -> TEXT
+--   02-F (3) 에서 연락처를 AES-256-GCM 컬럼 암호화 대상으로 확정했습니다.
+--   IV·인증태그를 포함한 암호문을 Base64 로 담으면 60자를 넘어 VARCHAR(20) 에
+--   저장할 수 없으므로 TEXT 로 변경했습니다.
+--   ※ 암호화 컬럼이므로 phone 기준 검색·정렬·중복확인은 불가능합니다.
+--     현재 로그인·본인확인은 email 기준이고 SMS 발송 계획이 없어 제약이 없습니다.
+--     추후 phone 조회가 필요해지면 별도 blind index(HMAC) 도입을 검토해야 합니다.
 
--- [문서 내부 불일치] persona_type 길이
---   05 테이블명세서의 컬럼 정의표에는 VARCHAR(20),
---   같은 문서의 CREATE 스크립트에는 VARCHAR(50) 으로 적혀 있습니다.
---   여기서는 스크립트 쪽(50)을 따랐습니다. 문서에서 한쪽으로 통일 필요.
+-- [문서 내부 불일치] ✅ 2026.07.29 확정 — VARCHAR(20) 으로 통일
+--   05 테이블명세서의 컬럼 정의표(20)와 CREATE 스크립트(50)가 달랐습니다.
+--   실제 최대값이 'COUNSELOR'(9자)이고 CHAT_SESSIONS.persona_type 이 이미
+--   VARCHAR(20) 이므로 20 으로 맞췄습니다. HWP 문서의 CREATE 스크립트도 수정 필요.
 
 
 -- =====================================================================
@@ -97,26 +92,31 @@ CREATE TABLE EMOTIONS (
 --  3. DEVICE_HEALTH_CONNECTIONS — 디바이스 헬스 연동 정보
 -- =====================================================================
 CREATE TABLE DEVICE_HEALTH_CONNECTIONS (
-    connection_id  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id        UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE,
-    device_name    VARCHAR(100),
-    platform_type  VARCHAR(50) NOT NULL
+    connection_id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id            UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE,
+    device_name        VARCHAR(100),
+    platform_type      VARCHAR(50) NOT NULL
         CHECK (platform_type IN ('HEALTH_CONNECT', 'APPLE_HEALTH')),
-    access_token   TEXT,
-    agreed_at      TIMESTAMPTZ NOT NULL,
-    consent_scopes JSONB NOT NULL DEFAULT
+    permission_granted BOOLEAN NOT NULL DEFAULT FALSE,   -- [05-A] 기기 내 권한 승인 상태
+    agreed_at          TIMESTAMPTZ NOT NULL,
+    last_synced_at     TIMESTAMPTZ,                      -- [05-A] 미수신 감지·재시도 판단 기준
+    consent_scopes     JSONB NOT NULL DEFAULT
         '{"activity": true, "sleep": true, "body_composition": false}'
 );
 
--- [05-A] 🔒 안건 1-1(Push 구조 전환) 확정 후 반영
---   Health Connect 는 Android on-device 권한 모델이라 서버가 보유할
---   OAuth access token 이 존재하지 않습니다.
---   access_token 을 제거하고 아래 두 컬럼을 추가하는 개정안이 대기 중입니다.
---       permission_granted BOOLEAN NOT NULL DEFAULT FALSE,  -- 기기 내 권한 승인 상태
---       last_synced_at     TIMESTAMPTZ,                     -- 미수신 감지·재시도 판단 기준
+-- [05-A] ✅ 2026.07.29 확정 — 앱 push 구조 전환에 따른 개정
+--   Health Connect 는 Android on-device 권한 모델이라 서버가 보유할 OAuth
+--   access token 이 존재하지 않습니다. access_token 컬럼을 제거하고
+--   permission_granted / last_synced_at 를 추가했습니다.
 --
---   ⚠ 이 변경은 02 요구사항정의서 MLCM_200(서버 pull 구조)이 함께 바뀌어야
---     모순이 생기지 않습니다. 단독 반영 금지.
+--   last_synced_at 은 두 곳에서 사용됩니다.
+--     1) 앱   — 이 시각 이후의 신규 데이터만 Health Connect 에서 조회
+--     2) 서버 — 일정 시간 이상 미갱신 시 미수신으로 감지하고 FCM 무음 푸시로
+--               앱 동기화를 유도 (USERS.fcm_token 사용)
+--
+--   ⚠ 연동 문서: 02 요구사항정의서 MLCM_200 이 서버 pull -> 앱 push 로,
+--     NFR-DV-002 의 재시도 주체가 서버 스케줄러 -> 앱 클라이언트로 이동합니다.
+--     04 DB요구사항분석서 2) 객체 정의서도 동일하게 개정 필요.
 --
 --   APPLE_HEALTH 는 구현 범위에서 제외(안건 2)되었으나 enum 값은 유지합니다.
 --   제거하면 platform_type 에 값이 하나뿐이라 컬럼의 존재 이유가 사라집니다.
@@ -187,16 +187,17 @@ CREATE TABLE EMOTION_RISK_SCORES (
 CREATE TABLE HEALING_CONTENTS (
     content_id   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     emotion_id   UUID NOT NULL REFERENCES EMOTIONS(emotion_id) ON DELETE RESTRICT,
-    category     VARCHAR(50) NOT NULL
+    category     VARCHAR(20) NOT NULL
         CHECK (category IN ('MUSIC', 'FOOD', 'EXERCISE', 'ARTICLE')),
     title        VARCHAR(200) NOT NULL,
     description  TEXT,
     external_url TEXT NOT NULL
 );
 
--- [문서 내부 불일치] category 길이
---   컬럼 정의표는 VARCHAR(20), CREATE 스크립트는 VARCHAR(50) 입니다.
---   여기서는 스크립트 쪽(50)을 따랐습니다. 문서에서 통일 필요.
+-- [문서 내부 불일치] ✅ 2026.07.29 확정 — VARCHAR(20) 으로 통일
+--   컬럼 정의표(20)와 CREATE 스크립트(50)가 달랐습니다.
+--   실제 최대값이 'EXERCISE'(8자)이므로 정의표 쪽 20 을 따랐습니다.
+--   HWP 문서의 CREATE 스크립트도 수정 필요.
 
 
 -- =====================================================================
@@ -245,6 +246,13 @@ CREATE INDEX idx_chat_user_started
 --  CAUTION 단계 콘텐츠 추천 시 감정별 필터링용
 CREATE INDEX idx_healing_emotion
     ON HEALING_CONTENTS (emotion_id);
+
+--  [05-A] 라이프로그 미수신 감지 배치용
+--  권한이 승인된 연동만 대상으로 last_synced_at 이 오래된 순으로 스캔합니다.
+--  임계 시간을 넘긴 사용자에게 FCM 무음 푸시를 보내 앱 동기화를 유도합니다.
+CREATE INDEX idx_device_last_synced
+    ON DEVICE_HEALTH_CONNECTIONS (last_synced_at)
+    WHERE permission_granted = TRUE;
 
 
 -- =====================================================================
