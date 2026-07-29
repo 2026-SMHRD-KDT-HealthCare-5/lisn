@@ -45,6 +45,67 @@ https://git-scm.com/download/win
 
 ## 2. Python 3.12
 
+> **버전이 왜 3.12 여야 하나요**
+> 최신 버전(3.13 · 3.14)은 **PyTorch 가 아직 지원하지 않습니다.** 그대로 진행하면 8번에서 `torch` 만 조용히 빠지고, **AI 모델을 돌릴 때가 되어서야** 문제를 발견하게 됩니다.
+
+### 먼저 — 아나콘다가 있는지 확인하세요
+
+윈도우 키를 누르고 <kbd>anaconda</kbd> 라고 검색해보세요.
+
+| 검색 결과 | 진행할 방법 |
+|---|---|
+| **`Anaconda PowerShell Prompt`** 가 보인다 | **방법 1** (훨씬 간단합니다) |
+| 아무것도 안 나온다 | **방법 2** |
+
+---
+
+### 방법 1 · 아나콘다가 있는 경우 ★권장
+
+python.org 에서 따로 받을 필요가 **전혀 없습니다.** 가상환경 하나만 만들면 끝입니다.
+
+**① 터미널 열기** — 윈도우 키 → <kbd>Anaconda PowerShell Prompt</kbd> 검색해서 실행
+
+> **일반 PowerShell 이 아니라 이걸 쓰세요.** 일반 PowerShell 에서는 `conda activate` 가 동작하지 않습니다.
+
+**② 환경 만들기**
+
+```
+conda create -n lisn python=3.12 -y
+```
+
+**③ 환경 활성화**
+
+```
+conda activate lisn
+```
+
+프롬프트 맨 앞에 **`(lisn)`** 이 붙으면 성공입니다.
+
+```
+(lisn) PS C:\Users\사용자명>
+```
+
+> ### ⚠ 터미널을 새로 열 때마다 `conda activate lisn` 을 해야 합니다
+> 이걸 빠뜨리면 `base` 환경에서 명령이 돌아가서, 설치한 라이브러리를 못 찾습니다.
+> **프롬프트 앞에 `(lisn)` 이 있는지 매번 확인하는 습관**을 들이세요.
+
+**④ VS Code 를 쓰신다면 인터프리터도 맞춰주세요**
+
+`Ctrl` + `Shift` + `P` → `Python: Select Interpreter` 입력 → 목록에서 **`lisn`** 선택
+
+> 이걸 안 하면 VS Code 가 다른 파이썬으로 코드를 실행해서 **"터미널에선 되는데 실행하면 안 된다"** 상태가 됩니다.
+
+**왜 이쪽이 나은가**
+
+- 3.12.7 을 찾아 헤맬 필요가 없습니다
+- **다른 수업·과제의 파이썬 환경을 건드리지 않습니다**
+- 팀원 전원이 같은 명령을 쓰므로 버전이 저절로 통일됩니다
+- PATH 등록, Microsoft Store 문제를 겪지 않습니다
+
+---
+
+### 방법 2 · 아나콘다가 없는 경우
+
 https://www.python.org/downloads/
 
 > ### ⚠ 여기서 제일 많이 실수합니다
@@ -52,7 +113,7 @@ https://www.python.org/downloads/
 > 이걸 놓치면 나중에 `python` 명령을 못 찾아서 **처음부터 다시 설치**해야 합니다.
 
 > ### ⚠ 페이지 맨 위의 노란 버튼을 누르지 마세요
-> 그 버튼은 **최신 버전**을 받습니다. 최신 버전(3.13·3.14)은 **PyTorch 가 아직 지원하지 않아 AI 모델링이 아예 안 됩니다.**
+> 그 버튼은 **최신 버전**을 받습니다.
 >
 > **`Python 3.12.7` 을 받으세요** — 버전까지 정확히 이것입니다.
 > 1. 페이지를 아래로 스크롤해서 **`Looking for a specific release?`** 표를 찾습니다
@@ -68,14 +129,18 @@ https://www.python.org/downloads/
 > Python 은 버전이 `security` 단계에 들어가면 보안 패치를 소스로만 배포합니다. 3.12 는 2024년 10월에 그 단계로 넘어갔고, **직전 릴리스인 3.12.7 이 마지막 Windows 설치 파일**입니다.
 > (3.12.13 페이지 원문: "binary installers are no longer provided for it")
 
-### 설치 직후 버전 확인 (건너뛰지 마세요)
+---
+
+### 공통 · 버전 확인 (건너뛰지 마세요)
 
 **어디서 확인하나요**
 
 1. 키보드의 **윈도우 키**를 누릅니다 (시작 메뉴가 열립니다)
-2. 그대로 <kbd>powershell</kbd> 이라고 타이핑합니다
-3. 검색 결과에 뜨는 **`Windows PowerShell`** 을 클릭합니다
-4. 파란색(또는 검은색) 창이 열리면 아래를 입력하고 엔터
+2. 타이핑합니다 — **방법 1** 은 <kbd>Anaconda PowerShell Prompt</kbd> · **방법 2** 는 <kbd>powershell</kbd>
+3. 검색 결과에 뜨는 프로그램을 클릭합니다
+4. 창이 열리면 아래를 입력하고 엔터
+
+> **방법 1 이신 분은 `conda activate lisn` 을 먼저 하세요.** 프롬프트에 `(lisn)` 이 붙은 상태여야 합니다.
 
 ```
 python --version
@@ -83,91 +148,76 @@ python --version
 
 > 폴더 위치는 상관없습니다. 어디서 실행하든 결과는 같습니다.
 
-**`Python 3.12.7` 이 나와야 정상입니다.** 다음 단계로 넘어가세요.
+**`Python 3.12.x` 가 나와야 정상입니다.** (방법 2 는 정확히 `3.12.7`)
 
 ### 다른 결과가 나왔다면
 
 | 나온 결과 | 무슨 뜻인가 | 해야 할 일 |
 |---|---|---|
-| `Python 3.12.7` | 정상 | 다음 단계로 |
-| `Python 3.13.x` · `3.14.x` | 최신 버전을 받으셨습니다 | **A** |
-| `Python 3.11.x` 등 다른 3.x | 예전에 깔아둔 게 잡힙니다 | **A** |
-| `Python` 만 뜨고 숫자가 없음 | Microsoft Store 가짜 파일 | **B** |
-| Microsoft Store 창이 열림 | Python 이 실제로는 없습니다 | **B** |
-| `python 을 찾을 수 없습니다` | 설치는 됐는데 PATH 미등록 | **B** |
+| `Python 3.12.x` | 정상 | 다음 단계로 |
+| `Python 3.13.x` · `3.14.x` 등 다른 버전 | 방법 1: 환경이 활성화 안 됨 · 방법 2: 잘못 받음 | **①** |
+| `Python` 만 뜨고 숫자가 없음 | Microsoft Store 가짜 파일 | **②** |
+| Microsoft Store 창이 열림 | Python 이 실제로는 없습니다 | **②** |
+| `python 을 찾을 수 없습니다` | PATH 미등록 | **②** |
+| `conda 를 찾을 수 없습니다` | 일반 PowerShell 을 여신 겁니다 | **③** |
 
 ---
 
-#### A. 3.12.7 이 아닌 다른 버전이 나올 때
+#### ① 3.12 가 아닌 다른 버전이 나올 때
 
-**방법 1 — 3.12.7 을 추가로 설치하고 골라 쓰기 (권장)**
+**방법 1(아나콘다)로 하신 경우** — 십중팔구 **환경 활성화를 안 하신 것**입니다.
 
-기존 버전을 지우지 않습니다. 다른 프로그램이 그 버전을 쓰고 있을 수 있고, 지웠다 깔았다 하면 시간만 더 듭니다.
-
-1. 위 안내대로 **3.12.7 을 설치**합니다 (`Add python.exe to PATH` 체크)
-2. 설치 후 확인
+프롬프트 앞에 `(lisn)` 이 있는지 보세요. 없으면:
 
 ```
-py -3.12 --version
+conda activate lisn
 ```
 
-`Python 3.12.7` 이 나오면 성공입니다.
-
-3. **이후로는 `python` 대신 `py -3.12` 를 쓰세요.** 8번의 라이브러리 설치 명령도 바뀝니다.
+`(lisn)` 이 붙었는데도 3.12 가 아니면 환경을 다시 만드세요.
 
 ```
-py -3.12 -m pip install torch lightgbm scikit-learn pandas numpy fastapi uvicorn psycopg2-binary openai
+conda create -n lisn python=3.12 -y --force
 ```
 
-`torch` 확인도 마찬가지입니다.
+**방법 2(python.org)로 하신 경우** — 아래 둘 중 하나로 해결하세요.
 
-```
-py -3.12 -c "import torch; print(torch.__version__)"
-```
+- **기존 버전을 지우지 않고 골라 쓰기 (권장)** — 3.12.7 을 추가 설치한 뒤, 앞으로 `python` 대신 `py -3.12` 를 씁니다. 8번 명령도 `py -3.12 -m pip install ...` 로 바뀝니다. 다른 프로그램이 기존 버전을 쓰고 있을 수 있어 이쪽이 안전합니다.
+- **기존 버전 제거** — 윈도우 키 → <kbd>앱</kbd> 검색 → **설치된 앱** 에서 `Python 3.13`·`3.14` 를 제거한 뒤 3.12.7 설치. 매번 `py -3.12` 를 붙이는 게 번거로우면 이쪽. 단 다른 프로젝트가 깨질 수 있습니다.
 
-**방법 2 — 기존 버전을 지우고 3.12.7 만 남기기**
+#### ② 버전이 아예 안 나올 때
 
-`py -3.12` 를 매번 붙이는 게 번거로우면 이쪽으로 하세요.
+**Microsoft Store 창이 열리거나 `Python` 만 뜨는 경우**
 
-1. 윈도우 키 → <kbd>앱</kbd> 검색 → **설치된 앱**
-2. 목록에서 `Python 3.13` 또는 `Python 3.14` 를 찾아 **제거**
-3. 3.12.7 을 설치 (`Add python.exe to PATH` 체크)
-4. `python --version` 으로 확인
-
-> 다른 프로젝트에서 그 버전을 쓰고 계셨다면 그쪽이 동작하지 않게 됩니다. 확실하지 않으면 **방법 1** 로 가세요.
-
----
-
-#### B. 버전이 아예 안 나올 때
-
-**B-1. Microsoft Store 창이 열리거나 `Python` 만 뜨는 경우**
-
-윈도우에 기본으로 들어있는 **가짜 `python.exe`** 가 잡히는 것입니다. 실제 Python 이 아닙니다.
+윈도우에 기본으로 들어있는 **가짜 `python.exe`** 가 잡히는 것입니다. 재설치로는 해결되지 않습니다.
 
 1. 윈도우 키 → <kbd>앱 실행 별칭</kbd> 검색 → **앱 실행 별칭 관리**
-2. 목록에서 **`python.exe`** 와 **`python3.exe`** 를 찾아 **끄기(꺼짐)** 로 바꿉니다
+2. **`python.exe`** 와 **`python3.exe`** 를 찾아 **끄기** 로 바꿉니다
 3. 터미널을 완전히 닫고 새로 연 뒤 다시 확인
 
-> 이 설정을 안 끄면 진짜 Python 을 설치해도 계속 가짜가 먼저 잡힐 수 있습니다.
+> 이 설정을 안 끄면 진짜 Python 을 설치해도 계속 가짜가 먼저 잡힙니다.
 
-**B-2. `python 을 찾을 수 없습니다` 만 나오는 경우**
+**`python 을 찾을 수 없습니다` 만 나오는 경우**
 
-설치할 때 `Add python.exe to PATH` 를 체크하지 않으신 겁니다. 둘 중 하나로 해결하세요.
+`Add python.exe to PATH` 를 체크하지 않고 설치하신 겁니다. 설치 파일을 다시 실행해 **체크하고 재설치**하는 게 가장 간단합니다.
 
-- **간단한 방법** — Python 3.12.7 설치 파일을 다시 실행해서 **체크하고 재설치**
-- **직접 등록** — 7번의 PATH 등록과 같은 방법으로 아래 **두 경로를 모두** 추가 (`<사용자명>` 은 본인 윈도우 계정 폴더 이름)
+직접 등록하시려면 7번의 PATH 등록과 같은 방법으로 **아래 두 경로를 모두** 추가하세요. (`<사용자명>` 은 본인 윈도우 계정 폴더 이름)
 
 ```
 C:\Users\<사용자명>\AppData\Local\Programs\Python\Python312
 C:\Users\<사용자명>\AppData\Local\Programs\Python\Python312\Scripts
 ```
 
-> `Scripts` 폴더까지 넣어야 `pip` 명령도 동작합니다. 하나만 넣으면 `python` 은 되는데 `pip` 이 안 되는 상태가 됩니다.
+> `Scripts` 까지 넣어야 `pip` 도 동작합니다. 하나만 넣으면 `python` 은 되는데 `pip` 이 안 되는 상태가 됩니다.
 
----
+#### ③ `conda 를 찾을 수 없습니다`
 
-> ### 왜 이렇게까지 확인하나요
-> 버전이 틀린 채로 진행하면 8번에서 **`torch` 만 조용히 빠집니다.** `Successfully installed` 는 정상으로 뜨기 때문에 알아채기 어렵고, **AI 모델을 돌릴 때가 되어서야** 문제를 발견하게 됩니다. 여기서 1분 쓰는 게 훨씬 쌉니다.
+일반 PowerShell 을 여신 것입니다. **`Anaconda PowerShell Prompt`** 로 다시 여세요.
+
+일반 PowerShell 에서도 쓰고 싶으시면 `Anaconda PowerShell Prompt` 에서 아래를 한 번 실행하고 터미널을 새로 열면 됩니다.
+
+```
+conda init powershell
+```
 
 ## 3. Node.js
 
@@ -274,11 +324,17 @@ psql --version
 
 ## 8. Python 라이브러리
 
-윈도우 키 → `powershell` 검색해서 실행하고, 아래 한 줄을 통째로 복사해 붙여넣고 엔터.
+> ### 시작 전 확인
+> **방법 1(아나콘다)** — `Anaconda PowerShell Prompt` 를 열고 **`conda activate lisn` 을 먼저** 하세요. 프롬프트에 **`(lisn)`** 이 붙어 있어야 합니다. 안 붙은 채로 설치하면 `base` 환경에 깔려서 나중에 못 찾습니다.
+> **방법 2(python.org)** — 윈도우 키 → `powershell` 로 실행하면 됩니다.
+
+아래 한 줄을 통째로 복사해 붙여넣고 엔터.
 
 ```
 pip install torch lightgbm scikit-learn pandas numpy fastapi uvicorn psycopg2-binary openai
 ```
+
+> 방법 2 에서 `py -3.12` 를 쓰기로 하신 분은 `py -3.12 -m pip install ...` 로 실행하세요.
 
 > **10분 넘게 멈춘 것처럼 보여도 정상입니다.** `torch` 가 2GB 가 넘어서 오래 걸립니다. 진행 표시가 없어도 끊지 마세요.
 
@@ -316,6 +372,8 @@ python -c "import torch; print(torch.__version__)"
 검은 창(PowerShell)이 **그 폴더 위치에서** 열립니다.
 
 > 이 방법은 윈도우 버전과 상관없이 똑같이 동작합니다.
+>
+> **아나콘다를 쓰시는 분(방법 1)도 이 단계는 일반 PowerShell 로 하시면 됩니다.** `git clone` 은 파이썬과 무관합니다. 다만 아래 9-4 의 `check-env.ps1` 은 `Anaconda PowerShell Prompt` 에서 `conda activate lisn` 후 실행해야 파이썬 항목이 제대로 잡힙니다.
 
 ## 9-3. 저장소 내려받기
 
@@ -414,6 +472,9 @@ git pull
 | `pip install` 이 멈춘 것 같음 | `torch` 가 2GB 넘어서 그렇습니다. 끊지 말고 기다리세요 |
 | PostgreSQL 설치 후 `Stack Builder` 창이 뜸 | 아무것도 체크하지 말고 **Cancel**. 특히 다른 버전 서버(v14·v15·v16·v18)를 깔면 포트가 충돌합니다 |
 | `psql` 을 찾을 수 없습니다 | **정상입니다.** PostgreSQL 설치 프로그램은 PATH 를 자동 등록하지 않습니다. 7번의 PATH 등록 단계를 하세요 |
+| `conda 를 찾을 수 없습니다` | 일반 PowerShell 을 여신 겁니다. **`Anaconda PowerShell Prompt`** 로 여세요 |
+| 설치한 라이브러리를 못 찾음 (`ModuleNotFoundError`) | `conda activate lisn` 을 안 하신 겁니다. 프롬프트에 **`(lisn)`** 이 붙어 있는지 확인하세요 |
+| VS Code 에서만 실행이 안 됨 | 인터프리터가 다릅니다. `Ctrl+Shift+P` → `Python: Select Interpreter` → `lisn` 선택 |
 | `torch` 만 설치가 안 됨 | Python 이 3.12 가 아닙니다. `python --version` 확인 후 3.12 로 다시 설치하세요 |
 | 휠 파일명에 `cp313`·`cp314` 가 보임 | Python 3.13·3.14 를 받으신 겁니다. 3.12 여야 `cp312` 로 나옵니다 |
 | 3.12 릴리스 페이지에 `.exe` 가 없음 | `3.12.8` 이상을 고르신 겁니다. 이들은 소스 전용이라 설치 파일이 없습니다. **`3.12.7`** 로 가세요 |
