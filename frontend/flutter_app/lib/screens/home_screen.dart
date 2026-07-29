@@ -100,14 +100,15 @@ class HomeScreen extends StatelessWidget {
                         fontSize: 10, height: 1.6, color: AppColors.muted))
               ])),
           SizedBox(
-              width: 72,
-              height: 72,
+              width: 100,
+              height: 100,
               child: Stack(alignment: Alignment.center, children: [
-                CircularProgressIndicator(
-                    value: .72,
-                    strokeWidth: 7,
-                    backgroundColor: Color(0xFFE2E6F2),
-                    color: AppColors.primary),
+                Positioned.fill(
+                    child: CircularProgressIndicator(
+                        value: .72,
+                        strokeWidth: 5,
+                        backgroundColor: Color(0xFFE2E6F2),
+                        color: AppColors.primary)),
                 Column(mainAxisSize: MainAxisSize.min, children: [
                   Text('72',
                       style:
