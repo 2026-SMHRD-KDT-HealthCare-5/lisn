@@ -137,11 +137,11 @@ CRISIS(위기) 감정은 즉시 CRITICAL 확정 및 system_action(비상
 - LSTM Autoencoder (비지도 시계열 이상 감지) + LightGBM
 학습 모델
 Classifier (지도 정서 위험도 분류)
-- 공공 라이프로그 오픈 데이터(PMData 등) 및 우울 검사(BDI-II)
-라벨 기반 학습. 정상 패턴 시퀀스로 LSTM Autoencoder를 학
-습시켜 재구성 오차 기반 anomaly_score를 추출한 뒤, 이를
-LightGBM 입력 피처로 결합하여 2단계(Two-Stage) Ensemble
-지도학습 수행
+- PMData 의 정상 패턴 시퀀스로 LSTM Autoencoder 를 학습시
+켜 재구성 오차 기반 anomaly_score 를 추출한 뒤, 이를
+GLOBEM 의 14일 집계 라이프로그 피처 및 BDI-II 우울 척도
+라벨과 결합하여 LightGBM 2단계(Two-Stage) Ensemble 지도학
+습을 수행
 학습 방법 - EMOTIONS 9개 클래스 중 CRISIS/DESPAIR 등 고위험 클래스는
 발생 빈도가 낮아 SMOTE(Synthetic Minority Over-sampling) 또
 는 class_weight 조정을 통해 소수 클래스 학습 편향을 보정함
@@ -168,7 +168,7 @@ F1-Score 산출
 4. 모델 생성 및 학습 | 
 모델링 목표 | 다변량 시계열 라이프로그의 비정상 패턴 조기 탐지 및 9개 감정 /3단계 위험도 다중 클래스 분류 정확도 확보
 학습 모델 | - LSTM Autoencoder (비지도 시계열 이상 감지) + LightGBM Classifier (지도 정서 위험도 분류)
-학습 방법 | - 공공 라이프로그 오픈 데이터(PMData 등) 및 우울 검사(BDI-II) 라벨 기반 학습. 정상 패턴 시퀀스로 LSTM Autoencoder를 학 습시켜 재구성 오차 기반 anomaly_score를 추출한 뒤, 이를 LightGBM 입력 피처로 결합하여 2단계(Two-Stage) Ensemble 지도학습 수행 - EMOTIONS 9개 클래스 중 CRISIS/DESPAIR 등 고위험 클래스는 발생 빈도가 낮아 SMOTE(Synthetic Minority Over-sampling) 또 는 class_weight 조정을 통해 소수 클래스 학습 편향을 보정함 - 동일 사용자의 시계열 데이터가 Train/Test에 동시 포함되지 않 도록 사용자(user_id) 단위 Group K-Fold Cross-Validation을 적 용함
+학습 방법 | - PMData 의 정상 패턴 시퀀스로 LSTM Autoencoder 를 학습시 켜 재구성 오차 기반 anomaly_score 를 추출한 뒤, 이를 GLOBEM 의 14일 집계 라이프로그 피처 및 BDI-II 우울 척도 라벨과 결합하여 LightGBM 2단계(Two-Stage) Ensemble 지도학 습을 수행 - EMOTIONS 9개 클래스 중 CRISIS/DESPAIR 등 고위험 클래스는 발생 빈도가 낮아 SMOTE(Synthetic Minority Over-sampling) 또 는 class_weight 조정을 통해 소수 클래스 학습 편향을 보정함 - 동일 사용자의 시계열 데이터가 Train/Test에 동시 포함되지 않 도록 사용자(user_id) 단위 Group K-Fold Cross-Validation을 적 용함
 모델 예측 결과 | 입력 피처 수집 후 추론을 거쳐 감정 코드(emotion_id), 감정 점수(emotion_score), 위험도(risk_level), 위험 점수(risk_score), Action 플래그(system_action) 동시 산출
 5. 검증 | 
 분석 검증 방안 | 1. Cross-Validation(K-Fold) 기반 정밀도(Precision), 재현율(Recall), F1-Score 산출 2. 실제 생체 이상 파형 데이터 주입을 통한 고위험군 알림 트리 거 응답 속도 및 임계치 성능 검증 사용자 단위 Group K-Fold 기반 검증으로 개인별 패턴 과적합 (Data Leakage) 여부 점검
@@ -220,7 +220,7 @@ LLM 입력용 프롬프트 페이로드(system instruction + 마스킹 완료
 데이터 분석
 스트리밍
 시나리오
-2. 사전 학습된 위기 탐지 NLP 모델을 통해 대화의 위기 심각도
+2. 1차 키워드 규칙 필터로 명백한 위기 표현을 즉시 판정하고,
 --- table (page 6) ---
 기능명 | 대화 컨텍스트 기반 실시간 위기 대화 탐지
 1. 데이터 준비 | 
@@ -232,17 +232,18 @@ LLM 입력용 프롬프트 페이로드(system instruction + 마스킹 완료
 전처리 데이터 | LLM 입력용 프롬프트 페이로드(system instruction + 마스킹 완료 대화 맥락)
 3. 데이터 분석 | 
 데이터 분석 목표 | 단순 키워드 매칭을 넘어 사용자의 대화 맥락 전체를 분석함으로써 실제 위기 상황(자살/자해 위험, 고위험 정서 상태)을 실시간으로 정확히 탐지
-데이터 분석 시나리오 | 1. 사용자가 챗봇에 입력한 대화 텍스트가 AI 분석 서버로 실시간 스트리밍 2. 사전 학습된 위기 탐지 NLP 모델을 통해 대화의 위기 심각도
+데이터 분석 시나리오 | 1. 사용자가 챗봇에 입력한 대화 텍스트가 AI 분석 서버로 실시간 스트리밍 2. 1차 키워드 규칙 필터로 명백한 위기 표현을 즉시 판정하고,
 
 ===== [page 7] =====
 빅데이터 분석 정의서
-카테고리 분류
+통과한 발화는 2차 OpenAI LLM 문맥 분석 프롬프트로 위기
+심각도를 분류한다.
 3. 자해/극단선택 위기 단어 탐지 시 감정 코드를 CRISIS로 즉시
 지정하고, 이전 라이프로그 점수와 무관하게 risk_level =
 CRITICAL, system_action = EMERGENCY 확정
 CRISIS 감정 분류 플래그, risk_level(CRITICAL),
 데이터 분석 결과
-system_action(EMERGENCY), 109/1577-0199 긴급 UI 트리거 신호
+system_action(EMERGENCY), 109 긴급 UI 트리거 신호
 4. 모델 생성 및 학습
 한국어 문맥 기반 위기 발화 탐지 재현율(Recall) 90% 이상 달성
 모델링 목표
@@ -250,13 +251,17 @@ system_action(EMERGENCY), 109/1577-0199 긴급 UI 트리거 신호
 1차 키워드 규칙 필터(백엔드 내장) + 2차 OpenAI LLM 문맥 분
 학습 모델
 석 프롬프트의 2단계 하이브리드 판정
-별도 모델 학습을 수행하지 않고, 위기 심각도 분류 기준을 정의
-한 시스템 프롬프트를 설계하여 LLM에 주입한다. 프롬프트는 판
-정 결과를 정해진 JSON 스키마(is_crisis, severity,
-학습 방법
-matched_context)로만 반환하도록 제약하여 파싱 안정성을 확보
-한다. 키워드 사전은 자해·극단선택 관련 표현을 중심으로 구성하
-며 운영 중 갱신 가능하도록 설정 파일로 분리한다.
+별도 모델 학습을 수행하지 않고, 위기 심각도 분류 기준을
+정의한 시스템 프롬프트를 설계하여 LLM에 주입한다. 프롬프트는
+판정 결과를 정해진 JSON 스키마(is_crisis, severity,
+matched_context)로만 반환하도록 제약하여 파싱 안정성을
+확보한다. 키워드 사전은 자해·극단선택 관련 표현을 중심으로
+학습 방법 구성하며 운영 중 갱신 가능하도록 설정 파일로 분리한다.
+LLM 판정 결과(is_crisis, severity, matched_context)는 서비스 레벨
+값으로 매핑되어 저장된다. is_crisis=true인 경우 risk_level을
+CRITICAL로 확정하고 system_action을 EMERGENCY로 트리거하며,
+원문 근거(matched_context)는 사후 검토용 로그에만 기록하고
+대화 이력에는 저장하지 않는다.
 모델 예측 결과 입력 대화 시퀀스에 대한 위기 여부 플래그 및 심각도 등급
 5. 검증
 - 자체 구축 고정 평가셋(위기·비위기 각 100건 내외)에 대한
@@ -270,12 +275,12 @@ Confusion Matrix 분석. 학습 과정이 없으므로 Train/Test Split
 분석 평가 결과
 - 단일 대화 판정 및 알림 트리거 응답 시간 1.5초 이내
 --- table (page 7) ---
- | 카테고리 분류 3. 자해/극단선택 위기 단어 탐지 시 감정 코드를 CRISIS로 즉시 지정하고, 이전 라이프로그 점수와 무관하게 risk_level = CRITICAL, system_action = EMERGENCY 확정
-데이터 분석 결과 | CRISIS 감정 분류 플래그, risk_level(CRITICAL), system_action(EMERGENCY), 109/1577-0199 긴급 UI 트리거 신호
+ | 통과한 발화는 2차 OpenAI LLM 문맥 분석 프롬프트로 위기 심각도를 분류한다. 3. 자해/극단선택 위기 단어 탐지 시 감정 코드를 CRISIS로 즉시 지정하고, 이전 라이프로그 점수와 무관하게 risk_level = CRITICAL, system_action = EMERGENCY 확정
+데이터 분석 결과 | CRISIS 감정 분류 플래그, risk_level(CRITICAL), system_action(EMERGENCY), 109 긴급 UI 트리거 신호
 4. 모델 생성 및 학습 | 
 모델링 목표 | 한국어 문맥 기반 위기 발화 탐지 재현율(Recall) 90% 이상 달성 및 1.5초 이내 판정 지연시간 확보
 학습 모델 | 1차 키워드 규칙 필터(백엔드 내장) + 2차 OpenAI LLM 문맥 분 석 프롬프트의 2단계 하이브리드 판정
-학습 방법 | 별도 모델 학습을 수행하지 않고, 위기 심각도 분류 기준을 정의 한 시스템 프롬프트를 설계하여 LLM에 주입한다. 프롬프트는 판 정 결과를 정해진 JSON 스키마(is_crisis, severity, matched_context)로만 반환하도록 제약하여 파싱 안정성을 확보 한다. 키워드 사전은 자해·극단선택 관련 표현을 중심으로 구성하 며 운영 중 갱신 가능하도록 설정 파일로 분리한다.
+학습 방법 | 별도 모델 학습을 수행하지 않고, 위기 심각도 분류 기준을 정의한 시스템 프롬프트를 설계하여 LLM에 주입한다. 프롬프트는 판정 결과를 정해진 JSON 스키마(is_crisis, severity, matched_context)로만 반환하도록 제약하여 파싱 안정성을 확보한다. 키워드 사전은 자해·극단선택 관련 표현을 중심으로 구성하며 운영 중 갱신 가능하도록 설정 파일로 분리한다. LLM 판정 결과(is_crisis, severity, matched_context)는 서비스 레벨 값으로 매핑되어 저장된다. is_crisis=true인 경우 risk_level을 CRITICAL로 확정하고 system_action을 EMERGENCY로 트리거하며, 원문 근거(matched_context)는 사후 검토용 로그에만 기록하고 대화 이력에는 저장하지 않는다.
 모델 예측 결과 | 입력 대화 시퀀스에 대한 위기 여부 플래그 및 심각도 등급
 5. 검증 | 
 분석 검증 방안 | - 자체 구축 고정 평가셋(위기·비위기 각 100건 내외)에 대한 Confusion Matrix 분석. 학습 과정이 없으므로 Train/Test Split 대신 전량 평가셋으로 측정한다.(평가셋은 프롬프트 설계자와 분리된 인원이 작성한다.) - 프롬프트 수정 시마다 동일 평가셋으로 재측정하여 회귀 여부를 점검한다.

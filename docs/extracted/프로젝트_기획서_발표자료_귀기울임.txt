@@ -23,19 +23,19 @@
 SO (강점+기회) 수집-분석-대응 통합 파이프라인으로 경쟁 부재 시장 선점 ST (강점+위협) 기기 내 마스킹과 암호화 설계로 규제 강화 및 감시 우려 선제 대응 WO (약점+기회) 정부 R&amp;D 지원사업 활용으로 데이터셋 및 인프라 확보 비용 절감 WT (약점+위협) IRB 승인 지연 대비, 초기 검증 가능한 소규모 데이터로 MVP 범위 집중 Target 스마트워치를 사용하는 1인가구. 고립감은 있으나 직접적인 감정 기록과 상담에는 부담을 느끼는 니치 마켓. SWOT 전략과 타깃 고객
 
 ===== [slide 8] =====
-수집 계층 (Client) 스마트워치(Health Connect), 체성분계, 앱 클라이언트(React/Flutter). › 메인 백엔드 (Business Server) FastAPI/Node.js. 15분 주기 배치 스케줄러 (UPSERT 적재). 인증 세션 (JWT+ AES-256 저장 암호화). 단일 DB: PostgreSQL (USERS, LIFELOG_METRICS, CHAT_SESSIONS 등). › AI 추론 서버 LSTM Autoencoder (이상 탐지) LightGBM (감정·위험도 분류) OpenAI LLM (페르소나 대화, 위기 문맥 탐지) 시스템 아키텍처
+수집 계층 (Client) 스마트워치(Health Connect), 체성분계, 앱 클라이언트(Flutter) · 관리자 웹 ( React ) › 메인 백엔드 (Business Server) FastAPI/Node.js. 15분 주기 배치 스케줄러 (UPSERT 적재). 인증 세션 (JWT+ AES-256 저장 암호화). 단일 DB: PostgreSQL (USERS, LIFELOG_METRICS, CHAT_SESSIONS 등). › AI 추론 서버 LSTM Autoencoder (이상 탐지) LightGBM (감정·위험도 분류) OpenAI LLM (페르소나 대화, 위기 문맥 탐지) 시스템 아키텍처
 
 ===== [slide 9] =====
 01 수집 걸음 수, 수면, 심박 등 7개 지표 및 체성분 15분 주기 수집 02 전처리 이상치 제거, 최근 2주의 패턴에 맞춰 보정한 뒤 7일 단위로 묶기 03 이상 탐지 LSTM Autoencoder 재구성 오차로 anomaly_score 산출 04 분류 LightGBM 활용, anomaly_score와 대화 결합해 9종 감정 및 risk_score 산출 05 액션 CHAT / CONTENT / EMERGENCY 자동 트리거 Metric Box 수집 주기 [15분] | 전처리~산출 [5초 이내] | 위기 추론 [1.5초 이내] | 긴급 UI [3초 이내] 데이터 처리 파이프라인 대화 위기탐지 모듈
 
 ===== [slide 10] =====
-Tech Specs 이상 감지 및 정서 위험도 Model: LSTM Autoencoder + LightGBM Method: PMData 활용, 소수 클래스 SMOTE 보정, Group K-Fold 검증 [Accuracy 85%↑ | F1-Score 0.80↑] 실시간 위기 문맥 탐지 Model: 위험 키워드 필터링 + OpenAI 프롬프트 기반 문맥 분석 Method: 위기 키워드 사전 구축(1차), GPT 프롬프트로 문맥·심각도 판단(2차), PII [MASK] 처리 프롬프트 검증 기준 목표 재현율 90%↑ 힐링 콘텐츠 추천 Model: Matrix Factorization + Content-based Filtering Method: 클릭/재생/완독 기준 암묵적 점수화, 오프라인 배치 학습 [정서 개선율 20%↑ | 지연 0.5초↓] AI 모델 설계 (Tech Specs)
+Tech Specs 이상 감지 및 정서 위험도 Model: LSTM Autoencoder + LightGBM Method: PMData ( 비지도 이상탐지 ) + GLOBEM (BDI-II 라벨 지도학습 ), 소수 클래스 SMOTE 보정 , Group K-Fold 검증 [Accuracy 85%↑ | F1-Score 0.80↑] 실시간 위기 문맥 탐지 Model: 위험 키워드 필터링 + OpenAI 프롬프트 기반 문맥 분석 Method: 위기 키워드 사전 구축(1차), GPT 프롬프트로 문맥·심각도 판단(2차), PII [MASK] 처리 프롬프트 검증 기준 목표 재현율 90%↑ 힐링 콘텐츠 추천 Model: Matrix Factorization + Content-based Filtering Method: 클릭/재생/완독 기준 암묵적 점수화, 오프라인 배치 학습 [정서 개선율 20%↑ | 지연 0.5초↓] AI 모델 설계 (Tech Specs)
 
 ===== [slide 11] =====
 CRITICAL (심각) Emotions: DESPAIR, CRISIS / ANGER (score ≥ 70) [EMERGENCY] 즉시 위기 개입 알림 및 상담사 연결 안내 CAUTION (주의) Emotions: SADNESS, ANXIETY, LONELINESS / ANGER (score &lt; 70) [CONTENT] 맞춤형 힐링 콘텐츠 제공 및 정서 상태 재확인 NORMAL (안정) Emotions: HAPPINESS, JOY, DELIGHT [CHAT] 일상 공감 대화 유지 및 라이프로그 상시 모니터링 위험 단계별 대응 시나리오
 
 ===== [slide 12] =====
-UCI WESAD Source: 손목/흉부 웨어러블 생체신호 (심박, 호흡, 체온 등) 및 정서 라벨 Use: 즉시 확보하여 초기 스트레스 이진 분류(최대 93% 정확도) 학습에 활용 AI Hub 라이프로그 감정 분류 Source: 웨어러블 피트니스 트래커 활동·수면 데이터 + 자기보고 기분 라벨 Use: 라이프로그 이상탐지·위험도 모델학습에 활용. HRV 등 미포함 지표는 Health Connect 실사용자 파일럿에서 추가 수집해 보정 AI Hub 정신건강 의미 구축 Source: 전문 임상의 선정 우울/불안 임상 키워드 Access: 안 심존 전용. 기관 승인이 필요해 개인/학생 자격으로는 MVP 기간 내 확보가 어려워 MVP 범위에서는 제외, 상용화 단계에서 기관 협약을 통해 재검토 학습 데이터셋 확보 계획
+PMData (SimulaMet) Source: Fitbit 기반 일상 라이프로그 - 수면 단계 , 분 단위 심박수 , 걸음 수 Use: 라벨 없는 정상 패턴 시계열로 LSTM Autoencoder 비지도 학습 , 재구성 오차 기반 이상 탐지 학습 데이터셋 확보 계획 GLOBEM (Microsoft Research) Source: 손 14 일 집계 수면·걸음 피처 + BDI-II 우울 척도 점수·우울 라벨 Use: 1 차 이상 점수와 결합하여 LightGBM 2 차 위험도 분류 지도학습
 
 ===== [slide 13] =====
 식별자 표준화 (모든 PK는 UUID v4 적용) 철저한 마스킹 (대화 내 PII 성명, 번호 정규식 탐지 후 [MASK] 처리) 시계열 최적화 (복합 인덱스 및 중복 수집 방지용 UPSERT 처리) PostgreSQL 단일 DB 무결성 관리 인증 외부화 배제 (자체 Bcrypt/Argon2 단방향 해시, 비밀번호 미저장) 계층적 암호화 ( 전송 HTTPS/TLS · 매체 암호화 · 민감 컬럼 AES-256 ) 안전 삭제 정책 (사용자 탈퇴 시 연관 테이블 CASCADE 자동 삭제) 데이터 보안·개인정보 보호 설계
