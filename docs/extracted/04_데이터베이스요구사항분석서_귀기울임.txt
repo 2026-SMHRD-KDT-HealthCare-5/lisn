@@ -28,10 +28,15 @@ evaluated_at, started_at, agreed_at 등)으로 시점 정보를 대체한다. �
 캡스톤 범위의 단일 배포 데모로 운영되어 별도의 이력 추적·감사 로그 조회 기능을
 제공하지 않기 때문이며, 추후 상용화 단계에서 감사 컬럼 재도입을 검토한다.
 3) 개인정보 보호 및 민감 데이터 보안(ZDR & Masking)
-비밀번호는 단방향 해시 알고리즘(Bcrypt/Argon2)을 적용하여 password_hash에 안전하게
-저장한다. 챗봇 대화 내용 저장 시 성명, 전화번호, 주소 등 개인식별정보(PII)는 정규식
-기반으로 제거([MASK] 대체) 후 JSONB 형태로 저장한다. DB에 저장되는 헬스케어 API 접근
-토큰(access_token) 등 민감 정보는 AES-256 암호화를 적용한다.
+- 비밀번호는 단방향 해시 알고리즘(Bcrypt/Argon2)을 적용하여 password_hash에 저장한다.
+- 챗봇 대화 내용 저장 시 성명, 전화번호, 주소 등 개인식별정보(PII)는 정규식 기반으로
+제거([MASK] 대체) 후 JSONB 형태로 저장한다.
+- 컬럼 단위 AES-256 암호화는 유출 시 즉각적 2차 피해가 발생하는 항목(연락처, 외부
+서비스 인증 토큰이 도입될 경우 해당 토큰)에 한정 적용한다.
+- 라이프로그·체성분 측정치 및 분석 스코어는 시계열 집계와 복합 인덱스 기반 조회가
+필수적이므로 컬럼 암호화 대상에서 제외하며, 저장 매체 암호화와 접근통제로 보호한다.
+이는 5항의 (user_id, collected_at DESC) 복합 인덱스 요건 및 개인별 14일 기준값 산출
+로직과의 정합성을 확보하기 위함이다.
 4) 단일 PostgreSQL 기반의 물리적 무결성(FK) 보장
 PostgreSQL 단일 DB 체제로 통합 구축함에 따라, 참조 관계는 DB 레벨의 물리적 Foreign
 Key(FK) 제약조건을 명확히 적용한다.
@@ -46,14 +51,14 @@ collected_at DESC) 복합 인덱스(Composite Index)를 필수 적용하여 최�
 성능을 최적화한다. 또한 동일 사용자·동일 수집 시각(user_id, collected_at)의 중복 적재를
 방지하기 위해 UNIQUE 제약을 적용하며, 재시도 전송 등으로 동일 시각 데이터가 재수신될
 경우 신규 삽입이 아닌 갱신(UPSERT) 으로 처리한다.
+
+===== [page 3] =====
+데이터베이스 요구사항분석서
 6) 감정 체계 및 위험도 매핑 규칙
 - 감정 마스터: JOY(기쁨), DELIGHT(즐거움), HAPPINESS(행복), SADNESS(슬픔),
 ANXIETY(불안), LONELINESS(외로움), DESPAIR(절망), ANGER(분노), CRISIS(위기)
 - 감정 마스터의 category 컬럼(NORMAL/CAUTION/CRITICAL)이 곧 기본 위험도 값이며,
 ANGER만 emotion_score에 따라 동적으로 재분류된다.
-
-===== [page 3] =====
-데이터베이스 요구사항분석서
 안정 (NORMAL) — category=NORMAL: HAPPINESS, JOY, DELIGHT 감지 시
 주의 (CAUTION) — category=CAUTION: SADNESS, ANXIETY, LONELINESS 감지 시, 또는
 ANGER 감지 및 emotion_score < 70 조건 충족 시
@@ -74,20 +79,17 @@ HEALING_CONTENTS에 등록되는 모든 콘텐츠는 AI의 감정 매칭 정확�
 user_id, email, password_hash, name, phone, terms_agreed,
 사용자 정보 (USERS) terms_agreed_at, birth_date, gender, height_cm, fcm_token,
 persona_type(FRIEND/COUNSELOR)
-디바이스 헬스 연동
-connection_id(PK, UUID), USERS.user_id(FK), device_name,
-정보
-platform_type(HEALTH_CONNECT/APPLE_HEALTH),
-(DEVICE_HEALTH_
-access_token(암호화), agreed_at, consent_scopes
-CONNECTIONS)
+디바이스 헬스 연동 connection_id(PK, UUID), USERS.user_id(FK), device_name,
+정보 platform_type(HEALTH_CONNECT/APPLE_HEALTH),
+(DEVICE_HEALTH_ permission_granted(BOOLEAN), agreed_at, consent_scopes,
+CONNECTIONS) last_synced_at
 metric_id(PK, UUID), USERS.user_id(FK), steps, distance, calories,
-sleep_start_at, sleep_end_at, total_sleep_min, deep_sleep_min,
+activity_start_at, activity_end_at, total_active_min, sleep_start_at,
 시계열 라이프로그
-light_sleep_min, rem_sleep_min, awake_min, sleep_onset_min,
+sleep_end_at, total_sleep_min, deep_sleep_min, light_sleep_min,
 (LIFELOG_METRICS)
-sleep_efficiency_pct, heart_rate, hrv, raw_payload(JSONB),
-collected_at
+rem_sleep_min, awake_min, sleep_onset_min, sleep_efficiency_pct,
+heart_rate, hrv, raw_payload(JSONB), collected_at
 감정 마스터 emotion_id(PK, UUID), emotion_code(UK), emotion_name,
 (EMOTIONS) category(NORMAL/CAUTION/CRITICAL)
 session_id(PK, UUID), USERS.user_id(FK),
@@ -111,8 +113,8 @@ _METRICS) muscle_mass_max_kg, skeletal_muscle_kg, bmr_kcal, measured_at
 --- table (page 4) ---
 객체 명 | 속성 명
 사용자 정보 (USERS) | user_id, email, password_hash, name, phone, terms_agreed, terms_agreed_at, birth_date, gender, height_cm, fcm_token, persona_type(FRIEND/COUNSELOR)
-디바이스 헬스 연동 정보 (DEVICE_HEALTH_ CONNECTIONS) | connection_id(PK, UUID), USERS.user_id(FK), device_name, platform_type(HEALTH_CONNECT/APPLE_HEALTH), access_token(암호화), agreed_at, consent_scopes
-시계열 라이프로그 (LIFELOG_METRICS) | metric_id(PK, UUID), USERS.user_id(FK), steps, distance, calories, sleep_start_at, sleep_end_at, total_sleep_min, deep_sleep_min, light_sleep_min, rem_sleep_min, awake_min, sleep_onset_min, sleep_efficiency_pct, heart_rate, hrv, raw_payload(JSONB), collected_at
+디바이스 헬스 연동 정보 (DEVICE_HEALTH_ CONNECTIONS) | connection_id(PK, UUID), USERS.user_id(FK), device_name, platform_type(HEALTH_CONNECT/APPLE_HEALTH), permission_granted(BOOLEAN), agreed_at, consent_scopes, last_synced_at
+시계열 라이프로그 (LIFELOG_METRICS) | metric_id(PK, UUID), USERS.user_id(FK), steps, distance, calories, activity_start_at, activity_end_at, total_active_min, sleep_start_at, sleep_end_at, total_sleep_min, deep_sleep_min, light_sleep_min, rem_sleep_min, awake_min, sleep_onset_min, sleep_efficiency_pct, heart_rate, hrv, raw_payload(JSONB), collected_at
 감정 마스터 (EMOTIONS) | emotion_id(PK, UUID), emotion_code(UK), emotion_name, category(NORMAL/CAUTION/CRITICAL)
 챗봇 대화 세션 (CHAT_SESSIONS) | session_id(PK, UUID), USERS.user_id(FK), persona_type(FRIEND/COUNSELOR), messages(JSONB - PII 마스킹), session_summary, started_at, ended_at
 정서 위험도 예측 결과 (EMOTION_RISK_ SCORES) | score_id(PK, UUID), USERS.user_id(FK), EMOTIONS.emotion_id(FK), emotion_score, risk_level(NORMAL/CAUTION/CRITICAL), risk_score, model_version, evaluated_at

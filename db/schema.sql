@@ -124,7 +124,7 @@ CREATE TABLE DEVICE_HEALTH_CONNECTIONS (
 
 -- =====================================================================
 --  4. LIFELOG_METRICS — 시계열 라이프로그
---     생체 시계열 데이터(걸음수, 수면, 심박수, HRV) 및 원시 JSONB 보관
+--     생체 시계열 데이터(걸음수, 활동, 수면, 심박수, HRV) 및 원시 JSONB 보관
 -- =====================================================================
 CREATE TABLE LIFELOG_METRICS (
     metric_id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -132,6 +132,9 @@ CREATE TABLE LIFELOG_METRICS (
     steps                INTEGER DEFAULT 0 CHECK (steps >= 0),
     distance             INTEGER DEFAULT 0 CHECK (distance >= 0),
     calories             INTEGER DEFAULT 0 CHECK (calories >= 0),
+    activity_start_at    TIMESTAMPTZ,                                -- [05-E]
+    activity_end_at      TIMESTAMPTZ,                                -- [05-E]
+    total_active_min     INTEGER CHECK (total_active_min >= 0),      -- [05-E]
     sleep_start_at       TIMESTAMPTZ,
     sleep_end_at         TIMESTAMPTZ,
     total_sleep_min      INTEGER CHECK (total_sleep_min >= 0),
@@ -147,6 +150,17 @@ CREATE TABLE LIFELOG_METRICS (
     collected_at         TIMESTAMPTZ NOT NULL,
     CONSTRAINT uq_lifelog_user_collected UNIQUE (user_id, collected_at)
 );
+
+-- [05-E] ✅ 2026.07.29 확정 — 활동 시각 3컬럼 추가
+--   기업(라라랩스) 제공 라이프로그 메타데이터에 '활동 시작 시간'·'활동 종료 시각'·
+--   '총활동 시간'이 있는데 대응 컬럼이 없어 적재 시 버려지는 항목이었습니다.
+--   수면은 sleep_start_at·sleep_end_at·total_sleep_min 로 시작·종료·총시간을 모두
+--   받는데 활동만 steps·distance·calories 로 총량뿐이라 구조도 비대칭이었습니다.
+--   ※ 메타데이터는 hh:mm:ss 로 제공되지만 TIMESTAMPTZ 로 받습니다.
+--     04 문서 2) 가 "모든 날짜/시간 컬럼은 TIMESTAMPTZ 로 통일"을 규정하고 있고,
+--     날짜 컬럼과 합쳐야 자정을 넘긴 활동 구간을 표현할 수 있기 때문입니다.
+--   ※ 적재 시 활동 시각이 없는 데이터 출처(PMData·GLOBEM·Health Connect 일부)가
+--     있으므로 NULL 을 허용합니다. 분석은 NOT NULL 인 구간에 한해 수행합니다.
 
 
 -- =====================================================================

@@ -53,7 +53,7 @@ METRICS
 ===== [page 3] =====
 테이블 명세서
 2. 테이블 정의서
-작성일자 2026.07.23 작성자 이응균
+작성일자 2026.07.29 작성자 이응균
 테이블명 사용자 정보 테이블 ID USERS
 테이블설명 회원 계정 프로필, 비밀번호 해시, 선호 챗봇 성격 및 푸시 토큰 관리
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
@@ -65,7 +65,9 @@ gen_random_uuid()
 password_hash VARCHAR 255 Y
 해시 암호화
 이름 name VARCHAR 100 Y
-연락처 phone VARCHAR 20
+AES-256-GCM
+연락처 phone TEXT -
+암호화 저장
 생년월일 birth_date DATE -
 MALE, FEMALE,
 성별 gender VARCHAR 10 Y
@@ -86,7 +88,7 @@ TIMESTAMPTZ -
 Table 생성 스크립트
 CREATE TABLE USERS (
 --- table (page 3) ---
- | 작성일자 | 2026.07.23 |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 사용자 정보 |  |  |  |  | 테이블 ID |  |  | USERS |  | 
 테이블설명 | 회원 계정 프로필, 비밀번호 해시, 선호 챗봇 성격 및 푸시 토큰 관리 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -94,7 +96,7 @@ CREATE TABLE USERS (
 이메일 | email | VARCHAR | 255 | Y |  |  |  | Y |  |  | 로그인 계정
 비밀번호 해시 | password_hash | VARCHAR | 255 | Y |  |  |  |  |  |  | Bcrypt/Argon2 암호화
 이름 | name | VARCHAR | 100 | Y |  |  |  |  |  |  | 
-연락처 | phone | VARCHAR | 20 |  |  |  |  |  |  |  | 
+연락처 | phone | TEXT | - |  |  |  |  |  |  |  | AES-256-GCM 암호화 저장
 생년월일 | birth_date | DATE | - |  |  |  |  |  |  |  | 
 성별 | gender | VARCHAR | 10 |  |  |  |  |  |  | Y | MALE, FEMALE, OTHER
 키 | height_cm | NUMERIC | 5,2 |  |  |  |  |  |  |  | 단위: cm
@@ -111,13 +113,13 @@ user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 email VARCHAR(255) NOT NULL UNIQUE,
 password_hash VARCHAR(255) NOT NULL,
 name VARCHAR(100) NOT NULL,
-phone VARCHAR(20),
+phone TEXT,
 birth_date DATE,
 gender VARCHAR(10) CHECK (gender IN ('MALE', 'FEMALE', 'OTHER')),
 fcm_token TEXT,
 height_cm NUMERIC(5,2) CHECK (height_cm > 0),
-persona_type VARCHAR(20) NOT NULL DEFAULT 'FRIEND’ CHECK (persona_type IN ('FRIEND',
-'COUNSELOR')),
+persona_type VARCHAR(20) NOT NULL DEFAULT 'FRIEND'
+CHECK (persona_type IN ('FRIEND', 'COUNSELOR')),
 terms_agreed BOOLEAN NOT NULL DEFAULT FALSE,
 terms_agreed_at TIMESTAMPTZ, CONSTRAINT chk_terms_logic CHECK (
 (terms_agreed = FALSE AND terms_agreed_at IS NULL) OR
@@ -127,7 +129,7 @@ terms_agreed_at TIMESTAMPTZ, CONSTRAINT chk_terms_logic CHECK (
 
 ===== [page 5] =====
 테이블 명세서
-작성일자 2026.07.23 작성자 이응균
+작성일자 2026.07.29 작성자 이응균
 DEVICE_HEALTH_
 테이블명 디바이스 헬스 연동 정보 테이블 ID
 CONNECTIONS
@@ -151,9 +153,6 @@ platform_type VARCHAR 50 Y Y
 APPLE_HEALTH는
 상용화 단계 확장
 대비)
-Access OAuth Access
-access_token TEXT -
-Token Token
 기기 내 Health
 권한 승인 permission_gra Connect 권한 승인
 BOOLEAN - Y
@@ -164,7 +163,7 @@ FALSE
 시간
 최종
 미수신 감지 및
-동기화 ast_synced_at TIMESTAMPTZ -
+동기화 last_synced_at TIMESTAMPTZ -
 재시도 판단 기준
 일시
 카테고리별 동의
@@ -184,7 +183,7 @@ consent_scopes JSONB NOT NULL DEFAULT
 '{"activity": true, "sleep": true, "body_composition": false}'
 );
 --- table (page 5) ---
- | 작성일자 | 2026.07.23 |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 디바이스 헬스 연동 정보 |  |  |  |  | 테이블 ID |  |  | DEVICE_HEALTH_ CONNECTIONS |  | 
 테이블설명 | 헬스 플랫폼(Health Connect) 연동 권한 승인 상태 및 항목별 수집 동의 범위 관리 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -192,17 +191,16 @@ consent_scopes JSONB NOT NULL DEFAULT
 사용자 ID | user_id | UUID | - | Y |  |  | Y |  |  |  | USERS.user_id 참조 (CASCADE)
 디바이스명 | device_name | VARCHAR | 100 |  |  |  |  |  |  |  | 사용자 디바이스 명칭 (예: Galaxy Watch 6)
 플랫폼 타입 | platform_type | VARCHAR | 50 | Y |  |  |  |  |  | Y | HEALTH_CONNECT, APPLE_HEALTH (MVP는 HEALTH_CONNECT 만 사용, APPLE_HEALTH는 상용화 단계 확장 대비)
-Access Token | access_token | TEXT | - |  |  |  |  |  |  |  | OAuth Access Token
 권한 승인 여부 | permission_gra nted | BOOLEAN | - | Y |  |  |  |  |  |  | 기기 내 Health Connect 권한 승인 상태, DEFAULT FALSE
 동의 일시 | agreed_at | TIMESTAMPTZ | - | Y |  |  |  |  |  |  | 약관/수집 동의 시간
-최종 동기화 일시 | ast_synced_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 미수신 감지 및 재시도 판단 기준
+최종 동기화 일시 | last_synced_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 미수신 감지 및 재시도 판단 기준
 동의 범위 | consent_scopes | JSONB | - | Y |  |  |  |  |  |  | 카테고리별 동의 상태(activity/sleep/b ody_composition)
 Table 생성 스크립트 |  |  |  |  |  |  |  |  |  |  | 
 CREATE TABLE DEVICE_HEALTH_CONNECTIONS ( connection_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE, device_name VARCHAR(100), platform_type VARCHAR(50) NOT NULL CHECK (platform_type IN ('HEALTH_CONNECT', 'APPLE_HEALTH')), permission_granted BOOLEAN NOT NULL DEFAULT FALSE, agreed_at TIMESTAMPTZ NOT NULL, last_synced_at TIMESTAMPTZ, consent_scopes JSONB NOT NULL DEFAULT '{"activity": true, "sleep": true, "body_composition": false}' ); |  |  |  |  |  |  |  |  |  |  | 
 
 ===== [page 6] =====
 테이블 명세서
-작성일자 2026.07.23 작성자 이응균
+작성일자 2026.07.29 작성자 이응균
 테이블명 시계열 라이프로그 테이블 ID LIFELOG_METRICS
 테이블설명 생체 시계열 데이터(걸음수, 수면, 심박수, HRV) 및 원시 JSONB 보관
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
@@ -244,15 +242,17 @@ _pct
 소모 단위: kcal, DEFAULT
 calories INT -
 칼로리 0
-심박수 heart_rate INT - DEFAULT 0 (BPM)
-HRV
-hrv NUMERIC(5,2) - DEFAULT 0 (ms)
-스코어
-원시 추가 수면단계/활동
-raw_payload JSONB -
-데이터 확장용 JSONB
+활동 시작
+activity_start_at TIMESTAMPTZ -
+시간
+활동 종료
+activity_end_at TIMESTAMPTZ -
+시간
+총 total_active_mi
+INT - 단위: 분
+활동시간 n
 --- table (page 6) ---
- | 작성일자 | 2026.07.23 |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 시계열 라이프로그 |  |  |  |  | 테이블 ID |  |  | LIFELOG_METRICS |  | 
 테이블설명 | 생체 시계열 데이터(걸음수, 수면, 심박수, HRV) 및 원시 JSONB 보관 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -270,12 +270,19 @@ REM 수면시간 | rem_sleep_min | INT | - |  |  |  |  |  |  |  | 단위: 분
 수면 효율 | sleep_efficiency _pct | NUMERIC(5,2) | - |  |  |  |  |  |  |  | 단위: %
 이동 거리 | distance | INT | - |  |  |  |  |  |  |  | 단위: m, DEFAULT 0
 소모 칼로리 | calories | INT | - |  |  |  |  |  |  |  | 단위: kcal, DEFAULT 0
-심박수 | heart_rate | INT | - |  |  |  |  |  |  |  | DEFAULT 0 (BPM)
-HRV 스코어 | hrv | NUMERIC(5,2) | - |  |  |  |  |  |  |  | DEFAULT 0 (ms)
-원시 데이터 | raw_payload | JSONB | - |  |  |  |  |  |  |  | 추가 수면단계/활동 확장용 JSONB
+활동 시작 시간 | activity_start_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
+활동 종료 시간 | activity_end_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
+총 활동시간 | total_active_mi n | INT | - |  |  |  |  |  |  |  | 단위: 분
 
 ===== [page 7] =====
 테이블 명세서
+심박수 heart_rate INT - DEFAULT 0 (BPM)
+HRV
+hrv NUMERIC(5,2) - DEFAULT 0 (ms)
+스코어
+원시 추가 수면단계/활동
+raw_payload JSONB -
+데이터 확장용 JSONB
 측정 일시 collected_at TIMESTAMPTZ - Y
 Table 생성 스크립트
 CREATE TABLE LIFELOG_METRICS (
@@ -284,6 +291,9 @@ user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE,
 steps INTEGER DEFAULT 0 CHECK (steps >= 0),
 distance INTEGER DEFAULT 0 CHECK (distance >= 0),
 calories INTEGER DEFAULT 0 CHECK (calories >= 0),
+activity_start_at TIMESTAMPTZ,
+activity_end_at TIMESTAMPTZ,
+total_active_min INTEGER CHECK (total_active_min >= 0),
 sleep_start_at TIMESTAMPTZ,
 sleep_end_at TIMESTAMPTZ,
 total_sleep_min INTEGER CHECK (total_sleep_min >= 0),
@@ -300,13 +310,16 @@ collected_at TIMESTAMPTZ NOT NULL, CONSTRAINT uq_lifelog_user_collected UNIQUE (
 collected_at)
 );
 --- table (page 7) ---
+심박수 | heart_rate | INT | - |  |  |  |  |  | DEFAULT 0 (BPM)
+HRV 스코어 | hrv | NUMERIC(5,2) | - |  |  |  |  |  | DEFAULT 0 (ms)
+원시 데이터 | raw_payload | JSONB | - |  |  |  |  |  | 추가 수면단계/활동 확장용 JSONB
 측정 일시 | collected_at | TIMESTAMPTZ | - | Y |  |  |  |  | 
 Table 생성 스크립트 |  |  |  |  |  |  |  |  | 
-CREATE TABLE LIFELOG_METRICS ( metric_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE, steps INTEGER DEFAULT 0 CHECK (steps >= 0), distance INTEGER DEFAULT 0 CHECK (distance >= 0), calories INTEGER DEFAULT 0 CHECK (calories >= 0), sleep_start_at TIMESTAMPTZ, sleep_end_at TIMESTAMPTZ, total_sleep_min INTEGER CHECK (total_sleep_min >= 0), deep_sleep_min INTEGER CHECK (deep_sleep_min >= 0), light_sleep_min INTEGER CHECK (light_sleep_min >= 0), rem_sleep_min INTEGER CHECK (rem_sleep_min >= 0), awake_min INTEGER CHECK (awake_min >= 0), sleep_onset_min INTEGER CHECK (sleep_onset_min >= 0), sleep_efficiency_pct NUMERIC(5,2) CHECK (sleep_efficiency_pct BETWEEN 0 AND 100), heart_rate INTEGER DEFAULT 0 CHECK (heart_rate >= 0), hrv NUMERIC(5,2) DEFAULT 0 CHECK (hrv >= 0), raw_payload JSONB, collected_at TIMESTAMPTZ NOT NULL, CONSTRAINT uq_lifelog_user_collected UNIQUE (user_id, collected_at) ); |  |  |  |  |  |  |  |  | 
+CREATE TABLE LIFELOG_METRICS ( metric_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE, steps INTEGER DEFAULT 0 CHECK (steps >= 0), distance INTEGER DEFAULT 0 CHECK (distance >= 0), calories INTEGER DEFAULT 0 CHECK (calories >= 0), activity_start_at TIMESTAMPTZ, activity_end_at TIMESTAMPTZ, total_active_min INTEGER CHECK (total_active_min >= 0), sleep_start_at TIMESTAMPTZ, sleep_end_at TIMESTAMPTZ, total_sleep_min INTEGER CHECK (total_sleep_min >= 0), deep_sleep_min INTEGER CHECK (deep_sleep_min >= 0), light_sleep_min INTEGER CHECK (light_sleep_min >= 0), rem_sleep_min INTEGER CHECK (rem_sleep_min >= 0), awake_min INTEGER CHECK (awake_min >= 0), sleep_onset_min INTEGER CHECK (sleep_onset_min >= 0), sleep_efficiency_pct NUMERIC(5,2) CHECK (sleep_efficiency_pct BETWEEN 0 AND 100), heart_rate INTEGER DEFAULT 0 CHECK (heart_rate >= 0), hrv NUMERIC(5,2) DEFAULT 0 CHECK (hrv >= 0), raw_payload JSONB, collected_at TIMESTAMPTZ NOT NULL, CONSTRAINT uq_lifelog_user_collected UNIQUE (user_id, collected_at) ); |  |  |  |  |  |  |  |  | 
 
 ===== [page 8] =====
 테이블 명세서
-작성일자 2026.07.23 작성자 이응균
+작성일자 2026.07.29 작성자 이응균
 테이블명 감정 마스터 테이블 ID EMOTIONS
 테이블설명 시스템 공통 감정 코드(9개) 및 분류 기준 정의
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
@@ -330,7 +343,7 @@ emotion_name VARCHAR(50) NOT NULL,
 category VARCHAR(20) NOT NULL CHECK (category IN ('NORMAL', 'CAUTION', 'CRITICAL'))
 );
 --- table (page 8) ---
- | 작성일자 | 2026.07.23 |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 감정 마스터 |  |  |  |  | 테이블 ID |  |  | EMOTIONS |  | 
 테이블설명 | 시스템 공통 감정 코드(9개) 및 분류 기준 정의 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -343,7 +356,7 @@ CREATE TABLE EMOTIONS ( emotion_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), e
 
 ===== [page 9] =====
 테이블 명세서
-작성일자 2026.07.23 작성자 이응균
+작성일자 2026.07.29 작성자 이응균
 테이블명 챗봇 대화 세션 및 메시지 테이블 ID CHAT_SESSIONS
 테이블설명 챗봇 성격별 대화 세션 및 메시지 히스토리(JSONB) 보관
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
@@ -375,7 +388,7 @@ session_summary TEXT,
 started_at TIMESTAMPTZ NOT NULL, ended_at TIMESTAMPTZ
 );
 --- table (page 9) ---
- | 작성일자 | 2026.07.23 |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 챗봇 대화 세션 및 메시지 |  |  |  |  | 테이블 ID |  |  | CHAT_SESSIONS |  | 
 테이블설명 | 챗봇 성격별 대화 세션 및 메시지 히스토리(JSONB) 보관 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -391,7 +404,7 @@ CREATE TABLE CHAT_SESSIONS ( session_id UUID PRIMARY KEY DEFAULT gen_random_uuid
 
 ===== [page 10] =====
 테이블 명세서
-작성일자 2026.07.23 작성자 이응균
+작성일자 2026.07.29 작성자 이응균
 테이블명 정서 위험도 예측 결과 테이블 ID EMOTION_RISK_SCORES
 테이블설명 AI 감정 분석 점수, 위험 단계(3단계), 모델 버전 및 추론 이력 저장
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
@@ -429,7 +442,7 @@ model_version VARCHAR(50) NOT NULL,
 evaluated_at TIMESTAMPTZ NOT NULL
 );
 --- table (page 10) ---
- | 작성일자 | 2026.07.23 |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 정서 위험도 예측 결과 |  |  |  |  | 테이블 ID |  |  | EMOTION_RISK_SCORES |  | 
 테이블설명 | AI 감정 분석 점수, 위험 단계(3단계), 모델 버전 및 추론 이력 저장 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -446,7 +459,7 @@ CREATE TABLE EMOTION_RISK_SCORES ( score_id UUID PRIMARY KEY DEFAULT gen_random_
 
 ===== [page 11] =====
 테이블 명세서
-작성일자 2026.07.23 작성자 이응균
+작성일자 2026.07.29 작성자 이응균
 테이블명 힐링 콘텐츠 마스터 테이블 ID HEALING_CONTENTS
 테이블설명 CAUTION(주의) 단계 추천용 감정별 맞춤 콘텐츠 메타데이터 관리
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
@@ -472,12 +485,12 @@ Table 생성 스크립트
 CREATE TABLE HEALING_CONTENTS (
 content_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 emotion_id UUID NOT NULL REFERENCES EMOTIONS(emotion_id) ON DELETE RESTRICT,
-category VARCHAR(50) NOT NULL CHECK (category IN ('MUSIC', 'FOOD', 'EXERCISE',
+category VARCHAR(20) NOT NULL CHECK (category IN ('MUSIC', 'FOOD', 'EXERCISE',
 'ARTICLE')),
 title VARCHAR(200) NOT NULL, description TEXT, external_url TEXT NOT NULL
 );
 --- table (page 11) ---
- | 작성일자 | 2026.07.23 |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 힐링 콘텐츠 마스터 |  |  |  |  | 테이블 ID |  |  | HEALING_CONTENTS |  | 
 테이블설명 | CAUTION(주의) 단계 추천용 감정별 맞춤 콘텐츠 메타데이터 관리 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -488,11 +501,11 @@ title VARCHAR(200) NOT NULL, description TEXT, external_url TEXT NOT NULL
 상세 설명 | description | TEXT | - |  |  |  |  |  |  |  | 관리자용/화면용 콘텐츠 요약 설명
 연결 URL | external_url | TEXT | - | Y |  |  |  |  |  |  | 외부 영상/음원 링크
 Table 생성 스크립트 |  |  |  |  |  |  |  |  |  |  | 
-CREATE TABLE HEALING_CONTENTS ( content_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), emotion_id UUID NOT NULL REFERENCES EMOTIONS(emotion_id) ON DELETE RESTRICT, category VARCHAR(50) NOT NULL CHECK (category IN ('MUSIC', 'FOOD', 'EXERCISE', 'ARTICLE')), title VARCHAR(200) NOT NULL, description TEXT, external_url TEXT NOT NULL ); |  |  |  |  |  |  |  |  |  |  | 
+CREATE TABLE HEALING_CONTENTS ( content_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), emotion_id UUID NOT NULL REFERENCES EMOTIONS(emotion_id) ON DELETE RESTRICT, category VARCHAR(20) NOT NULL CHECK (category IN ('MUSIC', 'FOOD', 'EXERCISE', 'ARTICLE')), title VARCHAR(200) NOT NULL, description TEXT, external_url TEXT NOT NULL ); |  |  |  |  |  |  |  |  |  |  | 
 
 ===== [page 12] =====
 테이블 명세서
-작성일자 2026.07.23 작성자 이응균
+작성일자 2026.07.29 작성자 이응균
 BODY_COMPOSITION_
 테이블명 체성분 데이터 테이블 ID
 METRICS
@@ -542,7 +555,7 @@ bmr_kcal INTEGER CHECK (bmr_kcal >= 0),
 measured_at TIMESTAMPTZ NOT NULL
 );
 --- table (page 12) ---
- | 작성일자 | 2026.07.23 |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 체성분 데이터 |  |  |  |  | 테이블 ID |  |  | BODY_COMPOSITION_ METRICS |  | 
 테이블설명 | 체성분계/웨어러블 연동을 통한 사용자 신체 구성(체중, 체지방, 근육량 등) 측정 이력 관리 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고

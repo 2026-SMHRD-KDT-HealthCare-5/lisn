@@ -37,11 +37,17 @@
 수(steps), 이동거리(distance), 소모칼로리(calories), 수면 데이터
 (총수면시간·깊은수면·얕은수면·REM수면·각성시간·입면시간·수면
 효율), 심박수(heart_rate)·심박변이도(HRV) 시계열 데이터, 체성
-데이터 정의
 분계 연동 데이터(체중·체지방·근육량·골격근량·기초대사량), 및
-대화/설문 텍스트 메타데이터. 심박수·HRV는 자율신경계 반응과
-스트레스·정서 상태 간 상관관계가 선행연구(WESAD 등)에서 보
-고된 지표로, 1차 모델 학습 데이터셋부터 포함한다.
+대화/설문 텍스트 메타데이터. 심박수·HRV 는 자율신경계 반응
+과 스트레스·정서 상태 간 상관관계가 선행연구(WESAD 등)에서
+데이터 정의 보고된 지표이다. 다만 데이터 출처별로 확보 수준이 다르다. 기
+업 제공 데이터셋은 수면·활동·체성분 중심으로 구성되어 심박
+수·HRV 를 포함하지 않으며, 공개 데이터셋(PMData)은 분 단위
+심박수를 제공하나 표준 SDNN 대신 일별 심박수 표준편차를
+HRV 대용 지표로 산출한다. 실서비스에서는 Health Connect 가
+제공하는 심박수·HRV 를 그대로 수집한다. 따라서 1차 모델은
+수면·활동 지표를 공통 피처로 사용하고, 심박수·HRV 는 확보
+가능한 구간에 한해 보조 피처로 활용한다.
 - 클라이언트 앱 백그라운드 스케줄러를 통한 주기적(15분 단위)
 데이터 획득 방법 수집 및 HTTP/REST API 통신을 통한 백엔드 서버 이관 후
 LIFELOG_METRICS 적재
@@ -53,8 +59,8 @@ LIFELOG_METRICS 적재
 "calories": 180,
 "sleep_start_at": "2026-07-26T23:10:00Z",
 "sleep_end_at": "2026-07-27T06:50:00Z",
-"total_sleep_min": 280,
-수집 데이터 "deep_sleep_min": 65,
+수집 데이터 "total_sleep_min": 280,
+"deep_sleep_min": 65,
 "light_sleep_min": 180,
 "rem_sleep_min": 35,
 "awake_min": 20,
@@ -62,26 +68,24 @@ LIFELOG_METRICS 적재
 "sleep_efficiency_pct": 71.0,
 "heart_rate": 72,
 "hrv": 45.3, "raw_payload": { "source_device": "Galaxy Watch
+--- table (page 3) ---
+기능명 | 라이프로그 기반 시계열 이상 감지 및 정서 위험도 분석
+1. 데이터 준비 | 
+데이터 정의 | - 스마트폰/웨어러블 기기(Health Connect API)로 수집되는 걸음 수(steps), 이동거리(distance), 소모칼로리(calories), 수면 데이터 (총수면시간·깊은수면·얕은수면·REM수면·각성시간·입면시간·수면 효율), 심박수(heart_rate)·심박변이도(HRV) 시계열 데이터, 체성 분계 연동 데이터(체중·체지방·근육량·골격근량·기초대사량), 및 대화/설문 텍스트 메타데이터. 심박수·HRV 는 자율신경계 반응 과 스트레스·정서 상태 간 상관관계가 선행연구(WESAD 등)에서 보고된 지표이다. 다만 데이터 출처별로 확보 수준이 다르다. 기 업 제공 데이터셋은 수면·활동·체성분 중심으로 구성되어 심박 수·HRV 를 포함하지 않으며, 공개 데이터셋(PMData)은 분 단위 심박수를 제공하나 표준 SDNN 대신 일별 심박수 표준편차를 HRV 대용 지표로 산출한다. 실서비스에서는 Health Connect 가 제공하는 심박수·HRV 를 그대로 수집한다. 따라서 1차 모델은 수면·활동 지표를 공통 피처로 사용하고, 심박수·HRV 는 확보 가능한 구간에 한해 보조 피처로 활용한다.
+데이터 획득 방법 | - 클라이언트 앱 백그라운드 스케줄러를 통한 주기적(15분 단위) 수집 및 HTTP/REST API 통신을 통한 백엔드 서버 이관 후 LIFELOG_METRICS 적재
+수집 데이터 | { "user_id":"c39a12e0-5712-42ba-822d-60603126f000", "collected_at":"2026-07-26T21:30:00Z", "steps":3200, "distance": 2100, "calories": 180, "sleep_start_at": "2026-07-26T23:10:00Z", "sleep_end_at": "2026-07-27T06:50:00Z", "total_sleep_min": 280, "deep_sleep_min": 65, "light_sleep_min": 180, "rem_sleep_min": 35, "awake_min": 20, "sleep_onset_min": 15, "sleep_efficiency_pct": 71.0, "heart_rate": 72, "hrv": 45.3, "raw_payload": { "source_device": "Galaxy Watch
+
+===== [page 4] =====
+빅데이터 분석 정의서
 6" }
 }
 2. 전처리
 1. 이상치 정제 및 결측치 보간: 센서 신호 튀어짐 현상(Noise) 정
-전처리 과정 제, 시계열 결측 데이터 선형 보간 및 이월 보간(Forward Fill)
+제, 시계열 결측 데이터 선형 보간 및 이월 보간(Forward Fill)
 적용
---- table (page 3) ---
-기능명 | 라이프로그 기반 시계열 이상 감지 및 정서 위험도 분석
-1. 데이터 준비 | 
-데이터 정의 | - 스마트폰/웨어러블 기기(Health Connect API)로 수집되는 걸음 수(steps), 이동거리(distance), 소모칼로리(calories), 수면 데이터 (총수면시간·깊은수면·얕은수면·REM수면·각성시간·입면시간·수면 효율), 심박수(heart_rate)·심박변이도(HRV) 시계열 데이터, 체성 분계 연동 데이터(체중·체지방·근육량·골격근량·기초대사량), 및 대화/설문 텍스트 메타데이터. 심박수·HRV는 자율신경계 반응과 스트레스·정서 상태 간 상관관계가 선행연구(WESAD 등)에서 보 고된 지표로, 1차 모델 학습 데이터셋부터 포함한다.
-데이터 획득 방법 | - 클라이언트 앱 백그라운드 스케줄러를 통한 주기적(15분 단위) 수집 및 HTTP/REST API 통신을 통한 백엔드 서버 이관 후 LIFELOG_METRICS 적재
-수집 데이터 | { "user_id":"c39a12e0-5712-42ba-822d-60603126f000", "collected_at":"2026-07-26T21:30:00Z", "steps":3200, "distance": 2100, "calories": 180, "sleep_start_at": "2026-07-26T23:10:00Z", "sleep_end_at": "2026-07-27T06:50:00Z", "total_sleep_min": 280, "deep_sleep_min": 65, "light_sleep_min": 180, "rem_sleep_min": 35, "awake_min": 20, "sleep_onset_min": 15, "sleep_efficiency_pct": 71.0, "heart_rate": 72, "hrv": 45.3, "raw_payload": { "source_device": "Galaxy Watch 6" } }
-2. 전처리 | 
-전처리 과정 | 1. 이상치 정제 및 결측치 보간: 센서 신호 튀어짐 현상(Noise) 정 제, 시계열 결측 데이터 선형 보간 및 이월 보간(Forward Fill) 적용
-
-===== [page 4] =====
-빅데이터 분석 정의서
 2. 개인별 스케일링: 사용자별 과거 14일 평소 활동/생체 수치 기
 준 Min-Max Scaling 정규화
-3. Data Fusion: 정제된 생체 시계열 파형 피처와 대화 NLP 메타
+전처리 과정 3. Data Fusion: 정제된 생체 시계열 파형 피처와 대화 NLP 메타
 데이터를 하나의 통합 피처 Vector로 변환 (개인식별정보 PII
 [MASK] 전처리 완료 텍스트 기준)
 4. 시퀀스 윈도우 구성: 개인별 정규화된 일별 피처를 최근 N일
@@ -111,25 +115,27 @@ CRISIS(위기) 감정은 즉시 CRITICAL 확정 및 system_action(비상
 전화 연결 UI 노출)을 트리거함.
 {
 "score_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-"user_id": "c39a12e0-5712-42ba-822d-60603126f000",
+데이터 분석 결과 "user_id": "c39a12e0-5712-42ba-822d-60603126f000",
 "emotion_id": "ANXIETY",
 "emotion_score": 82.0,
-데이터 분석 결과 "risk_level": "CAUTION",
+--- table (page 4) ---
+ | 6" } }
+2. 전처리 | 
+전처리 과정 | 1. 이상치 정제 및 결측치 보간: 센서 신호 튀어짐 현상(Noise) 정 제, 시계열 결측 데이터 선형 보간 및 이월 보간(Forward Fill) 적용 2. 개인별 스케일링: 사용자별 과거 14일 평소 활동/생체 수치 기 준 Min-Max Scaling 정규화 3. Data Fusion: 정제된 생체 시계열 파형 피처와 대화 NLP 메타 데이터를 하나의 통합 피처 Vector로 변환 (개인식별정보 PII [MASK] 전처리 완료 텍스트 기준) 4. 시퀀스 윈도우 구성: 개인별 정규화된 일별 피처를 최근 N일 (예: 7일) 단위 슬라이딩 윈도우로 묶어 LSTM 입력용 시퀀스 텐서로 변환
+전처리 데이터 | AI 스코어링 모델 입력용 정형 시계열 피처 매트릭스(N X M 차원 Vector)
+3. 데이터 분석 | 
+데이터 분석 목표 | 1인 가구 사용자가 인지하지 못한 행동/생체 이상 패턴과 부정적 정서 상태를 정량 스코어화하여 조기에 이상 징후를 발견하고 예방
+데이터 분석 시나리오 | 1. 1단계 (LSTM Autoencoder): 평소 정상 패턴의 생체 시계열 시 퀀스(수면, 활동량, 심박수 등)를 인코딩-디코딩하도록 비지도 학습시킨 후, 신규 입력 데이터와의 재구성 오차 (Reconstruction Error)를 기반으로 이상 행동 변동(활동량 급감, 수면 불규칙 등)을 선제 감지하여 anomaly_score를 산출함. 2. 2단계 (LightGBM): 라이프로그 이상 징후 벡터(anomaly_score) 와 챗봇 대화 텍스트 메타데이터를 결합해 종합 risk_score 및 9개 감정 코드(EMOTIONS)를 최종 추론·산출함. 5. 위험도 매핑 및 액션: 추론 스코어와 감정 코드에 따라 3단계 위험도(NORMAL / CAUTION / CRITICAL)를 판정함. ANGER(분 노) 감정은 스코어 70 이상 시 CRITICAL 단계로 동적 분기하며, CRISIS(위기) 감정은 즉시 CRITICAL 확정 및 system_action(비상 전화 연결 UI 노출)을 트리거함.
+데이터 분석 결과 | { "score_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", "user_id": "c39a12e0-5712-42ba-822d-60603126f000", "emotion_id": "ANXIETY", "emotion_score": 82.0,
+
+===== [page 5] =====
+빅데이터 분석 정의서
+"risk_level": "CAUTION",
 "risk_score": 68.5,
 "system_action": "CONTENT",
 "model_version": "v1.2.0",
 "evaluated_at": "2026-07-26T21:30:00Z"
 }
---- table (page 4) ---
- | 2. 개인별 스케일링: 사용자별 과거 14일 평소 활동/생체 수치 기 준 Min-Max Scaling 정규화 3. Data Fusion: 정제된 생체 시계열 파형 피처와 대화 NLP 메타 데이터를 하나의 통합 피처 Vector로 변환 (개인식별정보 PII [MASK] 전처리 완료 텍스트 기준) 4. 시퀀스 윈도우 구성: 개인별 정규화된 일별 피처를 최근 N일 (예: 7일) 단위 슬라이딩 윈도우로 묶어 LSTM 입력용 시퀀스 텐서로 변환
-전처리 데이터 | AI 스코어링 모델 입력용 정형 시계열 피처 매트릭스(N X M 차원 Vector)
-3. 데이터 분석 | 
-데이터 분석 목표 | 1인 가구 사용자가 인지하지 못한 행동/생체 이상 패턴과 부정적 정서 상태를 정량 스코어화하여 조기에 이상 징후를 발견하고 예방
-데이터 분석 시나리오 | 1. 1단계 (LSTM Autoencoder): 평소 정상 패턴의 생체 시계열 시 퀀스(수면, 활동량, 심박수 등)를 인코딩-디코딩하도록 비지도 학습시킨 후, 신규 입력 데이터와의 재구성 오차 (Reconstruction Error)를 기반으로 이상 행동 변동(활동량 급감, 수면 불규칙 등)을 선제 감지하여 anomaly_score를 산출함. 2. 2단계 (LightGBM): 라이프로그 이상 징후 벡터(anomaly_score) 와 챗봇 대화 텍스트 메타데이터를 결합해 종합 risk_score 및 9개 감정 코드(EMOTIONS)를 최종 추론·산출함. 5. 위험도 매핑 및 액션: 추론 스코어와 감정 코드에 따라 3단계 위험도(NORMAL / CAUTION / CRITICAL)를 판정함. ANGER(분 노) 감정은 스코어 70 이상 시 CRITICAL 단계로 동적 분기하며, CRISIS(위기) 감정은 즉시 CRITICAL 확정 및 system_action(비상 전화 연결 UI 노출)을 트리거함.
-데이터 분석 결과 | { "score_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", "user_id": "c39a12e0-5712-42ba-822d-60603126f000", "emotion_id": "ANXIETY", "emotion_score": 82.0, "risk_level": "CAUTION", "risk_score": 68.5, "system_action": "CONTENT", "model_version": "v1.2.0", "evaluated_at": "2026-07-26T21:30:00Z" }
-
-===== [page 5] =====
-빅데이터 분석 정의서
 4. 모델 생성 및 학습
 다변량 시계열 라이프로그의 비정상 패턴 조기 탐지 및 9개 감정
 모델링 목표
@@ -165,6 +171,7 @@ F1-Score 산출
 - 고위험 상태 감지 시 비상 액션 트리거 지연 시간 3초 이내 검
 증 완수
 --- table (page 5) ---
+ | "risk_level": "CAUTION", "risk_score": 68.5, "system_action": "CONTENT", "model_version": "v1.2.0", "evaluated_at": "2026-07-26T21:30:00Z" }
 4. 모델 생성 및 학습 | 
 모델링 목표 | 다변량 시계열 라이프로그의 비정상 패턴 조기 탐지 및 9개 감정 /3단계 위험도 다중 클래스 분류 정확도 확보
 학습 모델 | - LSTM Autoencoder (비지도 시계열 이상 감지) + LightGBM Classifier (지도 정서 위험도 분류)
