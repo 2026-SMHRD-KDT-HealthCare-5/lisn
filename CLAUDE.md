@@ -46,9 +46,11 @@
 
 ## 환경
 
-- Windows 11 / PowerShell. 프로젝트가 **OneDrive 동기화 경로** 안에 있습니다.
+- Windows 11 / PowerShell. **작업 경로는 PC 마다 다릅니다.** OneDrive 동기화 경로 안에 두면 파일 잠금·지연 동기화 문제가 생길 수 있으니, 새 환경에서는 먼저 `(Get-Location).Path` 로 위치를 확인하세요.
 - 개발 런타임 미설치 상태입니다 (Python·Node·Flutter·PostgreSQL 전부). git·VS Code·한컴오피스는 설치됨.
-- git 인증은 GCM 을 쓰는데 **에이전트 도구에서는 프롬프트가 비활성화되어 push 인증이 불가능**합니다. 사용자가 직접 터미널이나 VS Code 소스 제어에서 한 번 인증해야 합니다.
+- git 인증은 GCM(Git Credential Manager)을 씁니다. Windows 자격 증명에 토큰이 저장돼 있으면 **에이전트 도구에서도 프롬프트 없이 push 가 됩니다.** 새 PC 에서는 자격 증명이 없으므로, 대화형 터미널에서 `git push` 를 한 번 실행해 브라우저 로그인으로 등록한 뒤 이어가세요.
+  - 확인 방법: `cmdkey /list` 에 `git:https://github.com` 항목이 있으면 등록된 상태입니다.
+  - 실제 인증 여부는 `git push --dry-run` 으로 확인하세요. 아무것도 올리지 않으면서 쓰기 권한까지 검증됩니다. 공개 저장소라 `fetch` 성공만으로는 인증 여부를 알 수 없습니다.
 
 ### PowerShell 주의
 
