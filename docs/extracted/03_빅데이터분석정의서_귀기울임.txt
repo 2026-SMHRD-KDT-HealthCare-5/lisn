@@ -1,431 +1,378 @@
-﻿
+# 03_빅데이터분석정의서_귀기울임.pdf
+# pages=9  images=0
 
-
-
+===== [page 1] =====
 빅데이터 분석 정의서
-
-
-
-
-
 빅데이터 분석 정의서
-
-
-
+멀티모달 라이프로그 감정 분석 기반
 주제 :
+맞춤형 LLM 케어 및 모니터링 시스템
+2026. 08. 28.
 
-멀티모달 라이프로그 감정 분석 기반 맞춤형 LLM 케어 및 모니터링 시스템
-
-
-
-2026. 08. 28. 
-
+===== [page 2] =====
+빅데이터 분석 정의서
 1. 개요
+1) 아이디어 주제
+- 멀티모달 라이프로그 감정 분석 기반 맞춤형 LLM 케어 및 모니터링 시스템
+2) 개발 목표
+- 스마트워치·체성분계를 통해 자동 수집되는 멀티모달 라이프로그 분석을 통해
+기존 수동 감정 기록의 번거로움 개선
+- 시계열 데이터 기반의 감정 변화 패턴 및 정서적 이상 징후의 선제적 조기 판별
+- 데이터 기반 위험도 산출에 따른 맞춤형 LLM 인터랙션 및 개인화 케어 콘텐츠
+제공
+3) 개발 내용
+- 웨어러블 기기(스마트워치)를 통한 시계열 생체 활동 데이터 및 대화, 설문 텍스
+트 데이터 실시간 수집 및 전처리
+- 수집된 멀티모달 데이터를 융합 분석하여 감정 상태 추이 측정 및 우울, 스트레
+스 고위험 단계 자동 분류
+- 분석된 위험도 단계에 맞춘 페르소나 기반 LLM 공감 대화 수행 및 개인 맞춤형
+정서 케어 콘텐츠 추천
 
-
-
- 1) 아이디어 주제 
-
-멀티모달 라이프로그 감정 분석 기반 맞춤형 LLM 케어 및 모니터링 시스템
-
- 2) 개발 목표
-
-스마트워치·체성분계를 통해 자동 수집되는 멀티모달 라이프로그 분석을 통해 기존 수동 감정 기록의 번거로움 개선
-
-시계열 데이터 기반의 감정 변화 패턴 및 정서적 이상 징후의 선제적 조기 판별
-
-데이터 기반 위험도 산출에 따른 맞춤형 LLM 인터랙션 및 개인화 케어 콘텐츠 제공
-
- 3) 개발 내용
-
-웨어러블 기기(스마트워치)를 통한 시계열 생체 활동 데이터 및 대화, 설문 텍스트 데이터 실시간 수집 및 전처리
-
-수집된 멀티모달 데이터를 융합 분석하여 감정 상태 추이 측정 및 우울, 스트레스 고위험 단계 자동 분류
-
-분석된 위험도 단계에 맞춘 페르소나 기반 LLM 공감 대화 수행 및 개인 맞춤형 정서 케어 콘텐츠 추천
-
-2. 기능별 빅데이터 분석 명세서 
-
-
-
-기능명
-
-라이프로그 기반 시계열 이상 감지 및 정서 위험도 분석
-
-데이터 준비
-
+===== [page 3] =====
+빅데이터 분석 정의서
+2. 기능별 빅데이터 분석 명세서
+기능명 라이프로그 기반 시계열 이상 감지 및 정서 위험도 분석
+1. 데이터 준비
+- 스마트폰/웨어러블 기기(Health Connect API)로 수집되는 걸음
+수(steps), 이동거리(distance), 소모칼로리(calories), 수면 데이터
+(총수면시간·깊은수면·얕은수면·REM수면·각성시간·입면시간·수면
+효율), 심박수(heart_rate)·심박변이도(HRV) 시계열 데이터, 체성
 데이터 정의
-
-스마트폰/웨어러블 기기(Health Connect API)로 수집되는 걸음수(steps), 이동거리(distance), 소모칼로리(calories), 수면 데이터(총수면시간·깊은수면·얕은수면·REM수면·각성시간·입면시간·수면효율), 심박수(heart_rate)·심박변이도(HRV) 시계열 데이터, 체성분계 연동 데이터(체중·체지방·근육량·골격근량·기초대사량), 및 대화/설문 텍스트 메타데이터. 심박수·HRV는 자율신경계 반응과 스트레스·정서 상태 간 상관관계가 선행연구(WESAD 등)에서 보고된 지표로, 1차 모델 학습 데이터셋부터 포함한다.
-
-데이터 획득 방법
-
-클라이언트 앱 백그라운드 스케줄러를 통한 주기적(15분 단위) 수집 및 HTTP/REST API 통신을 통한 백엔드 서버 이관 후 LIFELOG_METRICS 적재
-
-수집 데이터
-
+분계 연동 데이터(체중·체지방·근육량·골격근량·기초대사량), 및
+대화/설문 텍스트 메타데이터. 심박수·HRV는 자율신경계 반응과
+스트레스·정서 상태 간 상관관계가 선행연구(WESAD 등)에서 보
+고된 지표로, 1차 모델 학습 데이터셋부터 포함한다.
+- 클라이언트 앱 백그라운드 스케줄러를 통한 주기적(15분 단위)
+데이터 획득 방법 수집 및 HTTP/REST API 통신을 통한 백엔드 서버 이관 후
+LIFELOG_METRICS 적재
 {
-
-    "user_id":"c39a12e0-5712-42ba-822d-60603126f000",
-
-    "collected_at":"2026-07-26T21:30:00Z",
-
-    "steps":3200,
-
-    "distance": 2100,
-
-    "calories": 180,
-
-    "sleep_start_at": "2026-07-26T23:10:00Z",
-
-    "sleep_end_at": "2026-07-27T06:50:00Z",
-
-    "total_sleep_min": 280,
-
-    "deep_sleep_min": 65,
-
-    "light_sleep_min": 180,
-
-    "rem_sleep_min": 35,
-
-    "awake_min": 20,
-
-    "sleep_onset_min": 15,
-
-    "sleep_efficiency_pct": 71.0,
-
-    "heart_rate": 72,
-
-    "hrv": 45.3, "raw_payload": { "source_device": "Galaxy Watch 
-
-    6" }
-
+"user_id":"c39a12e0-5712-42ba-822d-60603126f000",
+"collected_at":"2026-07-26T21:30:00Z",
+"steps":3200,
+"distance": 2100,
+"calories": 180,
+"sleep_start_at": "2026-07-26T23:10:00Z",
+"sleep_end_at": "2026-07-27T06:50:00Z",
+"total_sleep_min": 280,
+수집 데이터 "deep_sleep_min": 65,
+"light_sleep_min": 180,
+"rem_sleep_min": 35,
+"awake_min": 20,
+"sleep_onset_min": 15,
+"sleep_efficiency_pct": 71.0,
+"heart_rate": 72,
+"hrv": 45.3, "raw_payload": { "source_device": "Galaxy Watch
+6" }
 }
-
 2. 전처리
+1. 이상치 정제 및 결측치 보간: 센서 신호 튀어짐 현상(Noise) 정
+전처리 과정 제, 시계열 결측 데이터 선형 보간 및 이월 보간(Forward Fill)
+적용
+--- table (page 3) ---
+기능명 | 라이프로그 기반 시계열 이상 감지 및 정서 위험도 분석
+1. 데이터 준비 | 
+데이터 정의 | - 스마트폰/웨어러블 기기(Health Connect API)로 수집되는 걸음 수(steps), 이동거리(distance), 소모칼로리(calories), 수면 데이터 (총수면시간·깊은수면·얕은수면·REM수면·각성시간·입면시간·수면 효율), 심박수(heart_rate)·심박변이도(HRV) 시계열 데이터, 체성 분계 연동 데이터(체중·체지방·근육량·골격근량·기초대사량), 및 대화/설문 텍스트 메타데이터. 심박수·HRV는 자율신경계 반응과 스트레스·정서 상태 간 상관관계가 선행연구(WESAD 등)에서 보 고된 지표로, 1차 모델 학습 데이터셋부터 포함한다.
+데이터 획득 방법 | - 클라이언트 앱 백그라운드 스케줄러를 통한 주기적(15분 단위) 수집 및 HTTP/REST API 통신을 통한 백엔드 서버 이관 후 LIFELOG_METRICS 적재
+수집 데이터 | { "user_id":"c39a12e0-5712-42ba-822d-60603126f000", "collected_at":"2026-07-26T21:30:00Z", "steps":3200, "distance": 2100, "calories": 180, "sleep_start_at": "2026-07-26T23:10:00Z", "sleep_end_at": "2026-07-27T06:50:00Z", "total_sleep_min": 280, "deep_sleep_min": 65, "light_sleep_min": 180, "rem_sleep_min": 35, "awake_min": 20, "sleep_onset_min": 15, "sleep_efficiency_pct": 71.0, "heart_rate": 72, "hrv": 45.3, "raw_payload": { "source_device": "Galaxy Watch 6" } }
+2. 전처리 | 
+전처리 과정 | 1. 이상치 정제 및 결측치 보간: 센서 신호 튀어짐 현상(Noise) 정 제, 시계열 결측 데이터 선형 보간 및 이월 보간(Forward Fill) 적용
 
-전처리 과정
-
-이상치 정제 및 결측치 보간: 센서 신호 튀어짐 현상(Noise) 정제, 시계열 결측 데이터 선형 보간 및 이월 보간(Forward Fill) 적용
-
-개인별 스케일링: 사용자별 과거 14일 평소 활동/생체 수치 기준 Min-Max Scaling 정규화
-
-Data Fusion: 정제된 생체 시계열 파형 피처와 대화 NLP 메타데이터를 하나의 통합 피처 Vector로 변환 (개인식별정보 PII [MASK] 전처리 완료 텍스트 기준)
-
-시퀀스 윈도우 구성: 개인별 정규화된 일별 피처를 최근 N일(예: 7일) 단위 슬라이딩 윈도우로 묶어 LSTM 입력용 시퀀스 텐서로 변환
-
+===== [page 4] =====
+빅데이터 분석 정의서
+2. 개인별 스케일링: 사용자별 과거 14일 평소 활동/생체 수치 기
+준 Min-Max Scaling 정규화
+3. Data Fusion: 정제된 생체 시계열 파형 피처와 대화 NLP 메타
+데이터를 하나의 통합 피처 Vector로 변환 (개인식별정보 PII
+[MASK] 전처리 완료 텍스트 기준)
+4. 시퀀스 윈도우 구성: 개인별 정규화된 일별 피처를 최근 N일
+(예: 7일) 단위 슬라이딩 윈도우로 묶어 LSTM 입력용 시퀀스
+텐서로 변환
+AI 스코어링 모델 입력용 정형 시계열 피처 매트릭스(N X M 차원
 전처리 데이터
-
-AI 스코어링 모델 입력용 정형 시계열 피처 매트릭스(N X M 차원 Vector)
-
+Vector)
 3. 데이터 분석
-
-데이터 분석 목표
-
-1인 가구 사용자가 인지하지 못한 행동/생체 이상 패턴과 부정적 정서 상태를 정량 스코어화하여 조기에 이상 징후를 발견하고 예방
-
-데이터 분석 시나리오
-
-1단계 (LSTM Autoencoder): 평소 정상 패턴의 생체 시계열 시퀀스(수면, 활동량, 심박수 등)를 인코딩-디코딩하도록 비지도 학습시킨 후, 신규 입력 데이터와의 재구성 오차(Reconstruction Error)를 기반으로 이상 행동 변동(활동량 급감, 수면 불규칙 등)을 선제 감지하여 anomaly_score를 산출함.
-
-2단계 (LightGBM): 라이프로그 이상 징후 벡터(anomaly_score)와 챗봇 대화 텍스트 메타데이터를 결합해 종합 risk_score 및 9개 감정 코드(EMOTIONS)를 최종 추론·산출함.
-
-위험도 매핑 및 액션: 추론 스코어와 감정 코드에 따라 3단계 위험도(NORMAL / CAUTION / CRITICAL)를 판정함. ANGER(분노) 감정은 스코어 70 이상 시 CRITICAL 단계로 동적 분기하며, CRISIS(위기) 감정은 즉시 CRITICAL 확정 및 system_action(비상 전화 연결 UI 노출)을 트리거함.
-
-데이터 분석 결과
-
+1인 가구 사용자가 인지하지 못한 행동/생체 이상 패턴과 부정적
+데이터 분석 목표 정서 상태를 정량 스코어화하여 조기에 이상 징후를 발견하고
+예방
+1. 1단계 (LSTM Autoencoder): 평소 정상 패턴의 생체 시계열 시
+퀀스(수면, 활동량, 심박수 등)를 인코딩-디코딩하도록 비지도
+학습시킨 후, 신규 입력 데이터와의 재구성 오차
+(Reconstruction Error)를 기반으로 이상 행동 변동(활동량 급감,
+수면 불규칙 등)을 선제 감지하여 anomaly_score를 산출함.
+2. 2단계 (LightGBM): 라이프로그 이상 징후 벡터(anomaly_score)
+데이터 분석
+와 챗봇 대화 텍스트 메타데이터를 결합해 종합 risk_score 및
+시나리오
+9개 감정 코드(EMOTIONS)를 최종 추론·산출함.
+5. 위험도 매핑 및 액션: 추론 스코어와 감정 코드에 따라 3단계
+위험도(NORMAL / CAUTION / CRITICAL)를 판정함. ANGER(분
+노) 감정은 스코어 70 이상 시 CRITICAL 단계로 동적 분기하며,
+CRISIS(위기) 감정은 즉시 CRITICAL 확정 및 system_action(비상
+전화 연결 UI 노출)을 트리거함.
 {
-
-  "score_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-
-  "user_id": "c39a12e0-5712-42ba-822d-60603126f000",
-
-  "emotion_id": "ANXIETY",
-
-  "emotion_score": 82.0,
-
-  "risk_level": "CAUTION",
-
-  "risk_score": 68.5,
-
-  "system_action": "CONTENT",
-
-  "model_version": "v1.2.0",
-
-  "evaluated_at": "2026-07-26T21:30:00Z"
-
+"score_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+"user_id": "c39a12e0-5712-42ba-822d-60603126f000",
+"emotion_id": "ANXIETY",
+"emotion_score": 82.0,
+데이터 분석 결과 "risk_level": "CAUTION",
+"risk_score": 68.5,
+"system_action": "CONTENT",
+"model_version": "v1.2.0",
+"evaluated_at": "2026-07-26T21:30:00Z"
 }
+--- table (page 4) ---
+ | 2. 개인별 스케일링: 사용자별 과거 14일 평소 활동/생체 수치 기 준 Min-Max Scaling 정규화 3. Data Fusion: 정제된 생체 시계열 파형 피처와 대화 NLP 메타 데이터를 하나의 통합 피처 Vector로 변환 (개인식별정보 PII [MASK] 전처리 완료 텍스트 기준) 4. 시퀀스 윈도우 구성: 개인별 정규화된 일별 피처를 최근 N일 (예: 7일) 단위 슬라이딩 윈도우로 묶어 LSTM 입력용 시퀀스 텐서로 변환
+전처리 데이터 | AI 스코어링 모델 입력용 정형 시계열 피처 매트릭스(N X M 차원 Vector)
+3. 데이터 분석 | 
+데이터 분석 목표 | 1인 가구 사용자가 인지하지 못한 행동/생체 이상 패턴과 부정적 정서 상태를 정량 스코어화하여 조기에 이상 징후를 발견하고 예방
+데이터 분석 시나리오 | 1. 1단계 (LSTM Autoencoder): 평소 정상 패턴의 생체 시계열 시 퀀스(수면, 활동량, 심박수 등)를 인코딩-디코딩하도록 비지도 학습시킨 후, 신규 입력 데이터와의 재구성 오차 (Reconstruction Error)를 기반으로 이상 행동 변동(활동량 급감, 수면 불규칙 등)을 선제 감지하여 anomaly_score를 산출함. 2. 2단계 (LightGBM): 라이프로그 이상 징후 벡터(anomaly_score) 와 챗봇 대화 텍스트 메타데이터를 결합해 종합 risk_score 및 9개 감정 코드(EMOTIONS)를 최종 추론·산출함. 5. 위험도 매핑 및 액션: 추론 스코어와 감정 코드에 따라 3단계 위험도(NORMAL / CAUTION / CRITICAL)를 판정함. ANGER(분 노) 감정은 스코어 70 이상 시 CRITICAL 단계로 동적 분기하며, CRISIS(위기) 감정은 즉시 CRITICAL 확정 및 system_action(비상 전화 연결 UI 노출)을 트리거함.
+데이터 분석 결과 | { "score_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", "user_id": "c39a12e0-5712-42ba-822d-60603126f000", "emotion_id": "ANXIETY", "emotion_score": 82.0, "risk_level": "CAUTION", "risk_score": 68.5, "system_action": "CONTENT", "model_version": "v1.2.0", "evaluated_at": "2026-07-26T21:30:00Z" }
 
+===== [page 5] =====
+빅데이터 분석 정의서
 4. 모델 생성 및 학습
-
+다변량 시계열 라이프로그의 비정상 패턴 조기 탐지 및 9개 감정
 모델링 목표
-
-다변량 시계열 라이프로그의 비정상 패턴 조기 탐지 및 9개 감정/3단계 위험도 다중 클래스 분류 정확도 확보
-
+/3단계 위험도 다중 클래스 분류 정확도 확보
+- LSTM Autoencoder (비지도 시계열 이상 감지) + LightGBM
 학습 모델
-
-LSTM Autoencoder (비지도 시계열 이상 감지) + LightGBM Classifier (지도 정서 위험도 분류)
-
-학습 방법
-
-공공 라이프로그 오픈 데이터(PMData 등) 및 우울 검사(BDI-II) 라벨 기반 학습. 정상 패턴 시퀀스로 LSTM Autoencoder를 학습시켜 재구성 오차 기반 anomaly_score를 추출한 뒤, 이를 LightGBM 입력 피처로 결합하여 2단계(Two-Stage) Ensemble 지도학습 수행
-
-EMOTIONS 9개 클래스 중 CRISIS/DESPAIR 등 고위험 클래스는 발생 빈도가 낮아 SMOTE(Synthetic Minority Over-sampling) 또는 class_weight 조정을 통해 소수 클래스 학습 편향을 보정함
-
-동일 사용자의 시계열 데이터가 Train/Test에 동시 포함되지 않도록 사용자(user_id) 단위 Group K-Fold Cross-Validation을 적용함
-
-모델 예측 결과
-
-입력 피처 수집 후 추론을 거쳐 감정 코드(emotion_id), 감정 점수(emotion_score), 위험도(risk_level), 위험 점수(risk_score), Action 플래그(system_action) 동시 산출
-
+Classifier (지도 정서 위험도 분류)
+- 공공 라이프로그 오픈 데이터(PMData 등) 및 우울 검사(BDI-II)
+라벨 기반 학습. 정상 패턴 시퀀스로 LSTM Autoencoder를 학
+습시켜 재구성 오차 기반 anomaly_score를 추출한 뒤, 이를
+LightGBM 입력 피처로 결합하여 2단계(Two-Stage) Ensemble
+지도학습 수행
+학습 방법 - EMOTIONS 9개 클래스 중 CRISIS/DESPAIR 등 고위험 클래스는
+발생 빈도가 낮아 SMOTE(Synthetic Minority Over-sampling) 또
+는 class_weight 조정을 통해 소수 클래스 학습 편향을 보정함
+- 동일 사용자의 시계열 데이터가 Train/Test에 동시 포함되지 않
+도록 사용자(user_id) 단위 Group K-Fold Cross-Validation을 적
+용함
+입력 피처 수집 후 추론을 거쳐 감정 코드(emotion_id), 감정
+모델 예측 결과 점수(emotion_score), 위험도(risk_level), 위험 점수(risk_score),
+Action 플래그(system_action) 동시 산출
 5. 검증
-
+1. Cross-Validation(K-Fold) 기반 정밀도(Precision), 재현율(Recall),
+F1-Score 산출
+2. 실제 생체 이상 파형 데이터 주입을 통한 고위험군 알림 트리
 분석 검증 방안
-
-1. Cross-Validation(K-Fold) 기반 정밀도(Precision), 재현율(Recall), F1-Score 산출
-
-2. 실제 생체 이상 파형 데이터 주입을 통한 고위험군 알림 트리거 응답 속도 및 임계치 성능 검증
-
-사용자 단위 Group K-Fold 기반 검증으로 개인별 패턴 과적합(Data Leakage) 여부 점검
-
+거 응답 속도 및 임계치 성능 검증
+사용자 단위 Group K-Fold 기반 검증으로 개인별 패턴 과적합
+(Data Leakage) 여부 점검
+- 이상 감지 및 정서 위험도 분류 정확도(Accuracy≥85%
+- F1-Score≥0.80 달성
 분석 평가 결과
+- 고위험 상태 감지 시 비상 액션 트리거 지연 시간 3초 이내 검
+증 완수
+--- table (page 5) ---
+4. 모델 생성 및 학습 | 
+모델링 목표 | 다변량 시계열 라이프로그의 비정상 패턴 조기 탐지 및 9개 감정 /3단계 위험도 다중 클래스 분류 정확도 확보
+학습 모델 | - LSTM Autoencoder (비지도 시계열 이상 감지) + LightGBM Classifier (지도 정서 위험도 분류)
+학습 방법 | - 공공 라이프로그 오픈 데이터(PMData 등) 및 우울 검사(BDI-II) 라벨 기반 학습. 정상 패턴 시퀀스로 LSTM Autoencoder를 학 습시켜 재구성 오차 기반 anomaly_score를 추출한 뒤, 이를 LightGBM 입력 피처로 결합하여 2단계(Two-Stage) Ensemble 지도학습 수행 - EMOTIONS 9개 클래스 중 CRISIS/DESPAIR 등 고위험 클래스는 발생 빈도가 낮아 SMOTE(Synthetic Minority Over-sampling) 또 는 class_weight 조정을 통해 소수 클래스 학습 편향을 보정함 - 동일 사용자의 시계열 데이터가 Train/Test에 동시 포함되지 않 도록 사용자(user_id) 단위 Group K-Fold Cross-Validation을 적 용함
+모델 예측 결과 | 입력 피처 수집 후 추론을 거쳐 감정 코드(emotion_id), 감정 점수(emotion_score), 위험도(risk_level), 위험 점수(risk_score), Action 플래그(system_action) 동시 산출
+5. 검증 | 
+분석 검증 방안 | 1. Cross-Validation(K-Fold) 기반 정밀도(Precision), 재현율(Recall), F1-Score 산출 2. 실제 생체 이상 파형 데이터 주입을 통한 고위험군 알림 트리 거 응답 속도 및 임계치 성능 검증 사용자 단위 Group K-Fold 기반 검증으로 개인별 패턴 과적합 (Data Leakage) 여부 점검
+분석 평가 결과 | - 이상 감지 및 정서 위험도 분류 정확도(Accuracy≥85% - F1-Score≥0.80 달성 - 고위험 상태 감지 시 비상 액션 트리거 지연 시간 3초 이내 검 증 완수
 
-이상 감지 및 정서 위험도 분류 정확도(Accuracy≥85%
-
-F1-Score≥0.80 달성
-
-고위험 상태 감지 시 비상 액션 트리거 지연 시간 3초 이내 검증 완수
-
-
-
-기능명
-
-대화 컨텍스트 기반 실시간 위기 대화 탐지
-
-데이터 준비
-
+===== [page 6] =====
+빅데이터 분석 정의서
+기능명 대화 컨텍스트 기반 실시간 위기 대화 탐지
+1. 데이터 준비
+- 챗봇 상담 인터페이스에서 수집되는 사용자 대화 텍스트 문맥
+및 이전 대화 히스토리
 데이터 정의
-
-챗봇 상담 인터페이스에서 수집되는 사용자 대화 텍스트 문맥 및 이전 대화 히스토리
-
-자살/자해 암시, 극단적 우울감 표현, 위기 단어(사망, 힘듦, 끝내다 등) 포함 여부 및 대화 감정 상태
-
-데이터 획득 방법
-
-수집 방법 : AI-Hub 공개 한국어 감정/위기 대화 데이터셋 다운로드하여 분류 모델 사전 학습 및 파인 튜닝에 활용. 챗봇 대화 세션 진행 중 사용자 대화 입력 시, 메인 백엔드에서 AI 분석 서버로 실시간 REST API 전송
-
-데이터 양 : 약 50,000건 이상의 한국어 대화 세션 텍스트 데이터. 사용자와 챗봇 간 1회 세션당 약 5~30개의 대화 텍스트 및 메타 데이터 레코드
-
-수집 데이터
-
+- 자살/자해 암시, 극단적 우울감 표현, 위기 단어(사망, 힘듦, 끝
+내다 등) 포함 여부 및 대화 감정 상태
+- 수집 방법 : 판정 로직 평가용 데이터셋은 팀이 직접 작성·라벨
+링하여 구축한다. 챗봇 세션 진행 중 사용자 입력 발생 시, 백엔
+데이터 획득 방법 드에서 판정 모듈로 실시간 전달한다.
+- 데이터 양 : 평가용 라벨링 데이터 200건 이상(위기·비위기 균형
+구성). 운영 시 세션당 5~30개 대화 텍스트 레코드
 {
-
-  "session_id": "SESS_20260721_99",
-
-  "user_id": "USER_1004",
-
-  "timestamp": "2026-07-21T09:20:15Z",
-
-  "turn_id": 5,
-
-  "user_utterance": "요즘 너무 힘들고 다 내려놓고 싶어. 그냥 어디론가 사라지고 싶다.",
-
-  "dialogue_history": [
-
-    {"turn": 3, "speaker": "user", "text": "잠도 못 자고 하루 종일 우울해."},
-
-    {"turn": 4, "speaker": "bot", "text": "많이 힘드셨겠어요. 무슨 일이 있으셨나요?"}
-
-  ]
-
+"session_id": "SESS_20260721_99",
+"user_id": "USER_1004",
+"timestamp": "2026-07-21T09:20:15Z",
+"turn_id": 5,
+"user_utterance": "요즘 너무 힘들고 다 내려놓고 싶어. 그냥 어
+디론가 사라지고 싶다.",
+수집 데이터
+"dialogue_history": [
+{"turn": 3, "speaker": "user", "text": "잠도 못 자고 하루 종일
+우울해."},
+{"turn": 4, "speaker": "bot", "text": "많이 힘드셨겠어요. 무슨
+일이 있으셨나요?"}
+]
 }
-
 2. 전처리
-
-전처리 과정
-
-1. 전화번호, 이름 등 PII 항목 [MASK] 토큰 마스킹
-
+1. 전화번호·이름 등 PII [MASK] 마스킹
 2. 특수문자 및 공백 정제
-
-3. 한국어 LM 토크나이저 서브워드 분할
-
-4. N개 턴 대화 맥락 결합
-
-전처리 데이터
-
-BERT/LLM 모델 입력용 텐서 형태의 인풋 시퀀스 (input_ids, attention_mask, token_type_ids)
-
-3. 데이터 분석
-
-데이터 분석 목표
-
-단순 키워드 매칭을 넘어 사용자의 대화 맥락 전체를 분석함으로써 실제 위기 상황(자살/자해 위험, 고위험 정서 상태)을 실시간으로 정확히 탐지
-
-데이터 분석 시나리오
-
-사용자가 챗봇에 입력한 대화 텍스트가 AI 분석 서버로 실시간 스트리밍
-
-사전 학습된 위기 탐지 NLP 모델을 통해 대화의 위기 심각도 카테고리 분류
-
-자해/극단선택 위기 단어 탐지 시 감정 코드를 CRISIS로 즉시 지정하고, 이전 라이프로그 점수와 무관하게 risk_level = CRITICAL, system_action = EMERGENCY 확정
-
-데이터 분석 결과
-
-CRISIS 감정 분류 플래그, risk_level(CRITICAL), system_action(EMERGENCY), 109/1577-0199 긴급 UI 트리거 신호
-
-4. 모델 생성 및 학습
-
-모델링 목표
-
-한국어 문맥 기반 위기 대화 탐지 F1-Score 0.88 이상 달성 및 1.5초 이내 실시간 추론 지연시간 확보
-
-학습 모델
-
-KcBERT / RoBERTa-Large 기반 한국어 위기 분류 모델
-
-학습 방법
-
-AI-Hub 감정/위기 대화 데이터셋으로 Pre-trained 모델을 파인 튜닝
-
-Cross-Entropy Loss 기반 지도 학습 및 고위험 클래스 가중치 조정을 통한 미감지 최소화 학습
-
-모델 예측 결과
-
-입력된 대화 시퀀스에 대한 위기 클래스 레이블 및 정밀 확률값
-
-5. 검증
-
-분석 검증 방안
-
-Train/Validation/Test Split 기반 위기 클래스에 대한 Confusion Matrix 분석
-
-미감지율 및 오탐률 정밀 검증
-
-분석 평가 결과
-
-모델 정량 지표 : 위기 분류 F1-Score≥0.88, Precision≥85%, Recall≥90% 달성
-
-실시간성 지표 : 단일 대화 추론 및 알림 트리거 응답 시간 1.5초 이내
-
-
-
-기능명
-
-정서 스코어 기반 개인 맞춤형 힐링 콘텐츠 추천
-
-데이터 준비
-
-데이터 정의
-
-EMOTION_RISK_SCORES의 산출 정서 코드(emotion_id), 사용자 위험도(risk_level), HEALING_CONTENTS 마스터 메타데이터
-
-데이터 획득 방법
-
-EMOTION_RISK_SCORES 적재 시 risk_level = 'CAUTION' 이벤트 발행 시 백엔드 API에서 자동 획득 및 추천 엔진 호출
-
-수집 데이터
-
-{
-
-  "user_id": "c39a12e0-5712-42ba-822d-60603126f000",
-
-  "emotion_id": "ANXIETY",
-
-  "risk_level": "CAUTION",
-
-  "system_action": "API 계산값"
-
-}
-
-2. 전처리
-
 전처리 과정
-
-감정 매핑 & 피처 정규화: EMOTIONS 마스터 테이블의 emotion_id(FK)와 HEALING_CONTENTS 카테고리 태그 One-Hot Encoding
-
+3. 최근 N개 턴 대화 맥락 결합
+4. 시스템 프롬프트와 결합하여 LLM 요청 페이로드 구성
+LLM 입력용 프롬프트 페이로드(system instruction + 마스킹 완료
 전처리 데이터
-
-EMOTIONS 연동 필터링된 콘텐츠 후보 목록
-
+대화 맥락)
 3. 데이터 분석
+단순 키워드 매칭을 넘어 사용자의 대화 맥락 전체를
+데이터 분석 목표 분석함으로써 실제 위기 상황(자살/자해 위험, 고위험 정서
+상태)을 실시간으로 정확히 탐지
+1. 사용자가 챗봇에 입력한 대화 텍스트가 AI 분석 서버로 실시간
+데이터 분석
+스트리밍
+시나리오
+2. 사전 학습된 위기 탐지 NLP 모델을 통해 대화의 위기 심각도
+--- table (page 6) ---
+기능명 | 대화 컨텍스트 기반 실시간 위기 대화 탐지
+1. 데이터 준비 | 
+데이터 정의 | - 챗봇 상담 인터페이스에서 수집되는 사용자 대화 텍스트 문맥 및 이전 대화 히스토리 - 자살/자해 암시, 극단적 우울감 표현, 위기 단어(사망, 힘듦, 끝 내다 등) 포함 여부 및 대화 감정 상태
+데이터 획득 방법 | - 수집 방법 : 판정 로직 평가용 데이터셋은 팀이 직접 작성·라벨 링하여 구축한다. 챗봇 세션 진행 중 사용자 입력 발생 시, 백엔 드에서 판정 모듈로 실시간 전달한다. - 데이터 양 : 평가용 라벨링 데이터 200건 이상(위기·비위기 균형 구성). 운영 시 세션당 5~30개 대화 텍스트 레코드
+수집 데이터 | { "session_id": "SESS_20260721_99", "user_id": "USER_1004", "timestamp": "2026-07-21T09:20:15Z", "turn_id": 5, "user_utterance": "요즘 너무 힘들고 다 내려놓고 싶어. 그냥 어 디론가 사라지고 싶다.", "dialogue_history": [ {"turn": 3, "speaker": "user", "text": "잠도 못 자고 하루 종일 우울해."}, {"turn": 4, "speaker": "bot", "text": "많이 힘드셨겠어요. 무슨 일이 있으셨나요?"} ] }
+2. 전처리 | 
+전처리 과정 | 1. 전화번호·이름 등 PII [MASK] 마스킹 2. 특수문자 및 공백 정제 3. 최근 N개 턴 대화 맥락 결합 4. 시스템 프롬프트와 결합하여 LLM 요청 페이로드 구성
+전처리 데이터 | LLM 입력용 프롬프트 페이로드(system instruction + 마스킹 완료 대화 맥락)
+3. 데이터 분석 | 
+데이터 분석 목표 | 단순 키워드 매칭을 넘어 사용자의 대화 맥락 전체를 분석함으로써 실제 위기 상황(자살/자해 위험, 고위험 정서 상태)을 실시간으로 정확히 탐지
+데이터 분석 시나리오 | 1. 사용자가 챗봇에 입력한 대화 텍스트가 AI 분석 서버로 실시간 스트리밍 2. 사전 학습된 위기 탐지 NLP 모델을 통해 대화의 위기 심각도
 
-데이터 분석 목표
-
-CAUTION(주의) 단계를 나타내는 사용자에게 현재 감정 코드(emotion_id)에 매칭되는 힐링 콘텐츠를 큐레이션하여 정서적 안정을 지원
-
-데이터 분석 시나리오
-
-EMOTION_RISK_SCORES 평가 결과 risk_level이 CAUTION으로 판정된다.
-
-추천 엔진이 사용자의 현재 감정 코드(emotion_id)와 외래키(FK)로 매핑된 HEALING_CONTENTS 목록을 1차 필터링
-
-필터링된 콘텐츠 목록 중 Top 3~5개를 무작위/순환 방식으로 노출
-
-앱 홈 대시보드 및 추천 탭에 맞춤형 콘텐츠 카드 노출
-
+===== [page 7] =====
+빅데이터 분석 정의서
+카테고리 분류
+3. 자해/극단선택 위기 단어 탐지 시 감정 코드를 CRISIS로 즉시
+지정하고, 이전 라이프로그 점수와 무관하게 risk_level =
+CRITICAL, system_action = EMERGENCY 확정
+CRISIS 감정 분류 플래그, risk_level(CRITICAL),
 데이터 분석 결과
-
-{
-
-  "recommendation_id": "b1112223-4444-5555-6666-777788889999",
-
-  "user_id": "c39a12e0-5712-42ba-822d-60603126f000",
-
-  "target_emotion": "ANXIETY",
-
-  "recommended_contents": [
-
-    {
-
-      "content_id": "a1b2c3d4-0000-1111-2222-333344445555",
-
-      "title": "불안을 가라앉히는 10분 호흡 명상",
-
-      "category": "MUSIC",
-
-      "external_url": "https://contents.healing.app/meditation/01"
-
-    }
-
-  ],
-
-  "created_at": "2026-07-26T21:30:00Z"
-
-}
-
+system_action(EMERGENCY), 109/1577-0199 긴급 UI 트리거 신호
 4. 모델 생성 및 학습
-
+한국어 문맥 기반 위기 발화 탐지 재현율(Recall) 90% 이상 달성
 모델링 목표
-
-사용자의 현재 감정 상태와 콘텐츠 간 연관성을 정밀 매핑하여 힐링 콘텐츠 클릭률 및 정서 개선 만족도 극대화
-
+및 1.5초 이내 판정 지연시간 확보
+1차 키워드 규칙 필터(백엔드 내장) + 2차 OpenAI LLM 문맥 분
 학습 모델
-
-학습 모델 없음 — EMOTIONS 마스터 연동 규칙 기반(Rule-based) 콘텐츠 필터링
-
+석 프롬프트의 2단계 하이브리드 판정
+별도 모델 학습을 수행하지 않고, 위기 심각도 분류 기준을 정의
+한 시스템 프롬프트를 설계하여 LLM에 주입한다. 프롬프트는 판
+정 결과를 정해진 JSON 스키마(is_crisis, severity,
 학습 방법
-
-별도 학습 과정 없음 — EMOTIONS.emotion_id 외래키로 HEALING_CONTENTS를 즉시 필터링하여 노출
-
-모델 예측 결과
-
-필터링된 추천 콘텐츠 ID 목록
-
+matched_context)로만 반환하도록 제약하여 파싱 안정성을 확보
+한다. 키워드 사전은 자해·극단선택 관련 표현을 중심으로 구성하
+며 운영 중 갱신 가능하도록 설정 파일로 분리한다.
+모델 예측 결과 입력 대화 시퀀스에 대한 위기 여부 플래그 및 심각도 등급
 5. 검증
-
+- 자체 구축 고정 평가셋(위기·비위기 각 100건 내외)에 대한
+Confusion Matrix 분석. 학습 과정이 없으므로 Train/Test Split
+대신 전량 평가셋으로 측정한다.(평가셋은 프롬프트 설계자와
 분석 검증 방안
-
-추천 콘텐츠 클릭률(CTR) 측정
-
-콘텐츠 시청 전/후 감정 스코어 변화량 추이 비교 분석
-
+분리된 인원이 작성한다.)
+- 프롬프트 수정 시마다 동일 평가셋으로 재측정하여 회귀 여부를
+점검한다.
+- 재현율(Recall) 90% 이상, F1-Score 0.85 이상 달성.
 분석 평가 결과
+- 단일 대화 판정 및 알림 트리거 응답 시간 1.5초 이내
+--- table (page 7) ---
+ | 카테고리 분류 3. 자해/극단선택 위기 단어 탐지 시 감정 코드를 CRISIS로 즉시 지정하고, 이전 라이프로그 점수와 무관하게 risk_level = CRITICAL, system_action = EMERGENCY 확정
+데이터 분석 결과 | CRISIS 감정 분류 플래그, risk_level(CRITICAL), system_action(EMERGENCY), 109/1577-0199 긴급 UI 트리거 신호
+4. 모델 생성 및 학습 | 
+모델링 목표 | 한국어 문맥 기반 위기 발화 탐지 재현율(Recall) 90% 이상 달성 및 1.5초 이내 판정 지연시간 확보
+학습 모델 | 1차 키워드 규칙 필터(백엔드 내장) + 2차 OpenAI LLM 문맥 분 석 프롬프트의 2단계 하이브리드 판정
+학습 방법 | 별도 모델 학습을 수행하지 않고, 위기 심각도 분류 기준을 정의 한 시스템 프롬프트를 설계하여 LLM에 주입한다. 프롬프트는 판 정 결과를 정해진 JSON 스키마(is_crisis, severity, matched_context)로만 반환하도록 제약하여 파싱 안정성을 확보 한다. 키워드 사전은 자해·극단선택 관련 표현을 중심으로 구성하 며 운영 중 갱신 가능하도록 설정 파일로 분리한다.
+모델 예측 결과 | 입력 대화 시퀀스에 대한 위기 여부 플래그 및 심각도 등급
+5. 검증 | 
+분석 검증 방안 | - 자체 구축 고정 평가셋(위기·비위기 각 100건 내외)에 대한 Confusion Matrix 분석. 학습 과정이 없으므로 Train/Test Split 대신 전량 평가셋으로 측정한다.(평가셋은 프롬프트 설계자와 분리된 인원이 작성한다.) - 프롬프트 수정 시마다 동일 평가셋으로 재측정하여 회귀 여부를 점검한다.
+분석 평가 결과 | - 재현율(Recall) 90% 이상, F1-Score 0.85 이상 달성. - 단일 대화 판정 및 알림 트리거 응답 시간 1.5초 이내
 
-콘텐츠 시청 후 정서 안정 스코어 개선율≥20%
+===== [page 8] =====
+빅데이터 분석 정의서
+기능명 정서 스코어 기반 개인 맞춤형 힐링 콘텐츠 추천
+1. 데이터 준비
+- EMOTION_RISK_SCORES의 산출 정서 코드(emotion_id), 사용자
+데이터 정의
+위험도(risk_level), HEALING_CONTENTS 마스터 메타데이터
+- EMOTION_RISK_SCORES 적재 시 risk_level = 'CAUTION' 이벤
+데이터 획득 방법
+트 발행 시 백엔드 API에서 자동 획득 및 추천 엔진 호출
+{
+"user_id": "c39a12e0-5712-42ba-822d-60603126f000",
+"emotion_id": "ANXIETY",
+수집 데이터
+"risk_level": "CAUTION",
+"system_action": "API 계산값"
+}
+2. 전처리
+1. 감정 매핑 & 피처 정규화: EMOTIONS 마스터 테이블의
+전처리 과정 emotion_id(FK)와 HEALING_CONTENTS 카테고리 태그
+One-Hot Encoding
+전처리 데이터 EMOTIONS 연동 필터링된 콘텐츠 후보 목록
+3. 데이터 분석
+CAUTION(주의) 단계를 나타내는 사용자에게 현재 감정
+데이터 분석 목표 코드(emotion_id)에 매칭되는 힐링 콘텐츠를 큐레이션하여 정서적
+안정을 지원
+1. EMOTION_RISK_SCORES 평가 결과 risk_level이 CAUTION으로
+판정된다.
+2. 추천 엔진이 사용자의 현재 감정 코드(emotion_id)와
+데이터 분석
+외래키(FK)로 매핑된 HEALING_CONTENTS 목록을 1차 필터링
+시나리오
+3. 필터링된 콘텐츠 목록 중 Top 3~5개를 무작위/순환 방식으로
+노출
+4. 앱 홈 대시보드 및 추천 탭에 맞춤형 콘텐츠 카드 노출
+{
+"recommendation_id":
+"b1112223-4444-5555-6666-777788889999",
+"user_id": "c39a12e0-5712-42ba-822d-60603126f000",
+"target_emotion": "ANXIETY",
+데이터 분석 결과
+"recommended_contents": [
+{
+"content_id": "a1b2c3d4-0000-1111-2222-333344445555",
+"title": "불안을 가라앉히는 10분 호흡 명상",
+"category": "MUSIC",
+--- table (page 8) ---
+기능명 | 정서 스코어 기반 개인 맞춤형 힐링 콘텐츠 추천
+1. 데이터 준비 | 
+데이터 정의 | - EMOTION_RISK_SCORES의 산출 정서 코드(emotion_id), 사용자 위험도(risk_level), HEALING_CONTENTS 마스터 메타데이터
+데이터 획득 방법 | - EMOTION_RISK_SCORES 적재 시 risk_level = 'CAUTION' 이벤 트 발행 시 백엔드 API에서 자동 획득 및 추천 엔진 호출
+수집 데이터 | { "user_id": "c39a12e0-5712-42ba-822d-60603126f000", "emotion_id": "ANXIETY", "risk_level": "CAUTION", "system_action": "API 계산값" }
+2. 전처리 | 
+전처리 과정 | 1. 감정 매핑 & 피처 정규화: EMOTIONS 마스터 테이블의 emotion_id(FK)와 HEALING_CONTENTS 카테고리 태그 One-Hot Encoding
+전처리 데이터 | EMOTIONS 연동 필터링된 콘텐츠 후보 목록
+3. 데이터 분석 | 
+데이터 분석 목표 | CAUTION(주의) 단계를 나타내는 사용자에게 현재 감정 코드(emotion_id)에 매칭되는 힐링 콘텐츠를 큐레이션하여 정서적 안정을 지원
+데이터 분석 시나리오 | 1. EMOTION_RISK_SCORES 평가 결과 risk_level이 CAUTION으로 판정된다. 2. 추천 엔진이 사용자의 현재 감정 코드(emotion_id)와 외래키(FK)로 매핑된 HEALING_CONTENTS 목록을 1차 필터링 3. 필터링된 콘텐츠 목록 중 Top 3~5개를 무작위/순환 방식으로 노출 4. 앱 홈 대시보드 및 추천 탭에 맞춤형 콘텐츠 카드 노출
+데이터 분석 결과 | { "recommendation_id": "b1112223-4444-5555-6666-777788889999", "user_id": "c39a12e0-5712-42ba-822d-60603126f000", "target_emotion": "ANXIETY", "recommended_contents": [ { "content_id": "a1b2c3d4-0000-1111-2222-333344445555", "title": "불안을 가라앉히는 10분 호흡 명상", "category": "MUSIC",
 
-클릭률≥15% 달성
-
-추천 결과 생성 및 UI 전달 Latency 0.5초 이내 검증 완수
-
-
+===== [page 9] =====
+빅데이터 분석 정의서
+"external_url": "https://contents.healing.app/meditation/01"
+}
+],
+"created_at": "2026-07-26T21:30:00Z"
+}
+4. 모델 생성 및 학습
+사용자의 현재 감정 상태와 콘텐츠 간 연관성을 정밀 매핑하여 힐
+모델링 목표
+링 콘텐츠 클릭률 및 정서 개선 만족도 극대화
+학습 모델 없음 — EMOTIONS 마스터 연동 규칙 기반
+학습 모델
+(Rule-based) 콘텐츠 필터링
+- 별도 학습 과정 없음 — EMOTIONS.emotion_id 외래키로
+학습 방법
+HEALING_CONTENTS를 즉시 필터링하여 노출
+모델 예측 결과 필터링된 추천 콘텐츠 ID 목록
+5. 검증
+- 추천 콘텐츠 클릭률(CTR) 측정
+분석 검증 방안
+- 콘텐츠 시청 전/후 감정 스코어 변화량 추이 비교 분석
+- 콘텐츠 시청 후 정서 안정 스코어 개선율≥20%
+분석 평가 결과 - 클릭률≥15% 달성
+- 추천 결과 생성 및 UI 전달 Latency 0.5초 이내 검증 완수
+--- table (page 9) ---
+ | "external_url": "https://contents.healing.app/meditation/01" } ], "created_at": "2026-07-26T21:30:00Z" }
+4. 모델 생성 및 학습 | 
+모델링 목표 | 사용자의 현재 감정 상태와 콘텐츠 간 연관성을 정밀 매핑하여 힐 링 콘텐츠 클릭률 및 정서 개선 만족도 극대화
+학습 모델 | 학습 모델 없음 — EMOTIONS 마스터 연동 규칙 기반 (Rule-based) 콘텐츠 필터링
+학습 방법 | - 별도 학습 과정 없음 — EMOTIONS.emotion_id 외래키로 HEALING_CONTENTS를 즉시 필터링하여 노출
+모델 예측 결과 | 필터링된 추천 콘텐츠 ID 목록
+5. 검증 | 
+분석 검증 방안 | - 추천 콘텐츠 클릭률(CTR) 측정 - 콘텐츠 시청 전/후 감정 스코어 변화량 추이 비교 분석
+분석 평가 결과 | - 콘텐츠 시청 후 정서 안정 스코어 개선율≥20% - 클릭률≥15% 달성 - 추천 결과 생성 및 UI 전달 Latency 0.5초 이내 검증 완수
