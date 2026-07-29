@@ -1,3 +1,13 @@
+# ---------------------------------------------------------------
+# 학습 데이터 원본 — 용량이 3GB 를 넘어 저장소에 넣지 않습니다.
+# 각자 내려받아 ai/data_raw/ 에 두세요. 안내는 ai/README.md 참고.
+# 전처리 스크립트와 출력 샘플(ai/preprocess, ai/samples)은 커밋합니다.
+# ---------------------------------------------------------------
+ai/data_raw/
+**/osfstorage-archive/
+**/GLOBEM-main/
+**/PMData/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
