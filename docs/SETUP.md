@@ -141,7 +141,7 @@ https://dbeaver.io/download/
 
 https://www.postgresql.org/download/windows/
 
-"Download the installer" 클릭 → **16 또는 17** 버전.
+"Download the installer" 클릭 → **17** 버전을 받으세요. 팀 전원 같은 버전으로 맞춥니다. (아래 PATH 경로가 17 기준입니다)
 
 설치 중 비밀번호 입력 화면이 나오면 아무거나 정하고 **메모만 해두세요.** 우리는 공용 DB 를 쓸 거라 이 비밀번호는 거의 쓸 일이 없습니다. 포트는 기본값 `5432` 그대로 두세요.
 
@@ -171,8 +171,8 @@ https://www.postgresql.org/download/windows/
 4. **[확인]** 을 창마다 눌러 전부 닫기
 5. **터미널을 완전히 닫고 새로 열기**
 
-> 17 이 아닌 다른 버전을 설치하셨다면 경로의 숫자를 그 버전으로 바꾸세요.
 > 폴더가 실제로 있는지는 파일 탐색기에서 `C:\Program Files\PostgreSQL` 를 열어보면 확인됩니다.
+> 안에 `17` 이 아닌 다른 숫자 폴더가 있다면 다른 버전을 설치하신 것이니, 경로의 숫자를 그것으로 바꾸세요.
 
 ### 설치 확인
 
