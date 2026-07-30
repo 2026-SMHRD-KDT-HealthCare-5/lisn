@@ -1,4 +1,4 @@
-package com.example.maeume_care
+package com.lisn.maeume
 
 import io.flutter.embedding.android.FlutterActivity
 
