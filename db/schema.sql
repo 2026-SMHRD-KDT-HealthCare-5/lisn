@@ -52,6 +52,8 @@ CREATE TABLE USERS (
     terms_agreed_at TIMESTAMPTZ,
     sensitive_agreed    BOOLEAN NOT NULL DEFAULT FALSE,   -- [05-K]
     sensitive_agreed_at TIMESTAMPTZ,                      -- [05-K]
+    role                VARCHAR(20) NOT NULL DEFAULT 'USER'   -- [SD-E1]
+                            CHECK (role IN ('USER', 'ADMIN')),
     CONSTRAINT chk_terms_logic CHECK (
         (terms_agreed = FALSE AND terms_agreed_at IS NULL) OR
         (terms_agreed = TRUE  AND terms_agreed_at IS NOT NULL)
@@ -61,6 +63,26 @@ CREATE TABLE USERS (
         (sensitive_agreed = TRUE  AND sensitive_agreed_at IS NOT NULL)
     )
 );
+
+-- [SD-E1] ✅ 2026.07.30 확정 — 관리자 구분 컬럼 신설
+--   관리자 기능이 요구사항·기능명세·발표자료에 모두 있는데 데이터 모델에
+--   관리자라는 개념이 없었습니다. 어떤 계정이 관리자인지 판별할 수단이 없어
+--   MLCM_501(관리자 관제 대시보드)을 구현할 수 없는 상태였습니다.
+--     02 MLCM_501  관련 액터 "관리자", 선행조건 "관리자 계정으로 로그인되어 있어야 함"
+--     02 FR-MN-003 관리자가 전체 사용자 위험도 분포를 조회하고 고위험군 우선 식별
+--     02 MLCM_510  판정 이력을 관리자가 통계·모니터링 목적으로 조회
+--     04 3)        접근통제를 "본인 및 권한 있는 관리자로 제한"
+--   ※ DEFAULT 'USER' 로 두어 회원가입 흐름을 건드리지 않습니다(05-C 와 같은 방식).
+--     관리자는 일반 가입 후 승격합니다. 시드로 넣으려면 bcrypt 해시를 SQL 에
+--     하드코딩해야 해 오히려 지저분해집니다.
+--         UPDATE USERS SET role = 'ADMIN' WHERE email = '<관리자 이메일>';
+--   ※ 별도 관리자 테이블은 채택하지 않았습니다. 로그인 로직·JWT 발급 경로·
+--     비밀번호 정책이 각각 둘이 되어, 관리자 한두 명 때문에 인증 체계를
+--     복제하는 셈이 됩니다.
+--   ※ 이 컬럼이 02-F (6) 의 방어 논리를 완성합니다. "접근통제(본인 및 권한 있는
+--     관리자로 제한)" 라는 문장이 지금까지는 판별 수단 없이 떠 있었습니다.
+--   ⚠ 연동 문서: 04 객체 정의서 USERS 속성 목록, 05 컬럼 정의표 및 CREATE 스크립트,
+--     화면설계서 ADMIN_LOGIN_01(SD-N6). 상세는 docs/review/화면설계서_개정안.md Part E
 
 -- [05-K] ✅ 2026.07.30 확정 — 민감정보 별도 동의 기록 2컬럼 추가
 --   02-L 로 "민감정보는 일반 개인정보 동의와 구분된 별도 동의 항목으로 처리한다"를
