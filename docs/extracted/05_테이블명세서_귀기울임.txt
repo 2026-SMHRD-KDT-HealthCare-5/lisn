@@ -1,1459 +1,533 @@
-﻿
+# 05_테이블명세서_귀기울임.pdf
+# pages=12  images=0
 
+===== [page 1] =====
 테이블 명세서
-
-
-
-
-
 테이블 명세서
-
-
-
+멀티모달 라이프로그 감정 분석 기반
 과제명 :
+맞춤형 LLM 케어 및 모니터링 시스템
+2026. 08. 28.
 
-멀티모달 라이프로그 감정 분석 기반 맞춤형 LLM 케어 및 모니터링 시스템
-
-
-
-2026. 08. 28. 
-
+===== [page 2] =====
+테이블 명세서
 1. 테이블 목록
-
-
-
-테이블명
-
-테이블_ID
-
-비고
-
-사용자 정보
-
-USERS
-
+테이블명 테이블_ID 비고
 사용자 정보 USERS
+디바이스 헬스 연동 정보 DEVICE_HEALTH_CONNECTIONS
+감정 마스터 EMOTIONS
+시계열 라이프로그 LIFELOG_METRICS
+챗봇 대화 세션 및 메시지 CHAT_SESSIONS
+정서 위험도 예측 결과 EMOTION_RISK_SCORES
+힐링 콘텐츠 마스터 HEALING_CONTENTS
+체성분 데이터 BODY_COMPOSITION_METRICS
+--- table (page 2) ---
+테이블명 | 테이블_ID | 비고
+사용자 정보 | USERS | 
+디바이스 헬스 연동 정보 | DEVICE_HEALTH_CONNECTIONS | 
+감정 마스터 | EMOTIONS | 
+시계열 라이프로그 | LIFELOG_METRICS | 
+챗봇 대화 세션 및 메시지 | CHAT_SESSIONS | 
+정서 위험도 예측 결과 | EMOTION_RISK_SCORES | 
+힐링 콘텐츠 마스터 | HEALING_CONTENTS | 
+체성분 데이터 | BODY_COMPOSITION_METRICS | 
 
-PK UUID, Direct Auth 기본 
-
-프로필 및 FCM 토큰 관리
-
-디바이스 헬스 연동 정보
-
-DEVICE_HEALTH_
-
-CONNECTIONS
-
-PK UUID, OS 헬스 API OAuth 
-
-토큰(Access) 관리
-
-감정 마스터
-
-EMOTIONS
-
-PK UUID, 9개 공통 감정 범주 기준 마스터
-
-시계열 라이프로그
-
-LIFELOG_METRICS
-
-PK UUID, 정형 4개 지표 + raw_payload(JSONB) 확장 적재 (불변 로그)
-
-챗봇 대화 세션 및 메시지
-
-CHAT_SESSIONS
-
-PK UUID, 대화 내용 JSONB 적재 및 persona_type Enum 처리 (불변 로그)
-
-정서 위험도 예측 결과
-
-EMOTION_RISK_SCORES
-
-PK UUID, AI 스코어링 수치, 모델 버전 및 위험 단계 추적 (불변 로그)
-
-힐링 콘텐츠 마스터
-
-HEALING_CONTENTS
-
-PK UUID, CAUTION 단계 추천 콘텐츠 정보 및 상세 설명 보관
-
-체성분 데이터
-
-BODY_COMPOSITION_
-
-METRICS
-
-PK UUID, 체중·체지방·근육량 등 신체 구성 측정치 및 기초대사량 이력 보관
-
+===== [page 3] =====
+테이블 명세서
 2. 테이블 정의서
-
-작성일자
-
-2026.07.23
-
-작성자
-
-이응균
-
-테이블명
-
-사용자 정보
-
-테이블 ID
-
-USERS
-
-테이블설명
-
-회원 계정 프로필, 비밀번호 해시, 선호 챗봇 성격 및 푸시 토큰 관리
-
-컬럼명
-
-컬럼 ID
-
-타입
-
-길이
-
-NN
-
-PK
-
-FK
-
-UK
-
-CK
-
-비고
-
-사용자 ID
-
-user_id
-
-UUID
-
--
-
-Y
-
-Y
-
-DEFAULT gen_random_uuid()
-
-이메일
-
-email
-
-VARCHAR
-
-255
-
-Y
-
-Y
-
-로그인 계정
-
-비밀번호 해시
-
-password_hash
-
-VARCHAR
-
-255
-
-Y
-
-Bcrypt/Argon2 암호화
-
-이름
-
-name
-
-VARCHAR
-
-100
-
-Y
-
-연락처
-
-phone
-
-VARCHAR
-
-20
-
-생년월일
-
-birth_date
-
-DATE
-
--
-
-성별
-
-gender
-
-VARCHAR
-
-10
-
-Y
-
-MALE, FEMALE, OTHER
-
-키
-
-height_cm
-
-NUMERIC
-
-5,2
-
-단위: cm
-
-FCM 토큰
-
-fcm_token
-
-TEXT
-
--
-
-푸시 알림 수신 디바이스 식별자
-
-선호 페르소나
-
-persona_type
-
-VARCHAR
-
-20
-
-Y
-
-Y
-
-FRIEND, COUNSELOR
-
-약관동의여부
-
-terms_agreed
-
-BOOLEAN
-
--
-
-Y
-
-DEFAULT FALSE
-
-약관동의일시
-
-terms_agreed_at
-
-TIMESTAMPTZ
-
--
-
+작성일자 2026.07.29 작성자 이응균
+테이블명 사용자 정보 테이블 ID USERS
+테이블설명 회원 계정 및 프로필 관리
+컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
+사용자 ID user_id UUID - Y Y
+이메일 email VARCHAR 255 Y Y
+비밀번호
+password_hash VARCHAR 255 Y
+해시
+이름 name VARCHAR 100 Y
+선택 입력,
+연락처 phone TEXT - AES-256-GCM
+암호화 저장
+생년월일 birth_date DATE -
+MALE, FEMALE,
+성별 gender VARCHAR 10 Y
+OTHER
+키 height_cm NUMERIC 5,2
+FCM 토큰 fcm_token TEXT -
+선호 FRIEND,
+persona_type VARCHAR 20 Y Y
+페르소나 COUNSELOR
+약관동의여
+terms_agreed BOOLEAN - Y
+부
+약관동의일 terms_agreed_a
+TIMESTAMPTZ -
+시 t
+민감정보 sensitive_agree
+BOOLEAN - Y
+동의 여부 d
+--- table (page 3) ---
+ | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
+테이블명 | 사용자 정보 |  |  |  |  | 테이블 ID |  |  | USERS |  | 
+테이블설명 | 회원 계정 및 프로필 관리 |  |  |  |  |  |  |  |  |  | 
+컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
+사용자 ID | user_id | UUID | - | Y | Y |  |  |  |  |  | 
+이메일 | email | VARCHAR | 255 | Y |  |  |  | Y |  |  | 
+비밀번호 해시 | password_hash | VARCHAR | 255 | Y |  |  |  |  |  |  | 
+이름 | name | VARCHAR | 100 | Y |  |  |  |  |  |  | 
+연락처 | phone | TEXT | - |  |  |  |  |  |  |  | 선택 입력, AES-256-GCM 암호화 저장
+생년월일 | birth_date | DATE | - |  |  |  |  |  |  |  | 
+성별 | gender | VARCHAR | 10 |  |  |  |  |  |  | Y | MALE, FEMALE, OTHER
+키 | height_cm | NUMERIC | 5,2 |  |  |  |  |  |  |  | 
+FCM 토큰 | fcm_token | TEXT | - |  |  |  |  |  |  |  | 
+선호 페르소나 | persona_type | VARCHAR | 20 | Y |  |  |  |  |  | Y | FRIEND, COUNSELOR
+약관동의여 부 | terms_agreed | BOOLEAN | - | Y |  |  |  |  |  |  | 
+약관동의일 시 | terms_agreed_a t | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
+민감정보 동의 여부 | sensitive_agree d | BOOLEAN | - | Y |  |  |  |  |  |  | 
+
+===== [page 4] =====
+테이블 명세서
+민감정보 sensitive_agree
+TIMESTAMPTZ - 미동의 시 NULL
+동의 일시 d_at
 Table 생성 스크립트
-
 CREATE TABLE USERS (
-
-    user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-    email VARCHAR(255) NOT NULL UNIQUE,
-
-    password_hash VARCHAR(255) NOT NULL,
-
-    name VARCHAR(100) NOT NULL,
-
-    phone VARCHAR(20),
-
-    birth_date DATE,
-
-    gender VARCHAR(10) CHECK (gender IN ('MALE', 'FEMALE', 'OTHER')),
-
-    fcm_token TEXT,
-
-    height_cm NUMERIC(5,2) CHECK (height_cm > 0),
-
-    persona_type VARCHAR(50) NOT NULL CHECK (persona_type IN ('FRIEND','COUNSELOR')),
-
-    terms_agreed BOOLEAN NOT NULL DEFAULT FALSE,
-
-    terms_agreed_at TIMESTAMPTZ, CONSTRAINT chk_terms_logic CHECK (
-
-        (terms_agreed = FALSE AND terms_agreed_at IS NULL) OR 
-
-        (terms_agreed = TRUE AND terms_agreed_at IS NOT NULL)
-
-    )
-
+user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+email VARCHAR(255) NOT NULL UNIQUE,
+password_hash VARCHAR(255) NOT NULL,
+name VARCHAR(100) NOT NULL,
+phone TEXT,
+birth_date DATE,
+gender VARCHAR(10) CHECK (gender IN ('MALE', 'FEMALE', 'OTHER')),
+fcm_token TEXT,
+height_cm NUMERIC(5,2) CHECK (height_cm > 0),
+persona_type VARCHAR(20) NOT NULL DEFAULT 'FRIEND'
+CHECK (persona_type IN ('FRIEND', 'COUNSELOR')),
+terms_agreed BOOLEAN NOT NULL DEFAULT FALSE,
+terms_agreed_at TIMESTAMPTZ,
+sensitive_agreed BOOLEAN NOT NULL DEFAULT FALSE,
+sensitive_agreed_at TIMESTAMPTZ,
+CONSTRAINT chk_terms_logic CHECK (
+(terms_agreed = FALSE AND terms_agreed_at IS NULL) OR
+(terms_agreed = TRUE AND terms_agreed_at IS NOT NULL)
+),
+CONSTRAINT chk_sensitive_logic CHECK (
+(sensitive_agreed = FALSE AND sensitive_agreed_at IS NULL) OR
+(sensitive_agreed = TRUE AND sensitive_agreed_at IS NOT NULL)
+)
 );
+--- table (page 4) ---
+민감정보 동의 일시 | sensitive_agree d_at | TIMESTAMPTZ | - |  |  |  |  |  | 미동의 시 NULL
+Table 생성 스크립트 |  |  |  |  |  |  |  |  | 
+CREATE TABLE USERS ( user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), email VARCHAR(255) NOT NULL UNIQUE, password_hash VARCHAR(255) NOT NULL, name VARCHAR(100) NOT NULL, phone TEXT, birth_date DATE, gender VARCHAR(10) CHECK (gender IN ('MALE', 'FEMALE', 'OTHER')), fcm_token TEXT, height_cm NUMERIC(5,2) CHECK (height_cm > 0), persona_type VARCHAR(20) NOT NULL DEFAULT 'FRIEND' CHECK (persona_type IN ('FRIEND', 'COUNSELOR')), terms_agreed BOOLEAN NOT NULL DEFAULT FALSE, terms_agreed_at TIMESTAMPTZ, sensitive_agreed BOOLEAN NOT NULL DEFAULT FALSE, sensitive_agreed_at TIMESTAMPTZ, CONSTRAINT chk_terms_logic CHECK ( (terms_agreed = FALSE AND terms_agreed_at IS NULL) OR (terms_agreed = TRUE AND terms_agreed_at IS NOT NULL) ), CONSTRAINT chk_sensitive_logic CHECK ( (sensitive_agreed = FALSE AND sensitive_agreed_at IS NULL) OR (sensitive_agreed = TRUE AND sensitive_agreed_at IS NOT NULL) ) ); |  |  |  |  |  |  |  |  | 
 
-
-
-작성일자
-
-2026.07.23
-
-작성자
-
-이응균
-
-테이블명
-
-디바이스 헬스 연동 정보
-
-테이블 ID
-
+===== [page 5] =====
+테이블 명세서
+작성일자 2026.07.29 작성자 이응균
 DEVICE_HEALTH_
-
+테이블명 디바이스 헬스 연동 정보 테이블 ID
 CONNECTIONS
-
-테이블설명
-
-테이블설명 헬스 플랫폼(Google, Apple) 연동 권한 및 OAuth 토큰(Access) 관리
-
-컬럼명
-
-컬럼 ID
-
-타입
-
-길이
-
-NN
-
-PK
-
-FK
-
-UK
-
-CK
-
-비고
-
-연동 ID
-
-connection_id
-
-UUID
-
--
-
-Y
-
-Y
-
-DEFAULT gen_random_uuid()
-
-사용자 ID
-
-user_id
-
-UUID
-
--
-
-Y
-
-Y
-
-USERS.user_id 참조 (CASCADE)
-
-디바이스명
-
-device_name
-
-VARCHAR
-
-100
-
-사용자 디바이스 명칭 (예: Galaxy Watch 6)
-
-플랫폼 타입
-
-platform_type
-
-VARCHAR
-
-50
-
-Y
-
-Y
-
-HEALTH_CONNECT, APPLE_HEALTH (MVP는 HEALTH_CONNECT만 사용, APPLE_HEALTH는 상용화 단계 확장 대비)
-
-Access Token
-
-access_token
-
-TEXT
-
--
-
-OAuth Access Token
-
-동의 일시
-
-agreed_at
-
-TIMESTAMPTZ
-
--
-
-Y
-
-약관/수집 동의 시간
-
-동의 범위
-
-consent_scopes
-
-JSONB
-
--
-
-Y
-
-카테고리별 동의 상태(activity/sleep/body_composition)
-
+테이블설명 헬스 플랫폼(Health Connect) 연동 권한 승인 상태 및 항목별 수집 동의 범위 관리
+컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
+연동 ID connection_id UUID - Y Y
+USERS.user_id 참조
+사용자 ID user_id UUID - Y Y
+(CASCADE)
+Metadata.device
+디바이스명 device_name VARCHAR 100
+조합, 없으면 NULL
+MVP는
+플랫폼 HEALTH_CONNECT
+platform_type VARCHAR 50 Y Y
+타입 만, APPLE_HEALTH
+는 확장 대비
+권한 승인 permission_gra
+BOOLEAN - Y
+여부 nted
+동의 일시 agreed_at TIMESTAMPTZ - Y
+최종
+미수신 감지 및
+동기화 last_synced_at TIMESTAMPTZ -
+재시도 판단 기준
+일시
+동의 범위 consent_scopes JSONB - Y
 Table 생성 스크립트
-
 CREATE TABLE DEVICE_HEALTH_CONNECTIONS (
-
-    connection_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-    user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE,
-
-    device_name VARCHAR(100),
-
-    platform_type VARCHAR(50) NOT NULL CHECK (platform_type IN ('HEALTH_CONNECT',
-
-    'APPLE_HEALTH')),
-
-    access_token TEXT, 
-
-    agreed_at TIMESTAMPTZ NOT NULL, consent_scopes JSONB NOT NULL DEFAULT '{"activity": 
-
-    true, "sleep": true, "body_composition": 
-
-    false}'
-
+connection_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE,
+device_name VARCHAR(100),
+platform_type VARCHAR(50) NOT NULL
+CHECK (platform_type IN ('HEALTH_CONNECT', 'APPLE_HEALTH')),
+permission_granted BOOLEAN NOT NULL DEFAULT FALSE,
+agreed_at TIMESTAMPTZ NOT NULL,
+last_synced_at TIMESTAMPTZ,
+consent_scopes JSONB NOT NULL DEFAULT
+'{"activity": true, "sleep": true, "body_composition": false}'
 );
-
-
-
-작성일자
-
-2026.07.23
-
-작성자
-
-이응균
-
-테이블명
-
-감정 마스터
-
-테이블 ID
-
-EMOTIONS
-
-테이블설명
-
-시스템 공통 감정 코드(9개) 및 분류 기준 정의
-
-컬럼명
-
-컬럼 ID
-
-타입
-
-길이
-
-NN
-
-PK
-
-FK
-
-UK
-
-CK
-
-비고
-
-감정 ID
-
-emotion_id
-
-UUID
-
--
-
-Y
-
-Y
-
-DEFAULT gen_random_uuid()
-
-감정 코드
-
-emotion_code
-
-VARCHAR
-
-50
-
-Y
-
-Y
-
-JOY, SADNESS, ANXIETY, CRISIS 등
-
-감정 명칭
-
-emotion_name
-
-VARCHAR
-
-50
-
-Y
-
-기쁨, 슬픔, 불안, 위기 등
-
-감정 카테고리
-
-category
-
-VARCHAR
-
-20
-
-Y
-
-NORMAL, CAUTION, CRITICAL
-
-Table 생성 스크립트
-
-CREATE TABLE EMOTIONS (
-
-    emotion_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-    emotion_code VARCHAR(50) NOT NULL UNIQUE,
-
-    emotion_name VARCHAR(50) NOT NULL,
-
-    category VARCHAR(20) NOT NULL CHECK (category IN ('NORMAL', 'CAUTION', 'CRITICAL'))
-
-);
-
-작성일자
-
-2026.07.23
-
-작성자
-
-이응균
-
-테이블명
-
-시계열 라이프로그
-
-테이블 ID
-
-LIFELOG_METRICS
-
-테이블설명
-
-생체 시계열 데이터(걸음수, 수면, 심박수, HRV) 및 원시 JSONB 보관
-
-컬럼명
-
-컬럼 ID
-
-타입
-
-길이
-
-NN
-
-PK
-
-FK
-
-UK
-
-CK
-
-비고
-
-수집 지표 ID
-
-metric_id
-
-UUID
-
--
-
-Y
-
-Y
-
-DEFAULT gen_random_uuid()
-
-사용자 ID
-
-user_id
-
-UUID
-
--
-
-Y
-
-Y
-
-USERS.user_id 참조 (CASCADE)
-
-걸음 수
-
-steps
-
-INT
-
--
-
-DEFAULT 0
-
-수면 시작 시간
-
-sleep_start_at
-
-TIMESTAMPTZ
-
--
-
-수면 종료 시간
-
-sleep_end_at
-
-TIMESTAMPTZ
-
--
-
-총 수면시간
-
-total_sleep_min
-
-INT
-
--
-
-단위: 분
-
-깊은 수면시간
-
-deep_sleep_
-
-min
-
-INT
-
--
-
-단위: 분
-
-얕은 수면시간
-
-light_sleep_min
-
-INT
-
--
-
-단위: 분
-
-REM 수면시간
-
-rem_sleep_min
-
-INT
-
--
-
-단위: 분
-
-각성 시간
-
-awake_min
-
-INT
-
--
-
-단위: 분
-
-입면 시간
-
+--- table (page 5) ---
+ | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
+테이블명 | 디바이스 헬스 연동 정보 |  |  |  |  | 테이블 ID |  |  | DEVICE_HEALTH_ CONNECTIONS |  | 
+테이블설명 | 헬스 플랫폼(Health Connect) 연동 권한 승인 상태 및 항목별 수집 동의 범위 관리 |  |  |  |  |  |  |  |  |  | 
+컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
+연동 ID | connection_id | UUID | - | Y | Y |  |  |  |  |  | 
+사용자 ID | user_id | UUID | - | Y |  |  | Y |  |  |  | USERS.user_id 참조 (CASCADE)
+디바이스명 | device_name | VARCHAR | 100 |  |  |  |  |  |  |  | Metadata.device 조합, 없으면 NULL
+플랫폼 타입 | platform_type | VARCHAR | 50 | Y |  |  |  |  |  | Y | MVP는 HEALTH_CONNECT 만, APPLE_HEALTH 는 확장 대비
+권한 승인 여부 | permission_gra nted | BOOLEAN | - | Y |  |  |  |  |  |  | 
+동의 일시 | agreed_at | TIMESTAMPTZ | - | Y |  |  |  |  |  |  | 
+최종 동기화 일시 | last_synced_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 미수신 감지 및 재시도 판단 기준
+동의 범위 | consent_scopes | JSONB | - | Y |  |  |  |  |  |  | 
+Table 생성 스크립트 |  |  |  |  |  |  |  |  |  |  | 
+CREATE TABLE DEVICE_HEALTH_CONNECTIONS ( connection_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE, device_name VARCHAR(100), platform_type VARCHAR(50) NOT NULL CHECK (platform_type IN ('HEALTH_CONNECT', 'APPLE_HEALTH')), permission_granted BOOLEAN NOT NULL DEFAULT FALSE, agreed_at TIMESTAMPTZ NOT NULL, last_synced_at TIMESTAMPTZ, consent_scopes JSONB NOT NULL DEFAULT '{"activity": true, "sleep": true, "body_composition": false}' ); |  |  |  |  |  |  |  |  |  |  | 
+
+===== [page 6] =====
+테이블 명세서
+작성일자 2026.07.29 작성자 이응균
+테이블명 시계열 라이프로그 테이블 ID LIFELOG_METRICS
+테이블설명 활동·수면·심박 생체 시계열 적재
+컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
+수집 지표
+metric_id UUID - Y Y
+ID
+USERS.user_id 참조
+사용자 ID user_id UUID - Y Y Y (CASCADE), 복합
+UNIQUE
+걸음 수 steps INT -
+수면 시작
+sleep_start_at TIMESTAMPTZ -
+시간
+수면 종료
+sleep_end_at TIMESTAMPTZ -
+시간
+총
+total_sleep_min INT -
+수면시간
+깊은 deep_sleep_
+INT -
+수면시간 min
+얕은
+light_sleep_min INT -
+수면시간
+REM
+rem_sleep_min INT -
+수면시간
+각성 시간 awake_min INT -
 sleep_onset_
-
+입면 시간 INT -
 min
+sleep_efficiency
+수면 효율 NUMERIC(5,2) -
+_pct
+단위: m,
+이동 거리 distance INT -
+DEFAULT 0
+소모 단위: kcal,
+calories INT -
+칼로리 DEFAULT 0
+활동 시작
+activity_start_at TIMESTAMPTZ -
+시간
+활동 종료
+activity_end_at TIMESTAMPTZ -
+시간
+총 total_active_mi
+INT -
+활동시간 n
+--- table (page 6) ---
+ | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
+테이블명 | 시계열 라이프로그 |  |  |  |  | 테이블 ID |  |  | LIFELOG_METRICS |  | 
+테이블설명 | 활동·수면·심박 생체 시계열 적재 |  |  |  |  |  |  |  |  |  | 
+컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
+수집 지표 ID | metric_id | UUID | - | Y | Y |  |  |  |  |  | 
+사용자 ID | user_id | UUID | - | Y |  |  | Y | Y |  |  | USERS.user_id 참조 (CASCADE), 복합 UNIQUE
+걸음 수 | steps | INT | - |  |  |  |  |  |  |  | 
+수면 시작 시간 | sleep_start_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
+수면 종료 시간 | sleep_end_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
+총 수면시간 | total_sleep_min | INT | - |  |  |  |  |  |  |  | 
+깊은 수면시간 | deep_sleep_ min | INT | - |  |  |  |  |  |  |  | 
+얕은 수면시간 | light_sleep_min | INT | - |  |  |  |  |  |  |  | 
+REM 수면시간 | rem_sleep_min | INT | - |  |  |  |  |  |  |  | 
+각성 시간 | awake_min | INT | - |  |  |  |  |  |  |  | 
+입면 시간 | sleep_onset_ min | INT | - |  |  |  |  |  |  |  | 
+수면 효율 | sleep_efficiency _pct | NUMERIC(5,2) | - |  |  |  |  |  |  |  | 
+이동 거리 | distance | INT | - |  |  |  |  |  |  |  | 단위: m, DEFAULT 0
+소모 칼로리 | calories | INT | - |  |  |  |  |  |  |  | 단위: kcal, DEFAULT 0
+활동 시작 시간 | activity_start_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
+활동 종료 시간 | activity_end_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
+총 활동시간 | total_active_mi n | INT | - |  |  |  |  |  |  |  | 
 
-INT
-
--
-
-단위: 분
-
-수면 효율
-
-sleep_efficiency_pct
-
-NUMERIC(5,2)
-
--
-
-단위: %
-
-이동 거리
-
-distance
-
-INT
-
--
-
-단위: m, DEFAULT 0
-
-소모 칼로리
-
-calories
-
-INT
-
--
-
-단위: kcal, DEFAULT 0
-
-심박수
-
-heart_rate
-
-INT
-
--
-
-DEFAULT 0 (BPM)
-
-HRV 스코어
-
-hrv
-
-NUMERIC(5,2)
-
--
-
-DEFAULT 0 (ms)
-
-원시 데이터
-
-raw_payload
-
-JSONB
-
--
-
-추가 수면단계/활동 확장용 JSONB
-
-측정 일시
-
-collected_at
-
-TIMESTAMPTZ
-
--
-
-Y
-
+===== [page 7] =====
+테이블 명세서
+단위: BPM, 미측정
+심박수 heart_rate INT -
+구간은 NULL
+HRV 단위: ms, 미측정
+hrv NUMERIC(5,2) -
+스코어 구간은 NULL
+동일 시각 중복
+측정 일시 collected_at TIMESTAMPTZ - Y Y
+적재 방지
 Table 생성 스크립트
-
 CREATE TABLE LIFELOG_METRICS (
-
-    metric_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-    user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE,
-
-    steps INTEGER DEFAULT 0 CHECK (steps >= 0),
-
-    distance INTEGER DEFAULT 0 CHECK (distance >= 0),
-
-    calories INTEGER DEFAULT 0 CHECK (calories >= 0),
-
-    sleep_start_at TIMESTAMPTZ,
-
-    sleep_end_at TIMESTAMPTZ,
-
-    total_sleep_min INTEGER CHECK (total_sleep_min >= 0),
-
-    deep_sleep_min INTEGER CHECK (deep_sleep_min >= 0),
-
-    light_sleep_min INTEGER CHECK (light_sleep_min >= 0),
-
-    rem_sleep_min INTEGER CHECK (rem_sleep_min >= 0),
-
-    awake_min INTEGER CHECK (awake_min >= 0),
-
-    sleep_onset_min INTEGER CHECK (sleep_onset_min >= 0),
-
-    sleep_efficiency_pct NUMERIC(5,2) CHECK (sleep_efficiency_pct BETWEEN 0 AND 100),
-
-    heart_rate INTEGER DEFAULT 0 CHECK (heart_rate >= 0),
-
-    hrv NUMERIC(5,2) DEFAULT 0 CHECK (hrv >= 0),
-
-    raw_payload JSONB,
-
-    collected_at TIMESTAMPTZ NOT NULL, CONSTRAINT uq_lifelog_user_collected UNIQUE (user_id, 
-
-    collected_at)
-
+metric_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE,
+steps INTEGER DEFAULT 0 CHECK (steps >= 0),
+distance INTEGER DEFAULT 0 CHECK (distance >= 0),
+calories INTEGER DEFAULT 0 CHECK (calories >= 0),
+activity_start_at TIMESTAMPTZ,
+activity_end_at TIMESTAMPTZ,
+total_active_min INTEGER CHECK (total_active_min >= 0),
+sleep_start_at TIMESTAMPTZ,
+sleep_end_at TIMESTAMPTZ,
+total_sleep_min INTEGER CHECK (total_sleep_min >= 0),
+deep_sleep_min INTEGER CHECK (deep_sleep_min >= 0),
+light_sleep_min INTEGER CHECK (light_sleep_min >= 0),
+rem_sleep_min INTEGER CHECK (rem_sleep_min >= 0),
+awake_min INTEGER CHECK (awake_min >= 0),
+sleep_onset_min INTEGER CHECK (sleep_onset_min >= 0),
+sleep_efficiency_pct NUMERIC(5,2) CHECK (sleep_efficiency_pct BETWEEN 0 AND 100),
+heart_rate INTEGER CHECK (heart_rate >= 0),
+hrv NUMERIC(5,2) CHECK (hrv >= 0),
+collected_at TIMESTAMPTZ NOT NULL, CONSTRAINT uq_lifelog_user_collected UNIQUE (user_id,
+collected_at)
 );
+--- table (page 7) ---
+심박수 | heart_rate | INT | - |  |  |  |  |  | 단위: BPM, 미측정 구간은 NULL
+HRV 스코어 | hrv | NUMERIC(5,2) | - |  |  |  |  |  | 단위: ms, 미측정 구간은 NULL
+측정 일시 | collected_at | TIMESTAMPTZ | - | Y |  |  | Y |  | 동일 시각 중복 적재 방지
+Table 생성 스크립트 |  |  |  |  |  |  |  |  | 
+CREATE TABLE LIFELOG_METRICS ( metric_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE, steps INTEGER DEFAULT 0 CHECK (steps >= 0), distance INTEGER DEFAULT 0 CHECK (distance >= 0), calories INTEGER DEFAULT 0 CHECK (calories >= 0), activity_start_at TIMESTAMPTZ, activity_end_at TIMESTAMPTZ, total_active_min INTEGER CHECK (total_active_min >= 0), sleep_start_at TIMESTAMPTZ, sleep_end_at TIMESTAMPTZ, total_sleep_min INTEGER CHECK (total_sleep_min >= 0), deep_sleep_min INTEGER CHECK (deep_sleep_min >= 0), light_sleep_min INTEGER CHECK (light_sleep_min >= 0), rem_sleep_min INTEGER CHECK (rem_sleep_min >= 0), awake_min INTEGER CHECK (awake_min >= 0), sleep_onset_min INTEGER CHECK (sleep_onset_min >= 0), sleep_efficiency_pct NUMERIC(5,2) CHECK (sleep_efficiency_pct BETWEEN 0 AND 100), heart_rate INTEGER CHECK (heart_rate >= 0), hrv NUMERIC(5,2) CHECK (hrv >= 0), collected_at TIMESTAMPTZ NOT NULL, CONSTRAINT uq_lifelog_user_collected UNIQUE (user_id, collected_at) ); |  |  |  |  |  |  |  |  | 
 
-작성일자
-
-2026.07.23
-
-작성자
-
-이응균
-
-테이블명
-
-챗봇 대화 세션 및 메시지
-
-테이블 ID
-
-CHAT_SESSIONS
-
-테이블설명
-
-챗봇 성격별 대화 세션 및 메시지 히스토리(JSONB) 보관
-
-컬럼명
-
-컬럼 ID
-
-타입
-
-길이
-
-NN
-
-PK
-
-FK
-
-UK
-
-CK
-
-비고
-
-세션 ID
-
-session_id
-
-UUID
-
--
-
-Y
-
-Y
-
-DEFAULT gen_random_uuid()
-
-사용자 ID
-
-user_id
-
-UUID
-
--
-
-Y
-
-Y
-
-USERS.user_id 참조 (CASCADE)
-
-페르소나 타입
-
-persona_type
-
-VARCHAR
-
-20
-
-Y
-
-Y
-
-FRIEND, COUNSELOR
-
-대화 내용
-
-messages
-
-JSONB
-
--
-
-Y
-
-전체 대화 메시지 배열 (JSONB)
-
-대화 요약
-
-session_
-
-summary
-
-TEXT
-
--
-
-세션 종료 시 LLM 자동 생성 요약본
-
-시작 시간
-
-started_at
-
-TIMESTAMPTZ
-
--
-
-Y
-
-종료 시간
-
-ended_at
-
-TIMESTAMPTZ
-
--
-
+===== [page 8] =====
+테이블 명세서
+작성일자 2026.07.29 작성자 이응균
+테이블명 감정 마스터 테이블 ID EMOTIONS
+테이블설명 시스템 공통 감정 코드(9개) 및 분류 기준 정의
+컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
+감정 ID emotion_id UUID - Y Y
+JOY, SADNESS,
+감정 코드 emotion_code VARCHAR 50 Y Y
+ANXIETY, CRISIS 등
+감정 명칭 emotion_name VARCHAR 50 Y
+감정 NORMAL,
+category VARCHAR 20 Y
+카테고리 CAUTION, CRITICAL
 Table 생성 스크립트
+CREATE TABLE EMOTIONS (
+emotion_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+emotion_code VARCHAR(50) NOT NULL UNIQUE,
+emotion_name VARCHAR(50) NOT NULL,
+category VARCHAR(20) NOT NULL CHECK (category IN ('NORMAL', 'CAUTION', 'CRITICAL'))
+);
+--- table (page 8) ---
+ | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
+테이블명 | 감정 마스터 |  |  |  |  | 테이블 ID |  |  | EMOTIONS |  | 
+테이블설명 | 시스템 공통 감정 코드(9개) 및 분류 기준 정의 |  |  |  |  |  |  |  |  |  | 
+컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
+감정 ID | emotion_id | UUID | - | Y | Y |  |  |  |  |  | 
+감정 코드 | emotion_code | VARCHAR | 50 | Y |  |  |  | Y |  |  | JOY, SADNESS, ANXIETY, CRISIS 등
+감정 명칭 | emotion_name | VARCHAR | 50 | Y |  |  |  |  |  |  | 
+감정 카테고리 | category | VARCHAR | 20 | Y |  |  |  |  |  |  | NORMAL, CAUTION, CRITICAL
+Table 생성 스크립트 |  |  |  |  |  |  |  |  |  |  | 
+CREATE TABLE EMOTIONS ( emotion_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), emotion_code VARCHAR(50) NOT NULL UNIQUE, emotion_name VARCHAR(50) NOT NULL, category VARCHAR(20) NOT NULL CHECK (category IN ('NORMAL', 'CAUTION', 'CRITICAL')) ); |  |  |  |  |  |  |  |  |  |  | 
 
+===== [page 9] =====
+테이블 명세서
+작성일자 2026.07.29 작성자 이응균
+테이블명 챗봇 대화 세션 및 메시지 테이블 ID CHAT_SESSIONS
+테이블설명 챗봇 성격별 대화 세션 및 메시지 히스토리(JSONB) 보관
+컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
+세션 ID session_id UUID - Y Y
+USERS.user_id 참조
+사용자 ID user_id UUID - Y Y
+(CASCADE)
+페르소나 FRIEND,
+persona_type VARCHAR 20 Y Y
+타입 COUNSELOR
+대화 내용 messages JSONB - Y
+session_ 세션 종료 시 LLM
+대화 요약 TEXT -
+summary 자동 생성
+시작 시간 started_at TIMESTAMPTZ - Y
+종료 시간 ended_at TIMESTAMPTZ -
+Table 생성 스크립트
 CREATE TABLE CHAT_SESSIONS (
-
-    session_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-    user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE,
-
-    persona_type VARCHAR(20) NOT NULL DEFAULT 'FRIEND'
-
-        CHECK (persona_type IN ('FRIEND', 'COUNSELOR')),
-
-    messages JSONB NOT NULL,
-
-    session_summary TEXT,
-
-    started_at TIMESTAMPTZ NOT NULL, ended_at TIMESTAMPTZ
-
+session_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE,
+persona_type VARCHAR(20) NOT NULL DEFAULT 'FRIEND'
+CHECK (persona_type IN ('FRIEND', 'COUNSELOR')),
+messages JSONB NOT NULL,
+session_summary TEXT,
+started_at TIMESTAMPTZ NOT NULL, ended_at TIMESTAMPTZ
 );
-
-작성일자
-
-2026.07.23
-
-작성자
-
-이응균
-
-테이블명
-
-정서 위험도 예측 결과
-
-테이블 ID
-
-EMOTION_RISK_SCORES
-
-테이블설명
-
-AI 감정 분석 점수, 위험 단계(3단계), 모델 버전 및 추론 이력 저장
-
-컬럼명
-
-컬럼 ID
-
-타입
-
-길이
-
-NN
-
-PK
-
-FK
-
-UK
-
-CK
-
-비고
-
-평가 ID
-
-score_id
-
-UUID
-
--
-
-Y
-
-Y
-
-DEFAULT gen_random_uuid()
-
-사용자 ID
-
-user_id
-
-UUID
-
--
-
-Y
-
-Y
-
-USERS.user_id 참조 (CASCADE)
-
-감정 ID
-
-emotion_id
-
-UUID
-
--
-
-Y
-
-Y
-
-EMOTIONS.emotion_id 참조
-
-감정 점수
-
-emotion_score
-
-NUMERIC
-
-5,2
-
-Y
-
-AI 감정 분석 스코어 (0~100)
-
-위험도 단계
-
-risk_level
-
-VARCHAR
-
-20
-
-Y
-
-Y
-
-NORMAL, CAUTION, CRITICAL
-
-위험도 점수
-
-risk_score
-
-NUMERIC
-
-5,2
-
-Y
-
-종합 정서 위험 스코어 (0~100)
-
-모델 버전
-
-model_version
-
-VARCHAR
-
-50
-
-Y
-
-MLOps 추적용 AI 모델 버전 (v1.0 등)
-
-평가 일시
-
-evaluated_at
-
-TIMESTAMPTZ
-
--
-
-Y
-
+--- table (page 9) ---
+ | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
+테이블명 | 챗봇 대화 세션 및 메시지 |  |  |  |  | 테이블 ID |  |  | CHAT_SESSIONS |  | 
+테이블설명 | 챗봇 성격별 대화 세션 및 메시지 히스토리(JSONB) 보관 |  |  |  |  |  |  |  |  |  | 
+컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
+세션 ID | session_id | UUID | - | Y | Y |  |  |  |  |  | 
+사용자 ID | user_id | UUID | - | Y |  |  | Y |  |  |  | USERS.user_id 참조 (CASCADE)
+페르소나 타입 | persona_type | VARCHAR | 20 | Y |  |  |  |  |  | Y | FRIEND, COUNSELOR
+대화 내용 | messages | JSONB | - | Y |  |  |  |  |  |  | 
+대화 요약 | session_ summary | TEXT | - |  |  |  |  |  |  |  | 세션 종료 시 LLM 자동 생성
+시작 시간 | started_at | TIMESTAMPTZ | - | Y |  |  |  |  |  |  | 
+종료 시간 | ended_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
+Table 생성 스크립트 |  |  |  |  |  |  |  |  |  |  | 
+CREATE TABLE CHAT_SESSIONS ( session_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE, persona_type VARCHAR(20) NOT NULL DEFAULT 'FRIEND' CHECK (persona_type IN ('FRIEND', 'COUNSELOR')), messages JSONB NOT NULL, session_summary TEXT, started_at TIMESTAMPTZ NOT NULL, ended_at TIMESTAMPTZ ); |  |  |  |  |  |  |  |  |  |  | 
+
+===== [page 10] =====
+테이블 명세서
+작성일자 2026.07.29 작성자 이응균
+테이블명 정서 위험도 예측 결과 테이블 ID EMOTION_RISK_SCORES
+테이블설명 AI 감정 분석 점수, 위험 단계(3단계), 모델 버전 및 추론 이력 저장
+컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
+평가 ID score_id UUID - Y Y
+USERS.user_id 참조
+사용자 ID user_id UUID - Y Y
+(CASCADE)
+EMOTIONS.emotion
+감정 ID emotion_id UUID - Y Y
+_id 참조
+감정 점수 emotion_score NUMERIC 5,2 Y 0~100
+위험도 NORMAL,
+risk_level VARCHAR 20 Y Y
+단계 CAUTION, CRITICAL
+위험도
+risk_score NUMERIC 5,2 Y 0~100
+점수
+모델 버전 model_version VARCHAR 50 Y
+평가 일시 evaluated_at TIMESTAMPTZ - Y
 Table 생성 스크립트
-
 CREATE TABLE EMOTION_RISK_SCORES (
-
-    score_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-    user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE,
-
-    emotion_id UUID NOT NULL REFERENCES EMOTIONS(emotion_id) ON DELETE RESTRICT,
-
-    emotion_score NUMERIC(5,2) NOT NULL CHECK (emotion_score BETWEEN 0 AND 100),
-
-    risk_level VARCHAR(20) NOT NULL CHECK (risk_level IN ('NORMAL', 'CAUTION', 'CRITICAL')),
-
-    risk_score NUMERIC(5,2) NOT NULL CHECK (risk_score BETWEEN 0 AND 100),
-
-    model_version VARCHAR(50) NOT NULL,
-
-    evaluated_at TIMESTAMPTZ NOT NULL
-
+score_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE,
+emotion_id UUID NOT NULL REFERENCES EMOTIONS(emotion_id) ON DELETE RESTRICT,
+emotion_score NUMERIC(5,2) NOT NULL CHECK (emotion_score BETWEEN 0 AND 100),
+risk_level VARCHAR(20) NOT NULL CHECK (risk_level IN ('NORMAL', 'CAUTION', 'CRITICAL')),
+risk_score NUMERIC(5,2) NOT NULL CHECK (risk_score BETWEEN 0 AND 100),
+model_version VARCHAR(50) NOT NULL,
+evaluated_at TIMESTAMPTZ NOT NULL
 );
+--- table (page 10) ---
+ | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
+테이블명 | 정서 위험도 예측 결과 |  |  |  |  | 테이블 ID |  |  | EMOTION_RISK_SCORES |  | 
+테이블설명 | AI 감정 분석 점수, 위험 단계(3단계), 모델 버전 및 추론 이력 저장 |  |  |  |  |  |  |  |  |  | 
+컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
+평가 ID | score_id | UUID | - | Y | Y |  |  |  |  |  | 
+사용자 ID | user_id | UUID | - | Y |  |  | Y |  |  |  | USERS.user_id 참조 (CASCADE)
+감정 ID | emotion_id | UUID | - | Y |  |  | Y |  |  |  | EMOTIONS.emotion _id 참조
+감정 점수 | emotion_score | NUMERIC | 5,2 | Y |  |  |  |  |  |  | 0~100
+위험도 단계 | risk_level | VARCHAR | 20 | Y |  |  |  |  |  | Y | NORMAL, CAUTION, CRITICAL
+위험도 점수 | risk_score | NUMERIC | 5,2 | Y |  |  |  |  |  |  | 0~100
+모델 버전 | model_version | VARCHAR | 50 | Y |  |  |  |  |  |  | 
+평가 일시 | evaluated_at | TIMESTAMPTZ | - | Y |  |  |  |  |  |  | 
+Table 생성 스크립트 |  |  |  |  |  |  |  |  |  |  | 
+CREATE TABLE EMOTION_RISK_SCORES ( score_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE, emotion_id UUID NOT NULL REFERENCES EMOTIONS(emotion_id) ON DELETE RESTRICT, emotion_score NUMERIC(5,2) NOT NULL CHECK (emotion_score BETWEEN 0 AND 100), risk_level VARCHAR(20) NOT NULL CHECK (risk_level IN ('NORMAL', 'CAUTION', 'CRITICAL')), risk_score NUMERIC(5,2) NOT NULL CHECK (risk_score BETWEEN 0 AND 100), model_version VARCHAR(50) NOT NULL, evaluated_at TIMESTAMPTZ NOT NULL ); |  |  |  |  |  |  |  |  |  |  | 
 
-작성일자
-
-2026.07.23
-
-작성자
-
-이응균
-
-테이블명
-
-힐링 콘텐츠 마스터
-
-테이블 ID
-
-HEALING_CONTENTS
-
-테이블설명
-
-CAUTION(주의) 단계 추천용 감정별 맞춤 콘텐츠 메타데이터 관리
-
-컬럼명
-
-컬럼 ID
-
-타입
-
-길이
-
-NN
-
-PK
-
-FK
-
-UK
-
-CK
-
-비고
-
-콘텐츠 ID
-
-content_id
-
-UUID
-
--
-
-Y
-
-Y
-
-DEFAULT gen_random_uuid()
-
-대상 감정 ID
-
-emotion_id
-
-UUID
-
--
-
-Y
-
-Y
-
-EMOTIONS.emotion_id 참조
-
-카테고리
-
-category
-
-VARCHAR
-
-20
-
-Y
-
-Y
-
-MUSIC, FOOD, EXERCISE, ARTICLE
-
-콘텐츠 제목
-
-title
-
-VARCHAR
-
-200
-
-Y
-
-상세 설명
-
-description
-
-TEXT
-
--
-
-관리자용/화면용 콘텐츠 요약 설명
-
-연결 URL
-
-external_url
-
-TEXT
-
--
-
-Y
-
-외부 영상/음원 링크
-
+===== [page 11] =====
+테이블 명세서
+작성일자 2026.07.29 작성자 이응균
+테이블명 힐링 콘텐츠 마스터 테이블 ID HEALING_CONTENTS
+테이블설명 CAUTION(주의) 단계 추천용 감정별 맞춤 콘텐츠 메타데이터 관리
+컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
+콘텐츠 ID content_id UUID - Y Y
+대상 감정 EMOTIONS.emotion
+emotion_id UUID - Y Y
+ID _id 참조
+MUSIC, FOOD,
+카테고리 category VARCHAR 20 Y Y
+EXERCISE, ARTICLE
+콘텐츠
+title VARCHAR 200 Y
+제목
+관리자용/화면용
+상세 설명 description TEXT -
+요약
+연결 URL external_url TEXT - Y
 Table 생성 스크립트
-
 CREATE TABLE HEALING_CONTENTS (
-
-    content_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-    emotion_id UUID NOT NULL REFERENCES EMOTIONS(emotion_id) ON DELETE RESTRICT,
-
-    category VARCHAR(50) NOT NULL CHECK (category IN ('MUSIC', 'FOOD', 'EXERCISE', 
-
-    'ARTICLE')),
-
-    title VARCHAR(200) NOT NULL, description TEXT, external_url TEXT NOT NULL
-
+content_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+emotion_id UUID NOT NULL REFERENCES EMOTIONS(emotion_id) ON DELETE RESTRICT,
+category VARCHAR(20) NOT NULL CHECK (category IN ('MUSIC', 'FOOD', 'EXERCISE',
+'ARTICLE')),
+title VARCHAR(200) NOT NULL, description TEXT, external_url TEXT NOT NULL
 );
+--- table (page 11) ---
+ | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
+테이블명 | 힐링 콘텐츠 마스터 |  |  |  |  | 테이블 ID |  |  | HEALING_CONTENTS |  | 
+테이블설명 | CAUTION(주의) 단계 추천용 감정별 맞춤 콘텐츠 메타데이터 관리 |  |  |  |  |  |  |  |  |  | 
+컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
+콘텐츠 ID | content_id | UUID | - | Y | Y |  |  |  |  |  | 
+대상 감정 ID | emotion_id | UUID | - | Y |  |  | Y |  |  |  | EMOTIONS.emotion _id 참조
+카테고리 | category | VARCHAR | 20 | Y |  |  |  |  |  | Y | MUSIC, FOOD, EXERCISE, ARTICLE
+콘텐츠 제목 | title | VARCHAR | 200 | Y |  |  |  |  |  |  | 
+상세 설명 | description | TEXT | - |  |  |  |  |  |  |  | 관리자용/화면용 요약
+연결 URL | external_url | TEXT | - | Y |  |  |  |  |  |  | 
+Table 생성 스크립트 |  |  |  |  |  |  |  |  |  |  | 
+CREATE TABLE HEALING_CONTENTS ( content_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), emotion_id UUID NOT NULL REFERENCES EMOTIONS(emotion_id) ON DELETE RESTRICT, category VARCHAR(20) NOT NULL CHECK (category IN ('MUSIC', 'FOOD', 'EXERCISE', 'ARTICLE')), title VARCHAR(200) NOT NULL, description TEXT, external_url TEXT NOT NULL ); |  |  |  |  |  |  |  |  |  |  | 
 
-작성일자
-
-2026.07.23
-
-작성자
-
-이응균
-
-테이블명
-
-체성분 데이터
-
-테이블 ID
-
+===== [page 12] =====
+테이블 명세서
+작성일자 2026.07.29 작성자 이응균
 BODY_COMPOSITION_
-
+테이블명 체성분 데이터 테이블 ID
 METRICS
-
-테이블설명
-
-체성분계/웨어러블 연동을 통한 사용자 신체 구성(체중, 체지방, 근육량 등) 측정 이력 관리
-
-컬럼명
-
-컬럼 ID
-
-타입
-
-길이
-
-NN
-
-PK
-
-FK
-
-UK
-
-CK
-
-비고
-
-측정 ID
-
-body_metric_id
-
-UUID
-
--
-
-Y
-
-Y
-
-DEFAULT gen_random_uuid()
-
-사용자 ID
-
-user_id
-
-UUID
-
--
-
-Y
-
-Y
-
-USERS.user_id 참조 (CASCADE)
-
-체중
-
-weight_kg
-
-NUMERIC
-
-5,2
-
-단위: kg
-
-체수분
-
-body_water_kg
-
-NUMERIC
-
-5,2
-
-단위: kg
-
-체지방
-
-body_fat_kg
-
-NUMERIC
-
-5,2
-
-단위: kg
-
+테이블설명 체성분계 연동 신체 구성 측정 이력
+컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
+측정 ID body_metric_id UUID - Y Y
+USERS.user_id 참조
+사용자 ID user_id UUID - Y Y
+(CASCADE)
+체중 weight_kg NUMERIC 5,2
+체수분 body_water_kg NUMERIC 5,2
+체지방 body_fat_kg NUMERIC 5,2
+muscle_mass_k
+근육량 NUMERIC 5,2
+g
 근육량
-
-muscle_mass_kg
-
-NUMERIC
-
-5,2
-
-단위: kg
-
-근육량 표준범위 하한값
-
-muscle_mass_min_kg
-
-NUMERIC
-
-5,2
-
-단위: kg
-
-근육량 표준범위 상한값
-
-muscle_mass_max_kg
-
-NUMERIC
-
-5,2
-
-단위: kg
-
-골격근량
-
-skeletal_muscle_kg
-
-NUMERIC
-
-5,2
-
-단위: kg
-
-기초대사량
-
-bmr_kcal
-
-INT
-
--
-
-단위: kcal
-
-측정 일시
-
-measured_at
-
-TIMESTAMPTZ
-
--
-
-Y
-
+muscle_mass_m
+표준범위 NUMERIC 5,2
+in_kg
+하한값
+근육량
+muscle_mass_m
+표준범위 NUMERIC 5,2
+ax_kg
+상한값
+skeletal_muscle
+골격근량 NUMERIC 5,2
+_kg
+기초대사량 bmr_kcal INT -
+측정 일시 measured_at TIMESTAMPTZ - Y
 Table 생성 스크립트
-
 CREATE TABLE BODY_COMPOSITION_METRICS (
-
-    body_metric_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-    user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE,
-
-    weight_kg NUMERIC(5,2) CHECK (weight_kg >= 0),
-
-    body_water_kg NUMERIC(5,2) CHECK (body_water_kg >= 0),
-
-    body_fat_kg NUMERIC(5,2) CHECK (body_fat_kg >= 0),
-
-    muscle_mass_kg NUMERIC(5,2) CHECK (muscle_mass_kg >= 0),
-
-    muscle_mass_min_kg NUMERIC(5,2) CHECK (muscle_mass_min_kg >= 0),
-
-    muscle_mass_max_kg NUMERIC(5,2) CHECK (muscle_mass_max_kg >= 0),
-
-    skeletal_muscle_kg NUMERIC(5,2) CHECK (skeletal_muscle_kg >= 0),
-
-    bmr_kcal INTEGER CHECK (bmr_kcal >= 0),
-
-    measured_at TIMESTAMPTZ NOT NULL
-
+body_metric_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE,
+weight_kg NUMERIC(5,2) CHECK (weight_kg >= 0),
+body_water_kg NUMERIC(5,2) CHECK (body_water_kg >= 0),
+body_fat_kg NUMERIC(5,2) CHECK (body_fat_kg >= 0),
+muscle_mass_kg NUMERIC(5,2) CHECK (muscle_mass_kg >= 0),
+muscle_mass_min_kg NUMERIC(5,2) CHECK (muscle_mass_min_kg >= 0),
+muscle_mass_max_kg NUMERIC(5,2) CHECK (muscle_mass_max_kg >= 0),
+skeletal_muscle_kg NUMERIC(5,2) CHECK (skeletal_muscle_kg >= 0),
+bmr_kcal INTEGER CHECK (bmr_kcal >= 0),
+measured_at TIMESTAMPTZ NOT NULL
 );
-
-
+--- table (page 12) ---
+ | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
+테이블명 | 체성분 데이터 |  |  |  |  | 테이블 ID |  |  | BODY_COMPOSITION_ METRICS |  | 
+테이블설명 | 체성분계 연동 신체 구성 측정 이력 |  |  |  |  |  |  |  |  |  | 
+컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
+측정 ID | body_metric_id | UUID | - | Y | Y |  |  |  |  |  | 
+사용자 ID | user_id | UUID | - | Y |  |  | Y |  |  |  | USERS.user_id 참조 (CASCADE)
+체중 | weight_kg | NUMERIC | 5,2 |  |  |  |  |  |  |  | 
+체수분 | body_water_kg | NUMERIC | 5,2 |  |  |  |  |  |  |  | 
+체지방 | body_fat_kg | NUMERIC | 5,2 |  |  |  |  |  |  |  | 
+근육량 | muscle_mass_k g | NUMERIC | 5,2 |  |  |  |  |  |  |  | 
+근육량 표준범위 하한값 | muscle_mass_m in_kg | NUMERIC | 5,2 |  |  |  |  |  |  |  | 
+근육량 표준범위 상한값 | muscle_mass_m ax_kg | NUMERIC | 5,2 |  |  |  |  |  |  |  | 
+골격근량 | skeletal_muscle _kg | NUMERIC | 5,2 |  |  |  |  |  |  |  | 
+기초대사량 | bmr_kcal | INT | - |  |  |  |  |  |  |  | 
+측정 일시 | measured_at | TIMESTAMPTZ | - | Y |  |  |  |  |  |  | 
+Table 생성 스크립트 |  |  |  |  |  |  |  |  |  |  | 
+CREATE TABLE BODY_COMPOSITION_METRICS ( body_metric_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE, weight_kg NUMERIC(5,2) CHECK (weight_kg >= 0), body_water_kg NUMERIC(5,2) CHECK (body_water_kg >= 0), body_fat_kg NUMERIC(5,2) CHECK (body_fat_kg >= 0), muscle_mass_kg NUMERIC(5,2) CHECK (muscle_mass_kg >= 0), muscle_mass_min_kg NUMERIC(5,2) CHECK (muscle_mass_min_kg >= 0), muscle_mass_max_kg NUMERIC(5,2) CHECK (muscle_mass_max_kg >= 0), skeletal_muscle_kg NUMERIC(5,2) CHECK (skeletal_muscle_kg >= 0), bmr_kcal INTEGER CHECK (bmr_kcal >= 0), measured_at TIMESTAMPTZ NOT NULL ); |  |  |  |  |  |  |  |  |  |  | 

@@ -50,11 +50,50 @@ CREATE TABLE USERS (
                         CHECK (persona_type IN ('FRIEND', 'COUNSELOR')),
     terms_agreed    BOOLEAN NOT NULL DEFAULT FALSE,
     terms_agreed_at TIMESTAMPTZ,
+    sensitive_agreed    BOOLEAN NOT NULL DEFAULT FALSE,   -- [05-K]
+    sensitive_agreed_at TIMESTAMPTZ,                      -- [05-K]
+    role                VARCHAR(20) NOT NULL DEFAULT 'USER'   -- [SD-E1]
+                            CHECK (role IN ('USER', 'ADMIN')),
     CONSTRAINT chk_terms_logic CHECK (
         (terms_agreed = FALSE AND terms_agreed_at IS NULL) OR
         (terms_agreed = TRUE  AND terms_agreed_at IS NOT NULL)
+    ),
+    CONSTRAINT chk_sensitive_logic CHECK (
+        (sensitive_agreed = FALSE AND sensitive_agreed_at IS NULL) OR
+        (sensitive_agreed = TRUE  AND sensitive_agreed_at IS NOT NULL)
     )
 );
+
+-- [SD-E1] ✅ 2026.07.30 확정 — 관리자 구분 컬럼 신설
+--   관리자 기능이 요구사항·기능명세·발표자료에 모두 있는데 데이터 모델에
+--   관리자라는 개념이 없었습니다. 어떤 계정이 관리자인지 판별할 수단이 없어
+--   MLCM_501(관리자 관제 대시보드)을 구현할 수 없는 상태였습니다.
+--     02 MLCM_501  관련 액터 "관리자", 선행조건 "관리자 계정으로 로그인되어 있어야 함"
+--     02 FR-MN-003 관리자가 전체 사용자 위험도 분포를 조회하고 고위험군 우선 식별
+--     02 MLCM_510  판정 이력을 관리자가 통계·모니터링 목적으로 조회
+--     04 3)        접근통제를 "본인 및 권한 있는 관리자로 제한"
+--   ※ DEFAULT 'USER' 로 두어 회원가입 흐름을 건드리지 않습니다(05-C 와 같은 방식).
+--     관리자는 일반 가입 후 승격합니다. 시드로 넣으려면 bcrypt 해시를 SQL 에
+--     하드코딩해야 해 오히려 지저분해집니다.
+--         UPDATE USERS SET role = 'ADMIN' WHERE email = '<관리자 이메일>';
+--   ※ 별도 관리자 테이블은 채택하지 않았습니다. 로그인 로직·JWT 발급 경로·
+--     비밀번호 정책이 각각 둘이 되어, 관리자 한두 명 때문에 인증 체계를
+--     복제하는 셈이 됩니다.
+--   ※ 이 컬럼이 02-F (6) 의 방어 논리를 완성합니다. "접근통제(본인 및 권한 있는
+--     관리자로 제한)" 라는 문장이 지금까지는 판별 수단 없이 떠 있었습니다.
+--   ⚠ 연동 문서: 04 객체 정의서 USERS 속성 목록, 05 컬럼 정의표 및 CREATE 스크립트,
+--     화면설계서 ADMIN_LOGIN_01(SD-N6). 상세는 docs/review/화면설계서_개정안.md Part E
+
+-- [05-K] ✅ 2026.07.30 확정 — 민감정보 별도 동의 기록 2컬럼 추가
+--   02-L 로 "민감정보는 일반 개인정보 동의와 구분된 별도 동의 항목으로 처리한다"를
+--   02 문서에 반영했으나, 동의 기록은 terms_agreed BOOLEAN 하나뿐이었습니다.
+--   동의 항목이 둘인데 참/거짓 하나로는 어느 항목에 동의했는지 표현할 수 없어
+--   "별도 동의를 받는다"는 문서와 스키마가 어긋났습니다.
+--   ※ 법 요건(제23조 제1항)은 화면에서 별도 항목으로 분리하면 충족되며, 이 컬럼은
+--     동의 시점 증빙을 남기기 위한 것입니다. 04 문서가 동의 여부·일시 관리를
+--     명시하고 있어 민감정보만 기록이 없으면 누락으로 보입니다.
+--   ※ sensitive_agreed_at 하나로 줄일 수 있으나 terms_agreed 쌍과 형식을 맞췄습니다.
+--     같은 테이블에서 두 동의가 다른 방식이면 그 자체가 질문을 만듭니다.
 
 -- [05-C] ✅ 2026.07.29 확정 — DEFAULT 'FRIEND' 추가
 --   persona_type 이 NOT NULL 인데 DEFAULT 가 없어 회원가입 INSERT 가 실패했습니다.
@@ -124,7 +163,7 @@ CREATE TABLE DEVICE_HEALTH_CONNECTIONS (
 
 -- =====================================================================
 --  4. LIFELOG_METRICS — 시계열 라이프로그
---     생체 시계열 데이터(걸음수, 수면, 심박수, HRV) 및 원시 JSONB 보관
+--     생체 시계열 데이터(걸음수, 활동, 수면, 심박수, HRV) 및 원시 JSONB 보관
 -- =====================================================================
 CREATE TABLE LIFELOG_METRICS (
     metric_id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -132,6 +171,9 @@ CREATE TABLE LIFELOG_METRICS (
     steps                INTEGER DEFAULT 0 CHECK (steps >= 0),
     distance             INTEGER DEFAULT 0 CHECK (distance >= 0),
     calories             INTEGER DEFAULT 0 CHECK (calories >= 0),
+    activity_start_at    TIMESTAMPTZ,                                -- [05-E]
+    activity_end_at      TIMESTAMPTZ,                                -- [05-E]
+    total_active_min     INTEGER CHECK (total_active_min >= 0),      -- [05-E]
     sleep_start_at       TIMESTAMPTZ,
     sleep_end_at         TIMESTAMPTZ,
     total_sleep_min      INTEGER CHECK (total_sleep_min >= 0),
@@ -141,12 +183,36 @@ CREATE TABLE LIFELOG_METRICS (
     awake_min            INTEGER CHECK (awake_min >= 0),
     sleep_onset_min      INTEGER CHECK (sleep_onset_min >= 0),
     sleep_efficiency_pct NUMERIC(5,2) CHECK (sleep_efficiency_pct BETWEEN 0 AND 100),
-    heart_rate           INTEGER DEFAULT 0 CHECK (heart_rate >= 0),
-    hrv                  NUMERIC(5,2) DEFAULT 0 CHECK (hrv >= 0),
-    raw_payload          JSONB,
+    heart_rate           INTEGER CHECK (heart_rate >= 0),        -- [05-H]
+    hrv                  NUMERIC(5,2) CHECK (hrv >= 0),          -- [05-H]
     collected_at         TIMESTAMPTZ NOT NULL,
     CONSTRAINT uq_lifelog_user_collected UNIQUE (user_id, collected_at)
 );
+
+-- [05-E] ✅ 2026.07.29 확정 — 활동 시각 3컬럼 추가
+--   기업(라라랩스) 제공 라이프로그 메타데이터에 '활동 시작 시간'·'활동 종료 시각'·
+--   '총활동 시간'이 있는데 대응 컬럼이 없어 적재 시 버려지는 항목이었습니다.
+--   수면은 sleep_start_at·sleep_end_at·total_sleep_min 로 시작·종료·총시간을 모두
+--   받는데 활동만 steps·distance·calories 로 총량뿐이라 구조도 비대칭이었습니다.
+--   ※ 메타데이터는 hh:mm:ss 로 제공되지만 TIMESTAMPTZ 로 받습니다.
+--     04 문서 2) 가 "모든 날짜/시간 컬럼은 TIMESTAMPTZ 로 통일"을 규정하고 있고,
+--     날짜 컬럼과 합쳐야 자정을 넘긴 활동 구간을 표현할 수 있기 때문입니다.
+--   ※ 적재 시 활동 시각이 없는 데이터 출처(PMData·GLOBEM·Health Connect 일부)가
+--     있으므로 NULL 을 허용합니다. 분석은 NOT NULL 인 구간에 한해 수행합니다.
+
+-- [05-G] ✅ 2026.07.30 확정 — raw_payload 제거
+--   비고가 "추가 수면단계/활동 확장용"이었으나 무엇을 담는지 정의가 없었습니다.
+--   활동 시각 3컬럼을 [05-E] 로 정식 컬럼화하면서(JSONB 보관 절충안 미채택)
+--   확장 슬롯의 존재 이유가 사라졌습니다. 실제로 쓰지 않는 컬럼을 "확장용"으로
+--   남겨두면 적재 규격이 불명확해지므로 제거합니다.
+--   추후 신규 지표가 생기면 그때 정식 컬럼으로 추가합니다.
+
+-- [05-H] ✅ 2026.07.30 확정 — heart_rate·hrv 의 DEFAULT 0 제거
+--   심박수 0 은 "측정되지 않음"이 아니라 생물학적으로 불가능한 값입니다.
+--   워치 미착용 구간이 전부 0 으로 적재되면 개인별 14일 기준값(평균 심박)이
+--   왜곡되고, LSTM Autoencoder 가 그 0 을 정상 패턴으로 학습합니다.
+--   NULL 로 두어 결측과 실측을 구분하고, 분석 파이프라인이 해당 구간을
+--   제외하도록 합니다. steps·distance·calories 는 실제로 0 일 수 있어 유지합니다.
 
 
 -- =====================================================================

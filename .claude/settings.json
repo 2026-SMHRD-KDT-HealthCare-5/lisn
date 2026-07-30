@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(git -C $root status*)",
+      "PowerShell(git status*)",
+      "PowerShell(git -C $root log*)",
+      "PowerShell(git log*)",
+      "PowerShell(git -C $root diff*)",
+      "PowerShell(git diff*)",
+      "PowerShell(git -C $root show*)",
+      "PowerShell(git show*)",
+      "PowerShell(git -C $root fetch*)",
+      "PowerShell(git -C $root branch)",
+      "PowerShell(git -C $root rev-parse*)",
+      "PowerShell(git -C $root cat-file*)",
+      "PowerShell(git -C $root ls-files*)",
+      "PowerShell(git -C $root ls-tree*)",
+      "PowerShell(git -C $root remote*)",
+      "PowerShell(git -C $root merge-base*)",
+      "PowerShell(git -C $root check-ignore*)",
+      "PowerShell(git -C $root worktree list)",
+      "PowerShell(Get-ChildItem*)",
+      "PowerShell(Get-Item*)",
+      "PowerShell(Get-Content*)",
+      "PowerShell(Get-Command*)",
+      "PowerShell(Test-Path*)",
+      "PowerShell(Select-String*)",
+      "PowerShell(Add-Type -AssemblyName*)"
+    ]
+  }
+}
