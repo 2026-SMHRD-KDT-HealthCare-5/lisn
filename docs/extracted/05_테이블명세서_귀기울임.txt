@@ -45,8 +45,8 @@
 password_hash VARCHAR 255 Y
 해시
 이름 name VARCHAR 100 Y
-선택 입력,
-연락처 phone TEXT - AES-256-GCM
+AES-256-GCM
+연락처 phone TEXT -
 암호화 저장
 생년월일 birth_date DATE -
 MALE, FEMALE,
@@ -75,7 +75,7 @@ BOOLEAN - Y
 이메일 | email | VARCHAR | 255 | Y |  |  |  | Y |  |  | 
 비밀번호 해시 | password_hash | VARCHAR | 255 | Y |  |  |  |  |  |  | 
 이름 | name | VARCHAR | 100 | Y |  |  |  |  |  |  | 
-연락처 | phone | TEXT | - |  |  |  |  |  |  |  | 선택 입력, AES-256-GCM 암호화 저장
+연락처 | phone | TEXT | - |  |  |  |  |  |  |  | AES-256-GCM 암호화 저장
 생년월일 | birth_date | DATE | - |  |  |  |  |  |  |  | 
 성별 | gender | VARCHAR | 10 |  |  |  |  |  |  | Y | MALE, FEMALE, OTHER
 키 | height_cm | NUMERIC | 5,2 |  |  |  |  |  |  |  | 
@@ -335,7 +335,7 @@ CREATE TABLE EMOTIONS ( emotion_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), e
 테이블 명세서
 작성일자 2026.07.29 작성자 이응균
 테이블명 챗봇 대화 세션 및 메시지 테이블 ID CHAT_SESSIONS
-테이블설명 챗봇 성격별 대화 세션 및 메시지 히스토리(JSONB) 보관
+테이블설명 챗봇 성격별 대화 세션 및 메시지 히스토리 보관
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
 세션 ID session_id UUID - Y Y
 USERS.user_id 참조
@@ -363,7 +363,7 @@ started_at TIMESTAMPTZ NOT NULL, ended_at TIMESTAMPTZ
 --- table (page 9) ---
  | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 챗봇 대화 세션 및 메시지 |  |  |  |  | 테이블 ID |  |  | CHAT_SESSIONS |  | 
-테이블설명 | 챗봇 성격별 대화 세션 및 메시지 히스토리(JSONB) 보관 |  |  |  |  |  |  |  |  |  | 
+테이블설명 | 챗봇 성격별 대화 세션 및 메시지 히스토리 보관 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
 세션 ID | session_id | UUID | - | Y | Y |  |  |  |  |  | 
 사용자 ID | user_id | UUID | - | Y |  |  | Y |  |  |  | USERS.user_id 참조 (CASCADE)
@@ -379,7 +379,7 @@ CREATE TABLE CHAT_SESSIONS ( session_id UUID PRIMARY KEY DEFAULT gen_random_uuid
 테이블 명세서
 작성일자 2026.07.29 작성자 이응균
 테이블명 정서 위험도 예측 결과 테이블 ID EMOTION_RISK_SCORES
-테이블설명 AI 감정 분석 점수, 위험 단계(3단계), 모델 버전 및 추론 이력 저장
+테이블설명 AI 모델의 정서 위험도 추론 결과 이력
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
 평가 ID score_id UUID - Y Y
 USERS.user_id 참조
@@ -411,7 +411,7 @@ evaluated_at TIMESTAMPTZ NOT NULL
 --- table (page 10) ---
  | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 정서 위험도 예측 결과 |  |  |  |  | 테이블 ID |  |  | EMOTION_RISK_SCORES |  | 
-테이블설명 | AI 감정 분석 점수, 위험 단계(3단계), 모델 버전 및 추론 이력 저장 |  |  |  |  |  |  |  |  |  | 
+테이블설명 | AI 모델의 정서 위험도 추론 결과 이력 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
 평가 ID | score_id | UUID | - | Y | Y |  |  |  |  |  | 
 사용자 ID | user_id | UUID | - | Y |  |  | Y |  |  |  | USERS.user_id 참조 (CASCADE)
