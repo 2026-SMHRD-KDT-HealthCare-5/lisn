@@ -18,7 +18,12 @@ android {
         applicationId = "com.lisn.maeume"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+
+        // Health Connect(androidx.health.connect:connect-client)가 API 26 을 요구한다.
+        // Flutter 기본값(flutter.minSdkVersion)은 이보다 낮아 연동 패키지를 추가하는 순간
+        // manifest merger 단계에서 빌드가 실패한다.
+        // ※ 실제 사용할 Flutter 패키지가 더 높은 값을 요구할 수 있으므로 패키지 선정 후 재확인할 것.
+        minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
