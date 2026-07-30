@@ -13,18 +13,20 @@
 테이블 명세서
 1. 테이블 목록
 테이블명 테이블_ID 비고
+PK UUID, Direct Auth 기본
 사용자 정보 USERS
-사용자 정보 USERS PK UUID, Direct Auth 기본
 프로필 및 FCM 토큰 관리
-DEVICE_HEALTH_ PK UUID, OS 헬스 API OAuth
-디바이스 헬스 연동 정보
-CONNECTIONS 토큰(Access) 관리
+PK UUID, Health Connect 권한
+DEVICE_HEALTH_
+디바이스 헬스 연동 정보 승인 상태 및 항목별 수집 동의
+CONNECTIONS
+관리
 PK UUID, 9개 공통 감정 범주
 감정 마스터 EMOTIONS
 기준 마스터
-PK UUID, 정형 4개 지표 +
-시계열 라이프로그 LIFELOG_METRICS raw_payload(JSONB) 확장 적재
-(불변 로그)
+PK UUID, 활동·수면·심박 정형
+시계열 라이프로그 LIFELOG_METRICS
+지표 (불변 로그)
 PK UUID, 대화 내용 JSONB
 챗봇 대화 세션 및 메시지 CHAT_SESSIONS 적재 및 persona_type Enum
 처리 (불변 로그)
@@ -41,10 +43,10 @@ METRICS
 기초대사량 이력 보관
 --- table (page 2) ---
 테이블명 | 테이블_ID | 비고
-사용자 정보 | USERS | 사용자 정보 USERS PK UUID, Direct Auth 기본 프로필 및 FCM 토큰 관리
-디바이스 헬스 연동 정보 | DEVICE_HEALTH_ CONNECTIONS | PK UUID, OS 헬스 API OAuth 토큰(Access) 관리
+사용자 정보 | USERS | PK UUID, Direct Auth 기본 프로필 및 FCM 토큰 관리
+디바이스 헬스 연동 정보 | DEVICE_HEALTH_ CONNECTIONS | PK UUID, Health Connect 권한 승인 상태 및 항목별 수집 동의 관리
 감정 마스터 | EMOTIONS | PK UUID, 9개 공통 감정 범주 기준 마스터
-시계열 라이프로그 | LIFELOG_METRICS | PK UUID, 정형 4개 지표 + raw_payload(JSONB) 확장 적재 (불변 로그)
+시계열 라이프로그 | LIFELOG_METRICS | PK UUID, 활동·수면·심박 정형 지표 (불변 로그)
 챗봇 대화 세션 및 메시지 | CHAT_SESSIONS | PK UUID, 대화 내용 JSONB 적재 및 persona_type Enum 처리 (불변 로그)
 정서 위험도 예측 결과 | EMOTION_RISK_SCORES | PK UUID, AI 스코어링 수치, 모델 버전 및 위험 단계 추적 (불변 로그)
 힐링 콘텐츠 마스터 | HEALING_CONTENTS | PK UUID, CAUTION 단계 추천 콘텐츠 정보 및 상세 설명 보관
@@ -65,8 +67,8 @@ gen_random_uuid()
 password_hash VARCHAR 255 Y
 해시 암호화
 이름 name VARCHAR 100 Y
-AES-256-GCM
-연락처 phone TEXT -
+선택 입력,
+연락처 phone TEXT - AES-256-GCM
 암호화 저장
 생년월일 birth_date DATE -
 MALE, FEMALE,
@@ -85,8 +87,11 @@ terms_agreed BOOLEAN - Y DEFAULT FALSE
 약관동의일 terms_agreed_a
 TIMESTAMPTZ -
 시 t
-Table 생성 스크립트
-CREATE TABLE USERS (
+DEFAULT FALSE,
+민감정보 sensitive_agree
+BOOLEAN - Y 생체·건강 데이터
+동의 여부 d
+별도 동의
 --- table (page 3) ---
  | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 사용자 정보 |  |  |  |  | 테이블 ID |  |  | USERS |  | 
@@ -96,7 +101,7 @@ CREATE TABLE USERS (
 이메일 | email | VARCHAR | 255 | Y |  |  |  | Y |  |  | 로그인 계정
 비밀번호 해시 | password_hash | VARCHAR | 255 | Y |  |  |  |  |  |  | Bcrypt/Argon2 암호화
 이름 | name | VARCHAR | 100 | Y |  |  |  |  |  |  | 
-연락처 | phone | TEXT | - |  |  |  |  |  |  |  | AES-256-GCM 암호화 저장
+연락처 | phone | TEXT | - |  |  |  |  |  |  |  | 선택 입력, AES-256-GCM 암호화 저장
 생년월일 | birth_date | DATE | - |  |  |  |  |  |  |  | 
 성별 | gender | VARCHAR | 10 |  |  |  |  |  |  | Y | MALE, FEMALE, OTHER
 키 | height_cm | NUMERIC | 5,2 |  |  |  |  |  |  |  | 단위: cm
@@ -104,11 +109,15 @@ FCM 토큰 | fcm_token | TEXT | - |  |  |  |  |  |  |  | 푸시 알림 수신 �
 선호 페르소나 | persona_type | VARCHAR | 20 | Y |  |  |  |  |  | Y | FRIEND, COUNSELOR
 약관동의여 부 | terms_agreed | BOOLEAN | - | Y |  |  |  |  |  |  | DEFAULT FALSE
 약관동의일 시 | terms_agreed_a t | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
-Table 생성 스크립트 |  |  |  |  |  |  |  |  |  |  | 
-CREATE TABLE USERS ( |  |  |  |  |  |  |  |  |  |  | 
+민감정보 동의 여부 | sensitive_agree d | BOOLEAN | - | Y |  |  |  |  |  |  | DEFAULT FALSE, 생체·건강 데이터 별도 동의
 
 ===== [page 4] =====
 테이블 명세서
+민감정보 sensitive_agree
+TIMESTAMPTZ - 미동의 시 NULL
+동의 일시 d_at
+Table 생성 스크립트
+CREATE TABLE USERS (
 user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 email VARCHAR(255) NOT NULL UNIQUE,
 password_hash VARCHAR(255) NOT NULL,
@@ -121,11 +130,22 @@ height_cm NUMERIC(5,2) CHECK (height_cm > 0),
 persona_type VARCHAR(20) NOT NULL DEFAULT 'FRIEND'
 CHECK (persona_type IN ('FRIEND', 'COUNSELOR')),
 terms_agreed BOOLEAN NOT NULL DEFAULT FALSE,
-terms_agreed_at TIMESTAMPTZ, CONSTRAINT chk_terms_logic CHECK (
+terms_agreed_at TIMESTAMPTZ,
+sensitive_agreed BOOLEAN NOT NULL DEFAULT FALSE,
+sensitive_agreed_at TIMESTAMPTZ,
+CONSTRAINT chk_terms_logic CHECK (
 (terms_agreed = FALSE AND terms_agreed_at IS NULL) OR
 (terms_agreed = TRUE AND terms_agreed_at IS NOT NULL)
+),
+CONSTRAINT chk_sensitive_logic CHECK (
+(sensitive_agreed = FALSE AND sensitive_agreed_at IS NULL) OR
+(sensitive_agreed = TRUE AND sensitive_agreed_at IS NOT NULL)
 )
 );
+--- table (page 4) ---
+민감정보 동의 일시 | sensitive_agree d_at | TIMESTAMPTZ | - |  |  |  |  |  | 미동의 시 NULL
+Table 생성 스크립트 |  |  |  |  |  |  |  |  | 
+CREATE TABLE USERS ( user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), email VARCHAR(255) NOT NULL UNIQUE, password_hash VARCHAR(255) NOT NULL, name VARCHAR(100) NOT NULL, phone TEXT, birth_date DATE, gender VARCHAR(10) CHECK (gender IN ('MALE', 'FEMALE', 'OTHER')), fcm_token TEXT, height_cm NUMERIC(5,2) CHECK (height_cm > 0), persona_type VARCHAR(20) NOT NULL DEFAULT 'FRIEND' CHECK (persona_type IN ('FRIEND', 'COUNSELOR')), terms_agreed BOOLEAN NOT NULL DEFAULT FALSE, terms_agreed_at TIMESTAMPTZ, sensitive_agreed BOOLEAN NOT NULL DEFAULT FALSE, sensitive_agreed_at TIMESTAMPTZ, CONSTRAINT chk_terms_logic CHECK ( (terms_agreed = FALSE AND terms_agreed_at IS NULL) OR (terms_agreed = TRUE AND terms_agreed_at IS NOT NULL) ), CONSTRAINT chk_sensitive_logic CHECK ( (sensitive_agreed = FALSE AND sensitive_agreed_at IS NULL) OR (sensitive_agreed = TRUE AND sensitive_agreed_at IS NOT NULL) ) ); |  |  |  |  |  |  |  |  | 
 
 ===== [page 5] =====
 테이블 명세서
@@ -141,9 +161,15 @@ gen_random_uuid()
 USERS.user_id 참조
 사용자 ID user_id UUID - Y Y
 (CASCADE)
-사용자 디바이스
-디바이스명 device_name VARCHAR 100 명칭 (예: Galaxy
-Watch 6)
+Health Connect
+Metadata.device 의
+manufacturer +
+model 조합 (예:
+디바이스명 device_name VARCHAR 100
+Samsung
+SM-R900). 기록
+앱이 값을 제공하지
+않으면 NULL
 HEALTH_CONNECT,
 APPLE_HEALTH
 (MVP는
@@ -189,7 +215,7 @@ consent_scopes JSONB NOT NULL DEFAULT
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
 연동 ID | connection_id | UUID | - | Y | Y |  |  |  |  |  | DEFAULT gen_random_uuid()
 사용자 ID | user_id | UUID | - | Y |  |  | Y |  |  |  | USERS.user_id 참조 (CASCADE)
-디바이스명 | device_name | VARCHAR | 100 |  |  |  |  |  |  |  | 사용자 디바이스 명칭 (예: Galaxy Watch 6)
+디바이스명 | device_name | VARCHAR | 100 |  |  |  |  |  |  |  | Health Connect Metadata.device 의 manufacturer + model 조합 (예: Samsung SM-R900). 기록 앱이 값을 제공하지 않으면 NULL
 플랫폼 타입 | platform_type | VARCHAR | 50 | Y |  |  |  |  |  | Y | HEALTH_CONNECT, APPLE_HEALTH (MVP는 HEALTH_CONNECT 만 사용, APPLE_HEALTH는 상용화 단계 확장 대비)
 권한 승인 여부 | permission_gra nted | BOOLEAN | - | Y |  |  |  |  |  |  | 기기 내 Health Connect 권한 승인 상태, DEFAULT FALSE
 동의 일시 | agreed_at | TIMESTAMPTZ | - | Y |  |  |  |  |  |  | 약관/수집 동의 시간
@@ -202,14 +228,14 @@ CREATE TABLE DEVICE_HEALTH_CONNECTIONS ( connection_id UUID PRIMARY KEY DEFAULT 
 테이블 명세서
 작성일자 2026.07.29 작성자 이응균
 테이블명 시계열 라이프로그 테이블 ID LIFELOG_METRICS
-테이블설명 생체 시계열 데이터(걸음수, 수면, 심박수, HRV) 및 원시 JSONB 보관
+테이블설명 생체 시계열 데이터(활동·수면·심박수·HRV) 시계열 적재
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
 수집 지표 DEFAULT
 metric_id UUID - Y Y
 ID gen_random_uuid()
 USERS.user_id 참조
-사용자 ID user_id UUID - Y Y
-(CASCADE)
+사용자 ID user_id UUID - Y Y Y (CASCADE), 복합
+UNIQUE
 걸음 수 steps INT - DEFAULT 0
 수면 시작
 sleep_start_at TIMESTAMPTZ -
@@ -254,10 +280,10 @@ INT - 단위: 분
 --- table (page 6) ---
  | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 시계열 라이프로그 |  |  |  |  | 테이블 ID |  |  | LIFELOG_METRICS |  | 
-테이블설명 | 생체 시계열 데이터(걸음수, 수면, 심박수, HRV) 및 원시 JSONB 보관 |  |  |  |  |  |  |  |  |  | 
+테이블설명 | 생체 시계열 데이터(활동·수면·심박수·HRV) 시계열 적재 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
 수집 지표 ID | metric_id | UUID | - | Y | Y |  |  |  |  |  | DEFAULT gen_random_uuid()
-사용자 ID | user_id | UUID | - | Y |  |  | Y |  |  |  | USERS.user_id 참조 (CASCADE)
+사용자 ID | user_id | UUID | - | Y |  |  | Y | Y |  |  | USERS.user_id 참조 (CASCADE), 복합 UNIQUE
 걸음 수 | steps | INT | - |  |  |  |  |  |  |  | DEFAULT 0
 수면 시작 시간 | sleep_start_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
 수면 종료 시간 | sleep_end_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
@@ -276,14 +302,15 @@ REM 수면시간 | rem_sleep_min | INT | - |  |  |  |  |  |  |  | 단위: 분
 
 ===== [page 7] =====
 테이블 명세서
-심박수 heart_rate INT - DEFAULT 0 (BPM)
-HRV
-hrv NUMERIC(5,2) - DEFAULT 0 (ms)
-스코어
-원시 추가 수면단계/활동
-raw_payload JSONB -
-데이터 확장용 JSONB
-측정 일시 collected_at TIMESTAMPTZ - Y
+단위: BPM, 미측정
+심박수 heart_rate INT -
+구간은 NULL
+HRV 단위: ms, 미측정
+hrv NUMERIC(5,2) -
+스코어 구간은 NULL
+동일 시각 중복
+측정 일시 collected_at TIMESTAMPTZ - Y Y
+적재 방지
 Table 생성 스크립트
 CREATE TABLE LIFELOG_METRICS (
 metric_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -303,19 +330,17 @@ rem_sleep_min INTEGER CHECK (rem_sleep_min >= 0),
 awake_min INTEGER CHECK (awake_min >= 0),
 sleep_onset_min INTEGER CHECK (sleep_onset_min >= 0),
 sleep_efficiency_pct NUMERIC(5,2) CHECK (sleep_efficiency_pct BETWEEN 0 AND 100),
-heart_rate INTEGER DEFAULT 0 CHECK (heart_rate >= 0),
-hrv NUMERIC(5,2) DEFAULT 0 CHECK (hrv >= 0),
-raw_payload JSONB,
+heart_rate INTEGER CHECK (heart_rate >= 0),
+hrv NUMERIC(5,2) CHECK (hrv >= 0),
 collected_at TIMESTAMPTZ NOT NULL, CONSTRAINT uq_lifelog_user_collected UNIQUE (user_id,
 collected_at)
 );
 --- table (page 7) ---
-심박수 | heart_rate | INT | - |  |  |  |  |  | DEFAULT 0 (BPM)
-HRV 스코어 | hrv | NUMERIC(5,2) | - |  |  |  |  |  | DEFAULT 0 (ms)
-원시 데이터 | raw_payload | JSONB | - |  |  |  |  |  | 추가 수면단계/활동 확장용 JSONB
-측정 일시 | collected_at | TIMESTAMPTZ | - | Y |  |  |  |  | 
+심박수 | heart_rate | INT | - |  |  |  |  |  | 단위: BPM, 미측정 구간은 NULL
+HRV 스코어 | hrv | NUMERIC(5,2) | - |  |  |  |  |  | 단위: ms, 미측정 구간은 NULL
+측정 일시 | collected_at | TIMESTAMPTZ | - | Y |  |  | Y |  | 동일 시각 중복 적재 방지
 Table 생성 스크립트 |  |  |  |  |  |  |  |  | 
-CREATE TABLE LIFELOG_METRICS ( metric_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE, steps INTEGER DEFAULT 0 CHECK (steps >= 0), distance INTEGER DEFAULT 0 CHECK (distance >= 0), calories INTEGER DEFAULT 0 CHECK (calories >= 0), activity_start_at TIMESTAMPTZ, activity_end_at TIMESTAMPTZ, total_active_min INTEGER CHECK (total_active_min >= 0), sleep_start_at TIMESTAMPTZ, sleep_end_at TIMESTAMPTZ, total_sleep_min INTEGER CHECK (total_sleep_min >= 0), deep_sleep_min INTEGER CHECK (deep_sleep_min >= 0), light_sleep_min INTEGER CHECK (light_sleep_min >= 0), rem_sleep_min INTEGER CHECK (rem_sleep_min >= 0), awake_min INTEGER CHECK (awake_min >= 0), sleep_onset_min INTEGER CHECK (sleep_onset_min >= 0), sleep_efficiency_pct NUMERIC(5,2) CHECK (sleep_efficiency_pct BETWEEN 0 AND 100), heart_rate INTEGER DEFAULT 0 CHECK (heart_rate >= 0), hrv NUMERIC(5,2) DEFAULT 0 CHECK (hrv >= 0), raw_payload JSONB, collected_at TIMESTAMPTZ NOT NULL, CONSTRAINT uq_lifelog_user_collected UNIQUE (user_id, collected_at) ); |  |  |  |  |  |  |  |  | 
+CREATE TABLE LIFELOG_METRICS ( metric_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE, steps INTEGER DEFAULT 0 CHECK (steps >= 0), distance INTEGER DEFAULT 0 CHECK (distance >= 0), calories INTEGER DEFAULT 0 CHECK (calories >= 0), activity_start_at TIMESTAMPTZ, activity_end_at TIMESTAMPTZ, total_active_min INTEGER CHECK (total_active_min >= 0), sleep_start_at TIMESTAMPTZ, sleep_end_at TIMESTAMPTZ, total_sleep_min INTEGER CHECK (total_sleep_min >= 0), deep_sleep_min INTEGER CHECK (deep_sleep_min >= 0), light_sleep_min INTEGER CHECK (light_sleep_min >= 0), rem_sleep_min INTEGER CHECK (rem_sleep_min >= 0), awake_min INTEGER CHECK (awake_min >= 0), sleep_onset_min INTEGER CHECK (sleep_onset_min >= 0), sleep_efficiency_pct NUMERIC(5,2) CHECK (sleep_efficiency_pct BETWEEN 0 AND 100), heart_rate INTEGER CHECK (heart_rate >= 0), hrv NUMERIC(5,2) CHECK (hrv >= 0), collected_at TIMESTAMPTZ NOT NULL, CONSTRAINT uq_lifelog_user_collected UNIQUE (user_id, collected_at) ); |  |  |  |  |  |  |  |  | 
 
 ===== [page 8] =====
 테이블 명세서

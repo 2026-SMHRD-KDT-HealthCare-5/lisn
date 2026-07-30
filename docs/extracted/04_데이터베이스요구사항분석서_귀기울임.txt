@@ -14,11 +14,12 @@
 ===== [page 2] =====
 데이터베이스 요구사항분석서
 1. 요구사항 정의서
-1) 인증 외부화 및 비밀번호 미저장
+1) 자체 인증(Direct Auth) 및 비밀번호 평문 미저장
 외부 인증 솔루션 의존성을 배제하고 자체 인증 체제를 구축한다. USERS 테이블 내에
-단방향 암호화 해시(password_hash: Bcrypt/Argon2)를 보관하며, 필수 회원가입 정보인
+단방향 암호화 해시(password_hash: Bcrypt/Argon2)를 보관하며, 선택 입력 항목인
 연락처(phone), 약관 동의 여부(terms_agreed), 약관 동의 일시(terms_agreed_at)를 함께
-관리한다. Primary Key는 user_id (UUID v4)를 사용한다.
+관리한다. 연락처는 유출 시 2차 피해 위험이 큰 항목이므로 컬럼 단위 AES-256-GCM
+암호화를 적용하며, 미입력 시에도 서비스 전 기능을 이용할 수 있다.
 2) 식별자 및 시각 컬럼 표준화
 모든 테이블의 Primary Key(PK)는 UUID(v4) 사용을 원칙으로 하며 기본값으로
 gen_random_uuid()를 사용한다. 모든 날짜/시간 컬럼은 TIMESTAMPTZ (타임존 포함)
@@ -37,6 +38,9 @@ evaluated_at, started_at, agreed_at 등)으로 시점 정보를 대체한다. �
 필수적이므로 컬럼 암호화 대상에서 제외하며, 저장 매체 암호화와 접근통제로 보호한다.
 이는 5항의 (user_id, collected_at DESC) 복합 인덱스 요건 및 개인별 14일 기준값 산출
 로직과의 정합성을 확보하기 위함이다.
+- 생체·건강 데이터는 개인정보 보호법 제23조의 민감정보에 해당하므로, 일반 개인정보
+수집·이용 동의와 구분된 별도 동의로 처리하며 그 동의 여부와 시점을
+sensitive_agreed·sensitive_agreed_at에 기록한다.
 4) 단일 PostgreSQL 기반의 물리적 무결성(FK) 보장
 PostgreSQL 단일 DB 체제로 통합 구축함에 따라, 참조 관계는 DB 레벨의 물리적 Foreign
 Key(FK) 제약조건을 명확히 적용한다.
@@ -48,12 +52,12 @@ RESTRICT: EMOTIONS 삭제 시 연관 데이터 존재하면 삭제 제한
 5) 시계열 데이터 인덱싱 최적화
 LIFELOG_METRICS와 같이 고빈도로 적재되는 시계열 대용량 라이프로그 테이블은 (user_id,
 collected_at DESC) 복합 인덱스(Composite Index)를 필수 적용하여 최신 생체 데이터 조회
-성능을 최적화한다. 또한 동일 사용자·동일 수집 시각(user_id, collected_at)의 중복 적재를
-방지하기 위해 UNIQUE 제약을 적용하며, 재시도 전송 등으로 동일 시각 데이터가 재수신될
-경우 신규 삽입이 아닌 갱신(UPSERT) 으로 처리한다.
 
 ===== [page 3] =====
 데이터베이스 요구사항분석서
+성능을 최적화한다. 또한 동일 사용자·동일 수집 시각(user_id, collected_at)의 중복 적재를
+방지하기 위해 UNIQUE 제약을 적용하며, 재시도 전송 등으로 동일 시각 데이터가 재수신될
+경우 신규 삽입이 아닌 갱신(UPSERT) 으로 처리한다.
 6) 감정 체계 및 위험도 매핑 규칙
 - 감정 마스터: JOY(기쁨), DELIGHT(즐거움), HAPPINESS(행복), SADNESS(슬픔),
 ANXIETY(불안), LONELINESS(외로움), DESPAIR(절망), ANGER(분노), CRISIS(위기)
@@ -77,8 +81,10 @@ HEALING_CONTENTS에 등록되는 모든 콘텐츠는 AI의 감정 매칭 정확�
 2. 객체 정의서
 객체 명 속성 명
 user_id, email, password_hash, name, phone, terms_agreed,
-사용자 정보 (USERS) terms_agreed_at, birth_date, gender, height_cm, fcm_token,
-persona_type(FRIEND/COUNSELOR)
+terms_agreed_at, birth_date, gender, height_cm, fcm_token,
+사용자 정보 (USERS)
+persona_type(FRIEND/COUNSELOR), sensitive_agreed(BOOLEAN),
+sensitive_agreed_at
 디바이스 헬스 연동 connection_id(PK, UUID), USERS.user_id(FK), device_name,
 정보 platform_type(HEALTH_CONNECT/APPLE_HEALTH),
 (DEVICE_HEALTH_ permission_granted(BOOLEAN), agreed_at, consent_scopes,
@@ -89,7 +95,7 @@ activity_start_at, activity_end_at, total_active_min, sleep_start_at,
 sleep_end_at, total_sleep_min, deep_sleep_min, light_sleep_min,
 (LIFELOG_METRICS)
 rem_sleep_min, awake_min, sleep_onset_min, sleep_efficiency_pct,
-heart_rate, hrv, raw_payload(JSONB), collected_at
+heart_rate, hrv, collected_at
 감정 마스터 emotion_id(PK, UUID), emotion_code(UK), emotion_name,
 (EMOTIONS) category(NORMAL/CAUTION/CRITICAL)
 session_id(PK, UUID), USERS.user_id(FK),
@@ -112,9 +118,9 @@ CONTENTS) external_url
 _METRICS) muscle_mass_max_kg, skeletal_muscle_kg, bmr_kcal, measured_at
 --- table (page 4) ---
 객체 명 | 속성 명
-사용자 정보 (USERS) | user_id, email, password_hash, name, phone, terms_agreed, terms_agreed_at, birth_date, gender, height_cm, fcm_token, persona_type(FRIEND/COUNSELOR)
+사용자 정보 (USERS) | user_id, email, password_hash, name, phone, terms_agreed, terms_agreed_at, birth_date, gender, height_cm, fcm_token, persona_type(FRIEND/COUNSELOR), sensitive_agreed(BOOLEAN), sensitive_agreed_at
 디바이스 헬스 연동 정보 (DEVICE_HEALTH_ CONNECTIONS) | connection_id(PK, UUID), USERS.user_id(FK), device_name, platform_type(HEALTH_CONNECT/APPLE_HEALTH), permission_granted(BOOLEAN), agreed_at, consent_scopes, last_synced_at
-시계열 라이프로그 (LIFELOG_METRICS) | metric_id(PK, UUID), USERS.user_id(FK), steps, distance, calories, activity_start_at, activity_end_at, total_active_min, sleep_start_at, sleep_end_at, total_sleep_min, deep_sleep_min, light_sleep_min, rem_sleep_min, awake_min, sleep_onset_min, sleep_efficiency_pct, heart_rate, hrv, raw_payload(JSONB), collected_at
+시계열 라이프로그 (LIFELOG_METRICS) | metric_id(PK, UUID), USERS.user_id(FK), steps, distance, calories, activity_start_at, activity_end_at, total_active_min, sleep_start_at, sleep_end_at, total_sleep_min, deep_sleep_min, light_sleep_min, rem_sleep_min, awake_min, sleep_onset_min, sleep_efficiency_pct, heart_rate, hrv, collected_at
 감정 마스터 (EMOTIONS) | emotion_id(PK, UUID), emotion_code(UK), emotion_name, category(NORMAL/CAUTION/CRITICAL)
 챗봇 대화 세션 (CHAT_SESSIONS) | session_id(PK, UUID), USERS.user_id(FK), persona_type(FRIEND/COUNSELOR), messages(JSONB - PII 마스킹), session_summary, started_at, ended_at
 정서 위험도 예측 결과 (EMOTION_RISK_ SCORES) | score_id(PK, UUID), USERS.user_id(FK), EMOTIONS.emotion_id(FK), emotion_score, risk_level(NORMAL/CAUTION/CRITICAL), risk_score, model_version, evaluated_at
