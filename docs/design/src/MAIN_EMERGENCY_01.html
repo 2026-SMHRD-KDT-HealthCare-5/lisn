@@ -1,0 +1,125 @@
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 390px; height: 844px; }
+  body {
+    font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+    background: #EDF2FF;
+    color: #24325F;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .head { padding: 26px 24px 0; }
+  .brand { font-size: 17px; font-weight: 800; letter-spacing: -0.3px; }
+  .brand span { color: #8A9CF0; }
+
+  .body {
+    flex: 1; padding: 0 20px 30px;
+    display: flex; flex-direction: column; justify-content: center; gap: 14px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 22px;
+    box-shadow: 0 6px 22px rgba(36, 50, 95, 0.06);
+  }
+
+  /* 상태 안내 — 흰 카드에 브랜드 블루 아이콘. 원본의 카드 위계를 그대로 따른다. */
+  .notice { text-align: center; padding: 30px 24px 28px; }
+  .glyph {
+    width: 62px; height: 62px; margin: 0 auto 16px;
+    border-radius: 50%; background: #E7EDFF;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .notice h2 { font-size: 18.5px; font-weight: 800; letter-spacing: -0.4px; line-height: 1.45; }
+  .notice p { margin-top: 10px; font-size: 13px; line-height: 1.7; color: #8E96B4; }
+
+  /* 연결 */
+  .call { padding: 20px; }
+  .call-row { display: flex; align-items: center; gap: 13px; }
+  .call-ic {
+    width: 46px; height: 46px; border-radius: 15px; background: #EAF1FF;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .call-tx .n { font-size: 20px; font-weight: 800; letter-spacing: -0.2px; }
+  .call-tx .d { font-size: 12px; color: #A8ACBA; margin-top: 2px; }
+  .btn {
+    margin-top: 16px; height: 53px; border-radius: 16px;
+    background: #5A6BE0; color: #fff;
+    font-size: 15.5px; font-weight: 700; letter-spacing: -0.2px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 18px rgba(90, 107, 224, 0.28);
+  }
+
+  /* 동의 */
+  .agree { padding: 18px 20px; }
+  .agree-top { display: flex; gap: 10px; align-items: flex-start; }
+  .chk {
+    width: 19px; height: 19px; border-radius: 6px; flex: none; margin-top: 1px;
+    background: #8A9CF0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .agree-top p { font-size: 12.5px; line-height: 1.7; color: #6E7590; }
+  .agree-note {
+    margin-top: 12px; padding-top: 12px; border-top: 1px solid #F0F2F8;
+    font-size: 11.5px; color: #A8ACBA;
+  }
+
+  .foot { padding: 0 20px 32px; text-align: center; }
+  .close { font-size: 13.5px; color: #A8ACBA; font-weight: 600; }
+</style>
+
+<div class="head">
+  <div class="brand">마음이 <span>♥</span></div>
+</div>
+
+<div class="body">
+
+  <div class="card notice">
+    <div class="glyph">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+        <path d="M12 20.5s-7.5-4.6-7.5-9.8A4.2 4.2 0 0 1 12 8a4.2 4.2 0 0 1 7.5 2.7c0 5.2-7.5 9.8-7.5 9.8z"
+              fill="#8A9CF0"/>
+      </svg>
+    </div>
+    <h2>지금 많이 힘드신 것 같아요</h2>
+    <p>최근 정서 상태에서 도움이 필요한 신호가<br>보였어요. 혼자 견디지 않으셔도 괜찮아요.</p>
+  </div>
+
+  <div class="card call">
+    <div class="call-row">
+      <div class="call-ic">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none">
+          <path d="M6.2 3.5h3l1.5 3.8-2 1.3a12 12 0 0 0 5.7 5.7l1.3-2 3.8 1.5v3a1.7 1.7 0 0 1-1.9 1.7A15.6 15.6 0 0 1 4.5 5.4 1.7 1.7 0 0 1 6.2 3.5z"
+                stroke="#5A6BE0" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="call-tx">
+        <div class="n">109</div>
+        <div class="d">자살예방 상담전화 · 24시간 무료</div>
+      </div>
+    </div>
+    <div class="btn">지금 상담원과 연결하기</div>
+  </div>
+
+  <div class="card agree">
+    <div class="agree-top">
+      <div class="chk">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+          <path d="M5 12.5l4.5 4.5L19 7.5" stroke="#fff" stroke-width="3.2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <p>상담원 연결 시 원활한 위기 대응을 위해 최근 정서 분석 위험도 데이터가 해당 기관에 제공될 수 있습니다.</p>
+    </div>
+    <div class="agree-note">동의하지 않아도 상담 연결은 가능합니다.</div>
+  </div>
+
+</div>
+
+<div class="foot">
+  <div class="close">나중에 볼게요</div>
+</div>
