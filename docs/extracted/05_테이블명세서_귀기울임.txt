@@ -16,41 +16,39 @@
 Direct Auth 기본 프로필 및
 사용자 정보 USERS
 FCM 토큰 관리
-PK UUID, Health Connect 권한
-DEVICE_HEALTH_
-디바이스 헬스 연동 정보 승인 상태 및 항목별 수집 동의
-CONNECTIONS
-관리
+DEVICE_HEALTH_ Health Connect 권한 승인 상태
+디바이스 헬스 연동 정보
+CONNECTIONS 및 항목별 수집 동의 관리
 9개 공통 감정 범주 기준
 감정 마스터 EMOTIONS
 마스터
-PK UUID, 활동·수면·심박 정형
+활동·수면·심박 정형 지표 (불변
 시계열 라이프로그 LIFELOG_METRICS
-지표 (불변 로그)
-PK UUID, 대화 내용 JSONB
-챗봇 대화 세션 및 메시지 CHAT_SESSIONS 적재 및 persona_type Enum
-처리 (불변 로그)
-PK UUID, AI 스코어링 수치,
-정서 위험도 예측 결과 EMOTION_RISK_SCORES 모델 버전 및 위험 단계 추적
-(불변 로그)
-PK UUID, CAUTION 단계 추천
+로그)
+대화 내용 JSONB 적재 및
+챗봇 대화 세션 및 메시지 CHAT_SESSIONS persona_type Enum 처리 (불변
+로그)
+AI 스코어링 수치, 모델 버전 및
+정서 위험도 예측 결과 EMOTION_RISK_SCORES
+위험 단계 추적 (불변 로그)
+CAUTION 단계 추천 콘텐츠
 힐링 콘텐츠 마스터 HEALING_CONTENTS
-콘텐츠 정보 및 상세 설명 보관
-PK UUID, 체중·체지방·근육량 등
+정보 및 상세 설명 보관
+체중·체지방·근육량 등 신체
 BODY_COMPOSITION_
-체성분 데이터 신체 구성 측정치 및
+체성분 데이터 구성 측정치 및 기초대사량
 METRICS
-기초대사량 이력 보관
+이력 보관
 --- table (page 2) ---
 테이블명 | 테이블_ID | 비고
 사용자 정보 | USERS | Direct Auth 기본 프로필 및 FCM 토큰 관리
-디바이스 헬스 연동 정보 | DEVICE_HEALTH_ CONNECTIONS | PK UUID, Health Connect 권한 승인 상태 및 항목별 수집 동의 관리
+디바이스 헬스 연동 정보 | DEVICE_HEALTH_ CONNECTIONS | Health Connect 권한 승인 상태 및 항목별 수집 동의 관리
 감정 마스터 | EMOTIONS | 9개 공통 감정 범주 기준 마스터
-시계열 라이프로그 | LIFELOG_METRICS | PK UUID, 활동·수면·심박 정형 지표 (불변 로그)
-챗봇 대화 세션 및 메시지 | CHAT_SESSIONS | PK UUID, 대화 내용 JSONB 적재 및 persona_type Enum 처리 (불변 로그)
-정서 위험도 예측 결과 | EMOTION_RISK_SCORES | PK UUID, AI 스코어링 수치, 모델 버전 및 위험 단계 추적 (불변 로그)
-힐링 콘텐츠 마스터 | HEALING_CONTENTS | PK UUID, CAUTION 단계 추천 콘텐츠 정보 및 상세 설명 보관
-체성분 데이터 | BODY_COMPOSITION_ METRICS | PK UUID, 체중·체지방·근육량 등 신체 구성 측정치 및 기초대사량 이력 보관
+시계열 라이프로그 | LIFELOG_METRICS | 활동·수면·심박 정형 지표 (불변 로그)
+챗봇 대화 세션 및 메시지 | CHAT_SESSIONS | 대화 내용 JSONB 적재 및 persona_type Enum 처리 (불변 로그)
+정서 위험도 예측 결과 | EMOTION_RISK_SCORES | AI 스코어링 수치, 모델 버전 및 위험 단계 추적 (불변 로그)
+힐링 콘텐츠 마스터 | HEALING_CONTENTS | CAUTION 단계 추천 콘텐츠 정보 및 상세 설명 보관
+체성분 데이터 | BODY_COMPOSITION_ METRICS | 체중·체지방·근육량 등 신체 구성 측정치 및 기초대사량 이력 보관
 
 ===== [page 3] =====
 테이블 명세서
