@@ -105,6 +105,54 @@ python tools/doc2txt.py
 
 ---
 
+## 3-3. 2026.07.31 (3차 세션) — 백엔드 착수, 브랜치 통합
+
+### ⚠ 브랜치를 쓰지 않습니다
+
+`backend` · `함은선` 을 **전부 main 에 병합**했습니다. 혼자 개발하는 상황이라 브랜치가 마찰만 만들었습니다. **모든 작업을 main 에서 하세요.**
+
+### 지금 돌아가는 것
+
+```
+PostgreSQL 17 ─ lisn DB (테이블 8 · 인덱스 6 · EMOTIONS 9종 시드)
+        ↑
+FastAPI ─ /api/v1/auth/* 6개 · JWT 인증
+```
+
+회원가입 → 로그인 → 로그아웃 전 구간을 실제 서버로 검증했습니다.
+
+```powershell
+cd backend
+uvicorn app.main:app --reload
+```
+
+`backend/.env` 는 gitignore 대상이라 **새 PC 에서는 `.env.example` 을 복사해 다시 만들어야 합니다.**
+
+### 완료
+
+| 항목 | 내용 |
+|---|---|
+| [`API설계_사전결정.md`](review/API설계_사전결정.md) | 7건 확정. 명세를 바꾸기 전에 반드시 읽을 것 |
+| [`API명세_초안.md`](API명세_초안.md) | 외부 32 · 내부 2. 유스케이스 14건 전수 커버 |
+| SQLAlchemy 모델 8종 | `schema.sql` 매핑. `create_all()` 안 씀 |
+| 인증 계층 + auth 라우터 6개 | bcrypt · JWT · `require_admin` |
+| [`HANDOFF-CODEX.md`](design/HANDOFF-CODEX.md) | 프론트 인수인계. Codex 가 단독으로 읽고 시작 가능 |
+
+### 남은 TODO — 코드에 표시돼 있음
+
+- **`phone` 이 평문 저장**입니다. `02-F`(3) 은 AES-256-GCM 을 요구합니다
+- **SMTP 미설정**이라 비밀번호 재설정 토큰을 로그로 출력합니다. 운영 전 제거 필수
+
+### 이어서 할 것
+
+1. `users` · `devices` 라우터 — 인증이 되니 바로 이어짐. `phone` 암호화도 여기서
+2. `lifelog` 라우터 — `POST /lifelog/batch` 가 앱 push 의 핵심
+3. `chat` 라우터 — OpenAI 연동
+4. `HEALING_CONTENTS` 시드 — **비어 있어서 콘텐츠 추천이 동작할 수 없습니다.** 04 문서 7항이 "사전 안전 검수를 거친 콘텐츠만"을 원칙으로 못 박아 사람이 골라야 합니다
+5. 문서 3건 — `FR-DP-001`(pull→push) · `SD-E1`(04·05 `role`) · `05-N③`(작성일자)
+
+---
+
 ## 3-2. 2026.07.30 (2차 세션) — 프론트 방향 전환
 
 **프론트엔드를 문서 기준으로 재구축하기로 했습니다.** 기존 Flutter 앱이 화면설계서를 참조하지 않고 작성되어 화면 구성·기능 범위가 문서와 다릅니다. **앱이 아니라 문서가 정본입니다.**

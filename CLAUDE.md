@@ -129,9 +129,28 @@ GitHub Python 템플릿 기반입니다. 원본의 `lib/` 규칙은 **`/lib/` �
 
 `.claude/settings.json` 은 커밋되어 **팀 전체가 공유**하고, `.claude/settings.local.json` 은 PC 별이라 제외됩니다. 개별 승인이 local 에 쌓이는데 **한글이 들어간 명령은 인코딩이 깨져 저장돼 매칭이 안 됩니다.** 반복해서 물어보면 ASCII 패턴으로 `settings.json` 에 넣으세요.
 
+## 브랜치를 쓰지 않습니다
+
+2026.07.31 에 `backend` · `함은선` 을 **전부 main 에 병합**했습니다. 혼자 개발하는 상황에서 브랜치는 "이 파일이 어느 쪽에 있더라"만 만들었습니다. **모든 작업을 main 에서 하고 바로 push 합니다.**
+
+## backend
+
+```powershell
+cd backend
+uvicorn app.main:app --reload
+```
+
+`backend/.env` 는 gitignore 대상입니다. 새 PC 에서는 `.env.example` 을 복사해 `DATABASE_URL` 과 `JWT_SECRET` 을 채우세요.
+
+- **`db/schema.sql` 이 스키마 정본**입니다. 모델은 그 DDL 의 파이썬 매핑일 뿐이고 `Base.metadata.create_all()` 을 쓰지 않습니다. alembic 도 안 씁니다 — 정본이 둘이 되면 04·05 문서와 대조할 기준이 파이썬 코드로 옮겨갑니다
+- 스키마를 바꿀 때는 `schema.sql` 을 고치고 **DB 를 다시 만듭니다**
+- **시각 컬럼에는 `TimestampTZ` 를 반드시 명시하세요.** `Mapped[datetime]` 만 쓰면 SQLAlchemy 가 `timezone=False` 로 추론해 `TIMESTAMP WITHOUT TIME ZONE` 을 만들고, tz-aware 값을 넣는 순간 asyncpg 가 죽습니다. 04 문서는 전 컬럼 `TIMESTAMPTZ` 를 규정합니다
+- **DB 연결 오류는 PostgreSQL 로그를 먼저 보세요.** asyncpg 는 `connection was closed in the middle of operation` 처럼 원인을 감추는 메시지를 던집니다. 실제 원인(`"lisn" 데이터베이스 없음`)은 로그에 명확히 찍혀 있습니다
+  - `C:\Program Files\PostgreSQL\17\data\log\`
+
 ## frontend 구조
 
-`함은선` 브랜치에 있습니다(2026.07.30 재편, main 미병합).
+main 에 있습니다(2026.07.30 재편, 07.31 병합).
 
 ```
 frontend/
