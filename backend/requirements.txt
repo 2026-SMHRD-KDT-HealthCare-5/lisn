@@ -4,3 +4,5 @@ sqlalchemy
 asyncpg
 pydantic-settings
 email-validator
+bcrypt
+pyjwt

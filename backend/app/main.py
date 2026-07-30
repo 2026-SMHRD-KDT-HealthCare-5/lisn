@@ -1,12 +1,19 @@
 from fastapi import FastAPI, HTTPException
 from sqlalchemy import text
 
+from app.api.v1 import api_router
 from app.core.database import engine
 
 app = FastAPI(
     title="귀기울임 API",
     version="1.0.0",
+    description=(
+        "구현이 진행되면 이 /docs 가 API 명세의 정본이 됩니다. "
+        "docs/API명세_초안.md 는 착수용 초안이므로 갱신하지 않습니다."
+    ),
 )
+
+app.include_router(api_router)
 
 
 @app.get("/health")
