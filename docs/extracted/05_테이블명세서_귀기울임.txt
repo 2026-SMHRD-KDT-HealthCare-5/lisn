@@ -13,17 +13,17 @@
 테이블 명세서
 1. 테이블 목록
 테이블명 테이블_ID 비고
-PK UUID, Direct Auth 기본
+Direct Auth 기본 프로필 및
 사용자 정보 USERS
-프로필 및 FCM 토큰 관리
+FCM 토큰 관리
 PK UUID, Health Connect 권한
 DEVICE_HEALTH_
 디바이스 헬스 연동 정보 승인 상태 및 항목별 수집 동의
 CONNECTIONS
 관리
-PK UUID, 9개 공통 감정 범주
+9개 공통 감정 범주 기준
 감정 마스터 EMOTIONS
-기준 마스터
+마스터
 PK UUID, 활동·수면·심박 정형
 시계열 라이프로그 LIFELOG_METRICS
 지표 (불변 로그)
@@ -43,9 +43,9 @@ METRICS
 기초대사량 이력 보관
 --- table (page 2) ---
 테이블명 | 테이블_ID | 비고
-사용자 정보 | USERS | PK UUID, Direct Auth 기본 프로필 및 FCM 토큰 관리
+사용자 정보 | USERS | Direct Auth 기본 프로필 및 FCM 토큰 관리
 디바이스 헬스 연동 정보 | DEVICE_HEALTH_ CONNECTIONS | PK UUID, Health Connect 권한 승인 상태 및 항목별 수집 동의 관리
-감정 마스터 | EMOTIONS | PK UUID, 9개 공통 감정 범주 기준 마스터
+감정 마스터 | EMOTIONS | 9개 공통 감정 범주 기준 마스터
 시계열 라이프로그 | LIFELOG_METRICS | PK UUID, 활동·수면·심박 정형 지표 (불변 로그)
 챗봇 대화 세션 및 메시지 | CHAT_SESSIONS | PK UUID, 대화 내용 JSONB 적재 및 persona_type Enum 처리 (불변 로그)
 정서 위험도 예측 결과 | EMOTION_RISK_SCORES | PK UUID, AI 스코어링 수치, 모델 버전 및 위험 단계 추적 (불변 로그)
@@ -74,7 +74,7 @@ password_hash VARCHAR 255 Y
 MALE, FEMALE,
 성별 gender VARCHAR 10 Y
 OTHER
-키 height_cm NUMERIC 5,2 단위: cm
+키 height_cm NUMERIC 5,2
 푸시 알림 수신
 FCM 토큰 fcm_token TEXT -
 디바이스 식별자
@@ -104,7 +104,7 @@ BOOLEAN - Y 생체·건강 데이터
 연락처 | phone | TEXT | - |  |  |  |  |  |  |  | 선택 입력, AES-256-GCM 암호화 저장
 생년월일 | birth_date | DATE | - |  |  |  |  |  |  |  | 
 성별 | gender | VARCHAR | 10 |  |  |  |  |  |  | Y | MALE, FEMALE, OTHER
-키 | height_cm | NUMERIC | 5,2 |  |  |  |  |  |  |  | 단위: cm
+키 | height_cm | NUMERIC | 5,2 |  |  |  |  |  |  |  | 
 FCM 토큰 | fcm_token | TEXT | - |  |  |  |  |  |  |  | 푸시 알림 수신 디바이스 식별자
 선호 페르소나 | persona_type | VARCHAR | 20 | Y |  |  |  |  |  | Y | FRIEND, COUNSELOR
 약관동의여 부 | terms_agreed | BOOLEAN | - | Y |  |  |  |  |  |  | DEFAULT FALSE
@@ -244,23 +244,23 @@ sleep_start_at TIMESTAMPTZ -
 sleep_end_at TIMESTAMPTZ -
 시간
 총
-total_sleep_min INT - 단위: 분
+total_sleep_min INT -
 수면시간
 깊은 deep_sleep_
-INT - 단위: 분
+INT -
 수면시간 min
 얕은
-light_sleep_min INT - 단위: 분
+light_sleep_min INT -
 수면시간
 REM
-rem_sleep_min INT - 단위: 분
+rem_sleep_min INT -
 수면시간
-각성 시간 awake_min INT - 단위: 분
+각성 시간 awake_min INT -
 sleep_onset_
-입면 시간 INT - 단위: 분
+입면 시간 INT -
 min
 sleep_efficiency
-수면 효율 NUMERIC(5,2) - 단위: %
+수면 효율 NUMERIC(5,2) -
 _pct
 단위: m, DEFAULT
 이동 거리 distance INT -
@@ -275,7 +275,7 @@ activity_start_at TIMESTAMPTZ -
 activity_end_at TIMESTAMPTZ -
 시간
 총 total_active_mi
-INT - 단위: 분
+INT -
 활동시간 n
 --- table (page 6) ---
  | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
@@ -287,18 +287,18 @@ INT - 단위: 분
 걸음 수 | steps | INT | - |  |  |  |  |  |  |  | DEFAULT 0
 수면 시작 시간 | sleep_start_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
 수면 종료 시간 | sleep_end_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
-총 수면시간 | total_sleep_min | INT | - |  |  |  |  |  |  |  | 단위: 분
-깊은 수면시간 | deep_sleep_ min | INT | - |  |  |  |  |  |  |  | 단위: 분
-얕은 수면시간 | light_sleep_min | INT | - |  |  |  |  |  |  |  | 단위: 분
-REM 수면시간 | rem_sleep_min | INT | - |  |  |  |  |  |  |  | 단위: 분
-각성 시간 | awake_min | INT | - |  |  |  |  |  |  |  | 단위: 분
-입면 시간 | sleep_onset_ min | INT | - |  |  |  |  |  |  |  | 단위: 분
-수면 효율 | sleep_efficiency _pct | NUMERIC(5,2) | - |  |  |  |  |  |  |  | 단위: %
+총 수면시간 | total_sleep_min | INT | - |  |  |  |  |  |  |  | 
+깊은 수면시간 | deep_sleep_ min | INT | - |  |  |  |  |  |  |  | 
+얕은 수면시간 | light_sleep_min | INT | - |  |  |  |  |  |  |  | 
+REM 수면시간 | rem_sleep_min | INT | - |  |  |  |  |  |  |  | 
+각성 시간 | awake_min | INT | - |  |  |  |  |  |  |  | 
+입면 시간 | sleep_onset_ min | INT | - |  |  |  |  |  |  |  | 
+수면 효율 | sleep_efficiency _pct | NUMERIC(5,2) | - |  |  |  |  |  |  |  | 
 이동 거리 | distance | INT | - |  |  |  |  |  |  |  | 단위: m, DEFAULT 0
 소모 칼로리 | calories | INT | - |  |  |  |  |  |  |  | 단위: kcal, DEFAULT 0
 활동 시작 시간 | activity_start_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
 활동 종료 시간 | activity_end_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
-총 활동시간 | total_active_mi n | INT | - |  |  |  |  |  |  |  | 단위: 분
+총 활동시간 | total_active_mi n | INT | - |  |  |  |  |  |  |  | 
 
 ===== [page 7] =====
 테이블 명세서
@@ -546,26 +546,26 @@ gen_random_uuid()
 USERS.user_id 참조
 사용자 ID user_id UUID - Y Y
 (CASCADE)
-체중 weight_kg NUMERIC 5,2 단위: kg
-체수분 body_water_kg NUMERIC 5,2 단위: kg
-체지방 body_fat_kg NUMERIC 5,2 단위: kg
+체중 weight_kg NUMERIC 5,2
+체수분 body_water_kg NUMERIC 5,2
+체지방 body_fat_kg NUMERIC 5,2
 muscle_mass_k
-근육량 NUMERIC 5,2 단위: kg
+근육량 NUMERIC 5,2
 g
 근육량
 muscle_mass_m
-표준범위 NUMERIC 5,2 단위: kg
+표준범위 NUMERIC 5,2
 in_kg
 하한값
 근육량
 muscle_mass_m
-표준범위 NUMERIC 5,2 단위: kg
+표준범위 NUMERIC 5,2
 ax_kg
 상한값
 skeletal_muscle
-골격근량 NUMERIC 5,2 단위: kg
+골격근량 NUMERIC 5,2
 _kg
-기초대사량 bmr_kcal INT - 단위: kcal
+기초대사량 bmr_kcal INT -
 측정 일시 measured_at TIMESTAMPTZ - Y
 Table 생성 스크립트
 CREATE TABLE BODY_COMPOSITION_METRICS (
@@ -588,14 +588,14 @@ measured_at TIMESTAMPTZ NOT NULL
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
 측정 ID | body_metric_id | UUID | - | Y | Y |  |  |  |  |  | DEFAULT gen_random_uuid()
 사용자 ID | user_id | UUID | - | Y |  |  | Y |  |  |  | USERS.user_id 참조 (CASCADE)
-체중 | weight_kg | NUMERIC | 5,2 |  |  |  |  |  |  |  | 단위: kg
-체수분 | body_water_kg | NUMERIC | 5,2 |  |  |  |  |  |  |  | 단위: kg
-체지방 | body_fat_kg | NUMERIC | 5,2 |  |  |  |  |  |  |  | 단위: kg
-근육량 | muscle_mass_k g | NUMERIC | 5,2 |  |  |  |  |  |  |  | 단위: kg
-근육량 표준범위 하한값 | muscle_mass_m in_kg | NUMERIC | 5,2 |  |  |  |  |  |  |  | 단위: kg
-근육량 표준범위 상한값 | muscle_mass_m ax_kg | NUMERIC | 5,2 |  |  |  |  |  |  |  | 단위: kg
-골격근량 | skeletal_muscle _kg | NUMERIC | 5,2 |  |  |  |  |  |  |  | 단위: kg
-기초대사량 | bmr_kcal | INT | - |  |  |  |  |  |  |  | 단위: kcal
+체중 | weight_kg | NUMERIC | 5,2 |  |  |  |  |  |  |  | 
+체수분 | body_water_kg | NUMERIC | 5,2 |  |  |  |  |  |  |  | 
+체지방 | body_fat_kg | NUMERIC | 5,2 |  |  |  |  |  |  |  | 
+근육량 | muscle_mass_k g | NUMERIC | 5,2 |  |  |  |  |  |  |  | 
+근육량 표준범위 하한값 | muscle_mass_m in_kg | NUMERIC | 5,2 |  |  |  |  |  |  |  | 
+근육량 표준범위 상한값 | muscle_mass_m ax_kg | NUMERIC | 5,2 |  |  |  |  |  |  |  | 
+골격근량 | skeletal_muscle _kg | NUMERIC | 5,2 |  |  |  |  |  |  |  | 
+기초대사량 | bmr_kcal | INT | - |  |  |  |  |  |  |  | 
 측정 일시 | measured_at | TIMESTAMPTZ | - | Y |  |  |  |  |  |  | 
 Table 생성 스크립트 |  |  |  |  |  |  |  |  |  |  | 
 CREATE TABLE BODY_COMPOSITION_METRICS ( body_metric_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE, weight_kg NUMERIC(5,2) CHECK (weight_kg >= 0), body_water_kg NUMERIC(5,2) CHECK (body_water_kg >= 0), body_fat_kg NUMERIC(5,2) CHECK (body_fat_kg >= 0), muscle_mass_kg NUMERIC(5,2) CHECK (muscle_mass_kg >= 0), muscle_mass_min_kg NUMERIC(5,2) CHECK (muscle_mass_min_kg >= 0), muscle_mass_max_kg NUMERIC(5,2) CHECK (muscle_mass_max_kg >= 0), skeletal_muscle_kg NUMERIC(5,2) CHECK (skeletal_muscle_kg >= 0), bmr_kcal INTEGER CHECK (bmr_kcal >= 0), measured_at TIMESTAMPTZ NOT NULL ); |  |  |  |  |  |  |  |  |  |  | 

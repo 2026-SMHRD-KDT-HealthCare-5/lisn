@@ -15,19 +15,25 @@
 데이터베이스 요구사항분석서
 1. 요구사항 정의서
 1) 자체 인증(Direct Auth) 및 비밀번호 평문 미저장
-외부 인증 솔루션 의존성을 배제하고 자체 인증 체제를 구축한다. USERS 테이블 내에
-단방향 암호화 해시(password_hash: Bcrypt/Argon2)를 보관하며, 선택 입력 항목인
-연락처(phone), 약관 동의 여부(terms_agreed), 약관 동의 일시(terms_agreed_at)를 함께
-관리한다. 연락처는 유출 시 2차 피해 위험이 큰 항목이므로 컬럼 단위 AES-256-GCM
-암호화를 적용하며, 미입력 시에도 서비스 전 기능을 이용할 수 있다.
+- 외부 인증 솔루션 의존성을 배제하고 자체 인증 체제를 구축한다.
+- USERS 테이블 내에 단방향 암호화 해시(password_hash: Bcrypt/Argon2)를 보관하며, 선택
+입력 항목인 연락처(phone), 약관 동의 여부(terms_agreed), 약관 동의
+일시(terms_agreed_at)를 함께 관리한다.
+- 연락처는 유출 시 2차 피해 위험이 큰 항목이므로 컬럼 단위 AES-256-GCM 암호화를
+적용하며, 미입력 시에도 서비스 전 기능을 이용할 수 있다.
 2) 식별자 및 시각 컬럼 표준화
-모든 테이블의 Primary Key(PK)는 UUID(v4) 사용을 원칙으로 하며 기본값으로
-gen_random_uuid()를 사용한다. 모든 날짜/시간 컬럼은 TIMESTAMPTZ (타임존 포함)
-규격으로 통일한다. 별도의 생성 일시(created_at)·수정 일시(updated_at) 감사 컬럼은
-두지 않으며, 각 테이블의 업무상 의미를 가진 시각 컬럼(collected_at, measured_at,
-evaluated_at, started_at, agreed_at 등)으로 시점 정보를 대체한다. 이는 본 프로젝트가
-캡스톤 범위의 단일 배포 데모로 운영되어 별도의 이력 추적·감사 로그 조회 기능을
-제공하지 않기 때문이며, 추후 상용화 단계에서 감사 컬럼 재도입을 검토한다.
+- 모든 테이블의 Primary Key(PK)는 UUID(v4) 사용을 원칙으로 하며 기본값으로
+gen_random_uuid()를 사용한다.
+- 모든 날짜/시간 컬럼은 TIMESTAMPTZ (타임존 포함) 규격으로 통일한다.
+- 별도의 생성 일시(created_at)·수정 일시(updated_at) 감사 컬럼은 두지 않으며, 각 테이블의
+업무상 의미를 가진 시각 컬럼(collected_at, measured_at, evaluated_at, started_at,
+agreed_at 등)으로 시점 정보를 대체한다.
+- 이는 본 프로젝트가 캡스톤 범위의 단일 배포 데모로 운영되어 별도의 이력 추적·감사
+로그 조회 기능을 제공하지 않기 때문이며, 추후 상용화 단계에서 감사 컬럼 재도입을
+검토한다.
+- 측정 단위는 컬럼명 접미사로 표기한다(_min 분, _kg 킬로그램, _kcal 킬로칼로리, _cm
+센티미터, _pct 퍼센트). 접미사로 단위가 드러나지 않는 컬럼에 한해 명세서 비고에
+단위를 명시한다.
 3) 개인정보 보호 및 민감 데이터 보안(ZDR & Masking)
 - 비밀번호는 단방향 해시 알고리즘(Bcrypt/Argon2)을 적용하여 password_hash에 저장한다.
 - 챗봇 대화 내용 저장 시 성명, 전화번호, 주소 등 개인식별정보(PII)는 정규식 기반으로
@@ -47,14 +53,14 @@ Key(FK) 제약조건을 명확히 적용한다.
 - 참조 삭제 정책:
 CASCADE: 사용자 탈퇴 시 연관 데이터(LIFELOG_METRICS, CHAT_SESSIONS,
 BODY_COMPOSITION_METRICS, EMOTION_RISK_SCORES, DEVICE_HEALTH_CONNECTIONS)
+
+===== [page 3] =====
+데이터베이스 요구사항분석서
 자동 삭제
 RESTRICT: EMOTIONS 삭제 시 연관 데이터 존재하면 삭제 제한
 5) 시계열 데이터 인덱싱 최적화
 LIFELOG_METRICS와 같이 고빈도로 적재되는 시계열 대용량 라이프로그 테이블은 (user_id,
 collected_at DESC) 복합 인덱스(Composite Index)를 필수 적용하여 최신 생체 데이터 조회
-
-===== [page 3] =====
-데이터베이스 요구사항분석서
 성능을 최적화한다. 또한 동일 사용자·동일 수집 시각(user_id, collected_at)의 중복 적재를
 방지하기 위해 UNIQUE 제약을 적용하며, 재시도 전송 등으로 동일 시각 데이터가 재수신될
 경우 신규 삽입이 아닌 갱신(UPSERT) 으로 처리한다.
