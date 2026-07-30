@@ -451,9 +451,11 @@ risk_level VARCHAR 20 Y Y
 위험도 종합 정서 위험
 risk_score NUMERIC 5,2 Y
 점수 스코어 (0~100)
-MLOps 추적용 AI
+추론 시점의 모델
+버전 (v1.0 등),
 모델 버전 model_version VARCHAR 50 Y
-모델 버전 (v1.0 등)
+재학습 전후 성능
+비교용
 평가 일시 evaluated_at TIMESTAMPTZ - Y
 Table 생성 스크립트
 CREATE TABLE EMOTION_RISK_SCORES (
@@ -477,7 +479,7 @@ evaluated_at TIMESTAMPTZ NOT NULL
 감정 점수 | emotion_score | NUMERIC | 5,2 | Y |  |  |  |  |  |  | AI 감정 분석 스코어 (0~100)
 위험도 단계 | risk_level | VARCHAR | 20 | Y |  |  |  |  |  | Y | NORMAL, CAUTION, CRITICAL
 위험도 점수 | risk_score | NUMERIC | 5,2 | Y |  |  |  |  |  |  | 종합 정서 위험 스코어 (0~100)
-모델 버전 | model_version | VARCHAR | 50 | Y |  |  |  |  |  |  | MLOps 추적용 AI 모델 버전 (v1.0 등)
+모델 버전 | model_version | VARCHAR | 50 | Y |  |  |  |  |  |  | 추론 시점의 모델 버전 (v1.0 등), 재학습 전후 성능 비교용
 평가 일시 | evaluated_at | TIMESTAMPTZ | - | Y |  |  |  |  |  |  | 
 Table 생성 스크립트 |  |  |  |  |  |  |  |  |  |  | 
 CREATE TABLE EMOTION_RISK_SCORES ( score_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), user_id UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE, emotion_id UUID NOT NULL REFERENCES EMOTIONS(emotion_id) ON DELETE RESTRICT, emotion_score NUMERIC(5,2) NOT NULL CHECK (emotion_score BETWEEN 0 AND 100), risk_level VARCHAR(20) NOT NULL CHECK (risk_level IN ('NORMAL', 'CAUTION', 'CRITICAL')), risk_score NUMERIC(5,2) NOT NULL CHECK (risk_score BETWEEN 0 AND 100), model_version VARCHAR(50) NOT NULL, evaluated_at TIMESTAMPTZ NOT NULL ); |  |  |  |  |  |  |  |  |  |  | 
