@@ -249,7 +249,10 @@ Thumbs.db
 *.pem
 *.key
 
-# --- Claude Code 로컬 설정 ---
+# --- 에디터 로컬 설정 ---
+# .vscode/settings.json 에는 PC 마다 다른 Python 인터프리터 경로가 들어간다.
+# 공유하면 다른 팀원 환경에서 오히려 깨지므로 제외한다.
+.vscode/
 .claude/settings.local.json
 
 # --- Node / Flutter ---
