@@ -16,7 +16,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base
+from app.models.base import Base, TimestampTZ
 
 
 class Emotion(Base):
@@ -71,7 +71,7 @@ class EmotionRiskScore(Base):
     risk_level: Mapped[str] = mapped_column(String(20), nullable=False)
     risk_score: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=False)
     model_version: Mapped[str] = mapped_column(String(50), nullable=False)
-    evaluated_at: Mapped[datetime] = mapped_column(nullable=False)
+    evaluated_at: Mapped[datetime] = mapped_column(TimestampTZ, nullable=False)
 
     __table_args__ = (
         CheckConstraint(

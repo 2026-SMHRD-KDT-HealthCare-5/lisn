@@ -17,7 +17,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models.base import Base
+from app.models.base import Base, TimestampTZ
 
 
 class User(Base):
@@ -49,11 +49,11 @@ class User(Base):
     terms_agreed: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default=text("FALSE")
     )
-    terms_agreed_at: Mapped[datetime | None] = mapped_column()
+    terms_agreed_at: Mapped[datetime | None] = mapped_column(TimestampTZ)
     sensitive_agreed: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default=text("FALSE")
     )
-    sensitive_agreed_at: Mapped[datetime | None] = mapped_column()
+    sensitive_agreed_at: Mapped[datetime | None] = mapped_column(TimestampTZ)
 
     # [SD-E1] 관리자 판별 수단. MLCM_501 · FR-MN-003 이 관리자를 전제한다.
     # 관리자는 일반 가입 후 UPDATE 로 승격한다.
@@ -95,11 +95,11 @@ class DeviceHealthConnection(Base):
     permission_granted: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default=text("FALSE")
     )
-    agreed_at: Mapped[datetime] = mapped_column(nullable=False)
+    agreed_at: Mapped[datetime] = mapped_column(TimestampTZ, nullable=False)
 
     # 앱이 이 시각 이후 신규분만 조회해 push 한다. 서버가 갱신해 응답으로 돌려준다.
     # 3시간 이상 미갱신이면 미수신으로 보고 FCM 무음 푸시를 발송한다(NFR-DV-002).
-    last_synced_at: Mapped[datetime | None] = mapped_column()
+    last_synced_at: Mapped[datetime | None] = mapped_column(TimestampTZ)
 
     consent_scopes: Mapped[dict] = mapped_column(JSONB, nullable=False)
 

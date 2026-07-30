@@ -16,7 +16,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base
+from app.models.base import Base, TimestampTZ
 
 
 class LifelogMetric(Base):
@@ -40,12 +40,12 @@ class LifelogMetric(Base):
     calories: Mapped[int | None] = mapped_column(Integer, server_default=text("0"))
 
     # [05-E] 활동 시각 3컬럼
-    activity_start_at: Mapped[datetime | None] = mapped_column()
-    activity_end_at: Mapped[datetime | None] = mapped_column()
+    activity_start_at: Mapped[datetime | None] = mapped_column(TimestampTZ)
+    activity_end_at: Mapped[datetime | None] = mapped_column(TimestampTZ)
     total_active_min: Mapped[int | None] = mapped_column(Integer)
 
-    sleep_start_at: Mapped[datetime | None] = mapped_column()
-    sleep_end_at: Mapped[datetime | None] = mapped_column()
+    sleep_start_at: Mapped[datetime | None] = mapped_column(TimestampTZ)
+    sleep_end_at: Mapped[datetime | None] = mapped_column(TimestampTZ)
     total_sleep_min: Mapped[int | None] = mapped_column(Integer)
     deep_sleep_min: Mapped[int | None] = mapped_column(Integer)
     light_sleep_min: Mapped[int | None] = mapped_column(Integer)
@@ -57,7 +57,7 @@ class LifelogMetric(Base):
     heart_rate: Mapped[int | None] = mapped_column(Integer)
     hrv: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
 
-    collected_at: Mapped[datetime] = mapped_column(nullable=False)
+    collected_at: Mapped[datetime] = mapped_column(TimestampTZ, nullable=False)
 
     __table_args__ = (
         UniqueConstraint("user_id", "collected_at", name="uq_lifelog_user_collected"),
@@ -91,7 +91,7 @@ class BodyCompositionMetric(Base):
     skeletal_muscle_kg: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
     bmr_kcal: Mapped[int | None] = mapped_column(Integer)
 
-    measured_at: Mapped[datetime] = mapped_column(nullable=False)
+    measured_at: Mapped[datetime] = mapped_column(TimestampTZ, nullable=False)
 
     __table_args__ = (
         Index("idx_body_user_measured", "user_id", text("measured_at DESC")),

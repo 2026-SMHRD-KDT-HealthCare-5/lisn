@@ -7,7 +7,7 @@ from sqlalchemy import CheckConstraint, ForeignKey, Index, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base
+from app.models.base import Base, TimestampTZ
 
 
 class ChatSession(Base):
@@ -32,8 +32,8 @@ class ChatSession(Base):
     )
     messages: Mapped[list] = mapped_column(JSONB, nullable=False)
     session_summary: Mapped[str | None] = mapped_column(Text)
-    started_at: Mapped[datetime] = mapped_column(nullable=False)
-    ended_at: Mapped[datetime | None] = mapped_column()
+    started_at: Mapped[datetime] = mapped_column(TimestampTZ, nullable=False)
+    ended_at: Mapped[datetime | None] = mapped_column(TimestampTZ)
 
     __table_args__ = (
         CheckConstraint(
