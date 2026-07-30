@@ -37,7 +37,7 @@
 2. 테이블 정의서
 작성일자 2026.07.29 작성자 이응균
 테이블명 사용자 정보 테이블 ID USERS
-테이블설명 회원 계정 프로필, 비밀번호 해시, 선호 챗봇 성격 및 푸시 토큰 관리
+테이블설명 회원 계정 및 프로필 관리
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
 사용자 ID user_id UUID - Y Y
 이메일 email VARCHAR 255 Y Y
@@ -69,7 +69,7 @@ BOOLEAN - Y
 --- table (page 3) ---
  | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 사용자 정보 |  |  |  |  | 테이블 ID |  |  | USERS |  | 
-테이블설명 | 회원 계정 프로필, 비밀번호 해시, 선호 챗봇 성격 및 푸시 토큰 관리 |  |  |  |  |  |  |  |  |  | 
+테이블설명 | 회원 계정 및 프로필 관리 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
 사용자 ID | user_id | UUID | - | Y | Y |  |  |  |  |  | 
 이메일 | email | VARCHAR | 255 | Y |  |  |  | Y |  |  | 
@@ -184,7 +184,7 @@ CREATE TABLE DEVICE_HEALTH_CONNECTIONS ( connection_id UUID PRIMARY KEY DEFAULT 
 테이블 명세서
 작성일자 2026.07.29 작성자 이응균
 테이블명 시계열 라이프로그 테이블 ID LIFELOG_METRICS
-테이블설명 생체 시계열 데이터(활동·수면·심박수·HRV) 시계열 적재
+테이블설명 활동·수면·심박 생체 시계열 적재
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
 수집 지표
 metric_id UUID - Y Y
@@ -236,7 +236,7 @@ INT -
 --- table (page 6) ---
  | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 시계열 라이프로그 |  |  |  |  | 테이블 ID |  |  | LIFELOG_METRICS |  | 
-테이블설명 | 생체 시계열 데이터(활동·수면·심박수·HRV) 시계열 적재 |  |  |  |  |  |  |  |  |  | 
+테이블설명 | 활동·수면·심박 생체 시계열 적재 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
 수집 지표 ID | metric_id | UUID | - | Y | Y |  |  |  |  |  | 
 사용자 ID | user_id | UUID | - | Y |  |  | Y | Y |  |  | USERS.user_id 참조 (CASCADE), 복합 UNIQUE
@@ -472,9 +472,7 @@ CREATE TABLE HEALING_CONTENTS ( content_id UUID PRIMARY KEY DEFAULT gen_random_u
 BODY_COMPOSITION_
 테이블명 체성분 데이터 테이블 ID
 METRICS
-체성분계/웨어러블 연동을 통한 사용자 신체 구성(체중, 체지방, 근육량 등) 측정 이력
-테이블설명
-관리
+테이블설명 체성분계 연동 신체 구성 측정 이력
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
 측정 ID body_metric_id UUID - Y Y
 USERS.user_id 참조
@@ -518,7 +516,7 @@ measured_at TIMESTAMPTZ NOT NULL
 --- table (page 12) ---
  | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 체성분 데이터 |  |  |  |  | 테이블 ID |  |  | BODY_COMPOSITION_ METRICS |  | 
-테이블설명 | 체성분계/웨어러블 연동을 통한 사용자 신체 구성(체중, 체지방, 근육량 등) 측정 이력 관리 |  |  |  |  |  |  |  |  |  | 
+테이블설명 | 체성분계 연동 신체 구성 측정 이력 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
 측정 ID | body_metric_id | UUID | - | Y | Y |  |  |  |  |  | 
 사용자 ID | user_id | UUID | - | Y |  |  | Y |  |  |  | USERS.user_id 참조 (CASCADE)
