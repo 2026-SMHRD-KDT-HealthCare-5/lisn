@@ -79,16 +79,55 @@ $edge = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 
 ## 진행 현황
 
-| 화면 | 상태 |
-|---|---|
-| `MAIN_EMERGENCY_01` 긴급 상담 연결 | ✅ 완료 |
-| `MAIN_LOGIN_02` 비밀번호 재설정 | 대기 |
-| `MAIN_SETTING_02` 계정 관리·회원 탈퇴 | 대기 |
-| `MAIN_REPORT_01` 정서 리포트 | 대기 |
-| `ADMIN_LOGIN_01` 관리자 로그인 (웹) | 대기 |
-| `ADMIN_DASH_01` 관리자 관제 (웹) | 대기 |
+| 화면 | 캔버스 | 상태 |
+|---|---|---|
+| `MAIN_EMERGENCY_01` 긴급 상담 연결 | 390×844 | ✅ **완료 — 이걸 복사해서 시작하세요** |
+| `MAIN_LOGIN_02` 비밀번호 재설정 | 390×844 | 대기 |
+| `MAIN_SETTING_02` 계정 관리·회원 탈퇴 | 390×844 | 대기 |
+| `MAIN_REPORT_01` 정서 리포트 | 390×844 | 대기 |
+| `ADMIN_LOGIN_01` 관리자 로그인 | 1280×800 | 대기 |
+| `ADMIN_DASH_01` 관리자 관제 | 1280×800 | 대기 |
 
 명세는 [`../review/화면설계서_개정안.md`](../review/화면설계서_개정안.md) Part B 참조.
+
+## 나머지 5장을 만드는 절차
+
+**`src/MAIN_EMERGENCY_01.html` 을 복사해서 고치는 게 가장 빠릅니다.** 팔레트·폰트·카드 스타일이 이미 잡혀 있습니다.
+
+```powershell
+# 1. 복사
+Copy-Item docs\design\src\MAIN_EMERGENCY_01.html docs\design\src\MAIN_REPORT_01.html
+
+# 2. 내용 수정 (아래 화면별 구성 참고)
+
+# 3. 렌더
+$edge = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+& $edge --headless=new --disable-gpu --hide-scrollbars `
+        --force-device-scale-factor=2 --window-size=390,844 `
+        --virtual-time-budget=4000 `
+        --screenshot="docs\design\MAIN_REPORT_01.png" `
+        "file:///$((Get-Location).Path -replace '\\','/')/docs/design/src/MAIN_REPORT_01.html"
+```
+
+관리자 웹 2장은 `--window-size=1280,800` 으로 바꾸고, HTML 의 `html, body { width/height }` 도 함께 고치세요.
+
+### 화면별 구성
+
+각 화면의 항목(❶❷❸)은 [`../review/화면설계서_개정안.md`](../review/화면설계서_개정안.md) Part B 에 문장으로 정의돼 있습니다. 그대로 UI 요소로 옮기면 됩니다.
+
+| 화면 | 주요 구성 | 참고 |
+|---|---|---|
+| `MAIN_LOGIN_02` | 이메일 입력 → 발송 안내 → 새 비밀번호 입력 | 폼. 카드 2개면 충분 |
+| `MAIN_SETTING_02` | 계정 정보 · 비밀번호 변경 · 탈퇴 버튼 · 삭제 범위 안내 | 리스트 + 경고성 안내 카드 |
+| `MAIN_REPORT_01` | 기간 선택 · 감정 추이 곡선 · 위험 단계 분포 · PDF 내보내기 | **차트는 인라인 SVG 로 직접 그리세요.** 라이브러리를 CDN 으로 불러오면 렌더 타이밍이 어긋납니다 |
+| `ADMIN_LOGIN_01` | 웹 중앙 정렬 로그인 폼 | 앱과 달라 보이는 게 정상 |
+| `ADMIN_DASH_01` | 위험도 분포 요약 3칸 · 대상자 테이블 · 상세 패널 | 웹이라 여백과 밀도가 앱과 다름 |
+
+### 주의
+
+- **차트를 이미지로 넣지 마세요.** SVG 로 그리면 팔레트가 정확히 맞고 수정도 쉽습니다
+- 리포트·대시보드의 숫자는 **그럴듯한 더미**를 넣되, `schema.sql` 의 값 범위를 지키세요 (`emotion_score` 0~100, `risk_level` 3종 등). 범위를 벗어난 값이 시안에 있으면 심사에서 지적됩니다
+- 관리자 화면에 **실명을 넣지 마세요.** 위험도 목록은 `user_id` 앞 8자리 정도로 표기하는 편이 개인정보 설계와 일관됩니다
 
 ## 미결
 
