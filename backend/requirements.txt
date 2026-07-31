@@ -9,3 +9,5 @@ pyjwt
 cryptography
 openai
 httpx
+pytest
+pytest-asyncio

@@ -45,7 +45,7 @@ async def push_lifelog(
     """
     if len(body.items) > MAX_BATCH:
         raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
             detail=f"한 번에 최대 {MAX_BATCH}건까지 전송할 수 있습니다 (요청 {len(body.items)}건)",
         )
 
