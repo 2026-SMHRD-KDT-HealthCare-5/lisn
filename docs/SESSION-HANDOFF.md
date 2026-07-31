@@ -116,6 +116,56 @@ python tools/doc2txt.py
 
 ---
 
+## 3-4. 2026.07.31 — 백엔드 API 5개 그룹 완성
+
+### 지금 도는 것
+
+```
+/api/v1
+├── auth/*      회원가입·로그인·로그아웃·비밀번호 재설정      (6개)
+├── users/*     프로필 조회/수정·비밀번호 변경·회원 탈퇴      (4개)
+├── devices/*   연동 등록·조회·항목별 동의 갱신               (3개)
+├── lifelog·body-composition   앱 push 수신·조회             (4개)
+└── chat/*      세션·메시지·기록 조회/삭제                   (6개)
+```
+
+전부 **실제 서버로 검증**했습니다. 검증 내역은 [`작업이력.md`](review/작업이력.md) 22·23차.
+
+### 특히 확인된 것
+
+- **연락처 암호화** — DB 에는 AES-256-GCM 암호문, API 응답에서 복호화 (`02-F`(3))
+- **라이프로그 UPSERT** — 같은 `collected_at` 재전송 시 행이 안 늘고 값만 갱신 (`MLCM_200` 5단계)
+- **위기 탐지 fallback** — `OPENAI_API_KEY` 없이도 키워드 필터 단독으로 `CRITICAL` 탐지 (`NFR-DV-003`)
+- **`CRITICAL` 시 `reply=null`** — 병렬 생성된 일반 응답을 서버가 버림
+
+### ⚠ 미검증 — LLM 경로
+
+**2차 문맥 판정은 확인하지 못했습니다.** API 키가 없어 키워드 fallback 만 돌았습니다.
+
+키 설정 후 반드시 재평가하세요. 특히 **관용 표현("배고파 죽겠다")을 LLM 이 걸러내는지** 확인이 필요합니다. 결과는 [`docs/llm/USAGE_LOG.md`](llm/USAGE_LOG.md) 에 LLM-003 으로 남기세요.
+
+```
+backend/.env 에 OPENAI_API_KEY 를 채운 뒤
+POST /api/v1/chat/sessions/{id}/messages 로 아래를 보내 source=LLM 인지 확인
+  - "배고파 죽겠다"           → NORMAL 이어야 정상
+  - "다 사라지고 싶어"        → CRITICAL
+  - "요즘 좀 지치네요"        → CAUTION
+```
+
+### 이어서 할 것
+
+1. **관리자 라우터** — `GET /admin/dashboard` · `/admin/users` · `/admin/emergency-events`.
+   `require_admin` 가드는 이미 있습니다. 관리자 웹이 셸까지 완성돼 있어 이것만 붙이면 연동됩니다
+2. **`GET /home` 합성 엔드포인트** — 앱 홈 화면이 목업 상태입니다
+3. **`GET /reports`** — 정서 리포트
+4. **AI 추론 서버 연동** — `lifelog.py` 에 `TODO(분석)` 로 표시된 자리.
+   `MLCM_210` 트리거가 아직 없어 `EMOTION_RISK_SCORES` 가 비어 있습니다
+5. **`HEALING_CONTENTS` 시드** — 여전히 비어 있어 콘텐츠 추천이 동작할 수 없습니다.
+   04 문서 7항이 "사전 안전 검수를 거친 콘텐츠만" 을 원칙으로 못 박아 **사람이 골라야 합니다**
+6. 문서 3건 — `FR-DP-001`(pull→push) · `SD-E1`(04·05 `role`) · `05-N③`
+
+---
+
 ## 3-3. 2026.07.31 (3차 세션) — 백엔드 착수, 브랜치 통합
 
 ### 브랜치를 한 번 정리했습니다 — 폐지가 아닙니다
