@@ -270,3 +270,6 @@ node_modules/
 *.joblib
 data/raw/
 data/interim/
+
+# 학습된 모델 바이너리 — 재현은 ai/train/train_stage2.py 로 합니다
+ai/models/*.joblib

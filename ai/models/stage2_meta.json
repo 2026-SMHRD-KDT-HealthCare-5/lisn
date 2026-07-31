@@ -1,0 +1,22 @@
+{
+  "version": "lgbm-sample-n481-v0",
+  "n_rows": 481,
+  "n_participants": 10,
+  "features": [
+    "slp_sumdurationasleepmain",
+    "slp_sumdurationawakemain",
+    "slp_sumdurationtofallasleepmain",
+    "slp_avgdurationasleepmain",
+    "steps_maxsumsteps",
+    "steps_minsumsteps",
+    "steps_avgsumsteps",
+    "steps_mediansumsteps"
+  ],
+  "metrics": {
+    "n_folds": 2,
+    "roc_auc": 0.48482492569921476,
+    "roc_auc_std": 0.13127128151632653,
+    "pr_auc": 0.5040799268912918
+  },
+  "positive_rate": 0.39293139293139295
+}
