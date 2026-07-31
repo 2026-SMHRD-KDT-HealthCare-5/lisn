@@ -125,10 +125,16 @@ C:\Program Files\PostgreSQL\17\data\log\
 
 | 항목 | 비고 |
 |---|---|
-| `GET /reports/export` (PDF) | 서버 생성이냐 클라이언트 생성이냐 결정 필요. `reports.py` 에 `TODO(PDF)` |
-| `POST /chat/sessions/{id}/voice` | Whisper STT. 명세만 있음 |
 | `HEALING_CONTENTS` 데이터 | 비어 있어 추천이 0건. [큐레이션 기준](../docs/review/힐링콘텐츠_큐레이션.md) 참조 |
 | LLM 2차 문맥 판정 검증 | API 키 설정 후 재평가 필요. `docs/llm/USAGE_LOG.md` LLM-002 |
+
+### 서버에 만들지 않기로 한 것 (2026.08.01)
+
+| 항목 | 결정 |
+|---|---|
+| `GET /reports/export` | **클라이언트가 PDF 를 만듭니다.** 서버 엔드포인트를 두지 않습니다. `GET /reports` 응답이 데이터 원본입니다 |
+| `POST /chat/sessions/{id}/voice` | 음성 입력은 **이번 범위 제외**. 확장 항목 |
+| `POST /internal/analyze/crisis` | 위기 탐지는 **비즈니스 서버에 유지**. `NFR-DV-003` 때문 |
 
 ---
 

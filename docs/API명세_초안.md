@@ -239,9 +239,11 @@
 - **스트리밍을 쓰지 않는다.** 위기 판정 전에 글자를 흘리면 `CRITICAL` 일 때 이미 나간 글자를 회수할 수 없다
 - OpenAI 장애 시 `NFR-DV-003` 에 따라 정형 대체 응답을 내리되, **1차 키워드 필터는 백엔드 내부에서 독립 동작**하므로 `risk` 는 계속 채워진다
 
-### `POST /chat/sessions/{session_id}/voice`
-음성 입력. `multipart/form-data` 로 오디오 업로드 → Whisper STT → 위와 동일 응답.
-**STT 완료 즉시 원본 음성 파일을 삭제한다**(`NFR-DE-002`).
+### ~~`POST /chat/sessions/{session_id}/voice`~~ — 이번 범위 제외 (2026.08.01)
+
+음성 입력은 **확장 항목**으로 남깁니다. 챗봇 텍스트 경로가 이미 동작하고, 음성은 같은 기능에 대한 대체 입력 수단이라 핵심 기능이 아닙니다. 8/28 까지 남은 일정에서 우선순위가 낮습니다.
+
+구현할 경우의 규격은 그대로 둡니다 — `multipart/form-data` 로 오디오 업로드 → Whisper STT → 위와 동일 응답. **STT 완료 즉시 원본 음성 파일을 삭제한다**(`NFR-DE-002`).
 
 ### `PATCH /chat/sessions/{session_id}/end`
 `MLCM_310` 종료조건 — `ended_at` 기록 + LLM 요약 생성 → `session_summary` 저장
@@ -279,8 +281,15 @@
 `MLCM_500` · `MAIN_REPORT_01` — 감정 스코어 추이 + 위험 단계 분포 + 라이프로그 결합 시계열 + 요약 문구.
 분석 이력이 1일 미만이면 `409` 와 안내 메시지.
 
-### `GET /reports/export?from=&to=`
-PDF 생성 → `application/pdf`
+### ~~`GET /reports/export?from=&to=`~~ — 철회 (2026.08.01)
+
+PDF 는 **클라이언트가 만듭니다.** 서버 엔드포인트를 두지 않습니다.
+
+Flutter 에 `MAIN_REPORT_01` 화면이 이미 있어 그대로 조판할 수 있고, 서버 생성은 한글 폰트 임베드와 차트 라이브러리를 백엔드에 새로 붙여야 해서 남은 일정에 비해 비용이 큽니다. `FR-MN-001`("PDF 로 내보내 상담기관·주치의 등과 공유")은 앱에서 충족합니다.
+
+> **위 `GET /reports` 응답이 PDF 의 데이터 원본입니다.** 리포트에 넣을 항목이 늘면 그 응답부터 넓히세요.
+>
+> ⚠ 기기별 여백·해상도 편차가 생깁니다. 상담기관에 제출되는 문서이므로 **기간·생성일시·본인 식별 정보는 어느 기기에서 뽑아도 같은 위치**에 있어야 합니다.
 
 ### `GET /contents/recommendations`
 `MLCM_400` — `CAUTION` 판정 시 감정별 큐레이션. 홈에 포함되지만 새로고침용으로 분리.
@@ -374,24 +383,27 @@ AI 서버가 DB 에서 최근 14일 기준값과 최신 시퀀스를 직접 읽�
 | 17 | `GET /body-composition` | `MLCM_200` | `MAIN_LIFELOG_01` |
 | 18 | `POST /chat/sessions` | `MLCM_300` | `MAIN_CHAT_01` |
 | 19 | `POST /chat/sessions/{id}/messages` | `MLCM_310` `MLCM_320` | `MAIN_CHAT_02` |
-| 20 | `POST /chat/sessions/{id}/voice` | `MLCM_310` | `MAIN_CHAT_02` |
-| 21 | `PATCH /chat/sessions/{id}/end` | `MLCM_310` | `MAIN_CHAT_02` |
-| 22 | `GET /chat/sessions` | `MLCM_310` | `MAIN_CHAT_02` |
-| 23 | `GET /chat/sessions/{id}` | `MLCM_310` | `MAIN_CHAT_02` |
-| 24 | `DELETE /chat/sessions/{id}` | `MLCM_310` | `MAIN_CHAT_02` |
-| 25 | `GET /home` | `MLCM_400` | `MAIN_HOME_01` |
-| 26 | `GET /reports` | `MLCM_500` | `MAIN_REPORT_01` |
-| 27 | `GET /reports/export` | `MLCM_500` | `MAIN_REPORT_01` |
-| 28 | `GET /contents/recommendations` | `MLCM_400` | `MAIN_HOME_01` |
-| 29 | `GET /admin/dashboard` | `MLCM_501` | `ADMIN_DASH_01` |
-| 30 | `GET /admin/users` | `MLCM_501` | `ADMIN_DASH_01` |
-| 31 | `GET /admin/users/{id}/report` | `MLCM_501` | `ADMIN_DASH_01` |
-| 32 | `GET /admin/emergency-events` | `MLCM_510` | `ADMIN_DASH_01` |
+| 20 | `PATCH /chat/sessions/{id}/end` | `MLCM_310` | `MAIN_CHAT_02` |
+| 21 | `GET /chat/sessions` | `MLCM_310` | `MAIN_CHAT_02` |
+| 22 | `GET /chat/sessions/{id}` | `MLCM_310` | `MAIN_CHAT_02` |
+| 23 | `DELETE /chat/sessions/{id}` | `MLCM_310` | `MAIN_CHAT_02` |
+| 24 | `GET /home` | `MLCM_400` | `MAIN_HOME_01` |
+| 25 | `GET /reports` | `MLCM_500` | `MAIN_REPORT_01` |
+| 26 | `GET /contents/recommendations` | `MLCM_400` | `MAIN_HOME_01` |
+| 27 | `GET /admin/dashboard` | `MLCM_501` | `ADMIN_DASH_01` |
+| 28 | `GET /admin/users` | `MLCM_501` | `ADMIN_DASH_01` |
+| 29 | `GET /admin/users/{id}/report` | `MLCM_501` | `ADMIN_DASH_01` |
+| 30 | `GET /admin/emergency-events` | `MLCM_510` | `ADMIN_DASH_01` |
 | I1 | `POST /internal/analyze/lifelog` | `MLCM_210` | — |
 
-**외부 32개 · 내부 1개.**
+**외부 30개 · 내부 1개.**
 
-> `MLCM_320` 위기 문맥 탐지는 내부 API 로 두지 않는다. 위 「내부 API」 절의 철회 사유 참조.
+> **2026.08.01 에 3개가 빠졌습니다.**
+> - `POST /chat/sessions/{id}/voice` — 음성 입력, 이번 범위 제외
+> - `GET /reports/export` — PDF 는 클라이언트 생성
+> - `POST /internal/analyze/crisis` — 위기 탐지를 비즈니스 서버에 유지
+>
+> 각각의 사유는 해당 절에 적어뒀습니다.
 
 ---
 
