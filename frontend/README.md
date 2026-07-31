@@ -22,20 +22,36 @@ app/lib/
 └── widgets/    화면 간 공유 위젯
 ```
 
-**`config` · `models` · `services` 는 아직 비어 있습니다.** 현재 화면은 전부 하드코딩된 목업이고 서버 통신 코드가 없습니다. `pubspec.yaml` 의존성도 `flutter` 와 `cupertino_icons` 뿐입니다.
+인증 영역은 실제 FastAPI와 연동됐습니다.
 
-붙이는 순서는 이렇습니다.
+- `config/api_config.dart` — `API_BASE_URL` 환경 분기
+- `models/auth_models.dart` — 로그인·회원가입 DTO
+- `services/api_client.dart` — JSON 요청, Bearer 헤더, FastAPI 오류 처리, 타임아웃
+- `services/token_storage.dart` — access token과 만료 시각을 보안 저장소에 저장
+- `services/auth_service.dart` — 인증 API 6개 호출
+- `screens/auth_gate.dart` — 유효한 토큰이 있으면 홈, 없으면 로그인으로 이동
 
-1. **API 명세 확정** — 이게 선행조건입니다. 엔드포인트와 응답 형태가 정해져야 아래를 만들 수 있습니다
-2. `models/` — `db/schema.sql` 이 정본이므로 거기서 필드를 맞춥니다
-3. `services/` — `http` 또는 `dio` 패키지를 `pubspec.yaml` 에 추가하고 클라이언트 작성
-4. `screens/` 의 하드코딩 값을 `services/` 호출로 교체
+Android 에뮬레이터의 기본 API 주소는 `http://10.0.2.2:8000/api/v1`입니다. 실기기나 배포 환경에서는 실행 시 바꿉니다.
+
+```powershell
+flutter run --dart-define=API_BASE_URL=http://<개발-PC-IP>:8000/api/v1
+```
+
+로그인·회원가입·비밀번호 재설정은 API 연동이 끝났고, 홈·챗봇·라이프로그·설정의 데이터는 아직 하드코딩 목업입니다.
+
+남은 연동 순서는 이렇습니다.
+
+1. 백엔드 `users`·`devices` 라우터가 완성되면 설정·웨어러블 연동
+2. `POST /lifelog/batch`와 조회 API가 완성되면 홈·라이프로그
+3. 챗봇 API가 완성되면 대화·위기 화면 전환
+4. 관리자 API가 완성되면 React 관제 웹
 
 ### 화면 구성
 
 | 파일 | 화면설계서 ID |
 |---|---|
 | `login_screen.dart` | `MAIN_LOGIN_01` |
+| `password_reset_screen.dart` | `MAIN_LOGIN_02` |
 | `join_screen.dart` | `MAIN_JOIN_01` · `MAIN_JOIN_02` |
 | `main_shell.dart` | 하단 네비게이션 4탭 |
 | `home_screen.dart` | `MAIN_HOME_01` |

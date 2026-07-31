@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../models/auth_models.dart';
+import '../services/app_services.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common_widgets.dart';
 import 'join_screen.dart';
@@ -13,21 +15,46 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final idController = TextEditingController(text: 'jieun');
-  final passwordController = TextEditingController(text: 'maeume123');
+  final formKey = GlobalKey<FormState>();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  bool loading = false;
+  String? errorMessage;
 
   @override
   void dispose() {
-    idController.dispose();
+    emailController.dispose();
     passwordController.dispose();
     super.dispose();
   }
 
-  void login() {
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const MainShell()),
-      (_) => false,
-    );
+  Future<void> login() async {
+    if (!(formKey.currentState?.validate() ?? false) || loading) {
+      return;
+    }
+    setState(() {
+      loading = true;
+      errorMessage = null;
+    });
+    try {
+      await AppServices.auth.login(
+        email: emailController.text,
+        password: passwordController.text,
+      );
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const MainShell()),
+        (_) => false,
+      );
+    } on ApiException catch (error) {
+      if (mounted) {
+        setState(() => errorMessage = error.message);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => loading = false);
+      }
+    }
   }
 
   @override
@@ -51,55 +78,121 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Padding(
                             padding: EdgeInsets.fromLTRB(desktop ? 50 : 30,
                                 desktop ? 100 : 38, desktop ? 50 : 30, 70),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Text('다시 만나 반가워요',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineMedium
-                                        ?.copyWith(
-                                            fontSize: desktop ? 29 : 24)),
-                                const SizedBox(height: 5),
-                                const Text('마음이와 함께 오늘 하루를 돌아봐요.',
-                                    style: TextStyle(
-                                        color: AppColors.muted, fontSize: 12)),
-                                const SizedBox(height: 28),
-                                const Text('아이디',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700)),
-                                const SizedBox(height: 9),
-                                TextField(controller: idController),
-                                const SizedBox(height: 20),
-                                const Text('비밀번호',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700)),
-                                const SizedBox(height: 9),
-                                TextField(
-                                    controller: passwordController,
-                                    obscureText: true),
-                                const SizedBox(height: 30),
-                                ElevatedButton(
-                                    onPressed: login, child: const Text('로그인')),
-                                const SizedBox(height: 34),
-                                FilledButton.tonal(
-                                  onPressed: () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (_) => const JoinScreen())),
-                                  style: FilledButton.styleFrom(
-                                    minimumSize: const Size.fromHeight(48),
-                                    backgroundColor: AppColors.soft,
-                                    foregroundColor: AppColors.primary,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(12)),
+                            child: Form(
+                              key: formKey,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text('다시 만나 반가워요',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineMedium
+                                          ?.copyWith(
+                                              fontSize: desktop ? 29 : 24)),
+                                  const SizedBox(height: 5),
+                                  const Text('마음이와 함께 오늘 하루를 돌아봐요.',
+                                      style: TextStyle(
+                                          color: AppColors.muted,
+                                          fontSize: 12)),
+                                  const SizedBox(height: 28),
+                                  const Text('이메일',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700)),
+                                  const SizedBox(height: 9),
+                                  TextFormField(
+                                    controller: emailController,
+                                    keyboardType: TextInputType.emailAddress,
+                                    textInputAction: TextInputAction.next,
+                                    autofillHints: const [AutofillHints.email],
+                                    validator: (value) {
+                                      final email = value?.trim() ?? '';
+                                      if (!email.contains('@') ||
+                                          !email.contains('.')) {
+                                        return '올바른 이메일을 입력해주세요';
+                                      }
+                                      return null;
+                                    },
                                   ),
-                                  child: const Text('처음 오셨나요? 회원가입'),
-                                ),
-                              ],
+                                  const SizedBox(height: 20),
+                                  const Text('비밀번호',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700)),
+                                  const SizedBox(height: 9),
+                                  TextFormField(
+                                    controller: passwordController,
+                                    obscureText: true,
+                                    textInputAction: TextInputAction.done,
+                                    autofillHints: const [
+                                      AutofillHints.password
+                                    ],
+                                    onFieldSubmitted: (_) => login(),
+                                    validator: (value) =>
+                                        (value?.length ?? 0) < 8
+                                            ? '비밀번호는 8자 이상 입력해주세요'
+                                            : null,
+                                  ),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: TextButton(
+                                      onPressed: loading
+                                          ? null
+                                          : () => Navigator.pushNamed(
+                                                context,
+                                                '/password-reset',
+                                              ),
+                                      child: const Text(
+                                        '비밀번호를 잊으셨나요?',
+                                        style: TextStyle(fontSize: 11),
+                                      ),
+                                    ),
+                                  ),
+                                  if (errorMessage != null) ...[
+                                    Text(
+                                      errorMessage!,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: Color(0xFF69738F),
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                  ],
+                                  ElevatedButton(
+                                    onPressed: loading ? null : login,
+                                    child: loading
+                                        ? const SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : const Text('로그인'),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  FilledButton.tonal(
+                                    onPressed: loading
+                                        ? null
+                                        : () => Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (_) =>
+                                                    const JoinScreen())),
+                                    style: FilledButton.styleFrom(
+                                      minimumSize: const Size.fromHeight(48),
+                                      backgroundColor: AppColors.soft,
+                                      foregroundColor: AppColors.primary,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12)),
+                                    ),
+                                    child: const Text('처음 오셨나요? 회원가입'),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),

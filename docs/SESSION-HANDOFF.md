@@ -137,6 +137,7 @@ uvicorn app.main:app --reload
 | 인증 계층 + auth 라우터 6개 | bcrypt · JWT · `require_admin` |
 | [`HANDOFF-CODEX.md`](design/HANDOFF-CODEX.md) | 프론트 인수인계. Codex 가 단독으로 읽고 시작 가능 |
 | 신규 화면 시안 6장 | `docs/design/` HTML 원본 + PNG 완료. 모바일 4장·관리자 웹 2장 |
+| Flutter 인증 연동 | API 6개·보안 토큰 저장·인증 게이트·로그인/가입/재설정 화면 완료 |
 
 ### 남은 TODO — 코드에 표시돼 있음
 

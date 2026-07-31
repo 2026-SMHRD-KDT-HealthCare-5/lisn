@@ -47,10 +47,19 @@ frontend/
 
 ### 무엇이 없나
 
-- **서버 통신 코드가 0줄입니다.** `pubspec.yaml` 의존성이 `flutter` + `cupertino_icons` 뿐입니다
+- 인증 외 화면의 서버 통신은 아직 없습니다. 로그인·회원가입·비밀번호 재설정 API 6개는 연동 완료됐습니다
 - 상태관리 패키지 없음 (`setState` 만)
 - Health Connect 연동 패키지 없음
 - 관리자 웹은 폴더만 있습니다
+
+### 인증 연동 완료
+
+- `http` 공통 클라이언트와 `flutter_secure_storage` 토큰 저장
+- access token 만료 확인을 포함한 인증 게이트
+- FastAPI 오류 `detail` 표시와 인증 요청의 401 로그아웃 처리
+- 로그인·회원가입·이메일 중복 확인·로그아웃·비밀번호 재설정 요청/확정
+- 기본 Base URL은 Android 에뮬레이터용 `http://10.0.2.2:8000/api/v1`
+- `flutter analyze`·`flutter test`·Android debug APK 빌드 통과
 
 ### 화면 시안
 
