@@ -3,7 +3,7 @@
 > 다른 컴퓨터나 새 세션에서 작업을 이어갈 때 이 문서부터 읽으세요.
 > Claude Code 의 대화 기록과 메모리는 **PC 로컬에 프로젝트 경로 기준으로** 저장되므로 기기 간에 따라가지 않습니다. 대신 맥락을 저장소에 남겨두는 방식으로 이어갑니다.
 >
-> **최종 갱신** 2026.07.31
+> **최종 갱신** 2026.08.01
 
 ## 0. 문서 역할 분담
 
@@ -141,6 +141,9 @@ python tools/doc2txt.py
 
 AI 서버가 없어도 push 는 성공합니다. 분석 실패로 되돌리면 라이프로그가 유실됩니다.
 
+> **2026.08.01** — 스텁이 아니라 실제 서버가 `ai/server/` 에 들어왔습니다. 판정만 아직
+> 규칙 기반입니다. 아래 3-4 절 「다음」 3번 참조.
+
 > ⚠ **`role` 은 JWT 에 박힙니다.** `UPDATE users SET role='ADMIN'` 후 **재로그인해야** 관리자 API 가 열립니다. 기존 토큰으로는 계속 403 입니다.
 
 전부 **실제 서버로 검증**했습니다. 검증 내역은 [`작업이력.md`](review/작업이력.md) 22·23차.
@@ -185,16 +188,20 @@ python -m pytest -q
    각 3~5건이면 충분합니다
 2. **프론트 연동** — 백엔드가 다 열렸으니 앱·관리자 웹의 목업을 실제 API 로 교체.
    [`HANDOFF-CODEX.md`](design/HANDOFF-CODEX.md) 참조
-3. **AI 추론 서버 본체** — 계약과 적재 경로는 완성. 모델(`LSTM AE` + `LightGBM`)만 남음.
-   `POST /internal/analyze/lifelog` 가 아래를 돌려주면 됩니다
-   ```json
-   { "emotion_code": "ANXIETY", "emotion_score": 82.0, "anomaly_score": 0.73,
-     "risk_level": "CAUTION", "risk_score": 68.5, "model_version": "v1.0" }
+3. **AI 추론 서버 모델** — 서버는 `ai/server/` 에 **있습니다**(2026.08.01). 남은 건 모델뿐.
+   **`main.py` 의 `_predict()` 하나만** `LSTM AE` + `LightGBM` 으로 바꾸면 됩니다.
+   ```powershell
+   cd ai\server
+   uvicorn main:app --reload --port 8001
    ```
+   > ⚠ 지금은 **규칙 기반 임시 판정**입니다. `model_version` 이 `rule-placeholder-v0`
+   > 이면 모델 결과가 아닙니다. **이 수치로 성능을 주장하지 마세요.**
+   >
+   > `risk_level_of()` 는 모델이 아니라 **정책**(04 문서 6항)입니다. `_predict()` 를
+   > 교체할 때 같이 들어내지 마세요. → [`ai/server/README.md`](../ai/server/README.md)
 4. **LLM 경로 재평가** — `OPENAI_API_KEY` 설정 후. 위 3-4 절 상단 참조
 5. **`GET /reports/export`** (PDF) — 서버 생성이냐 클라이언트 생성이냐를 먼저 결정.
    `reports.py` 에 `TODO(PDF)` 로 선택지를 적어뒀습니다
-6. 문서 3건 — `FR-DP-001`(pull→push) · `SD-E1`(04·05 `role`) · `05-N③`
 
 ---
 

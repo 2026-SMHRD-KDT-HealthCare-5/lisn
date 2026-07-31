@@ -184,6 +184,28 @@ uvicorn app.main:app --reload
 - **DB 연결 오류는 PostgreSQL 로그를 먼저 보세요.** asyncpg 는 `connection was closed in the middle of operation` 처럼 원인을 감추는 메시지를 던집니다. 실제 원인(`"lisn" 데이터베이스 없음`)은 로그에 명확히 찍혀 있습니다
   - `C:\Program Files\PostgreSQL\17\data\log\`
 
+## ai/server
+
+```powershell
+cd ai\server
+uvicorn main:app --reload --port 8001
+```
+
+`MLCM_210` 정서 위험도 분석. backend 의 `AI_SERVER_URL` 기본값(8001)과 맞춰져 있습니다.
+DB 는 backend 와 같은 것을 보고, `AI_DATABASE_URL` 이 없으면 `DATABASE_URL` 을 씁니다
+(`postgresql+asyncpg://` 접두사는 자동으로 벗겨내므로 backend `.env` 값 그대로 넣어도 됨).
+
+- **지금은 규칙 기반 임시 판정입니다.** `model_version` 이 `rule-placeholder-v0` 이면
+  모델 결과가 아닙니다. 임계값도 선행연구값이 아니라 임의값이니 **성능 근거로 쓰지 마세요**
+- 모델 교체는 **`_predict()` 하나만** 바꿉니다. 반환 6필드는 비즈니스 서버와의 계약입니다
+- **`risk_level_of()` 는 모델이 아니라 정책**(04 문서 6항)입니다. `_predict()` 를 교체할 때
+  같이 들어내지 마세요. 비즈니스 서버가 이 계산을 다시 하면 규칙이 두 곳에 생겨 어긋납니다
+- `EMOTION_CATEGORY` 는 `schema.sql` 감정 마스터 9종의 복제본입니다. **스키마를 고치면 여기도 고칩니다**
+- **데이터가 없을 때 `NORMAL` 을 쓰지 않습니다.** 실측치가 3일치 미만이면 422 로 끊습니다.
+  편차 0 을 "정상"으로 적재하면 관제 대시보드에서 위험을 놓칩니다
+- 위기 문맥 탐지는 **여기 없고 backend 에 있습니다.** `NFR-DV-003`(외부 API 장애 시에도
+  키워드 필터 단독 동작) 때문입니다. API 명세 초안의 `/internal/analyze/crisis` 는 철회됐습니다
+
 ## frontend 구조
 
 기본 구조, Flutter 인증·긴급 상담, 관리자 웹 인증 기반은 main에 반영됐습니다(2026.07.31).

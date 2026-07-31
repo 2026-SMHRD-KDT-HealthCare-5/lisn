@@ -329,18 +329,25 @@ AI 서버가 DB 에서 최근 14일 기준값과 최신 시퀀스를 직접 읽�
 
 **`risk_level` 매핑은 AI 서버가 확정한다.** `EMOTIONS.category` 를 기본값으로 하고 `ANGER` 만 `emotion_score` 70 기준으로 재분류, `CRISIS` 는 무조건 `CRITICAL`(04 문서 6항).
 
-### `POST /internal/analyze/crisis`
-`MLCM_320` — 대화 위기 문맥 탐지
+### ~~`POST /internal/analyze/crisis`~~ — 철회 (2026.08.01)
 
-```json
-{ "user_id": "...", "session_id": "...", "utterance": "...", "recent_turns": [ ... ] }
+`MLCM_320` 위기 문맥 탐지는 **내부 API 로 분리하지 않고 비즈니스 서버 안에서 수행한다.**
 
-200 → { "is_crisis": true, "severity": "HIGH", "matched_context": "...", "source": "LLM|KEYWORD" }
-```
+| | |
+|---|---|
+| 구현 | `backend/app/services/safety.py`(1차 키워드) · `llm.py`(2차 OpenAI) |
+| 호출 | `POST /chat/sessions/{id}/messages` 처리 중 인라인 |
 
-- 1차 키워드 규칙 필터 → 2차 OpenAI 프롬프트. **JSON 스키마로만 반환하도록 프롬프트에서 제약**한다
-- OpenAI 장애 시 키워드 결과만으로 판정하고 `source: "KEYWORD"` 로 표기한다. 이때는 문맥 판단이 불가능하므로 **미탐을 줄이는 보수적 임계치**를 적용한다(`NFR-DV-003`)
-- 호출 전에 비즈니스 서버가 PII 를 `[MASK]` 로 치환한다
+**철회 이유 두 가지.**
+
+1. **`NFR-DV-003` 이 "1차 키워드 필터는 외부 API 장애 시에도 단독 동작"을 요구한다.** 위기 탐지를 AI 서버로 옮기면 **AI 서버가 죽는 순간 위기 탐지가 통째로 멈춘다.** 키워드 필터만 비즈니스 서버에 중복으로 두는 방법은, 판정 규칙이 두 곳에 존재하게 되어 반드시 어긋난다
+2. 위기 탐지에는 학습 모델이 없다(안건 3 — 키워드 규칙 + OpenAI 프롬프트 2단계). **ML 서버로 보낼 이유가 없고** 왕복만 한 번 늘어 `NFR-DV-001` 3초 요건에 불리하다
+
+동작 자체는 그대로다.
+
+- 1차 키워드 규칙 필터 → 2차 OpenAI 프롬프트. **Structured Outputs 로 스키마 준수를 보장**한다
+- OpenAI 장애 시 키워드 결과만으로 판정한다. 이때는 문맥 판단이 불가능하므로 **미탐을 줄이는 보수적 임계치**를 적용한다(`NFR-DV-003`) — HIGH 키워드는 `CRITICAL` 로 확정
+- OpenAI 호출 전에 PII 를 `[MASK]` 로 치환한다
 
 ---
 
@@ -381,9 +388,10 @@ AI 서버가 DB 에서 최근 14일 기준값과 최신 시퀀스를 직접 읽�
 | 31 | `GET /admin/users/{id}/report` | `MLCM_501` | `ADMIN_DASH_01` |
 | 32 | `GET /admin/emergency-events` | `MLCM_510` | `ADMIN_DASH_01` |
 | I1 | `POST /internal/analyze/lifelog` | `MLCM_210` | — |
-| I2 | `POST /internal/analyze/crisis` | `MLCM_320` | — |
 
-**외부 32개 · 내부 2개.**
+**외부 32개 · 내부 1개.**
+
+> `MLCM_320` 위기 문맥 탐지는 내부 API 로 두지 않는다. 위 「내부 API」 절의 철회 사유 참조.
 
 ---
 

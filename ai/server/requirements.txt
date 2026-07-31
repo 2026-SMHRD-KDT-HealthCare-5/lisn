@@ -1,0 +1,14 @@
+# AI 추론 서버 — 비즈니스 서버(backend/requirements.txt)와 별개로 관리합니다.
+# 모델 라이브러리(torch·lightgbm)가 무거워 같이 두면 백엔드 설치가 느려집니다.
+
+fastapi>=0.115
+uvicorn[standard]>=0.32
+pydantic>=2.9
+asyncpg>=0.30
+
+# 모델 도입 시 추가 — 지금은 규칙 판정이라 필요 없습니다.
+# torch>=2.5           1차 LSTM Autoencoder
+# lightgbm>=4.5        2차 위험도 분류
+# numpy>=2.0
+# pandas>=2.2
+# scikit-learn>=1.5    개인별 Min-Max 정규화
