@@ -488,3 +488,76 @@ input {
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------------------------------------------------------------------
+   관제 데이터 표시 — 2026.08.01
+   위험도 색은 metric-card 안팎에서 같아야 하므로 톤 클래스를 밖으로 뺐습니다.
+   ⚠ 심각(peach)에 빨강을 쓰지 않습니다. 관제 화면이라도 경고색은
+     판단을 서두르게 만듭니다. 주목도는 정렬 순서로 만듭니다.
+   --------------------------------------------------------------------- */
+.mint {
+  color: #5b8d83;
+}
+.blue {
+  color: #6289b1;
+}
+.peach {
+  color: #987466;
+  font-weight: 750;
+}
+.muted {
+  color: #97a0b5;
+}
+
+.hint {
+  margin: 14px 2px 0;
+  font-size: 11px;
+  line-height: 1.7;
+  color: #97a0b5;
+}
+
+.filter-row {
+  display: flex;
+  gap: 7px;
+  margin-bottom: 16px;
+}
+
+.chip {
+  padding: 6px 14px;
+  border: 1px solid #e3e7f2;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 11px;
+  color: #6b7488;
+  cursor: pointer;
+}
+
+.chip.active {
+  border-color: #7890ef;
+  background: #eef1ff;
+  color: #4a5fc1;
+  font-weight: 700;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  font-size: 12px;
+}
+
+.data-table th {
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 750;
+  color: #97a0b5;
+  background: #f7f8fc;
+}
+
+.data-table td {
+  padding: 13px 14px;
+  border-top: 1px solid #f0f2f8;
+}

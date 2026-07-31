@@ -1,5 +1,10 @@
-import { useState } from 'react'
-import { login } from './api.js'
+import { useEffect, useState } from 'react'
+import {
+  fetchDashboard,
+  fetchEmergencyEvents,
+  fetchUsers,
+  login,
+} from './api.js'
 import { clearSession, readSession, saveAdminSession } from './session.js'
 
 function Brand({ admin = false }) {
@@ -127,24 +132,247 @@ function LoginPage({ onAuthenticated }) {
   )
 }
 
-function Dashboard({ session, onLogout }) {
+const RISK_LABEL = { NORMAL: '안정', CAUTION: '주의', CRITICAL: '심각' }
+const RISK_TONE = { NORMAL: 'mint', CAUTION: 'blue', CRITICAL: 'peach' }
+
+function stamp(value) {
+  if (!value) return '—'
+  const d = new Date(value)
+  const hh = String(d.getHours()).padStart(2, '0')
+  const mm = String(d.getMinutes()).padStart(2, '0')
+  return d.getMonth() + 1 + '.' + d.getDate() + ' ' + hh + ':' + mm
+}
+
+function LoadingPanel() {
+  return (
+    <div className="empty-dashboard">
+      <p>불러오는 중...</p>
+    </div>
+  )
+}
+
+function NoticePanel({ text }) {
+  return (
+    <div className="empty-dashboard">
+      <div className="empty-icon">⌁</div>
+      <p>{text}</p>
+    </div>
+  )
+}
+
+/**
+ * ❶ 위험도 분포 — MLCM_501 2단계
+ *
+ * 분포는 사람 수 기준이다. 사용자별 최신 평가 1건만 세므로 자주 측정한
+ * 사용자가 분포를 왜곡하지 않는다.
+ */
+function OverviewTab({ token }) {
+  const [data, setData] = useState(null)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let alive = true
+    fetchDashboard(token)
+      .then((result) => alive && setData(result))
+      .catch((e) => alive && setError(e.message))
+    return () => {
+      alive = false
+    }
+  }, [token])
+
+  if (error) return <NoticePanel text={error} />
+  if (!data) return <LoadingPanel />
+
   const cards = [
-    ['안정 대상자', '—', '데이터 연결 대기', 'mint'],
-    ['주의 대상자', '—', '데이터 연결 대기', 'blue'],
-    ['심각 대상자', '—', '데이터 연결 대기', 'peach'],
+    ['안정 대상자', data.distribution.normal, 'mint'],
+    ['주의 대상자', data.distribution.caution, 'blue'],
+    ['심각 대상자', data.distribution.critical, 'peach'],
   ]
+  const notEvaluated = data.total_users - data.evaluated_users
+
+  return (
+    <>
+      <div className="metric-grid">
+        {cards.map(([label, value, tone]) => (
+          <article className="metric-card" key={label}>
+            <div>
+              <small>{label}</small>
+              <strong>{value}</strong>
+            </div>
+            <span className={tone}>
+              {data.evaluated_users
+                ? Math.round((value / data.evaluated_users) * 100) + '%'
+                : '—'}
+            </span>
+          </article>
+        ))}
+      </div>
+      <p className="hint">
+        전체 {data.total_users}명 중 {data.evaluated_users}명 평가 완료 · 기준
+        시각 {stamp(data.generated_at)}
+      </p>
+      {notEvaluated > 0 && (
+        <p className="hint">
+          미평가 {notEvaluated}명은 아직 라이프로그가 쌓이지 않은
+          대상자입니다. 위험이 없다는 뜻이 아니므로 「대상자 조회」에서 함께
+          확인하세요.
+        </p>
+      )}
+    </>
+  )
+}
+
+/** ❷ 대상자 목록 — 심각 → 주의 → 안정 순으로 내려온다 */
+function PeopleTab({ token }) {
+  const [rows, setRows] = useState(null)
+  const [error, setError] = useState('')
+  const [filter, setFilter] = useState('')
+
+  useEffect(() => {
+    let alive = true
+    setRows(null)
+    setError('')
+    fetchUsers(token, { riskLevel: filter || undefined })
+      .then((result) => alive && setRows(result))
+      .catch((e) => alive && setError(e.message))
+    return () => {
+      alive = false
+    }
+  }, [token, filter])
+
+  return (
+    <>
+      <div className="filter-row">
+        {['', 'CRITICAL', 'CAUTION', 'NORMAL'].map((level) => (
+          <button
+            key={level || 'ALL'}
+            className={filter === level ? 'chip active' : 'chip'}
+            onClick={() => setFilter(level)}
+          >
+            {level ? RISK_LABEL[level] : '전체'}
+          </button>
+        ))}
+      </div>
+      {error ? (
+        <NoticePanel text={error} />
+      ) : !rows ? (
+        <LoadingPanel />
+      ) : rows.length === 0 ? (
+        <NoticePanel text="해당하는 대상자가 없습니다." />
+      ) : (
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>이름</th>
+              <th>이메일</th>
+              <th>위험도</th>
+              <th>감정</th>
+              <th>평가 시각</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.user_id}>
+                <td>{row.name}</td>
+                <td className="muted">{row.email}</td>
+                <td>
+                  {/* 평가 이력이 없으면 '안정'이 아니라 '미평가'다.
+                      없는 것을 정상으로 표시하면 위험을 놓친다. */}
+                  <span
+                    className={row.risk_level ? RISK_TONE[row.risk_level] : 'muted'}
+                  >
+                    {row.risk_level ? RISK_LABEL[row.risk_level] : '미평가'}
+                  </span>
+                </td>
+                <td className="muted">{row.emotion_code ?? '—'}</td>
+                <td className="muted">{stamp(row.evaluated_at)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </>
+  )
+}
+
+/** ❹ 위기 사건 이력 — MLCM_510 */
+function EventsTab({ token }) {
+  const [rows, setRows] = useState(null)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let alive = true
+    fetchEmergencyEvents(token)
+      .then((result) => alive && setRows(result))
+      .catch((e) => alive && setError(e.message))
+    return () => {
+      alive = false
+    }
+  }, [token])
+
+  if (error) return <NoticePanel text={error} />
+  if (!rows) return <LoadingPanel />
+  if (rows.length === 0)
+    return <NoticePanel text="기록된 위기 사건이 없습니다." />
+
+  return (
+    <table className="data-table">
+      <thead>
+        <tr>
+          <th>이름</th>
+          <th>감정</th>
+          <th>위험 점수</th>
+          <th>판정 시각</th>
+          <th>모델</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row.score_id}>
+            <td>{row.name}</td>
+            <td>{row.emotion_code}</td>
+            <td>{Number(row.risk_score).toFixed(1)}</td>
+            <td className="muted">{stamp(row.evaluated_at)}</td>
+            {/* rule-placeholder 면 모델 결과가 아니다. 화면에서 구분돼야
+                이 수치를 성능 근거로 쓰는 사고를 막는다. */}
+            <td className="muted">{row.model_version}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}
+
+const TABS = [
+  [
+    'dashboard',
+    '관제 대시보드',
+    '전체 대상자의 최근 정서 위험 신호를 확인합니다.',
+  ],
+  ['people', '대상자 조회', '위험도별로 대상자를 확인합니다.'],
+  ['events', '위기 사건 이력', 'CRITICAL 로 판정된 기록입니다.'],
+]
+
+function Dashboard({ session, onLogout }) {
+  const [tab, setTab] = useState('dashboard')
+  const token = session.access_token
+  const active = TABS.find(([key]) => key === tab)
 
   return (
     <div className="dashboard-layout">
       <aside>
         <Brand />
         <nav>
-          <a className="active" href="#dashboard">
-            관제 대시보드
-          </a>
-          <a href="#people">대상자 조회</a>
-          <a href="#events">위기 사건 이력</a>
-          <a href="#settings">시스템 설정</a>
+          {TABS.map(([key, label]) => (
+            <a
+              key={key}
+              className={tab === key ? 'active' : undefined}
+              href={'#' + key}
+              onClick={() => setTab(key)}
+            >
+              {label}
+            </a>
+          ))}
         </nav>
         <div className="admin-profile">
           <span>AD</span>
@@ -157,34 +385,16 @@ function Dashboard({ session, onLogout }) {
       <section className="dashboard-main">
         <header>
           <div>
-            <h1>관제 대시보드</h1>
-            <p>전체 대상자의 최근 정서 위험 신호를 확인합니다.</p>
+            <h1>{active[1]}</h1>
+            <p>{active[2]}</p>
           </div>
           <button className="logout-button" onClick={onLogout}>
             로그아웃
           </button>
         </header>
-        <div className="metric-grid">
-          {cards.map(([label, value, caption, tone]) => (
-            <article className="metric-card" key={label}>
-              <div>
-                <small>{label}</small>
-                <strong>{value}</strong>
-              </div>
-              <span className={tone}>{caption}</span>
-            </article>
-          ))}
-        </div>
-        <div className="empty-dashboard">
-          <div className="empty-icon">⌁</div>
-          <h2>관리자 데이터 API 연결을 기다리고 있어요</h2>
-          <p>
-            로그인과 ADMIN 권한 검증은 완료됐습니다.
-            <br />
-            대상자·위험도·위기 사건 API가 구현되면 이 화면에 실제 데이터를
-            연결합니다.
-          </p>
-        </div>
+        {tab === 'dashboard' && <OverviewTab token={token} />}
+        {tab === 'people' && <PeopleTab token={token} />}
+        {tab === 'events' && <EventsTab token={token} />}
       </section>
     </div>
   )
