@@ -116,7 +116,7 @@ python tools/doc2txt.py
 
 ---
 
-## 3-4. 2026.07.31 — 백엔드 API 5개 그룹 완성
+## 3-4. 2026.07.31 — 백엔드 API 전체 구현
 
 ### 지금 도는 것
 
@@ -126,8 +126,22 @@ python tools/doc2txt.py
 ├── users/*     프로필 조회/수정·비밀번호 변경·회원 탈퇴      (4개)
 ├── devices/*   연동 등록·조회·항목별 동의 갱신               (3개)
 ├── lifelog·body-composition   앱 push 수신·조회             (4개)
-└── chat/*      세션·메시지·기록 조회/삭제                   (6개)
+├── chat/*      세션·메시지·기록 조회/삭제                   (6개)
+├── home·contents/recommendations                            (2개)
+├── reports     본인 정서 리포트                              (1개)
+└── admin/*     분포·대상자·상세·위기 이력                    (4개)
 ```
+
+**분석 파이프라인이 끝까지 관통합니다.** AI 서버 스텁으로 검증했습니다.
+
+```
+앱 push → UPSERT → 백그라운드 분석 트리거 → AI 서버 판정
+       → EMOTION_RISK_SCORES → 홈 action 자동 전환 → 리포트 반영
+```
+
+AI 서버가 없어도 push 는 성공합니다. 분석 실패로 되돌리면 라이프로그가 유실됩니다.
+
+> ⚠ **`role` 은 JWT 에 박힙니다.** `UPDATE users SET role='ADMIN'` 후 **재로그인해야** 관리자 API 가 열립니다. 기존 토큰으로는 계속 403 입니다.
 
 전부 **실제 서버로 검증**했습니다. 검증 내역은 [`작업이력.md`](review/작업이력.md) 22·23차.
 
@@ -154,14 +168,20 @@ POST /api/v1/chat/sessions/{id}/messages 로 아래를 보내 source=LLM 인지 
 
 ### 이어서 할 것
 
-1. **관리자 라우터** — `GET /admin/dashboard` · `/admin/users` · `/admin/emergency-events`.
-   `require_admin` 가드는 이미 있습니다. 관리자 웹이 셸까지 완성돼 있어 이것만 붙이면 연동됩니다
-2. **`GET /home` 합성 엔드포인트** — 앱 홈 화면이 목업 상태입니다
-3. **`GET /reports`** — 정서 리포트
-4. **AI 추론 서버 연동** — `lifelog.py` 에 `TODO(분석)` 로 표시된 자리.
-   `MLCM_210` 트리거가 아직 없어 `EMOTION_RISK_SCORES` 가 비어 있습니다
-5. **`HEALING_CONTENTS` 시드** — 여전히 비어 있어 콘텐츠 추천이 동작할 수 없습니다.
-   04 문서 7항이 "사전 안전 검수를 거친 콘텐츠만" 을 원칙으로 못 박아 **사람이 골라야 합니다**
+1. **`HEALING_CONTENTS` 시드** ⭐ — 비어 있어 콘텐츠 추천이 **0건**입니다. `CAUTION` 판정이 나도
+   홈에 아무것도 안 뜹니다. 04 문서 7항이 "사전 안전 검수를 거친 중립적 콘텐츠만" 을
+   원칙으로 못 박아 **사람이 골라야 합니다.** 감정 9종 × 카테고리 4종이면 20~30건 필요
+2. **프론트 연동** — 백엔드가 다 열렸으니 앱·관리자 웹의 목업을 실제 API 로 교체.
+   [`HANDOFF-CODEX.md`](design/HANDOFF-CODEX.md) 참조
+3. **AI 추론 서버 본체** — 계약과 적재 경로는 완성. 모델(`LSTM AE` + `LightGBM`)만 남음.
+   `POST /internal/analyze/lifelog` 가 아래를 돌려주면 됩니다
+   ```json
+   { "emotion_code": "ANXIETY", "emotion_score": 82.0, "anomaly_score": 0.73,
+     "risk_level": "CAUTION", "risk_score": 68.5, "model_version": "v1.0" }
+   ```
+4. **LLM 경로 재평가** — `OPENAI_API_KEY` 설정 후. 위 3-4 절 상단 참조
+5. **`GET /reports/export`** (PDF) — 서버 생성이냐 클라이언트 생성이냐를 먼저 결정.
+   `reports.py` 에 `TODO(PDF)` 로 선택지를 적어뒀습니다
 6. 문서 3건 — `FR-DP-001`(pull→push) · `SD-E1`(04·05 `role`) · `05-N③`
 
 ---
