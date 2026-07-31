@@ -35,7 +35,7 @@
 ===== [page 3] =====
 테이블 명세서
 2. 테이블 정의서
-작성일자 2026.07.29 작성자 이응균
+작성일자 2026.07.30. 작성자 이응균
 테이블명 사용자 정보 테이블 ID USERS
 테이블설명 회원 계정 및 프로필 관리
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
@@ -67,7 +67,7 @@ TIMESTAMPTZ -
 BOOLEAN - Y
 동의 여부 d
 --- table (page 3) ---
- | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.30. |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 사용자 정보 |  |  |  |  | 테이블 ID |  |  | USERS |  | 
 테이블설명 | 회원 계정 및 프로필 관리 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -123,7 +123,7 @@ CREATE TABLE USERS ( user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), email V
 
 ===== [page 5] =====
 테이블 명세서
-작성일자 2026.07.29 작성자 이응균
+작성일자 2026.07.30. 작성자 이응균
 DEVICE_HEALTH_
 테이블명 디바이스 헬스 연동 정보 테이블 ID
 CONNECTIONS
@@ -165,7 +165,7 @@ consent_scopes JSONB NOT NULL DEFAULT
 '{"activity": true, "sleep": true, "body_composition": false}'
 );
 --- table (page 5) ---
- | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.30. |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 디바이스 헬스 연동 정보 |  |  |  |  | 테이블 ID |  |  | DEVICE_HEALTH_ CONNECTIONS |  | 
 테이블설명 | 헬스 플랫폼(Health Connect) 연동 권한 승인 상태 및 항목별 수집 동의 범위 관리 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -182,7 +182,7 @@ CREATE TABLE DEVICE_HEALTH_CONNECTIONS ( connection_id UUID PRIMARY KEY DEFAULT 
 
 ===== [page 6] =====
 테이블 명세서
-작성일자 2026.07.29 작성자 이응균
+작성일자 2026.07.30. 작성자 이응균
 테이블명 시계열 라이프로그 테이블 ID LIFELOG_METRICS
 테이블설명 활동·수면·심박 생체 시계열 적재
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
@@ -193,6 +193,21 @@ USERS.user_id 참조
 사용자 ID user_id UUID - Y Y Y (CASCADE), 복합
 UNIQUE
 걸음 수 steps INT -
+단위: m,
+이동 거리 distance INT -
+DEFAULT 0
+소모 단위: kcal,
+calories INT -
+칼로리 DEFAULT 0
+활동 시작
+activity_start_at TIMESTAMPTZ -
+시간
+활동 종료
+activity_end_at TIMESTAMPTZ -
+시간
+총 total_active_mi
+INT -
+활동시간 n
 수면 시작
 sleep_start_at TIMESTAMPTZ -
 시간
@@ -218,29 +233,19 @@ min
 sleep_efficiency
 수면 효율 NUMERIC(5,2) -
 _pct
-단위: m,
-이동 거리 distance INT -
-DEFAULT 0
-소모 단위: kcal,
-calories INT -
-칼로리 DEFAULT 0
-활동 시작
-activity_start_at TIMESTAMPTZ -
-시간
-활동 종료
-activity_end_at TIMESTAMPTZ -
-시간
-총 total_active_mi
-INT -
-활동시간 n
 --- table (page 6) ---
- | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.30. |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 시계열 라이프로그 |  |  |  |  | 테이블 ID |  |  | LIFELOG_METRICS |  | 
 테이블설명 | 활동·수면·심박 생체 시계열 적재 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
 수집 지표 ID | metric_id | UUID | - | Y | Y |  |  |  |  |  | 
 사용자 ID | user_id | UUID | - | Y |  |  | Y | Y |  |  | USERS.user_id 참조 (CASCADE), 복합 UNIQUE
 걸음 수 | steps | INT | - |  |  |  |  |  |  |  | 
+이동 거리 | distance | INT | - |  |  |  |  |  |  |  | 단위: m, DEFAULT 0
+소모 칼로리 | calories | INT | - |  |  |  |  |  |  |  | 단위: kcal, DEFAULT 0
+활동 시작 시간 | activity_start_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
+활동 종료 시간 | activity_end_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
+총 활동시간 | total_active_mi n | INT | - |  |  |  |  |  |  |  | 
 수면 시작 시간 | sleep_start_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
 수면 종료 시간 | sleep_end_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
 총 수면시간 | total_sleep_min | INT | - |  |  |  |  |  |  |  | 
@@ -250,11 +255,6 @@ REM 수면시간 | rem_sleep_min | INT | - |  |  |  |  |  |  |  |
 각성 시간 | awake_min | INT | - |  |  |  |  |  |  |  | 
 입면 시간 | sleep_onset_ min | INT | - |  |  |  |  |  |  |  | 
 수면 효율 | sleep_efficiency _pct | NUMERIC(5,2) | - |  |  |  |  |  |  |  | 
-이동 거리 | distance | INT | - |  |  |  |  |  |  |  | 단위: m, DEFAULT 0
-소모 칼로리 | calories | INT | - |  |  |  |  |  |  |  | 단위: kcal, DEFAULT 0
-활동 시작 시간 | activity_start_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
-활동 종료 시간 | activity_end_at | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
-총 활동시간 | total_active_mi n | INT | - |  |  |  |  |  |  |  | 
 
 ===== [page 7] =====
 테이블 명세서
@@ -300,7 +300,7 @@ CREATE TABLE LIFELOG_METRICS ( metric_id UUID PRIMARY KEY DEFAULT gen_random_uui
 
 ===== [page 8] =====
 테이블 명세서
-작성일자 2026.07.29 작성자 이응균
+작성일자 2026.07.30. 작성자 이응균
 테이블명 감정 마스터 테이블 ID EMOTIONS
 테이블설명 시스템 공통 감정 코드(9개) 및 분류 기준 정의
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
@@ -320,7 +320,7 @@ emotion_name VARCHAR(50) NOT NULL,
 category VARCHAR(20) NOT NULL CHECK (category IN ('NORMAL', 'CAUTION', 'CRITICAL'))
 );
 --- table (page 8) ---
- | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.30. |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 감정 마스터 |  |  |  |  | 테이블 ID |  |  | EMOTIONS |  | 
 테이블설명 | 시스템 공통 감정 코드(9개) 및 분류 기준 정의 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -333,7 +333,7 @@ CREATE TABLE EMOTIONS ( emotion_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), e
 
 ===== [page 9] =====
 테이블 명세서
-작성일자 2026.07.29 작성자 이응균
+작성일자 2026.07.30. 작성자 이응균
 테이블명 챗봇 대화 세션 및 메시지 테이블 ID CHAT_SESSIONS
 테이블설명 챗봇 성격별 대화 세션 및 메시지 히스토리 보관
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
@@ -361,7 +361,7 @@ session_summary TEXT,
 started_at TIMESTAMPTZ NOT NULL, ended_at TIMESTAMPTZ
 );
 --- table (page 9) ---
- | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.30. |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 챗봇 대화 세션 및 메시지 |  |  |  |  | 테이블 ID |  |  | CHAT_SESSIONS |  | 
 테이블설명 | 챗봇 성격별 대화 세션 및 메시지 히스토리 보관 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -377,7 +377,7 @@ CREATE TABLE CHAT_SESSIONS ( session_id UUID PRIMARY KEY DEFAULT gen_random_uuid
 
 ===== [page 10] =====
 테이블 명세서
-작성일자 2026.07.29 작성자 이응균
+작성일자 2026.07.30. 작성자 이응균
 테이블명 정서 위험도 예측 결과 테이블 ID EMOTION_RISK_SCORES
 테이블설명 AI 모델의 정서 위험도 추론 결과 이력
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
@@ -409,7 +409,7 @@ model_version VARCHAR(50) NOT NULL,
 evaluated_at TIMESTAMPTZ NOT NULL
 );
 --- table (page 10) ---
- | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.30. |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 정서 위험도 예측 결과 |  |  |  |  | 테이블 ID |  |  | EMOTION_RISK_SCORES |  | 
 테이블설명 | AI 모델의 정서 위험도 추론 결과 이력 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -426,7 +426,7 @@ CREATE TABLE EMOTION_RISK_SCORES ( score_id UUID PRIMARY KEY DEFAULT gen_random_
 
 ===== [page 11] =====
 테이블 명세서
-작성일자 2026.07.29 작성자 이응균
+작성일자 2026.07.30. 작성자 이응균
 테이블명 힐링 콘텐츠 마스터 테이블 ID HEALING_CONTENTS
 테이블설명 CAUTION(주의) 단계 추천용 감정별 맞춤 콘텐츠 메타데이터 관리
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
@@ -453,7 +453,7 @@ category VARCHAR(20) NOT NULL CHECK (category IN ('MUSIC', 'FOOD', 'EXERCISE',
 title VARCHAR(200) NOT NULL, description TEXT, external_url TEXT NOT NULL
 );
 --- table (page 11) ---
- | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.30. |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 힐링 콘텐츠 마스터 |  |  |  |  | 테이블 ID |  |  | HEALING_CONTENTS |  | 
 테이블설명 | CAUTION(주의) 단계 추천용 감정별 맞춤 콘텐츠 메타데이터 관리 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -468,7 +468,7 @@ CREATE TABLE HEALING_CONTENTS ( content_id UUID PRIMARY KEY DEFAULT gen_random_u
 
 ===== [page 12] =====
 테이블 명세서
-작성일자 2026.07.29 작성자 이응균
+작성일자 2026.07.30. 작성자 이응균
 BODY_COMPOSITION_
 테이블명 체성분 데이터 테이블 ID
 METRICS
@@ -514,7 +514,7 @@ bmr_kcal INTEGER CHECK (bmr_kcal >= 0),
 measured_at TIMESTAMPTZ NOT NULL
 );
 --- table (page 12) ---
- | 작성일자 | 2026.07.29 |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.30. |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 체성분 데이터 |  |  |  |  | 테이블 ID |  |  | BODY_COMPOSITION_ METRICS |  | 
 테이블설명 | 체성분계 연동 신체 구성 측정 이력 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
