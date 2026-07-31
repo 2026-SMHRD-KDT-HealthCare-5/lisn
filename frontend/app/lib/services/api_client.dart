@@ -58,9 +58,16 @@ class ApiClient {
     return _send('PATCH', path, body: body, authenticated: authenticated);
   }
 
-  /// 204 No Content 를 돌려주는 엔드포인트용. 본문을 읽지 않습니다.
-  Future<void> delete(String path, {bool authenticated = false}) async {
-    await _send('DELETE', path, authenticated: authenticated);
+  /// 204 No Content 를 돌려주는 엔드포인트용. 응답 본문을 읽지 않습니다.
+  ///
+  /// ⚠ 요청 본문은 받습니다. `DELETE /users/me` 는 본인 확인용 비밀번호를
+  ///   본문으로 요구합니다(MLCM_103 2단계).
+  Future<void> delete(
+    String path, {
+    Map<String, dynamic>? body,
+    bool authenticated = false,
+  }) async {
+    await _send('DELETE', path, body: body, authenticated: authenticated);
   }
 
   /// 최상위가 **배열**인 응답용.
