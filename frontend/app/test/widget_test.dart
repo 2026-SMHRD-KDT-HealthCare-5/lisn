@@ -1,5 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
+import 'package:maeume_care/services/api_client.dart';
+import 'package:maeume_care/services/chat_service.dart';
+import 'package:maeume_care/services/token_storage.dart';
 
 import 'package:maeume_care/screens/chat_screen.dart';
 import 'package:maeume_care/screens/emergency_screen.dart';
@@ -17,16 +24,20 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(theme: AppTheme.light, home: const MainShell()),
     );
-    await tester.pumpAndSettle();
+    // pumpAndSettle 을 쓰지 않습니다. 홈이 서버 응답을 기다리는 동안
+    // 로딩 인디케이터가 계속 돌아 settle 이 끝나지 않습니다.
+    await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.text('안녕하세요, 지은님 😊'), findsOneWidget);
+    // 인사말은 하드코딩이 아니라 로그인한 사용자 이름을 씁니다.
+    // MainShell 은 이름을 넘기지 않으므로 이름 없는 형태가 나옵니다.
+    expect(find.text('안녕하세요 😊'), findsOneWidget);
     expect(find.text('홈'), findsOneWidget);
     expect(find.text('AI 챗봇'), findsOneWidget);
     expect(find.text('라이프로그'), findsOneWidget);
     expect(find.text('설정'), findsOneWidget);
 
     await tester.tap(find.text('AI 챗봇'));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('오늘은 어떤 방식으로\n이야기 나눌까요?'), findsOneWidget);
   });
 
@@ -108,19 +119,98 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    var replyCalls = 0;
+    // MLCM_510 2단계 — CRITICAL 이면 서버가 reply 를 null 로 내려보내고,
+    // 앱은 답변을 그리지 않고 긴급 화면으로 넘어가야 한다.
+    var messageCalls = 0;
+    final client = MockClient((request) async {
+      if (request.url.path.endsWith('/chat/sessions')) {
+        return http.Response(
+          jsonEncode({
+            'session_id': '019535f0-7c0a-7000-8000-000000000010',
+            'persona_type': 'FRIEND',
+            'greeting': '오늘 하루는 어떠셨나요?',
+            'started_at': '2026-08-01T09:00:00Z',
+          }),
+          201,
+          headers: {'content-type': 'application/json; charset=utf-8'},
+        );
+      }
+      if (request.url.path.endsWith('/messages')) {
+        messageCalls += 1;
+        return http.Response(
+          jsonEncode({
+            'reply': null,
+            'risk': {
+              'level': 'CRITICAL',
+              'action': 'EMERGENCY',
+              'source': 'KEYWORD',
+            },
+          }),
+          200,
+          headers: {'content-type': 'application/json; charset=utf-8'},
+        );
+      }
+      return http.Response('{}', 200);
+    });
+
+    final tokenStore = MemoryTokenStore();
+    await tokenStore.save(
+      accessToken: 'test-token',
+      expiresAt: DateTime.now().add(const Duration(hours: 1)),
+    );
+    final chatService = ChatService(
+      apiClient: ApiClient(tokenStore: tokenStore, httpClient: client),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(body: ChatScreen(chatService: chatService)),
+      ),
+    );
+
+    await tester.tap(find.text('다정한 공감가'));
+    await tester.pumpAndSettle();
+    expect(find.text('오늘 하루는 어떠셨나요?'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), '도움이 필요해요');
+    await tester.tap(find.byIcon(Icons.send_rounded));
+    await tester.pumpAndSettle();
+
+    expect(messageCalls, 1);
+    expect(find.text('지금 많이 힘드신 것 같아요'), findsOneWidget);
+    expect(find.text('109'), findsOneWidget);
+  });
+
+  testWidgets('음성 입력은 범위에서 제외돼 마이크 버튼이 없다', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final client = MockClient((request) async => http.Response(
+          jsonEncode({
+            'session_id': '019535f0-7c0a-7000-8000-000000000011',
+            'persona_type': 'FRIEND',
+            'greeting': '안녕하세요',
+            'started_at': '2026-08-01T09:00:00Z',
+          }),
+          201,
+          headers: {'content-type': 'application/json; charset=utf-8'},
+        ));
+    final tokenStore = MemoryTokenStore();
+    await tokenStore.save(
+      accessToken: 'test-token',
+      expiresAt: DateTime.now().add(const Duration(hours: 1)),
+    );
+
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.light,
         home: Scaffold(
           body: ChatScreen(
-            replyBuilder: (message, persona) {
-              replyCalls += 1;
-              return const ChatReply(
-                '',
-                action: ChatResponseAction.emergency,
-              );
-            },
+            chatService: ChatService(
+              apiClient: ApiClient(tokenStore: tokenStore, httpClient: client),
+            ),
           ),
         ),
       ),
@@ -128,15 +218,7 @@ void main() {
 
     await tester.tap(find.text('다정한 공감가'));
     await tester.pumpAndSettle();
-    await tester.enterText(
-      find.byType(TextField),
-      '도움이 필요해요',
-    );
-    await tester.tap(find.byIcon(Icons.send_rounded));
-    await tester.pumpAndSettle();
 
-    expect(replyCalls, 1);
-    expect(find.text('지금 많이 힘드신 것 같아요'), findsOneWidget);
-    expect(find.text('109'), findsOneWidget);
+    expect(find.byIcon(Icons.mic_none_rounded), findsNothing);
   });
 }

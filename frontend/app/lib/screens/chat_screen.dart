@@ -1,33 +1,21 @@
 import 'package:flutter/material.dart';
 
+import '../models/auth_models.dart' show ApiException;
+import '../models/chat_models.dart';
+import '../services/app_services.dart';
+import '../services/chat_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common_widgets.dart';
 import 'emergency_screen.dart';
 
-enum ChatPersona { feeling, thinking }
+enum ChatPersona {
+  feeling('FRIEND'),
+  thinking('COUNSELOR');
 
-enum ChatResponseAction { chat, content, emergency }
+  const ChatPersona(this.code);
 
-class ChatReply {
-  const ChatReply(this.text, {this.action = ChatResponseAction.chat});
-
-  final String text;
-  final ChatResponseAction action;
-}
-
-typedef ChatReplyBuilder = ChatReply Function(
-  String userMessage,
-  ChatPersona persona,
-);
-
-ChatReply buildMockChatReply(String userMessage, ChatPersona persona) {
-  return ChatReply(
-    persona == ChatPersona.feeling
-        ? '많이 힘드셨겠어요. 그런 마음이 드는 건 너무 자연스러워요. '
-            '오늘의 지은님에게 가장 필요한 건 무엇일까요?'
-        : '상황을 하나씩 정리해볼게요. 가장 스트레스가 컸던 순간과 '
-            '바꿀 수 있는 부분을 나눠서 살펴볼까요?',
-  );
+  /// 서버 persona_type. schema.sql 의 CHECK 값과 같아야 합니다.
+  final String code;
 }
 
 class ChatMessage {
@@ -36,10 +24,17 @@ class ChatMessage {
   final bool fromUser;
 }
 
+/// MAIN_CHAT_01 · MAIN_CHAT_02
+///
+/// ⚠ **스트리밍을 쓰지 않습니다.** 서버가 위기 판정과 응답 생성을 병렬로
+///   돌린 뒤 CRITICAL 이면 생성된 응답을 버리기 때문입니다. 판정 전에 흘린
+///   글자는 회수할 수 없습니다. 응답이 한 번에 오는 건 의도된 설계입니다.
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key, this.replyBuilder = buildMockChatReply});
+  const ChatScreen({super.key, this.chatService});
 
-  final ChatReplyBuilder replyBuilder;
+  /// 테스트에서 가짜 서비스를 넣기 위한 통로. 평소에는 null 이고
+  /// AppServices.chat 을 씁니다.
+  final ChatService? chatService;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -48,57 +43,129 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final pageController = PageController(viewportFraction: .9);
   final inputController = TextEditingController();
+  final scrollController = ScrollController();
+
+  ChatService get _chat => widget.chatService ?? AppServices.chat;
+
   ChatPersona persona = ChatPersona.feeling;
   bool conversation = false;
   List<ChatMessage> messages = [];
+
+  String? sessionId;
+  bool starting = false;
+  bool sending = false;
 
   @override
   void dispose() {
     pageController.dispose();
     inputController.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
   String get personaName =>
       persona == ChatPersona.feeling ? '[F] 다정한 공감가' : '[T] 이성적인 분석가';
 
-  void startConversation(ChatPersona selected) {
-    setState(() {
-      persona = selected;
-      conversation = true;
-      messages = [
-        ChatMessage(
-          selected == ChatPersona.feeling
-              ? '지은님, 오늘 하루는 어떠셨나요? 어떤 마음이든 편하게 이야기해 주세요.'
-              : '지은님, 오늘 있었던 일을 함께 정리해볼까요? 가장 신경 쓰였던 일부터 알려주세요.',
-          fromUser: false,
-        ),
-      ];
+  void _toast(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  String _errorText(Object e) =>
+      e is ApiException ? e.message : '요청을 처리하지 못했습니다.';
+
+  void _scrollToEnd() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!scrollController.hasClients) return;
+      scrollController.jumpTo(scrollController.position.maxScrollExtent);
     });
   }
 
-  void send() {
+  Future<void> startConversation(ChatPersona selected) async {
+    if (starting) return;
+    setState(() {
+      persona = selected;
+      starting = true;
+    });
+    try {
+      final session =
+          await _chat.startSession(personaType: selected.code);
+      if (!mounted) return;
+      setState(() {
+        sessionId = session.sessionId;
+        conversation = true;
+        // 첫 인사도 서버가 만듭니다. 페르소나 문구가 두 곳에 있으면 어긋납니다.
+        messages = [ChatMessage(session.greeting, fromUser: false)];
+      });
+    } catch (e) {
+      _toast(_errorText(e));
+    } finally {
+      if (mounted) setState(() => starting = false);
+    }
+  }
+
+  Future<void> send() async {
     final text = inputController.text.trim();
-    if (text.isEmpty) return;
-    final reply = widget.replyBuilder(text, persona);
+    if (text.isEmpty || sending) return;
+    final id = sessionId;
+    if (id == null) return;
+
     setState(() {
       messages.add(ChatMessage(text, fromUser: true));
       inputController.clear();
+      sending = true;
     });
+    _scrollToEnd();
 
-    if (reply.action == ChatResponseAction.emergency) {
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => const EmergencyScreen(),
-          fullscreenDialog: true,
-        ),
-      );
-      return;
+    try {
+      final result = await _chat.send(id, text);
+      if (!mounted) return;
+
+      // ⚠ EMERGENCY 면 답변을 그리지 않고 긴급 상담으로 전환합니다.
+      //   MLCM_510 2단계. 서버도 이때 reply 를 null 로 내려보냅니다.
+      if (result.risk.action == ChatAction.emergency) {
+        setState(() => sending = false);
+        await Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => const EmergencyScreen(),
+            fullscreenDialog: true,
+          ),
+        );
+        return;
+      }
+
+      setState(() {
+        if (result.reply != null) {
+          messages.add(ChatMessage(result.reply!, fromUser: false));
+        }
+        sending = false;
+      });
+      _scrollToEnd();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => sending = false);
+      _toast(_errorText(e));
     }
+  }
 
+  /// 세션 종료. 서버가 요약을 만들고 ended_at 을 기록합니다.
+  ///
+  /// 종료에 실패해도 화면은 닫습니다. 세션이 열린 채로 남아도
+  /// 비활성 상태가 되면 서버가 정리하고, 여기서 사용자를 붙잡아둘 이유가 없습니다.
+  Future<void> endConversation() async {
+    final id = sessionId;
     setState(() {
-      messages.add(ChatMessage(reply.text, fromUser: false));
+      conversation = false;
+      sessionId = null;
+      messages = [];
     });
+    if (id == null) return;
+    try {
+      await _chat.endSession(id);
+    } catch (_) {
+      // 조용히 넘어간다.
+    }
   }
 
   @override
@@ -176,7 +243,7 @@ class _ChatScreenState extends State<ChatScreen> {
         padding: const EdgeInsets.fromLTRB(15, 8, 15, 12),
         child: Row(children: [
           IconButton(
-              onPressed: () => setState(() => conversation = false),
+              onPressed: endConversation,
               icon: const Icon(Icons.arrow_back_rounded)),
           MaeumeMascot(size: 45, thinking: persona == ChatPersona.thinking),
           const SizedBox(width: 10),
@@ -191,7 +258,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     style: TextStyle(fontSize: 9, color: Color(0xFF61C799)))
               ])),
           TextButton(
-              onPressed: () => setState(() => conversation = false),
+              onPressed: endConversation,
               child: const Text('대화 종료',
                   style: TextStyle(fontSize: 10, color: AppColors.muted))),
         ]),
@@ -199,12 +266,17 @@ class _ChatScreenState extends State<ChatScreen> {
       const Divider(height: 1, color: AppColors.line),
       Expanded(
         child: ListView.builder(
+          controller: scrollController,
           padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 22),
-          itemCount: messages.length,
-          itemBuilder: (_, index) => _MessageBubble(
-            messages[index],
-            thinking: persona == ChatPersona.thinking,
-          ),
+          // 응답을 기다리는 동안 말풍선 한 칸을 더 그립니다.
+          itemCount: messages.length + (sending ? 1 : 0),
+          itemBuilder: (_, index) {
+            if (index >= messages.length) return const _TypingBubble();
+            return _MessageBubble(
+              messages[index],
+              thinking: persona == ChatPersona.thinking,
+            );
+          },
         ),
       ),
       SingleChildScrollView(
@@ -221,17 +293,22 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       Padding(
         padding: const EdgeInsets.fromLTRB(15, 8, 15, 14),
+        // 마이크 버튼을 두지 않습니다 — 음성 입력(STT)은 이번 범위에서
+        // 제외됐습니다(2026.08.01). 눌리는데 동작하지 않으면 시연에서 드러납니다.
         child: TextField(
           controller: inputController,
+          enabled: !sending,
           onSubmitted: (_) => send(),
+          maxLength: 2000, // 서버 MessageIn 제약과 동일
           decoration: InputDecoration(
-            hintText: '메시지를 입력해주세요...',
-            prefixIcon: const Icon(Icons.mic_none_rounded),
+            counterText: '',
+            hintText: sending ? '답변을 기다리는 중이에요...' : '메시지를 입력해주세요...',
             suffixIcon: IconButton(
-                onPressed: send,
-                icon: const CircleAvatar(
-                    backgroundColor: AppColors.primary,
-                    child: Icon(Icons.send_rounded,
+                onPressed: sending ? null : send,
+                icon: CircleAvatar(
+                    backgroundColor:
+                        sending ? AppColors.muted : AppColors.primary,
+                    child: const Icon(Icons.send_rounded,
                         size: 17, color: Colors.white))),
             border: OutlineInputBorder(
                 borderSide: BorderSide.none,
@@ -401,5 +478,39 @@ class _ChatHeader extends StatelessWidget {
                   const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
           IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded))
         ]));
+  }
+}
+
+/// 응답을 기다리는 동안 띄우는 말풍선.
+///
+/// 스트리밍을 쓸 수 없어(위기 판정 전에 글자를 흘릴 수 없음) 응답이 한 번에
+/// 옵니다. 그동안 화면이 멈춘 것처럼 보이지 않게 자리를 채웁니다.
+class _TypingBubble extends StatelessWidget {
+  const _TypingBubble();
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(color: AppColors.line),
+        ),
+        child: const Row(mainAxisSize: MainAxisSize.min, children: [
+          SizedBox(
+              width: 13,
+              height: 13,
+              child: CircularProgressIndicator(
+                  strokeWidth: 2, color: AppColors.muted)),
+          SizedBox(width: 10),
+          Text('마음이가 생각하고 있어요',
+              style: TextStyle(fontSize: 10, color: AppColors.muted)),
+        ]),
+      ),
+    );
   }
 }

@@ -1,5 +1,6 @@
 import 'api_client.dart';
 import 'auth_service.dart';
+import 'chat_service.dart';
 import 'home_service.dart';
 import 'token_storage.dart';
 
@@ -13,4 +14,5 @@ class AppServices {
     tokenStore: tokenStore,
   );
   static final HomeService home = HomeService(apiClient: apiClient);
+  static final ChatService chat = ChatService(apiClient: apiClient);
 }

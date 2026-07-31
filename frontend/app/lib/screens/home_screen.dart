@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/auth_models.dart' show ApiException;
 import '../models/home_models.dart';
 import '../services/app_services.dart';
+import '../services/home_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common_widgets.dart';
 
@@ -11,9 +12,12 @@ import '../widgets/common_widgets.dart';
 /// **판단은 서버가 끝냅니다.** 감정→위험도→액션 매핑을 여기서 다시 계산하지
 /// 않습니다. 서버가 내려준 action 을 보고 무엇을 그릴지만 정합니다.
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, this.userName});
+  const HomeScreen({super.key, this.userName, this.homeService});
 
   final String? userName;
+
+  /// 테스트 주입용. 평소에는 null 이고 AppServices.home 을 씁니다.
+  final HomeService? homeService;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -25,11 +29,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _future = AppServices.home.fetch();
+    _future = (widget.homeService ?? AppServices.home).fetch();
   }
 
   Future<void> _refresh() async {
-    final next = AppServices.home.fetch();
+    final next = (widget.homeService ?? AppServices.home).fetch();
     setState(() => _future = next);
     await next.catchError((_) => throw Exception());
   }
