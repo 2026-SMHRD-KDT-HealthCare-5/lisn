@@ -1,0 +1,25 @@
+{
+  "folders": [
+    {
+      "name": "lisn",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "terminal.integrated.cwd": "${workspaceFolder}",
+    "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+    "files.exclude": {
+      "**/.dart_tool": true,
+      "**/build": true,
+      "**/node_modules": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "dart-code.dart-code",
+      "dart-code.flutter",
+      "ms-python.python",
+      "dbaeumer.vscode-eslint"
+    ]
+  }
+}

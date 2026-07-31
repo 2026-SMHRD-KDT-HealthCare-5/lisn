@@ -28,6 +28,16 @@ git clone https://github.com/2026-SMHRD-KDT-HealthCare-5/lisn.git
 .\tools\check-env.ps1
 ```
 
+의존성과 `backend/.env`를 구성한 뒤에는 루트에서 아래 명령 하나로 FastAPI·관리자 웹·
+Flutter를 실행할 수 있습니다.
+
+```powershell
+.\tools\start-dev.ps1
+```
+
+VS Code 사용자는 `lisn.code-workspace`를 열고 `Ctrl+Shift+B`를 누르면 됩니다. 실제
+프로세스를 띄우지 않고 준비 상태만 확인할 때는 `.\tools\start-dev.ps1 -Check`를 사용합니다.
+
 그다음 아래 프롬프트를 Claude Code 에 **그대로 붙여넣으면** 이전 세션과 같은 상태에서 시작합니다.
 
 ---

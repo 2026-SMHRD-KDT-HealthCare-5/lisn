@@ -80,8 +80,11 @@ lisn/
 │   ├── extracted/            산출물 HWP·PPTX 본문 추출본 (버전 diff 비교용)
 │   └── review/               문서 검수·개정 관리
 ├── tools/
+│   ├── start-dev.ps1         백엔드 · 관리자 웹 · Flutter 통합 실행
 │   ├── doc2txt.py            PDF·PPTX 기준 본문 추출 스크립트
 │   └── hwp2txt.ps1           HWP 직접 파싱 보조 스크립트
+├── .vscode/tasks.json        VS Code 공용 실행 작업
+├── lisn.code-workspace       팀 공용 VS Code 워크스페이스
 └── Documents/                산출물 원본 (HWP · PPTX)
 ```
 
@@ -110,6 +113,19 @@ psql -U postgres -d lisn -f db/schema.sql
 적용합니다.
 
 ### 애플리케이션 실행
+
+최초 1회 의존성과 `backend/.env`를 준비한 뒤에는 저장소 루트에서 한 명령으로
+백엔드·관리자 웹·Flutter를 각각 새 터미널에 실행할 수 있습니다.
+
+```powershell
+.\tools\start-dev.ps1
+```
+
+실행하지 않고 준비 상태만 확인하려면 `.\tools\start-dev.ps1 -Check`를 사용합니다.
+VS Code에서는 `lisn.code-workspace`를 열고 `Ctrl+Shift+B`를 누르면 같은 통합 실행 작업이
+동작합니다. Flutter 창에는 실행 중인 Android 에뮬레이터 또는 연결된 기기가 필요합니다.
+
+개별 실행이 필요하면 다음 기존 명령을 사용합니다.
 
 ```powershell
 Copy-Item backend\.env.example backend\.env

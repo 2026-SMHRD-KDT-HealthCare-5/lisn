@@ -446,7 +446,36 @@ Copy-Item backend\.env.example backend\.env
 
 복사한 `.env`의 DB 접속 정보는 단톡방 또는 Notion의 현재 값을 사용합니다.
 
-## 9-6. 이후 최신으로 받는 법
+## 9-6. 루트에서 전체 애플리케이션 실행
+
+먼저 Android Studio에서 에뮬레이터를 켜거나 Android 기기를 연결합니다. 그다음 저장소
+루트(`lisn`)에서 아래 한 줄을 실행합니다.
+
+```powershell
+.\tools\start-dev.ps1
+```
+
+FastAPI 백엔드, React 관리자 웹, Flutter 앱이 각각 별도 PowerShell 창에서 시작됩니다.
+
+- 백엔드 API 문서: `http://127.0.0.1:8000/docs`
+- 관리자 웹: `http://localhost:5173`
+- Flutter 앱: 연결된 Android 기기 또는 에뮬레이터
+- 종료: 각 실행 창에서 `Ctrl+C`를 누른 뒤 창 닫기
+
+아직 실행하지 않고 누락된 준비 항목만 보고 싶으면 다음 명령을 사용합니다.
+
+```powershell
+.\tools\start-dev.ps1 -Check
+```
+
+VS Code를 사용하면 루트의 `lisn.code-workspace`를 연 뒤 `Ctrl+Shift+B`만 눌러도 같은
+통합 실행 작업이 동작합니다. `Ctrl+Shift+P` → `Tasks: Run Task`에서는 전체 실행뿐 아니라
+백엔드·관리자 웹·Flutter를 각각 따로 실행할 수도 있습니다.
+
+> 스크립트 실행 정책 오류가 나오면
+> `Set-ExecutionPolicy -Scope Process Bypass`를 먼저 실행하세요.
+
+## 9-7. 이후 최신으로 받는 법
 
 `lisn` 폴더에서 PowerShell 열고
 
