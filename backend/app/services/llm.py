@@ -1,13 +1,26 @@
-"""OpenAI 호출 — 페르소나 응답 · 위기 문맥 판정 · 세션 요약.
+"""LLM 호출 — 페르소나 응답 · 위기 문맥 판정 · 세션 요약.
 
-계약 근거(2026.07.31 조회, openaiDeveloperDocs MCP):
-  https://developers.openai.com/api/docs/guides/structured-outputs
-  Responses API 의 client.responses.parse(model=..., input=[...],
-  text_format=PydanticModel) 을 쓰고 결과는 response.output_parsed 로 받는다.
-  Structured Outputs 는 공급한 JSON Schema 를 모델이 반드시 따르도록 보장하므로
-  파싱 실패 재시도 로직이 필요 없다.
+공급자를 **전환할 수 있다**(2026.08.01 PM 확정).
 
-기록: docs/llm/USAGE_LOG.md LLM-002
+  개발 기본값  Gemini  — 무료 한도. **임시 수단이다.**
+  정확도·시연  OpenAI  — .env 에서 LLM_PROVIDER=openai
+
+**산출 문서(01 기획서 · 02 MLCM_310/320)의 "외부 OpenAI API" 는 그대로 정본이다.**
+Gemini 는 개발 중 비용을 줄이려는 임시 경로일 뿐이므로 **문서를 고치지 않는다.**
+따라서 OpenAI 경로를 죽이면 안 된다 — 문서와 실제가 어긋나게 된다.
+
+계약 근거(2026.08.01 조회):
+  https://ai.google.dev/gemini-api/docs/openai
+  Gemini 는 OpenAI 호환 엔드포인트를 제공하므로 **SDK 는 openai 를 그대로 쓴다.**
+  base_url 과 api_key 만 바꾸면 된다.
+
+  ⚠ **Responses API 는 지원하지 않는다.** Chat Completions 만 된다.
+    그래서 responses.parse()  → beta.chat.completions.parse()
+           responses.create() → chat.completions.create()
+    로 옮겼다. Structured Outputs(Pydantic 스키마 강제)는 그대로 지원되므로
+    위기 판정의 스키마 보장은 유지된다 — 파싱 실패 재시도 로직이 필요 없다.
+
+기록: docs/llm/USAGE_LOG.md LLM-004
 """
 
 import asyncio
@@ -20,19 +33,61 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-# 문서 예제 기준 모델. 변경 시 USAGE_LOG 에 근거를 남길 것.
-MODEL = "gpt-5.6"
-
 _client: AsyncOpenAI | None = None
 
 
 def client() -> AsyncOpenAI:
+    """공급자에 맞는 클라이언트. Gemini 도 openai SDK 로 붙는다."""
     global _client
     if _client is None:
-        if not settings.openai_api_key:
-            raise RuntimeError("OPENAI_API_KEY 가 설정되지 않았습니다")
-        _client = AsyncOpenAI(api_key=settings.openai_api_key)
+        # ⚠ timeout·max_retries 를 반드시 준다. 기본 재시도(2회)를 두면 죽은 모델
+        #   하나가 3초 예산(NFR-DV-001)을 통째로 먹는다 — 실측 13.95초.
+        #   빨리 포기하고 키워드 fallback(NFR-DV-003) 으로 넘기는 편이 맞다.
+        common = {
+            "timeout": settings.llm_timeout_seconds,
+            "max_retries": settings.llm_max_retries,
+        }
+        if settings.llm_provider == "openai":
+            if not settings.openai_api_key:
+                raise RuntimeError("OPENAI_API_KEY 가 설정되지 않았습니다")
+            _client = AsyncOpenAI(api_key=settings.openai_api_key, **common)
+        else:
+            if not settings.gemini_api_key:
+                raise RuntimeError("GEMINI_API_KEY 가 설정되지 않았습니다")
+            _client = AsyncOpenAI(
+                api_key=settings.gemini_api_key,
+                base_url=settings.gemini_base_url,
+                **common,
+            )
     return _client
+
+
+def reset_client() -> None:
+    """설정을 바꾼 뒤 캐시된 클라이언트를 버린다. 테스트에서 쓴다."""
+    global _client
+    _client = None
+
+
+def model_for(task: str) -> str:
+    """작업별 모델. 공급자에 따라 달라진다.
+
+    task: "reply" | "crisis" | "summary" | "daily"
+
+    Gemini 는 무료 한도가 **모델별로** 잡히므로 작업마다 다른 모델을 배정해
+    쿼터 버킷을 나눈다. 특히 reply·crisis 는 analyze_and_reply 에서 동시에
+    호출되므로, 같은 모델을 쓰면 한쪽이 다른 쪽의 RPM 을 잡아먹는다.
+
+    OpenAI 는 유료라 쿼터를 나눌 이유가 없고, **정확도 기준선**으로 쓰는 경로라
+    네 작업이 같은 모델을 써야 Gemini 와의 비교가 의미를 갖는다.
+    """
+    if settings.llm_provider == "openai":
+        return settings.openai_model
+    return {
+        "reply": settings.gemini_model_reply,
+        "crisis": settings.gemini_model_crisis,
+        "summary": settings.gemini_model_summary,
+        "daily": settings.gemini_model_daily,
+    }[task]
 
 
 # --------------------------------------------------------------------------
@@ -104,18 +159,23 @@ async def detect_crisis(utterance: str, recent_turns: list[dict]) -> CrisisVerdi
     실패는 호출자가 처리한다 — 여기서 삼키면 키워드 fallback 이 동작하지 않는다.
     """
     context = "\n".join(f"{t['role']}: {t['content']}" for t in recent_turns[-6:])
-    resp = await client().responses.parse(
-        model=MODEL,
-        input=[
+    resp = await client().beta.chat.completions.parse(
+        model=model_for("crisis"),
+        messages=[
             {"role": "system", "content": CRISIS_SYSTEM},
             {
                 "role": "user",
                 "content": f"[최근 대화]\n{context}\n\n[판정 대상 발화]\n{utterance}",
             },
         ],
-        text_format=CrisisVerdict,
+        response_format=CrisisVerdict,
     )
-    return resp.output_parsed
+    parsed = resp.choices[0].message.parsed
+    if parsed is None:
+        # 스키마 강제가 걸려 있어 정상적으로는 오지 않는다. 오면 판정 실패로
+        # 취급해 키워드 fallback 으로 넘긴다 — None 을 판정 결과로 쓰면 안 된다.
+        raise RuntimeError("위기 판정 응답을 파싱하지 못했습니다")
+    return parsed
 
 
 # --------------------------------------------------------------------------
@@ -132,8 +192,10 @@ async def generate_reply(
     ]
     messages.append({"role": "user", "content": utterance})
 
-    resp = await client().responses.create(model=MODEL, input=messages)
-    return resp.output_text
+    resp = await client().chat.completions.create(
+        model=model_for("reply"), messages=messages
+    )
+    return resp.choices[0].message.content or ""
 
 
 FALLBACK_REPLY = {
@@ -151,7 +213,9 @@ async def analyze_and_reply(
 ) -> tuple[str | None, CrisisVerdict | None]:
     """위기 판정과 응답 생성을 동시에 호출한다.
 
-    순차로 하면 OpenAI 왕복이 2회가 되어 전체 3초 요건(NFR-DV-001)을 넘긴다.
+    순차로 하면 LLM 왕복이 2회가 되어 전체 3초 요건(NFR-DV-001)을 넘긴다.
+    Gemini 를 쓸 때는 두 호출이 **서로 다른 모델**로 나가므로(model_for 참조)
+    무료 한도 RPM 도 서로 잡아먹지 않는다.
     CRITICAL 로 판정되면 생성된 일반 응답은 **호출자가 버린다**.
 
     두 호출은 독립이므로 한쪽이 실패해도 다른 쪽 결과는 살린다.
@@ -203,14 +267,14 @@ async def daily_summary(
         facts.append(f"걸음 수 {steps}")
 
     try:
-        resp = await client().responses.create(
-            model=MODEL,
-            input=[
+        resp = await client().chat.completions.create(
+            model=model_for("daily"),
+            messages=[
                 {"role": "system", "content": DAILY_SYSTEM},
                 {"role": "user", "content": ", ".join(facts)},
             ],
         )
-        return resp.output_text
+        return resp.choices[0].message.content
     except Exception as e:
         logger.info("일일 요약 생성 실패: %s", e)
         return None
@@ -227,14 +291,14 @@ async def summarize_session(messages: list[dict]) -> str | None:
         return None
     body = "\n".join(f"{m['role']}: {m['content']}" for m in messages)
     try:
-        resp = await client().responses.create(
-            model=MODEL,
-            input=[
+        resp = await client().chat.completions.create(
+            model=model_for("summary"),
+            messages=[
                 {"role": "system", "content": SUMMARY_SYSTEM},
                 {"role": "user", "content": body},
             ],
         )
-        return resp.output_text
+        return resp.choices[0].message.content
     except Exception as e:
         # 요약 실패로 세션 종료 자체를 막지 않는다.
         logger.warning("세션 요약 실패: %s", e)

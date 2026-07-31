@@ -184,6 +184,17 @@ uvicorn app.main:app --reload
 - **DB 연결 오류는 PostgreSQL 로그를 먼저 보세요.** asyncpg 는 `connection was closed in the middle of operation` 처럼 원인을 감추는 메시지를 던집니다. 실제 원인(`"lisn" 데이터베이스 없음`)은 로그에 명확히 찍혀 있습니다
   - `C:\Program Files\PostgreSQL\17\data\log\`
 
+## LLM 공급자 — Gemini(임시) / OpenAI(정본)
+
+`.env` 의 `LLM_PROVIDER` 로 갈아탑니다. 평소 개발은 **Gemini**(무료 한도), 정확도 검사·시연은 **OpenAI**.
+
+- **Gemini 는 임시 수단입니다.** 산출 문서(01 기획서 · 02 `MLCM_310`/`MLCM_320`)의 **"외부 OpenAI API" 가 정본**이고 **문서는 고치지 않습니다.** 그러니 **OpenAI 경로를 죽이지 마세요** — 죽이면 문서와 실제가 어긋납니다
+- Gemini 는 OpenAI 호환 엔드포인트라 **SDK 는 `openai` 를 그대로** 씁니다. 다만 **Responses API 미지원**이라 양쪽 다 Chat Completions 로 통일했습니다
+- **작업마다 다른 모델을 씁니다.** 무료 한도가 **모델별로** 잡혀서 한 모델에 몰면 병목이 됩니다. 특히 `reply`·`crisis` 는 `analyze_and_reply` 에서 동시에 호출되므로 반드시 갈라놔야 합니다
+- **`max_retries=0` 을 되돌리지 마세요.** 무료 티어는 모델이 통째로 503 이 되는 일이 있고, 기본 재시도(2회)면 죽은 모델 하나가 `NFR-DV-001` 3초 예산을 통째로 먹습니다(실측 13.95초)
+- **쓰면 안 되는 모델** — `gemini-3.5-flash`(503 UNAVAILABLE) · `gemini-2.5-pro`(429, 무료 한도 없음)
+- 모델 가용성·검증 결과는 `docs/llm/USAGE_LOG.md` LLM-004 에 실측값으로 있습니다
+
 ## ai/server
 
 ```powershell

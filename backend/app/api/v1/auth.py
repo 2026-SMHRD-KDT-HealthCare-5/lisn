@@ -13,6 +13,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.crypto import encrypt
 from app.core.database import get_db
 from app.core.security import (
@@ -142,9 +143,24 @@ async def request_password_reset(body: PasswordResetRequest, db: DbSession):
 
     if user is not None:
         token = create_password_reset_token(user.user_id)
-        # TODO(메일): SMTP 미설정. 붙일 때까지 로그로 대체한다.
-        #   운영에서는 이 로그를 반드시 제거할 것 — 토큰이 그대로 남는다.
-        logger.info("[password-reset] %s token=%s", body.email, token)
+
+        # TODO(메일): SMTP 미연동. 붙기 전까지 토큰을 사용자에게 전달할 경로가 없다.
+        #
+        # ⚠ **토큰을 로그에 남기지 않는다.** 재설정 토큰은 그 자체로 계정 탈취
+        #   수단이라, 로그를 보는 사람은 누구나 남의 비밀번호를 바꿀 수 있다.
+        #   로그 파일은 평문으로 쌓이고 공유되기도 한다.
+        #
+        # 개발 중 재설정 흐름을 직접 타봐야 할 때만 .env 에서
+        # PASSWORD_RESET_LOG_TOKEN=true 로 켠다. 기본값은 꺼짐이다.
+        if settings.password_reset_log_token:
+            logger.warning(
+                "[password-reset] ⚠ 토큰 로그 출력이 켜져 있습니다(개발 전용). "
+                "%s token=%s",
+                body.email,
+                token,
+            )
+        else:
+            logger.info("[password-reset] 요청 수신: %s", body.email)
 
     return MessageResponse(message="입력하신 주소로 재설정 안내를 보냈습니다")
 

@@ -19,6 +19,81 @@ LLM·프롬프트·OpenAI API 관련 작업을 시작할 때 최신 관련 항�
 
 ---
 
+## 2026-08-01 · LLM-004 · Gemini 전환 (공급자 스위치) + LLM-002 검증 완료
+
+- 작업 범위: `backend/app/services/llm.py`, `core/config.py`, `.env.example`
+- 조회한 자료:
+  - [Gemini — OpenAI 호환](https://ai.google.dev/gemini-api/docs/openai) (2026.08.01 조회).
+    `base_url="https://generativelanguage.googleapis.com/v1beta/openai/"` 로 **openai SDK 를
+    그대로 쓴다.** Structured Outputs 는 `beta.chat.completions.parse()` + Pydantic 지원.
+  - [Gemini — 모델 목록](https://ai.google.dev/gemini-api/docs/models) (2026.08.01 조회)
+  - [Gemini — Rate limits](https://ai.google.dev/gemini-api/docs/rate-limits) (2026.08.01 조회).
+    **무료 한도 수치는 문서에 없고 AI Studio 에서만 확인 가능**하다고 명시돼 있음.
+    그래서 아래 가용성은 문서가 아니라 **직접 호출해 실측**했다.
+
+### 채택한 방법
+
+**공급자 스위치**(`LLM_PROVIDER`). 평소 개발은 Gemini(무료), 정확도 검사·시연은 OpenAI.
+
+> **Gemini 는 임시 수단이므로 산출 문서를 고치지 않습니다.** 01 기획서·02 `MLCM_310`/`MLCM_320`
+> 의 "외부 OpenAI API" 가 정본입니다. 따라서 **OpenAI 경로를 죽이면 안 됩니다** —
+> 죽이는 순간 문서와 실제 시스템이 어긋납니다.
+
+**작업별로 다른 모델을 배정**했습니다. 무료 한도(RPM/RPD)가 **모델별로 따로 잡히기 때문**에,
+전부 한 모델에 몰면 그 하나가 병목이 됩니다. 특히 `reply`·`crisis` 는 `analyze_and_reply` 에서
+**동시에** 호출되므로 같은 모델을 쓰면 서로의 RPM 을 잡아먹습니다.
+
+| 작업 | 모델 | 이유 |
+|---|---|---|
+| 위기 판정 | `gemini-3.6-flash` | 안전 직결. 가용 모델 중 가장 좋음 |
+| 페르소나 응답 | `gemini-2.5-flash` | 품질·지연 균형 |
+| 세션 요약 | `gemini-3.5-flash-lite` | 백그라운드 |
+| 홈 한줄 요약 | `gemini-3.1-flash-lite` | 캐시됨 |
+
+OpenAI 는 유료라 쿼터를 나눌 이유가 없고, **정확도 기준선**이라 네 작업이 같은 모델(`gpt-5.6`)을
+써야 Gemini 와의 비교가 성립합니다.
+
+### 채택하지 않은 방법과 이유
+
+- **`gemini-3.5-flash`** — 실측 **503 UNAVAILABLE**("high demand"). 처음 위기 판정에 배정했다가 전량 실패
+- **`gemini-2.5-pro`** — 실측 **429**. 무료 한도가 없음
+- **Responses API 유지** — Gemini 가 지원하지 않음. Chat Completions 로 통일
+
+### 무료 티어 모델 가용성 (2026.08.01 실측)
+
+| 모델 | 결과 |
+|---|---|
+| `gemini-3.6-flash` | OK 2.74s |
+| `gemini-3.5-flash` | **503 UNAVAILABLE** |
+| `gemini-3.5-flash-lite` | OK 0.93s |
+| `gemini-3.1-flash-lite` | OK 0.93s |
+| `gemini-2.5-flash` | OK 1.22s |
+| `gemini-2.5-flash-lite` | OK 1.12s |
+| `gemini-2.5-pro` | **429 한도 없음** |
+
+### 검증 결과 — LLM-002 에서 미뤄둔 2차 문맥 판정이 여기서 닫힙니다
+
+| 발화 | 판정 | 기대 | |
+|---|---|---|---|
+| `배고파 죽겠다 진짜` | `is_crisis=False` `NONE` | 관용 표현 | ✅ |
+| `요즘 너무 지치고 아무것도 하기 싫어` | `is_crisis=False` `LOW` | 일반 우울감 | ✅ |
+| `이제 그만하고 싶어. 다 정리했어. 내일이면 끝이야` | `is_crisis=True` **`HIGH`** | 위기 신호 | ✅ |
+
+**병렬 경로 2.19초 — `NFR-DV-001` 3초 통과.**
+
+### ⚠ 재시도를 끈 이유 (중요)
+
+무료 티어는 **모델이 통째로 503 이 되는 일**이 있습니다. openai SDK 기본 재시도(2회)를 그대로
+두면 죽은 모델 하나가 3초 예산을 통째로 먹습니다 — **실측 13.95초**. 그래서
+`max_retries=0`, `timeout=8.0` 으로 두고 **빨리 포기해 키워드 fallback(`NFR-DV-003`)으로
+넘깁니다.** 이 값을 되돌리지 마세요.
+
+### 반영 파일
+
+`backend/app/services/llm.py` · `backend/app/core/config.py` · `backend/.env.example`
+
+---
+
 ## 2026-07-31 · LLM-002 · 챗봇 라우터 구현 (페르소나 응답·위기 판정·세션 요약)
 
 - 작업 범위: `backend/app/services/llm.py`, `services/safety.py`, `api/v1/chat.py`,
