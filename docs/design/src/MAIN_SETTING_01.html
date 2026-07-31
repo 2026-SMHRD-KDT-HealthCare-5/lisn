@@ -1,0 +1,85 @@
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  body { position: relative; }
+  .topbar { padding-top: 8px; }
+  .content { padding: 8px 20px 0; display: flex; flex-direction: column; gap: 9px; }
+  .device { padding: 14px 16px; }
+  .device-top { display: flex; align-items: center; gap: 11px; }
+  .device-top .ico { background: #EEF1FF; }
+  .device-top .t { flex: 1; }
+  .device-top .t b { display: block; font-size: 13px; }
+  .device-top .t small { display: block; font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .linked { font-size: 10.5px; font-weight: 750; color: #3E9B85; }
+  .scopes { margin-top: 11px; padding-top: 10px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 9px; }
+  .scope { display: flex; align-items: center; gap: 10px; }
+  .scope .t { flex: 1; }
+  .scope .t b { display: block; font-size: 12px; font-weight: 650; }
+  .scope .t small { display: block; font-size: 9.5px; color: var(--muted); margin-top: 1px; }
+  .tag { font-size: 9px; font-weight: 800; padding: 3px 7px; border-radius: 999px; }
+  .tag.r { background: #E1E8FD; color: #4353A4; }
+  .tag.o { background: #F1F3FA; color: #858DA6; }
+  .revoke { font-size: 9.5px; color: #909AB4; margin-top: 10px; line-height: 1.5; }
+  .card.list { padding: 0; }
+  .persona-row .ico { background: #E7F4F0; }
+  .cur { font-size: 11px; color: var(--primary); font-weight: 750; margin-right: 6px; }
+  .logout { margin-top: 2px; height: 48px; }
+</style>
+<body class="mobile">
+  <div class="topbar">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="#3E4A72" stroke-width="2" stroke-linecap="round"/></svg>
+    <h1>설정</h1>
+    <div style="width:20px"></div>
+  </div>
+  <div class="content">
+    <div class="sec" style="margin-top:4px">웨어러블 연동</div>
+    <div class="card device">
+      <div class="device-top">
+        <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="7" y="6" width="10" height="12" rx="3" stroke="#6C7DE4" stroke-width="1.8"/><path d="M9.5 6V3.5h5V6M9.5 18v2.5h5V18" stroke="#6C7DE4" stroke-width="1.8"/></svg></div>
+        <div class="t"><b>Galaxy Watch 6</b><small>Health Connect · 08:12 동기화</small></div>
+        <div class="linked">연결됨</div>
+      </div>
+      <div class="scopes">
+        <div class="scope"><div class="t"><b>활동량</b><small>걸음 수 · 이동 거리 · 소모 칼로리</small></div><span class="tag r">필수</span><div class="toggle"><i></i></div></div>
+        <div class="scope"><div class="t"><b>수면</b><small>수면 단계 · 수면 효율</small></div><span class="tag r">필수</span><div class="toggle"><i></i></div></div>
+        <div class="scope"><div class="t"><b>체성분</b><small>체중 · 골격근량 · 기초대사량</small></div><span class="tag o">선택</span><div class="toggle off"><i></i></div></div>
+      </div>
+      <div class="revoke">동의를 끄면 해당 항목 수집이 즉시 중단돼요.</div>
+    </div>
+
+    <div class="sec">알림</div>
+    <div class="card list">
+      <div class="listrow">
+        <div class="ico" style="background:#FFF0F3"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2.5h-15z" stroke="#E28FA6" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 19a2 2 0 0 0 4 0" stroke="#E28FA6" stroke-width="1.8"/></svg></div>
+        <div class="t"><b>맞춤 케어 알림</b><small>해제하면 추천 콘텐츠 푸시를 보내지 않아요</small></div>
+        <div class="toggle"><i></i></div>
+      </div>
+    </div>
+
+    <div class="sec">챗봇</div>
+    <div class="card list">
+      <div class="listrow persona-row">
+        <div class="ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M4 12a8 7 0 1 1 8 7H7l-3 2z" stroke="#4FAE93" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+        <div class="t"><b>페르소나 변경</b><small>대화 성격을 다시 고를 수 있어요</small></div>
+        <span class="cur">따스한 공감형</span><span class="chev">&rsaquo;</span>
+      </div>
+    </div>
+
+    <div class="sec">계정</div>
+    <div class="card list">
+      <div class="listrow">
+        <div class="ico" style="background:#EEF1FF"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.4" stroke="#6C7DE4" stroke-width="1.8"/><path d="M5.5 20c.5-4 2.6-6 6.5-6s6 2 6.5 6" stroke="#6C7DE4" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <div class="t"><b>계정 관리</b><small>내 정보 확인 · 비밀번호 변경 · 회원 탈퇴</small></div>
+        <span class="chev">&rsaquo;</span>
+      </div>
+    </div>
+    <div class="ghost logout">로그아웃</div>
+  </div>
+  <div class="nav">
+    <div><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z" stroke="#A6ADC4" stroke-width="1.8" stroke-linejoin="round"/></svg><span>홈</span></div>
+    <div><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M4 12a8 7 0 1 1 8 7H7l-3 2z" stroke="#A6ADC4" stroke-width="1.8" stroke-linejoin="round"/></svg><span>AI 챗봇</span></div>
+    <div><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M5 19V9M10 19V5M15 19v-7M20 19v-4" stroke="#A6ADC4" stroke-width="2" stroke-linecap="round"/></svg><span>라이프로그</span></div>
+    <div class="on"><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3.2" stroke="#5A6BE0" stroke-width="1.8"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6L18 18M18 6l-1.4 1.4M7.4 16.6L6 18" stroke="#5A6BE0" stroke-width="1.8" stroke-linecap="round"/></svg><span>설정</span></div>
+  </div>
+</body>

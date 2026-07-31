@@ -1,0 +1,79 @@
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  body { background: #fff; position: relative; }
+  .bar {
+    height: 62px; padding: 0 18px; display: flex; align-items: center; gap: 11px;
+    border-bottom: 1px solid var(--line);
+  }
+  .bar img { width: 36px; height: 36px; }
+  .bar .who b { font-size: 14px; display: block; }
+  .bar .who small { font-size: 10px; color: #57B58F; font-weight: 600; }
+  .bar .end { margin-left: auto; color: #8A93AC; font-size: 11.5px; font-weight: 700; }
+  .thread { padding: 16px 18px 0; display: flex; flex-direction: column; gap: 11px; }
+  .msg { display: flex; gap: 9px; align-items: flex-start; max-width: 84%; }
+  .msg img { width: 30px; height: 30px; flex: none; }
+  .bubble { background: #F1F4FC; border-radius: 16px; padding: 11px 13px; font-size: 12px; line-height: 1.6; color: #48526F; }
+  .me { align-self: flex-end; }
+  .me .bubble { background: var(--primary); color: #fff; }
+  .history {
+    margin: 16px 18px 0; border: 1px solid #E4E9F6; border-radius: 18px; overflow: hidden;
+  }
+  .history-head {
+    display: flex; align-items: center; gap: 8px; padding: 12px 15px;
+    background: #F7F9FE; border-bottom: 1px solid var(--line);
+  }
+  .history-head b { font-size: 12.5px; flex: 1; }
+  .history-head span { font-size: 10.5px; color: #8A93AC; font-weight: 600; }
+  .hrow { display: flex; align-items: center; gap: 10px; padding: 11px 15px; border-bottom: 1px solid var(--line); }
+  .hrow:last-child { border-bottom: 0; }
+  .hrow .t { flex: 1; }
+  .hrow .t b { display: block; font-size: 11.5px; font-weight: 700; }
+  .hrow .t small { display: block; font-size: 10px; color: var(--muted); margin-top: 3px; line-height: 1.45; }
+  .hrow .day { font-size: 10px; color: #A8AFC4; font-weight: 600; flex: none; }
+  .trash { width: 26px; height: 26px; border-radius: 9px; background: #F4F6FC;
+           display: flex; align-items: center; justify-content: center; flex: none; }
+  .composer {
+    position: absolute; left: 18px; right: 18px; bottom: 22px;
+    height: 52px; border-radius: 17px; background: #F5F7FD;
+    display: flex; align-items: center; gap: 11px; padding: 0 8px 0 15px;
+  }
+  .composer p { flex: 1; color: #B4BACB; font-size: 12.5px; }
+  .send { width: 38px; height: 38px; border-radius: 13px; background: var(--primary);
+          display: flex; align-items: center; justify-content: center; flex: none; }
+</style>
+<body class="mobile">
+  <div class="bar">
+    <div class="back" style="background:#F4F6FC"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#5A668B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <img src="../assets/avatar-chat.png" alt="">
+    <div class="who"><b>따스한 공감형</b><small>● 지금 대화할 수 있어요</small></div>
+    <div class="end">대화 종료</div>
+  </div>
+  <div class="thread">
+    <div class="msg"><img src="../assets/avatar-chat.png" alt=""><div class="bubble">마음님, 오늘 하루는 어떠셨나요?<br>무슨 일이든 편하게 이야기해 주세요.</div></div>
+    <div class="msg me"><div class="bubble">오늘 회사에서 신경 쓰이는 일이 많았어요.</div></div>
+    <div class="msg"><img src="../assets/avatar-chat.png" alt=""><div class="bubble">많이 힘드셨겠어요. 그런 마음이 드는 건<br>자연스러운 일이에요.</div></div>
+  </div>
+  <div class="history">
+    <div class="history-head">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="#6C7DE4" stroke-width="1.8"/><path d="M12 7.5V12l3 2" stroke="#6C7DE4" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <b>대화 기록</b><span>최근순 &rsaquo;</span>
+    </div>
+    <div class="hrow">
+      <div class="t"><b>지친 하루를 정리한 대화</b><small>요약 · 업무 부담을 이야기하고 휴식 방법을 함께 찾았어요</small></div>
+      <div class="day">어제</div>
+      <div class="trash"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" stroke="#98A0B8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </div>
+    <div class="hrow">
+      <div class="t"><b>잠들기 어려웠던 밤</b><small>요약 · 수면 리듬과 긴장 완화에 대해 대화했어요</small></div>
+      <div class="day">7.28</div>
+      <div class="trash"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" stroke="#98A0B8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </div>
+  </div>
+  <div class="composer">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="9" y="4" width="6" height="11" rx="3" stroke="#8A93AC" stroke-width="1.8"/><path d="M6 12a6 6 0 0 0 12 0M12 18v2.5" stroke="#8A93AC" stroke-width="1.8" stroke-linecap="round"/></svg>
+    <p>메시지를 입력해주세요...</p>
+    <div class="send"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M4 12l16-8-6 8 6 8-16-8z" fill="#fff"/></svg></div>
+  </div>
+</body>

@@ -1,0 +1,71 @@
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  body { background: #fff; }
+  .mobile-head { height: 56px; padding: 18px 20px 0; }
+  .step { color: var(--primary); font-size: 11.5px; font-weight: 800; letter-spacing: .4px; padding: 0 22px; }
+  .mobile-title { padding-top: 6px; }
+  .content { padding: 18px 20px 0; }
+  .all {
+    display: flex; align-items: center; gap: 11px;
+    padding: 15px 16px; border: 1.5px solid var(--primary); border-radius: 16px;
+    background: #F5F7FF;
+  }
+  .all b { font-size: 14px; }
+  .box { width: 21px; height: 21px; border-radius: 7px; background: var(--primary);
+         display: flex; align-items: center; justify-content: center; flex: none; }
+  .box.empty { background: #fff; border: 1.5px solid #D5DBEC; }
+  .items { margin-top: 12px; }
+  .item { display: flex; align-items: center; gap: 11px; padding: 11px 4px; }
+  .item .box { width: 19px; height: 19px; border-radius: 6px; }
+  .item .t { flex: 1; font-size: 12.5px; color: #454F70; font-weight: 600; }
+  .item .t em { font-style: normal; color: var(--primary); font-weight: 750; }
+  .item .t i { font-style: normal; color: var(--muted); font-weight: 600; }
+  .item .more { color: #C3C9DA; font-size: 12px; }
+  .sensitive {
+    margin-top: 4px; background: #EFF3FF; border-radius: 14px;
+    padding: 12px 14px;
+  }
+  .sensitive b { display: block; font-size: 11.5px; color: #3F4C86; margin-bottom: 5px; }
+  .sensitive p { font-size: 10.5px; line-height: 1.55; color: #737C9C; }
+  .primary { margin: 22px 0 0; }
+  .note { text-align: center; color: #A7ADBF; font-size: 10px; margin-top: 12px; }
+</style>
+<body class="mobile">
+  <div class="mobile-head">
+    <div class="back"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#5A668B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  </div>
+  <div class="step">STEP 01</div>
+  <div class="mobile-title"><h1>약관에 동의해주세요</h1><p>서비스 이용과 건강 데이터 수집에 필요한 동의예요.</p></div>
+  <div class="content">
+    <div class="all">
+      <div class="box"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3"/></svg></div>
+      <b>전체 동의</b>
+    </div>
+    <div class="items">
+      <div class="item">
+        <div class="box"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3"/></svg></div>
+        <div class="t"><em>[필수]</em> 서비스 이용약관</div><div class="more">&rsaquo;</div>
+      </div>
+      <div class="item">
+        <div class="box"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3"/></svg></div>
+        <div class="t"><em>[필수]</em> 개인정보 수집·이용 동의</div><div class="more">&rsaquo;</div>
+      </div>
+      <div class="item">
+        <div class="box"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3"/></svg></div>
+        <div class="t"><em>[필수]</em> 민감정보(생체·건강) 수집 동의</div><div class="more">&rsaquo;</div>
+      </div>
+      <div class="sensitive">
+        <b>민감정보는 별도로 동의받아요</b>
+        <p>심박수·수면·활동량·체성분은 개인정보보호법상 민감정보에 해당해 서비스 이용약관과 분리해 동의를 받습니다.</p>
+      </div>
+      <div class="item">
+        <div class="box empty"></div>
+        <div class="t"><i>[선택]</i> 마케팅 정보 수신 동의</div><div class="more">&rsaquo;</div>
+      </div>
+    </div>
+    <div class="primary">다음</div>
+    <div class="note">필수 항목에 모두 동의하면 다음 단계로 이동해요.</div>
+  </div>
+</body>

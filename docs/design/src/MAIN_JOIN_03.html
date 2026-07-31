@@ -1,0 +1,69 @@
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  body { background: #fff; }
+  .mobile-head { height: 50px; padding: 16px 20px 0; }
+  .step { color: var(--primary); font-size: 11.5px; font-weight: 800; letter-spacing: .4px; padding: 0 22px; }
+  .done {
+    margin: 10px 22px 0; background: #EFF3FF; border-radius: 18px;
+    padding: 16px 18px; display: flex; align-items: center; gap: 13px;
+  }
+  .done .mark { width: 40px; height: 40px; border-radius: 14px; background: var(--primary);
+                display: flex; align-items: center; justify-content: center; flex: none; }
+  .done b { font-size: 14.5px; }
+  .done small { display: block; color: #7A83A2; font-size: 11px; margin-top: 3px; }
+  .mobile-title { padding: 18px 22px 10px; }
+  .mobile-title h1 { font-size: 21px; }
+  .content { padding: 0 20px; }
+  .grp { border: 1px solid #E4E9F6; border-radius: 16px; padding: 13px 15px; margin-bottom: 9px; }
+  .grp.req { border-color: #C9D3F7; background: #FBFCFF; }
+  .grp-head { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
+  .box { width: 20px; height: 20px; border-radius: 7px; background: var(--primary);
+         display: flex; align-items: center; justify-content: center; flex: none; }
+  .box.empty { background: #fff; border: 1.5px solid #D5DBEC; }
+  .grp-head b { font-size: 13px; flex: 1; }
+  .tag { font-size: 9.5px; font-weight: 800; padding: 4px 8px; border-radius: 999px; }
+  .tag.r { background: #E1E8FD; color: #4353A4; }
+  .tag.o { background: #F1F3FA; color: #858DA6; }
+  .sub { display: flex; flex-wrap: wrap; gap: 5px 7px; padding-left: 29px; }
+  .sub span { font-size: 10.5px; color: #7C859F; background: #F4F6FC; border-radius: 8px; padding: 4px 8px; }
+  .primary { margin-top: 14px; }
+  .skip { margin-top: 10px; height: 46px; border: 0; background: #F4F6FC; color: #6B7492; }
+  .note { text-align: center; color: #A7ADBF; font-size: 10px; margin-top: 11px; line-height: 1.5; }
+</style>
+<body class="mobile">
+  <div class="mobile-head"><div style="width:30px"></div></div>
+  <div class="step">STEP 03</div>
+  <div class="done">
+    <div class="mark"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div><b>가입이 완료됐어요</b><small>이제 기기를 연동하면 준비가 끝나요.</small></div>
+  </div>
+  <div class="mobile-title"><h1>수집 항목에 동의해주세요</h1><p>스마트워치·체성분계에서 아래 데이터를 받아와요.</p></div>
+  <div class="content">
+    <div class="grp req">
+      <div class="grp-head">
+        <div class="box"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3"/></svg></div>
+        <b>활동량</b><span class="tag r">필수</span>
+      </div>
+      <div class="sub"><span>걸음 수</span><span>이동 거리</span><span>소모 칼로리</span></div>
+    </div>
+    <div class="grp req">
+      <div class="grp-head">
+        <div class="box"><svg width="11" height="11" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3"/></svg></div>
+        <b>수면</b><span class="tag r">필수</span>
+      </div>
+      <div class="sub"><span>수면 단계별 시간</span><span>수면 효율</span></div>
+    </div>
+    <div class="grp">
+      <div class="grp-head">
+        <div class="box empty"></div>
+        <b>체성분</b><span class="tag o">선택</span>
+      </div>
+      <div class="sub"><span>체중</span><span>체지방</span><span>근육량</span><span>골격근량</span><span>기초대사량</span></div>
+    </div>
+    <div class="primary">Health Connect 연동하기</div>
+    <div class="ghost skip">건너뛰기</div>
+    <div class="note">건너뛰어도 설정에서 언제든 연동할 수 있어요.</div>
+  </div>
+</body>

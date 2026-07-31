@@ -1,0 +1,79 @@
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  body { position: relative; }
+  .head { padding: 22px 22px 0; position: relative; height: 196px; }
+  .head .brand { font-size: 17px; }
+  .head h1 { font-size: 20px; margin-top: 16px; letter-spacing: -.6px; }
+  .head p { color: #8992AE; font-size: 12px; margin-top: 6px; }
+  .head img { position: absolute; right: 2px; top: 30px; width: 166px; }
+  .content { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
+  .mood { padding: 16px 18px; display: flex; align-items: center; gap: 14px; }
+  .mood img { width: 52px; height: 52px; flex: none; }
+  .mood .txt { flex: 1; }
+  .mood .txt b { font-size: 11px; color: #8A93AC; font-weight: 700; }
+  .mood .txt h2 { font-size: 22px; color: var(--primary); margin-top: 2px; }
+  .mood .txt small { display: block; font-size: 10.5px; color: #909AB4; margin-top: 3px; }
+  .score { width: 56px; height: 56px; border-radius: 50%; border: 4px solid var(--primary);
+           display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; flex: none; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+  .metric { padding: 13px 15px; display: flex; align-items: center; gap: 10px; }
+  .metric .ico { width: 30px; height: 30px; border-radius: 11px; }
+  .metric small { display: block; font-size: 10px; color: #929BB3; }
+  .metric b { display: block; font-size: 14px; margin-top: 2px; }
+  .ai { padding: 14px 16px; display: flex; gap: 11px; align-items: flex-start; }
+  .ai .tag { font-size: 9.5px; font-weight: 800; color: var(--primary); background: #E7ECFF;
+             border-radius: 999px; padding: 4px 9px; flex: none; }
+  .ai p { font-size: 11.5px; line-height: 1.6; color: #4F5878; }
+  .recs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+  .rec { border-radius: 18px; padding: 13px 12px 15px; min-height: 96px; display: flex; flex-direction: column; }
+  .rec b { font-size: 11.5px; }
+  .rec small { font-size: 9.5px; color: #7E879F; margin-top: 3px; display: block; }
+  .rec .sp { flex: 1; }
+  .rec.v { background: #EAF5FF; }
+  .rec.m { background: #EAF8F4; }
+  .rec.e { background: #FFF0E9; }
+</style>
+<body class="mobile">
+  <div class="head">
+    <div class="brand">마음이 <span>&hearts;</span></div>
+    <h1>안녕하세요, 마음님</h1>
+    <p>오늘도 수고했어요!</p>
+    <img src="../assets/mascot.png" alt="">
+  </div>
+  <div class="content">
+    <div class="card mood">
+      <img src="../assets/avatar-chat.png" alt="">
+      <div class="txt"><b>오늘의 마음 상태</b><h2>안정</h2><small>긍정 62% · 중립 27% · 부정 11%</small></div>
+      <div class="score">72</div>
+    </div>
+    <div class="grid">
+      <div class="card metric"><div class="ico" style="background:#FFF0F3"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.5-7 9-7 9z" fill="#EE8FA8"/></svg></div><div><small>심박수</small><b>72 bpm</b></div></div>
+      <div class="card metric"><div class="ico" style="background:#EEF1FF"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M15 3a9 9 0 1 0 6 6 7 7 0 0 1-6-6z" fill="#7C8CE8"/></svg></div><div><small>수면</small><b>7시간 35분</b></div></div>
+      <div class="card metric"><div class="ico" style="background:#EAF8F4"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M7 20l3-6 4 2 3-8" stroke="#4FAE93" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><small>활동량</small><b>8,521 걸음</b></div></div>
+      <div class="card metric"><div class="ico" style="background:#EAF5FF"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 3l2.2 6.3H21l-5.4 4 2 6.4-5.6-4-5.6 4 2-6.4-5.4-4h6.8z" fill="#7FA8E8"/></svg></div><div><small>스트레스</small><b>보통</b></div></div>
+    </div>
+    <div class="card ai">
+      <span class="tag">AI 요약</span>
+      <p>수면이 충분했고 활동량도 평소보다 늘었어요. 오늘은 컨디션이 안정적인 편이에요.</p>
+    </div>
+    <div>
+      <div class="sec">당신을 위한 추천</div>
+      <div class="recs">
+        <div class="rec v"><b>영상</b><small>5분 명상</small><div class="sp"></div>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="12" rx="3.5" stroke="#6E93D6" stroke-width="1.8"/><path d="M11 10.5l3.5 1.5-3.5 1.5z" fill="#6E93D6"/></svg></div>
+        <div class="rec m"><b>음악</b><small>힐링 사운드</small><div class="sp"></div>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 18V6l9-2v12" stroke="#4FAE93" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="18" r="2.4" fill="#4FAE93"/><circle cx="16" cy="16" r="2.4" fill="#4FAE93"/></svg></div>
+        <div class="rec e"><b>운동</b><small>가벼운 산책</small><div class="sp"></div>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="13" cy="5" r="2.2" fill="#E09A76"/><path d="M8 20l3-5-2.5-3 4-2 2.5 3H19" stroke="#E09A76" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="on"><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z" stroke="#5A6BE0" stroke-width="1.8" stroke-linejoin="round"/></svg><span>홈</span></div>
+    <div><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M4 12a8 7 0 1 1 8 7H7l-3 2z" stroke="#A6ADC4" stroke-width="1.8" stroke-linejoin="round"/></svg><span>AI 챗봇</span></div>
+    <div><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M5 19V9M10 19V5M15 19v-7M20 19v-4" stroke="#A6ADC4" stroke-width="2" stroke-linecap="round"/></svg><span>라이프로그</span></div>
+    <div><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3.2" stroke="#A6ADC4" stroke-width="1.8"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6L18 18M18 6l-1.4 1.4M7.4 16.6L6 18" stroke="#A6ADC4" stroke-width="1.8" stroke-linecap="round"/></svg><span>설정</span></div>
+  </div>
+</body>
