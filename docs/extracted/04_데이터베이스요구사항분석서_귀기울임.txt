@@ -90,7 +90,7 @@ user_id, email, password_hash, name, phone, terms_agreed,
 terms_agreed_at, birth_date, gender, height_cm, fcm_token,
 사용자 정보 (USERS)
 persona_type(FRIEND/COUNSELOR), sensitive_agreed(BOOLEAN),
-sensitive_agreed_at
+sensitive_agreed_at, role(USER/ADMIN)
 디바이스 헬스 연동 connection_id(PK, UUID), USERS.user_id(FK), device_name,
 정보 platform_type(HEALTH_CONNECT/APPLE_HEALTH),
 (DEVICE_HEALTH_ permission_granted(BOOLEAN), agreed_at, consent_scopes,
@@ -124,7 +124,7 @@ CONTENTS) external_url
 _METRICS) muscle_mass_max_kg, skeletal_muscle_kg, bmr_kcal, measured_at
 --- table (page 4) ---
 객체 명 | 속성 명
-사용자 정보 (USERS) | user_id, email, password_hash, name, phone, terms_agreed, terms_agreed_at, birth_date, gender, height_cm, fcm_token, persona_type(FRIEND/COUNSELOR), sensitive_agreed(BOOLEAN), sensitive_agreed_at
+사용자 정보 (USERS) | user_id, email, password_hash, name, phone, terms_agreed, terms_agreed_at, birth_date, gender, height_cm, fcm_token, persona_type(FRIEND/COUNSELOR), sensitive_agreed(BOOLEAN), sensitive_agreed_at, role(USER/ADMIN)
 디바이스 헬스 연동 정보 (DEVICE_HEALTH_ CONNECTIONS) | connection_id(PK, UUID), USERS.user_id(FK), device_name, platform_type(HEALTH_CONNECT/APPLE_HEALTH), permission_granted(BOOLEAN), agreed_at, consent_scopes, last_synced_at
 시계열 라이프로그 (LIFELOG_METRICS) | metric_id(PK, UUID), USERS.user_id(FK), steps, distance, calories, activity_start_at, activity_end_at, total_active_min, sleep_start_at, sleep_end_at, total_sleep_min, deep_sleep_min, light_sleep_min, rem_sleep_min, awake_min, sleep_onset_min, sleep_efficiency_pct, heart_rate, hrv, collected_at
 감정 마스터 (EMOTIONS) | emotion_id(PK, UUID), emotion_code(UK), emotion_name, category(NORMAL/CAUTION/CRITICAL)

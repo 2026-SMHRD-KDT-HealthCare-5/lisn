@@ -35,7 +35,7 @@
 ===== [page 3] =====
 테이블 명세서
 2. 테이블 정의서
-작성일자 2026.07.30. 작성자 이응균
+작성일자 2026.07.31. 작성자 이응균
 테이블명 사용자 정보 테이블 ID USERS
 테이블설명 회원 계정 및 프로필 관리
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
@@ -63,11 +63,11 @@ terms_agreed BOOLEAN - Y
 약관동의일 terms_agreed_a
 TIMESTAMPTZ -
 시 t
-민감정보 sensitive_agree
-BOOLEAN - Y
-동의 여부 d
+USER, ADMIN /
+권한 role VARCHAR 20 Y Y
+DEFAULT 'USER'
 --- table (page 3) ---
- | 작성일자 | 2026.07.30. |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.31. |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 사용자 정보 |  |  |  |  | 테이블 ID |  |  | USERS |  | 
 테이블설명 | 회원 계정 및 프로필 관리 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -83,10 +83,13 @@ FCM 토큰 | fcm_token | TEXT | - |  |  |  |  |  |  |  |
 선호 페르소나 | persona_type | VARCHAR | 20 | Y |  |  |  |  |  | Y | FRIEND, COUNSELOR
 약관동의여 부 | terms_agreed | BOOLEAN | - | Y |  |  |  |  |  |  | 
 약관동의일 시 | terms_agreed_a t | TIMESTAMPTZ | - |  |  |  |  |  |  |  | 
-민감정보 동의 여부 | sensitive_agree d | BOOLEAN | - | Y |  |  |  |  |  |  | 
+권한 | role | VARCHAR | 20 | Y |  |  |  |  |  | Y | USER, ADMIN / DEFAULT 'USER'
 
 ===== [page 4] =====
 테이블 명세서
+민감정보 sensitive_agree
+BOOLEAN - Y
+동의 여부 d
 민감정보 sensitive_agree
 TIMESTAMPTZ - 미동의 시 NULL
 동의 일시 d_at
@@ -107,6 +110,7 @@ terms_agreed BOOLEAN NOT NULL DEFAULT FALSE,
 terms_agreed_at TIMESTAMPTZ,
 sensitive_agreed BOOLEAN NOT NULL DEFAULT FALSE,
 sensitive_agreed_at TIMESTAMPTZ,
+role VARCHAR(20) NOT NULL DEFAULT 'USER' CHECK (role IN ('USER', 'ADMIN')),
 CONSTRAINT chk_terms_logic CHECK (
 (terms_agreed = FALSE AND terms_agreed_at IS NULL) OR
 (terms_agreed = TRUE AND terms_agreed_at IS NOT NULL)
@@ -117,13 +121,14 @@ CONSTRAINT chk_sensitive_logic CHECK (
 )
 );
 --- table (page 4) ---
+민감정보 동의 여부 | sensitive_agree d | BOOLEAN | - | Y |  |  |  |  | 
 민감정보 동의 일시 | sensitive_agree d_at | TIMESTAMPTZ | - |  |  |  |  |  | 미동의 시 NULL
 Table 생성 스크립트 |  |  |  |  |  |  |  |  | 
-CREATE TABLE USERS ( user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), email VARCHAR(255) NOT NULL UNIQUE, password_hash VARCHAR(255) NOT NULL, name VARCHAR(100) NOT NULL, phone TEXT, birth_date DATE, gender VARCHAR(10) CHECK (gender IN ('MALE', 'FEMALE', 'OTHER')), fcm_token TEXT, height_cm NUMERIC(5,2) CHECK (height_cm > 0), persona_type VARCHAR(20) NOT NULL DEFAULT 'FRIEND' CHECK (persona_type IN ('FRIEND', 'COUNSELOR')), terms_agreed BOOLEAN NOT NULL DEFAULT FALSE, terms_agreed_at TIMESTAMPTZ, sensitive_agreed BOOLEAN NOT NULL DEFAULT FALSE, sensitive_agreed_at TIMESTAMPTZ, CONSTRAINT chk_terms_logic CHECK ( (terms_agreed = FALSE AND terms_agreed_at IS NULL) OR (terms_agreed = TRUE AND terms_agreed_at IS NOT NULL) ), CONSTRAINT chk_sensitive_logic CHECK ( (sensitive_agreed = FALSE AND sensitive_agreed_at IS NULL) OR (sensitive_agreed = TRUE AND sensitive_agreed_at IS NOT NULL) ) ); |  |  |  |  |  |  |  |  | 
+CREATE TABLE USERS ( user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), email VARCHAR(255) NOT NULL UNIQUE, password_hash VARCHAR(255) NOT NULL, name VARCHAR(100) NOT NULL, phone TEXT, birth_date DATE, gender VARCHAR(10) CHECK (gender IN ('MALE', 'FEMALE', 'OTHER')), fcm_token TEXT, height_cm NUMERIC(5,2) CHECK (height_cm > 0), persona_type VARCHAR(20) NOT NULL DEFAULT 'FRIEND' CHECK (persona_type IN ('FRIEND', 'COUNSELOR')), terms_agreed BOOLEAN NOT NULL DEFAULT FALSE, terms_agreed_at TIMESTAMPTZ, sensitive_agreed BOOLEAN NOT NULL DEFAULT FALSE, sensitive_agreed_at TIMESTAMPTZ, role VARCHAR(20) NOT NULL DEFAULT 'USER' CHECK (role IN ('USER', 'ADMIN')), CONSTRAINT chk_terms_logic CHECK ( (terms_agreed = FALSE AND terms_agreed_at IS NULL) OR (terms_agreed = TRUE AND terms_agreed_at IS NOT NULL) ), CONSTRAINT chk_sensitive_logic CHECK ( (sensitive_agreed = FALSE AND sensitive_agreed_at IS NULL) OR (sensitive_agreed = TRUE AND sensitive_agreed_at IS NOT NULL) ) ); |  |  |  |  |  |  |  |  | 
 
 ===== [page 5] =====
 테이블 명세서
-작성일자 2026.07.30. 작성자 이응균
+작성일자 2026.07.31. 작성자 이응균
 DEVICE_HEALTH_
 테이블명 디바이스 헬스 연동 정보 테이블 ID
 CONNECTIONS
@@ -165,7 +170,7 @@ consent_scopes JSONB NOT NULL DEFAULT
 '{"activity": true, "sleep": true, "body_composition": false}'
 );
 --- table (page 5) ---
- | 작성일자 | 2026.07.30. |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.31. |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 디바이스 헬스 연동 정보 |  |  |  |  | 테이블 ID |  |  | DEVICE_HEALTH_ CONNECTIONS |  | 
 테이블설명 | 헬스 플랫폼(Health Connect) 연동 권한 승인 상태 및 항목별 수집 동의 범위 관리 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -182,7 +187,7 @@ CREATE TABLE DEVICE_HEALTH_CONNECTIONS ( connection_id UUID PRIMARY KEY DEFAULT 
 
 ===== [page 6] =====
 테이블 명세서
-작성일자 2026.07.30. 작성자 이응균
+작성일자 2026.07.31. 작성자 이응균
 테이블명 시계열 라이프로그 테이블 ID LIFELOG_METRICS
 테이블설명 활동·수면·심박 생체 시계열 적재
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
@@ -234,7 +239,7 @@ sleep_efficiency
 수면 효율 NUMERIC(5,2) -
 _pct
 --- table (page 6) ---
- | 작성일자 | 2026.07.30. |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.31. |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 시계열 라이프로그 |  |  |  |  | 테이블 ID |  |  | LIFELOG_METRICS |  | 
 테이블설명 | 활동·수면·심박 생체 시계열 적재 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -300,7 +305,7 @@ CREATE TABLE LIFELOG_METRICS ( metric_id UUID PRIMARY KEY DEFAULT gen_random_uui
 
 ===== [page 8] =====
 테이블 명세서
-작성일자 2026.07.30. 작성자 이응균
+작성일자 2026.07.31. 작성자 이응균
 테이블명 감정 마스터 테이블 ID EMOTIONS
 테이블설명 시스템 공통 감정 코드(9개) 및 분류 기준 정의
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
@@ -320,7 +325,7 @@ emotion_name VARCHAR(50) NOT NULL,
 category VARCHAR(20) NOT NULL CHECK (category IN ('NORMAL', 'CAUTION', 'CRITICAL'))
 );
 --- table (page 8) ---
- | 작성일자 | 2026.07.30. |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.31. |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 감정 마스터 |  |  |  |  | 테이블 ID |  |  | EMOTIONS |  | 
 테이블설명 | 시스템 공통 감정 코드(9개) 및 분류 기준 정의 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -333,7 +338,7 @@ CREATE TABLE EMOTIONS ( emotion_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), e
 
 ===== [page 9] =====
 테이블 명세서
-작성일자 2026.07.30. 작성자 이응균
+작성일자 2026.07.31. 작성자 이응균
 테이블명 챗봇 대화 세션 및 메시지 테이블 ID CHAT_SESSIONS
 테이블설명 챗봇 성격별 대화 세션 및 메시지 히스토리 보관
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
@@ -361,7 +366,7 @@ session_summary TEXT,
 started_at TIMESTAMPTZ NOT NULL, ended_at TIMESTAMPTZ
 );
 --- table (page 9) ---
- | 작성일자 | 2026.07.30. |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.31. |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 챗봇 대화 세션 및 메시지 |  |  |  |  | 테이블 ID |  |  | CHAT_SESSIONS |  | 
 테이블설명 | 챗봇 성격별 대화 세션 및 메시지 히스토리 보관 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -377,7 +382,7 @@ CREATE TABLE CHAT_SESSIONS ( session_id UUID PRIMARY KEY DEFAULT gen_random_uuid
 
 ===== [page 10] =====
 테이블 명세서
-작성일자 2026.07.30. 작성자 이응균
+작성일자 2026.07.31. 작성자 이응균
 테이블명 정서 위험도 예측 결과 테이블 ID EMOTION_RISK_SCORES
 테이블설명 AI 모델의 정서 위험도 추론 결과 이력
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
@@ -409,7 +414,7 @@ model_version VARCHAR(50) NOT NULL,
 evaluated_at TIMESTAMPTZ NOT NULL
 );
 --- table (page 10) ---
- | 작성일자 | 2026.07.30. |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.31. |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 정서 위험도 예측 결과 |  |  |  |  | 테이블 ID |  |  | EMOTION_RISK_SCORES |  | 
 테이블설명 | AI 모델의 정서 위험도 추론 결과 이력 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -426,7 +431,7 @@ CREATE TABLE EMOTION_RISK_SCORES ( score_id UUID PRIMARY KEY DEFAULT gen_random_
 
 ===== [page 11] =====
 테이블 명세서
-작성일자 2026.07.30. 작성자 이응균
+작성일자 2026.07.31. 작성자 이응균
 테이블명 힐링 콘텐츠 마스터 테이블 ID HEALING_CONTENTS
 테이블설명 CAUTION(주의) 단계 추천용 감정별 맞춤 콘텐츠 메타데이터 관리
 컬럼명 컬럼 ID 타입 길이 NN PK FK UK CK 비고
@@ -453,7 +458,7 @@ category VARCHAR(20) NOT NULL CHECK (category IN ('MUSIC', 'FOOD', 'EXERCISE',
 title VARCHAR(200) NOT NULL, description TEXT, external_url TEXT NOT NULL
 );
 --- table (page 11) ---
- | 작성일자 | 2026.07.30. |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.31. |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 힐링 콘텐츠 마스터 |  |  |  |  | 테이블 ID |  |  | HEALING_CONTENTS |  | 
 테이블설명 | CAUTION(주의) 단계 추천용 감정별 맞춤 콘텐츠 메타데이터 관리 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
@@ -468,7 +473,7 @@ CREATE TABLE HEALING_CONTENTS ( content_id UUID PRIMARY KEY DEFAULT gen_random_u
 
 ===== [page 12] =====
 테이블 명세서
-작성일자 2026.07.30. 작성자 이응균
+작성일자 2026.07.31. 작성자 이응균
 BODY_COMPOSITION_
 테이블명 체성분 데이터 테이블 ID
 METRICS
@@ -514,7 +519,7 @@ bmr_kcal INTEGER CHECK (bmr_kcal >= 0),
 measured_at TIMESTAMPTZ NOT NULL
 );
 --- table (page 12) ---
- | 작성일자 | 2026.07.30. |  |  |  | 작성자 |  |  | 이응균 |  | 
+ | 작성일자 | 2026.07.31. |  |  |  | 작성자 |  |  | 이응균 |  | 
 테이블명 | 체성분 데이터 |  |  |  |  | 테이블 ID |  |  | BODY_COMPOSITION_ METRICS |  | 
 테이블설명 | 체성분계 연동 신체 구성 측정 이력 |  |  |  |  |  |  |  |  |  | 
 컬럼명 | 컬럼 ID | 타입 | 길이 | NN | PK |  | FK | UK |  | CK | 비고
