@@ -1,0 +1,48 @@
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  html,body { width:1280px;height:800px;overflow:hidden; }
+  body { display:grid;grid-template-columns:54% 46%;background:#F7F9FF; }
+  .visual { background:linear-gradient(145deg,#E8EEFF 0%,#F1F5FF 100%);position:relative;padding:58px 66px;overflow:hidden; }
+  .visual:before,.visual:after{content:"";position:absolute;border-radius:50%;background:rgba(138,156,240,.14)}
+  .visual:before{width:420px;height:420px;right:-100px;top:-100px}.visual:after{width:300px;height:300px;left:-100px;bottom:-110px}
+  .brand { font-size:25px;position:relative;z-index:2; }
+  .hero { position:relative;z-index:2;margin-top:150px;max-width:500px; }
+  .eyebrow { color:#6879DF;font-size:14px;font-weight:800;letter-spacing:1px;margin-bottom:16px; }
+  .hero h1 { font-size:42px;line-height:1.28;letter-spacing:-1.6px; }
+  .hero p { color:#7E88A5;font-size:16px;line-height:1.7;margin-top:22px; }
+  .tiles { display:flex;gap:12px;margin-top:34px; }
+  .tile { width:132px;padding:15px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.95);border-radius:16px; }
+  .tile b{font-size:13px}.tile p{font-size:10px;margin-top:5px;line-height:1.4}
+  .login-side { background:#fff;display:flex;align-items:center;justify-content:center; }
+  .login { width:360px; }
+  .login h2 { font-size:28px;letter-spacing:-.8px; }
+  .login .desc { color:#969DB2;font-size:13px;line-height:1.6;margin-top:10px;margin-bottom:32px; }
+  .input-group + .input-group { margin-top:17px; }
+  .field { height:54px;font-size:13px; }
+  .primary { margin-top:26px;height:54px; }
+  .access { margin-top:18px;background:#F4F6FC;border-radius:14px;padding:13px 15px;display:flex;gap:9px;align-items:flex-start; }
+  .access p { font-size:10.5px;color:#7F879E;line-height:1.5; }
+  .access b { color:#59647F; }
+  .error { margin-top:12px;color:#7A84A2;font-size:10.5px;text-align:center; }
+  .copy { position:absolute;bottom:40px;left:66px;color:#9BA3B9;font-size:10px;z-index:2; }
+</style>
+<body>
+  <section class="visual">
+    <div class="brand">마음이 <span>♥</span> <small style="font-size:11px;color:#7B86A6;margin-left:8px;font-weight:650">ADMIN</small></div>
+    <div class="hero"><div class="eyebrow">LISN MONITORING</div><h1>정서 위험 신호를<br>한눈에 살펴보세요</h1><p>전체 대상자의 정서 위험도 흐름을 확인하고<br>도움이 필요한 대상을 빠르게 식별합니다.</p>
+      <div class="tiles"><div class="tile"><b>위험도 분포</b><p>안정·주의·심각<br>현황 요약</p></div><div class="tile"><b>우선순위 목록</b><p>최근 평가 기반<br>대상자 정렬</p></div><div class="tile"><b>상세 리포트</b><p>감정·라이프로그<br>통합 조회</p></div></div>
+    </div>
+    <div class="copy">귀기울임(LISN) 관리자 관제 시스템</div>
+  </section>
+  <section class="login-side">
+    <div class="login"><h2>관리자 로그인</h2><p class="desc">관리자 권한이 있는 계정으로 로그인해주세요.<br>사용자 앱과 동일한 계정 인증 체계를 사용합니다.</p>
+      <div class="input-group"><span class="label">이메일</span><div class="field placeholder">admin@example.com</div></div>
+      <div class="input-group"><span class="label">비밀번호</span><div class="field">••••••••••••</div></div>
+      <div class="primary">관제 대시보드로 이동</div>
+      <div class="access"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" style="flex:none"><circle cx="12" cy="12" r="9" stroke="#7B88C8" stroke-width="1.7"/><path d="M12 8v4m0 4h.01" stroke="#7B88C8" stroke-width="2" stroke-linecap="round"/></svg><p><b>권한 안내</b><br>인증에 성공해도 관리자 권한이 없는 계정은 대시보드에 접근할 수 없습니다.</p></div>
+      <div class="error">접근 문제가 지속되면 시스템 관리자에게 문의해주세요.</div>
+    </div>
+  </section>
+</body>

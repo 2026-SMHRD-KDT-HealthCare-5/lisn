@@ -1,0 +1,58 @@
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .mobile-head { height:68px; }
+  .mobile-title { padding-bottom:13px; display:flex;justify-content:space-between;align-items:flex-end; }
+  .mobile-title h1 { font-size:22px; }
+  .export { padding:8px 11px;background:#fff;border-radius:11px;color:#6170CE;font-size:10.5px;font-weight:750;box-shadow:0 4px 14px rgba(36,50,95,.05);display:flex;gap:6px;align-items:center; }
+  .content { padding:0 18px 18px;display:flex;flex-direction:column;gap:10px; }
+  .tabs { display:flex;background:#DDE5F8;border-radius:13px;padding:4px; }
+  .tab { flex:1;height:31px;display:flex;align-items:center;justify-content:center;font-size:10.5px;color:#7D87A4;font-weight:700; }
+  .tab.on { background:#fff;border-radius:10px;color:#5363C8;box-shadow:0 2px 8px rgba(36,50,95,.07); }
+  .summary { padding:15px 17px;background:linear-gradient(135deg,#fff 0%,#F9FBFF 100%); }
+  .summary small { color:#929AB2;font-size:9.5px; }
+  .summary h2 { font-size:14px;line-height:1.45;margin-top:5px; }
+  .summary h2 span { color:#6475DD; }
+  .chart-card { padding:14px 15px 12px; }
+  .card-head { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px; }
+  .card-head h3 { font-size:12.5px; }
+  .card-head small { color:#A4AABD;font-size:8.5px; }
+  .legend { display:flex;gap:8px;margin-top:4px; }
+  .legend span { font-size:8px;color:#8D95AB;display:flex;align-items:center;gap:3px; }
+  .legend i { width:6px;height:6px;border-radius:50%;display:block; }
+  .risk-row { display:flex;gap:8px; }
+  .risk { flex:1;padding:11px 10px;border-radius:14px; }
+  .risk small { font-size:8.5px;color:#7E879F; }
+  .risk b { display:block;font-size:17px;margin-top:2px; }
+  .risk.normal { background:var(--mint); }.risk.caution{background:var(--blue)}.risk.critical{background:var(--peach)}
+  .insufficient { padding:10px 13px;border:1px dashed #CBD3E8;border-radius:13px;color:#8992AA;font-size:9.5px;text-align:center; }
+</style>
+<body class="mobile">
+  <div class="mobile-head"><div class="back"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#5A668B" stroke-width="2"/></svg></div><div class="brand">마음이 <span>♥</span></div><div style="width:30px"></div></div>
+  <div class="mobile-title"><div><h1>정서 리포트</h1><p>7월 24일 – 7월 30일</p></div><div class="export"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 3v11m0 0l-4-4m4 4l4-4M5 16v4h14v-4" stroke="#6170CE" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>PDF 내보내기</div></div>
+  <div class="content">
+    <div class="tabs"><div class="tab on">주간</div><div class="tab">월간</div><div class="tab">직접 지정</div></div>
+    <div class="card summary"><small>이번 주 종합 요약</small><h2>전반적으로 <span>안정적인 흐름</span>이에요.<br>수면이 짧았던 날에는 감정 점수가 조금 낮아졌어요.</h2></div>
+    <div class="card chart-card">
+      <div class="card-head"><div><h3>감정 변화</h3><div class="legend"><span><i style="background:#5A6BE0"></i>감정 점수</span></div></div><small>점수 0–100</small></div>
+      <svg width="326" height="112" viewBox="0 0 326 112">
+        <g stroke="#EDF0F7" stroke-width="1"><path d="M28 17H316M28 48H316M28 79H316"/><path d="M28 13V84"/></g>
+        <g fill="#A8ACBA" font-size="7" font-family="Pretendard"><text x="3" y="20">100</text><text x="8" y="51">50</text><text x="13" y="82">0</text><text x="28" y="101">월</text><text x="75" y="101">화</text><text x="122" y="101">수</text><text x="169" y="101">목</text><text x="216" y="101">금</text><text x="263" y="101">토</text><text x="306" y="101">일</text></g>
+        <path d="M31 47C51 42 58 40 77 43S106 57 124 52S151 37 170 38S198 48 217 43S244 30 264 33S292 40 310 35" fill="none" stroke="#5A6BE0" stroke-width="3" stroke-linecap="round"/>
+        <path d="M31 47C51 42 58 40 77 43S106 57 124 52S151 37 170 38S198 48 217 43S244 30 264 33S292 40 310 35V84H31Z" fill="#8A9CF0" opacity=".10"/>
+      </svg>
+    </div>
+    <div class="risk-row"><div class="risk normal"><small>안정</small><b>71%</b></div><div class="risk caution"><small>주의</small><b>24%</b></div><div class="risk critical"><small>심각</small><b>5%</b></div></div>
+    <div class="card chart-card">
+      <div class="card-head"><div><h3>감정과 라이프로그</h3><div class="legend"><span><i style="background:#5A6BE0"></i>감정</span><span><i style="background:#75C3B1"></i>수면</span><span><i style="background:#AAB6EE"></i>걸음</span></div></div><small>같은 시간축</small></div>
+      <svg width="326" height="92" viewBox="0 0 326 92">
+        <g stroke="#EDF0F7"><path d="M18 18H316M18 43H316M18 68H316"/></g>
+        <g fill="#D9DFF5"><rect x="28" y="46" width="19" height="22" rx="4"/><rect x="69" y="38" width="19" height="30" rx="4"/><rect x="110" y="50" width="19" height="18" rx="4"/><rect x="151" y="34" width="19" height="34" rx="4"/><rect x="192" y="42" width="19" height="26" rx="4"/><rect x="233" y="30" width="19" height="38" rx="4"/><rect x="274" y="36" width="19" height="32" rx="4"/></g>
+        <path d="M37 39L78 35L119 43L160 29L201 38L242 25L283 31" fill="none" stroke="#5A6BE0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M37 53L78 46L119 54L160 44L201 49L242 39L283 43" fill="none" stroke="#75C3B1" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="insufficient">분석 이력이 1일 미만이면 데이터 부족 안내가 표시됩니다.</div>
+  </div>
+</body>

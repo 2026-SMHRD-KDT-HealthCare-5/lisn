@@ -70,11 +70,10 @@ git clone https://github.com/2026-SMHRD-KDT-HealthCare-5/lisn.git
 
 ### 지금 해야 할 일
 
-1. **API 명세서** ⭐ — **함은선·윤일준 두 명이 여기서 막혀 있습니다.** 앱은 화면을 다 그려놓고 붙일 데이터가 없고, 백엔드는 만들 엔드포인트가 정의돼 있지 않습니다. 재료(`schema.sql` 정본 + 유스케이스 14건 + 화면 15개)는 다 모였습니다
-2. **신규 화면 시안 5장** — [`docs/design/README.md`](design/README.md) 의 방법대로. `MAIN_EMERGENCY_01` 이 기준
-3. **문서 개정 3건** — `05-N③` · `SD-E1`(04·05 HWP)
-4. **미결 안건 2건** — [`회의안건_20260729.md`](review/회의안건_20260729.md). 이미지 섹션 확인 · 런타임 설치 현황
-5. **화면설계서 디자인 작업** — 함은선 님. 아래 3-2절 참조
+1. **백엔드 라우터 구현** — `users`·`devices` → `lifelog` → `chat` 순서
+2. **문서 개정 3건** — `05-N③` · `SD-E1`(04·05 HWP)
+3. **미결 안건 2건** — [`회의안건_20260729.md`](review/회의안건_20260729.md). 이미지 섹션 확인 · 런타임 설치 현황
+4. **화면설계서 디자인 작업** — 완성된 `docs/design/` 시안 6장 배치와 기존 와이어프레임 마커 수정. 함은선 님 담당
 
 ### 알아둘 것
 
@@ -137,6 +136,7 @@ uvicorn app.main:app --reload
 | SQLAlchemy 모델 8종 | `schema.sql` 매핑. `create_all()` 안 씀 |
 | 인증 계층 + auth 라우터 6개 | bcrypt · JWT · `require_admin` |
 | [`HANDOFF-CODEX.md`](design/HANDOFF-CODEX.md) | 프론트 인수인계. Codex 가 단독으로 읽고 시작 가능 |
+| 신규 화면 시안 6장 | `docs/design/` HTML 원본 + PNG 완료. 모바일 4장·관리자 웹 2장 |
 
 ### 남은 TODO — 코드에 표시돼 있음
 
@@ -193,9 +193,7 @@ uvicorn app.main:app --reload
 
 ### 이어서 할 것
 
-1. **신규 화면 시안 5장** — `docs/design/README.md` 의 방법대로. `MAIN_EMERGENCY_01` 이 기준
-2. **API 명세서** — 화면 15개와 `schema.sql` 이 확정돼 재료가 완비됨. **함은선·윤일준 두 명이 여기서 막혀 있습니다**
-3. `SD-E1` 을 04·05 HWP 에 반영 (제가 못 함)
+1. `SD-E1` 을 04·05 HWP 에 반영 (제가 못 함)
 
 ---
 

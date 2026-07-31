@@ -1,0 +1,51 @@
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  .content { padding: 0 20px; display: flex; flex-direction: column; gap: 14px; }
+  .step { padding: 22px 20px; }
+  .step-head { display: flex; gap: 12px; align-items: center; margin-bottom: 19px; }
+  .step-num { width: 32px; height: 32px; border-radius: 11px; background: #E7EDFF; color: #5A6BE0; display:flex; align-items:center; justify-content:center; font-size: 13px; font-weight: 800; }
+  .step-head h2 { font-size: 15px; }
+  .step-head p { font-size: 10.5px; color: var(--muted); margin-top: 3px; }
+  .input-group + .input-group { margin-top: 13px; }
+  .send { margin-top: 15px; }
+  .sent { padding: 15px 17px; background: var(--mint); border-radius: 16px; display:flex; gap: 11px; align-items:flex-start; }
+  .sent-ic { width: 28px; height: 28px; border-radius: 9px; background:#fff; display:flex; align-items:center; justify-content:center; flex:none; }
+  .sent strong { display:block; font-size: 12px; color:#47776E; }
+  .sent p { font-size: 10.5px; line-height: 1.55; color:#789890; margin-top:3px; }
+  .complete { margin-top: 17px; }
+  .help { text-align:center; margin-top: 4px; font-size: 10.5px; color: var(--muted); line-height:1.55; }
+  .flow { display:flex; align-items:center; gap:7px; margin: 0 auto 2px; }
+  .dot { width:7px; height:7px; border-radius:50%; background:#D7DDEF; }
+  .dot.on { width:20px; border-radius:5px; background:var(--point); }
+</style>
+<body class="mobile">
+  <div class="mobile-head">
+    <div class="brand">마음이 <span>♥</span></div>
+    <div class="back"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#5A668B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  </div>
+  <div class="mobile-title">
+    <h1>비밀번호를<br>다시 설정해요</h1>
+    <p>가입한 이메일을 확인한 뒤<br>안전하게 새 비밀번호로 변경할 수 있어요.</p>
+  </div>
+  <div class="content">
+    <div class="card step">
+      <div class="step-head"><div class="step-num">1</div><div><h2>이메일 확인</h2><p>가입할 때 사용한 이메일을 입력해주세요</p></div></div>
+      <div class="input-group"><span class="label">이메일</span><div class="field">user@example.com</div></div>
+      <div class="primary send">인증 메일 보내기</div>
+    </div>
+    <div class="sent">
+      <div class="sent-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.3 4.2L19 7" stroke="#63A295" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><strong>재설정 안내를 보냈어요</strong><p>가입 여부와 관계없이 동일한 안내가 표시됩니다.<br>메일함과 스팸함을 함께 확인해주세요.</p></div>
+    </div>
+    <div class="card step">
+      <div class="step-head"><div class="step-num">2</div><div><h2>새 비밀번호 입력</h2><p>영문·숫자를 포함해 8자 이상 입력해주세요</p></div></div>
+      <div class="input-group"><span class="label">새 비밀번호</span><div class="field">••••••••••••</div></div>
+      <div class="input-group"><span class="label">새 비밀번호 확인</span><div class="field">••••••••••••</div></div>
+      <div class="primary complete">비밀번호 재설정 완료</div>
+    </div>
+    <div class="help">메일을 받지 못했나요? <b style="color:#6A78D4">다시 보내기</b></div>
+    <div class="flow"><div class="dot"></div><div class="dot on"></div></div>
+  </div>
+</body>

@@ -4,9 +4,11 @@
 
 ```
 docs/design/
-├── MAIN_EMERGENCY_01.png     완성 시안 (780×1688 = 390×844 @2x)
+├── MAIN_*.png                앱 시안 4장 (780×1688 = 390×844 @2x)
+├── ADMIN_*.png               관리자 웹 시안 2장 (1280×800)
 └── src/
-    └── MAIN_EMERGENCY_01.html  원본 HTML. 수정은 여기서 하고 다시 렌더한다
+    ├── common.css              공통 팔레트·카드·폼 스타일
+    └── *.html                  화면별 원본 HTML
 ```
 
 ## 왜 이 방식인가
@@ -82,17 +84,17 @@ $edge = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 | 화면 | 캔버스 | 상태 |
 |---|---|---|
 | `MAIN_EMERGENCY_01` 긴급 상담 연결 | 390×844 | ✅ **완료 — 이걸 복사해서 시작하세요** |
-| `MAIN_LOGIN_02` 비밀번호 재설정 | 390×844 | 대기 |
-| `MAIN_SETTING_02` 계정 관리·회원 탈퇴 | 390×844 | 대기 |
-| `MAIN_REPORT_01` 정서 리포트 | 390×844 | 대기 |
-| `ADMIN_LOGIN_01` 관리자 로그인 | 1280×800 | 대기 |
-| `ADMIN_DASH_01` 관리자 관제 | 1280×800 | 대기 |
+| `MAIN_LOGIN_02` 비밀번호 재설정 | 390×844 | ✅ 완료 |
+| `MAIN_SETTING_02` 계정 관리·회원 탈퇴 | 390×844 | ✅ 완료 |
+| `MAIN_REPORT_01` 정서 리포트 | 390×844 | ✅ 완료 |
+| `ADMIN_LOGIN_01` 관리자 로그인 | 1280×800 | ✅ 완료 |
+| `ADMIN_DASH_01` 관리자 관제 | 1280×800 | ✅ 완료 |
 
 명세는 [`../review/화면설계서_개정안.md`](../review/화면설계서_개정안.md) Part B 참조.
 
-## 나머지 5장을 만드는 절차
+## 시안을 다시 렌더하는 절차
 
-**`src/MAIN_EMERGENCY_01.html` 을 복사해서 고치는 게 가장 빠릅니다.** 팔레트·폰트·카드 스타일이 이미 잡혀 있습니다.
+각 화면의 HTML을 수정한 뒤 같은 이름의 PNG로 다시 렌더합니다. 새 화면을 추가할 때는 `src/MAIN_EMERGENCY_01.html`을 복사하고 `common.css`의 공통 스타일을 재사용하세요.
 
 ```powershell
 # 1. 복사

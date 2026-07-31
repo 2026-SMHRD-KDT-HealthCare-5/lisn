@@ -1,0 +1,88 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #EDF2FF;
+  --card: #FFFFFF;
+  --ink: #24325F;
+  --muted: #A8ACBA;
+  --sub: #737C9C;
+  --point: #8A9CF0;
+  --primary: #5A6BE0;
+  --mint: #EAF8F4;
+  --blue: #EAF5FF;
+  --peach: #FFF0E9;
+  --line: #E9EDF8;
+}
+html, body {
+  font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+.brand { font-weight: 800; letter-spacing: -.4px; }
+.brand span { color: var(--point); }
+.card {
+  background: var(--card);
+  border-radius: 22px;
+  box-shadow: 0 6px 22px rgba(36, 50, 95, .06);
+}
+.label { display: block; color: #66708F; font-size: 12px; font-weight: 700; margin-bottom: 7px; }
+.field {
+  height: 48px;
+  border: 1px solid #E1E6F2;
+  border-radius: 14px;
+  background: #FAFBFF;
+  padding: 0 15px;
+  display: flex;
+  align-items: center;
+  color: #566080;
+  font-size: 12.5px;
+}
+.field.placeholder { color: #B4BACB; }
+.primary {
+  height: 50px;
+  border-radius: 15px;
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 750;
+  box-shadow: 0 8px 18px rgba(90, 107, 224, .22);
+}
+.ghost {
+  height: 46px;
+  border: 1px solid #DCE2F2;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #657092;
+  font-size: 13px;
+  font-weight: 700;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-weight: 700;
+}
+.mobile { width: 390px; height: 844px; overflow: hidden; }
+.mobile-head {
+  height: 84px;
+  padding: 25px 22px 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.mobile-head .brand { font-size: 17px; }
+.back {
+  width: 30px; height: 30px; border-radius: 10px;
+  background: rgba(255,255,255,.72);
+  display: flex; align-items: center; justify-content: center;
+}
+.mobile-title { padding: 4px 22px 18px; }
+.mobile-title h1 { font-size: 23px; letter-spacing: -.7px; line-height: 1.25; }
+.mobile-title p { color: #8992AE; font-size: 12.5px; margin-top: 7px; line-height: 1.55; }
+.svg-icon { display: block; }
