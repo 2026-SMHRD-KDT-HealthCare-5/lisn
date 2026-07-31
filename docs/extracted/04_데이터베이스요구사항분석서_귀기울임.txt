@@ -38,8 +38,8 @@ agreed_at 등)으로 시점 정보를 대체한다.
 - 비밀번호는 단방향 해시 알고리즘(Bcrypt/Argon2)을 적용하여 password_hash에 저장한다.
 - 챗봇 대화 내용 저장 시 성명, 전화번호, 주소 등 개인식별정보(PII)는 정규식 기반으로
 제거([MASK] 대체) 후 JSONB 형태로 저장한다.
-- 컬럼 단위 AES-256 암호화는 유출 시 즉각적 2차 피해가 발생하는 항목(연락처, 외부
-서비스 인증 토큰이 도입될 경우 해당 토큰)에 한정 적용한다.
+- 컬럼 단위 AES-256-GCM 암호화는 유출 시 즉각적 2차 피해가 발생하는 항목(연락처,
+외부 서비스 인증 토큰이 도입될 경우 해당 토큰)에 한정 적용한다.
 - 라이프로그·체성분 측정치 및 분석 스코어는 시계열 집계와 복합 인덱스 기반 조회가
 필수적이므로 컬럼 암호화 대상에서 제외하며, 저장 매체 암호화와 접근통제로 보호한다.
 이는 5항의 (user_id, collected_at DESC) 복합 인덱스 요건 및 개인별 14일 기준값 산출
@@ -66,7 +66,7 @@ collected_at DESC) 복합 인덱스(Composite Index)를 필수 적용하여 최�
 경우 신규 삽입이 아닌 갱신(UPSERT) 으로 처리한다.
 6) 감정 체계 및 위험도 매핑 규칙
 - 감정 마스터: JOY(기쁨), DELIGHT(즐거움), HAPPINESS(행복), SADNESS(슬픔),
-ANXIETY(불안), LONELINESS(외로움), DESPAIR(절망), ANGER(분노), CRISIS(위기)
+ANXIETY(불안), LONELINESS(외로움), ANGER(분노), DESPAIR(절망), CRISIS(위기)
 - 감정 마스터의 category 컬럼(NORMAL/CAUTION/CRITICAL)이 곧 기본 위험도 값이며,
 ANGER만 emotion_score에 따라 동적으로 재분류된다.
 안정 (NORMAL) — category=NORMAL: HAPPINESS, JOY, DELIGHT 감지 시
