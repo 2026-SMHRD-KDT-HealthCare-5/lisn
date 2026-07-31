@@ -20,11 +20,18 @@ class Settings(BaseSettings):
     # AI 추론 서버. 내부 통신이라 인증이 없으므로 외부에 포트를 열지 말 것.
     ai_server_url: str = "http://localhost:8001"
 
+    # 브라우저 기반 관리자 웹의 개발 origin. 쉼표로 여러 값을 지정한다.
+    cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
     )
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
 
 settings = Settings()

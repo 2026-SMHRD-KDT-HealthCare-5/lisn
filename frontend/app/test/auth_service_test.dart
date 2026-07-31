@@ -85,4 +85,30 @@ void main() {
       ),
     );
   });
+
+  test('로그아웃은 서버 오류가 나도 로컬 토큰을 폐기한다', () async {
+    final tokenStore = MemoryTokenStore();
+    await tokenStore.save(
+      accessToken: 'test-token',
+      expiresAt: DateTime.utc(2099),
+    );
+    final client = MockClient(
+      (_) async => http.Response(
+        jsonEncode({'detail': 'server error'}),
+        503,
+        headers: {'content-type': 'application/json; charset=utf-8'},
+      ),
+    );
+    final service = AuthService(
+      apiClient: ApiClient(
+        tokenStore: tokenStore,
+        httpClient: client,
+        baseUrl: 'http://localhost:8000/api/v1',
+      ),
+      tokenStore: tokenStore,
+    );
+
+    await expectLater(service.logout(), throwsA(isA<ApiException>()));
+    expect(await tokenStore.readAccessToken(), isNull);
+  });
 }

@@ -5,7 +5,7 @@
 ```
 frontend/
 ├── app/        Flutter 사용자 앱      — Android 전용 (Health Connect 가 Android API)
-├── admin/      React 관리자 관제 웹   — 미착수
+├── admin/      React 관리자 관제 웹   — 로그인·권한 가드 완료
 └── design/     디자인 시안            — 앱 빌드에 포함되지 않음
 ```
 
@@ -44,7 +44,7 @@ flutter run --dart-define=API_BASE_URL=http://<개발-PC-IP>:8000/api/v1
 1. 백엔드 `users`·`devices` 라우터가 완성되면 설정·웨어러블 연동
 2. `POST /lifelog/batch`와 조회 API가 완성되면 홈·라이프로그
 3. 챗봇 API가 완성되면 대화·위기 화면 전환
-4. 관리자 API가 완성되면 React 관제 웹
+4. 관리자 API가 완성되면 React 관제 대시보드 데이터 연동
 
 ### 화면 구성
 
@@ -61,7 +61,19 @@ flutter run --dart-define=API_BASE_URL=http://<개발-PC-IP>:8000/api/v1
 
 ## admin/ — React 관리자 관제 웹
 
-아직 폴더만 있습니다. 기획서상 관리자가 전체 사용자의 위험도 분포를 조회하고 고위험군을 우선 식별하는 화면(`MLCM_501`)이며, Chart.js 로 시각화합니다. `MLCM_500`(개인 정서 리포트)과 시각화 컴포넌트를 공유합니다.
+Vite + React 기반 관리자 로그인 화면과 `ADMIN` 역할 가드를 구현했습니다. 사용자 앱과 같은
+`POST /api/v1/auth/login`을 사용하며, 일반 사용자 토큰은 저장하지 않고 접근을 차단합니다.
+관리자 세션이 확인되면 대시보드 셸로 진입합니다.
+
+```powershell
+cd frontend/admin
+npm install
+npm run dev
+```
+
+기본 API 주소는 `http://localhost:8000/api/v1`입니다. 다른 환경에서는
+`VITE_API_BASE_URL`로 바꿉니다. 위험도 분포·고위험 사용자 목록 등 실제 대시보드 데이터는
+관리자 조회 API가 구현된 뒤 연결합니다.
 
 ## design/ — 디자인 시안
 

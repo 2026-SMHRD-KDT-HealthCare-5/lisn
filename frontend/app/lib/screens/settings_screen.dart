@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/app_services.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common_widgets.dart';
 import 'login_screen.dart';
@@ -13,7 +14,23 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool healthConnect = true;
+  bool loggingOut = false;
   final notifications = [true, true, false];
+
+  Future<void> logout() async {
+    if (loggingOut) return;
+    setState(() => loggingOut = true);
+    try {
+      await AppServices.auth.logout();
+    } catch (_) {
+      // 서버가 응답하지 않아도 로컬 토큰은 AuthService에서 반드시 폐기한다.
+    }
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (_) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,11 +142,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         icon: Icons.help_outline_rounded, label: '도움말 및 문의'),
                     _SettingsRow(
                         icon: Icons.logout_rounded,
-                        label: '로그아웃',
-                        onTap: () => Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                                builder: (_) => const LoginScreen()),
-                            (_) => false)),
+                        label: loggingOut ? '로그아웃 중...' : '로그아웃',
+                        onTap: loggingOut ? null : logout),
                   ])),
             ])),
       ]),

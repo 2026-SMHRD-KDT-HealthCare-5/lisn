@@ -1,7 +1,7 @@
 # 프론트엔드 인수인계 — Codex 용
 
 > 이 문서만 읽고도 작업을 시작할 수 있게 썼습니다. 대화 맥락 없이 단독으로 성립합니다.
-> **작성일** 2026.07.30
+> **최종 갱신** 2026.07.31
 
 ---
 
@@ -27,21 +27,22 @@
 
 ### 코드 위치
 
-`함은선` 브랜치. main 에는 아직 병합되지 않았습니다.
+`함은선` 브랜치에서 프론트엔드 작업을 이어갑니다. 2026.07.31 기준 main 최신 커밋을
+fast-forward로 반영한 상태입니다.
 
 ```
 frontend/
 ├── app/                    Flutter 사용자 앱
 │   ├── lib/
 │   │   ├── main.dart
-│   │   ├── config/         비어 있음 — API base URL, 환경 분기
-│   │   ├── models/         비어 있음 — DTO
-│   │   ├── services/       비어 있음 — HTTP 클라이언트
+│   │   ├── config/         API base URL, 환경 분기
+│   │   ├── models/         인증 DTO
+│   │   ├── services/       HTTP 클라이언트·토큰 저장·인증 API
 │   │   ├── screens/        7개 화면 (전부 하드코딩 목업)
 │   │   ├── theme/app_theme.dart
 │   │   └── widgets/common_widgets.dart
 │   └── android/            패키지 com.lisn.maeume · minSdk 26
-├── admin/                  비어 있음 — React 관리자 웹
+├── admin/                  Vite + React 관리자 웹
 └── design/                 디자인 시안
 ```
 
@@ -50,7 +51,7 @@ frontend/
 - 인증 외 화면의 서버 통신은 아직 없습니다. 로그인·회원가입·비밀번호 재설정 API 6개는 연동 완료됐습니다
 - 상태관리 패키지 없음 (`setState` 만)
 - Health Connect 연동 패키지 없음
-- 관리자 웹은 폴더만 있습니다
+- 관리자 웹은 로그인·`ADMIN` 역할 가드·대시보드 셸까지 구현됐고, 실제 관제 데이터 API 연동이 남았습니다
 
 ### 인증 연동 완료
 
@@ -82,7 +83,8 @@ frontend/
 | `MAIN_SETTING_01` | `settings_screen.dart` | **전면 재작성** |
 | `MAIN_SETTING_02` | 없음 | 신규 — 계정 관리·탈퇴 |
 | `MAIN_EMERGENCY_01` | 없음 | **신규 · 최우선** |
-| `ADMIN_LOGIN_01` `ADMIN_DASH_01` | 없음 | 신규 — React |
+| `ADMIN_LOGIN_01` | `admin/src/App.jsx` | 완료 — React, 실제 인증 API·역할 가드 |
+| `ADMIN_DASH_01` | `admin/src/App.jsx` | 셸 완료 — 관리자 조회 API 구현 후 데이터 연동 |
 
 `join_screen.dart` 는 약관 동의와 정보 입력이 한 파일에 STEP 으로 들어가 있습니다. 문서는 3개 화면으로 정의하므로 **분리를 권합니다.**
 
@@ -138,12 +140,10 @@ API 는 전부 ISO 8601 UTC 입니다. 로컬 변환은 표시 직전에만 하�
 
 ## 5. 착수 순서 제안
 
-1. **`services/` 부터** — `http` 또는 `dio` 를 `pubspec.yaml` 에 추가하고 클라이언트 작성. `Authorization: Bearer` 헤더, 401 시 로그인 화면 전환
-2. **`models/`** — `docs/API명세_초안.md` 의 응답 스키마로 DTO 생성. 필드명은 `snake_case` 그대로 받고 Dart 쪽에서 변환
-3. **`config/`** — API base URL(`/api/v1`), 환경 분기
-4. **기존 화면의 하드코딩을 교체** — 로그인 → 홈 → 챗봇 순
-5. **신규 화면 6개** — `docs/design/`의 완성 시안을 기준으로 구현
-6. **관리자 웹(React)** — 마지막. 앱과 스택이 달라 병렬 가능
+1. **신규 앱 화면** — `MAIN_EMERGENCY_01` 최우선, 이후 웨어러블·리포트·계정 관리
+2. **백엔드 API 순서에 맞춘 연동** — `users`·`devices` → `lifelog` → `chat`
+3. **기존 목업 데이터 제거** — 각 API가 완성되는 즉시 화면 DTO와 상태 처리 추가
+4. **관리자 대시보드 데이터 연동** — 관리자 조회 API가 나온 뒤 위험도 분포·고위험군 연결
 
 ---
 

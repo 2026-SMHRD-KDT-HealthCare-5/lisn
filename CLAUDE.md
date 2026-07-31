@@ -168,11 +168,13 @@ main 에 있습니다(2026.07.30 재편, 07.31 병합).
 ```
 frontend/
 ├── app/        Flutter 사용자 앱 — lib/{config,models,services,screens,theme,widgets}
-├── admin/      React 관리자 관제 웹 (미착수)
+├── admin/      Vite + React 관리자 관제 웹 — 로그인·ADMIN 역할 가드 완료
 └── design/     디자인 시안 (앱 빌드 제외)
 ```
 
-`config`·`models`·`services` 는 비어 있습니다. **API 연동 코드가 0줄**이고 `pubspec.yaml` 의존성이 `flutter` + `cupertino_icons` 뿐입니다. 화면은 전부 하드코딩 목업입니다.
+Flutter의 인증 API 6개·보안 토큰 저장·인증 게이트가 구현됐습니다. 관리자 웹은 같은 로그인
+API를 사용하며 `ADMIN` 역할만 세션을 허용합니다. 홈·챗봇·라이프로그·설정의 업무 데이터와
+관리자 대시보드 데이터는 백엔드 라우터가 완성되는 순서대로 연동해야 합니다.
 
 ## 커밋
 
