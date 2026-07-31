@@ -1,0 +1,64 @@
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  body { position: relative; }
+  .mobile-head { height: 56px; padding: 18px 20px 0; }
+  .mobile-title { padding: 6px 22px 16px; }
+  .cards { padding: 0 20px; display: flex; gap: 12px; }
+  .persona {
+    flex: 1; background: #fff; border-radius: 24px; padding: 20px 16px 18px;
+    box-shadow: 0 8px 26px rgba(36,50,95,.08); text-align: center;
+    border: 2px solid transparent;
+  }
+  .persona.on { border-color: var(--primary); }
+  .badge {
+    width: 34px; height: 34px; border-radius: 12px; margin: 0 auto 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 900;
+  }
+  .persona.f .badge { background: #E7F4F0; color: #3E9B85; }
+  .persona.t .badge { background: #E6EDFF; color: #4A5CC7; }
+  .face { width: 74px; height: 74px; display: block; margin: 0 auto 12px; }
+  .persona h3 { font-size: 15px; letter-spacing: -.4px; }
+  .persona p { font-size: 11px; color: #838CA8; line-height: 1.55; margin-top: 8px; }
+  .dots { display: flex; justify-content: center; gap: 6px; margin-top: 20px; }
+  .dots i { width: 7px; height: 7px; border-radius: 50%; background: #D4DAEC; }
+  .dots i.on { width: 20px; border-radius: 999px; background: var(--primary); }
+  .tip {
+    margin: 20px 20px 0; background: #fff; border-radius: 18px; padding: 14px 16px;
+    display: flex; gap: 11px; align-items: flex-start;
+  }
+  .tip b { font-size: 11.5px; display: block; margin-bottom: 4px; }
+  .tip p { font-size: 10.5px; color: #7E879F; line-height: 1.55; }
+  .cta { position: absolute; left: 20px; right: 20px; bottom: 96px; }
+  .foot { position: absolute; left: 0; right: 0; bottom: 66px; text-align: center; color: #A7ADBF; font-size: 10px; }
+</style>
+<body class="mobile">
+  <div class="mobile-head">
+    <div class="back"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#5A668B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="brand">마음이 <span>&hearts;</span></div><div style="width:30px"></div>
+  </div>
+  <div class="mobile-title"><h1>어떤 친구와<br>이야기해볼까요?</h1><p>카드를 넘겨 마음에 드는 성격을 골라주세요.</p></div>
+  <div class="cards">
+    <div class="persona f on">
+      <div class="badge">F</div>
+      <img class="face" src="../assets/avatar-chat.png" alt="">
+      <h3>따스한 공감형</h3>
+      <p>감정을 먼저 들어주고<br>따뜻하게 위로해요.</p>
+    </div>
+    <div class="persona t">
+      <div class="badge">T</div>
+      <img class="face" src="../assets/avatar-chat.png" alt="">
+      <h3>현실적인 조언형</h3>
+      <p>상황을 객관적으로 살피고<br>해결책을 함께 찾아요.</p>
+    </div>
+  </div>
+  <div class="dots"><i class="on"></i><i></i></div>
+  <div class="tip">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex:none"><circle cx="12" cy="12" r="9" stroke="#6C7DE4" stroke-width="1.8"/><path d="M12 8v5M12 16h.01" stroke="#6C7DE4" stroke-width="1.9" stroke-linecap="round"/></svg>
+    <div><b>성격은 언제든 바꿀 수 있어요</b><p>설정 &gt; 페르소나 변경에서 다시 고를 수 있습니다.</p></div>
+  </div>
+  <div class="primary cta">대화 시작하기</div>
+  <div class="foot">선택한 성격으로 대화가 시작돼요.</div>
+</body>

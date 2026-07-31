@@ -1,0 +1,94 @@
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="common.css">
+<style>
+  body { position: relative; }
+  .topbar { padding-top: 8px; }
+  .sync { color: #A0A8BF; font-size: 10px; text-align: right; padding: 0 20px 8px; }
+  .content { padding: 0 20px; display: flex; flex-direction: column; gap: 7px; }
+  .panel { padding: 11px 14px; }
+  .panel-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+  .panel-head b { font-size: 13px; }
+  .panel-head small { font-size: 10px; color: var(--muted); }
+  .bars { display: flex; align-items: flex-end; gap: 9px; height: 48px; }
+  .bars i { flex: 1; background: #DDE3FA; border-radius: 5px 5px 0 0; display: block; }
+  .bars i.on { background: var(--primary); }
+  .axis { display: flex; gap: 9px; margin-top: 6px; }
+  .axis span { flex: 1; text-align: center; font-size: 9px; color: #AFB6C9; }
+  .stats { display: flex; gap: 14px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+  .stats div { flex: 1; }
+  .stats small { display: block; font-size: 9.5px; color: #929BB3; }
+  .stats b { display: block; font-size: 12.5px; margin-top: 2px; }
+  .sleep { display: flex; height: 26px; border-radius: 8px; overflow: hidden; }
+  .sleep i { display: block; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 9px; }
+  .legend span { font-size: 9.5px; color: #7E879F; display: flex; align-items: center; gap: 5px; }
+  .legend em { width: 8px; height: 8px; border-radius: 3px; display: block; }
+  .body-comp { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 2px; }
+  .body-comp div { background: #F7F9FE; border-radius: 10px; padding: 7px 9px; }
+  .body-comp small { display: block; font-size: 9.5px; color: #929BB3; }
+  .body-comp b { display: block; font-size: 12.5px; margin-top: 2px; }
+  .measured { font-size: 9.5px; color: #A8AFC4; margin-top: 7px; }
+</style>
+<body class="mobile">
+  <div class="topbar">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="#3E4A72" stroke-width="2" stroke-linecap="round"/></svg>
+    <h1>라이프로그</h1>
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="6.5" stroke="#3E4A72" stroke-width="2"/><path d="M16 16l4 4" stroke="#3E4A72" stroke-width="2" stroke-linecap="round"/></svg>
+  </div>
+  <div style="padding:0 20px 8px"><div class="seg"><div>일간</div><div class="on">주간</div><div>월간</div></div></div>
+  <div class="sync">최종 동기화 07.31 08:12</div>
+  <div class="content">
+    <div class="card panel">
+      <div class="panel-head"><b>활동량</b><small>7.25 – 7.31</small></div>
+      <div class="bars"><i style="height:46%"></i><i style="height:62%"></i><i style="height:38%"></i><i style="height:71%"></i><i style="height:55%"></i><i style="height:83%"></i><i class="on" style="height:66%"></i></div>
+      <div class="axis"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span><span>일</span></div>
+      <div class="stats">
+        <div><small>걸음 수</small><b>8,521</b></div>
+        <div><small>이동 거리</small><b>6.2 km</b></div>
+        <div><small>소모 칼로리</small><b>412 kcal</b></div>
+      </div>
+    </div>
+    <div class="card panel">
+      <div class="panel-head"><b>수면</b><small>어젯밤 7시간 35분</small></div>
+      <div class="sleep">
+        <i style="width:34%;background:#4A5AC4"></i>
+        <i style="width:41%;background:#8A9CF0"></i>
+        <i style="width:18%;background:#B9C6F7"></i>
+        <i style="width:7%;background:#E2E7F7"></i>
+      </div>
+      <div class="legend">
+        <span><em style="background:#4A5AC4"></em>깊은수면 2h 34m</span>
+        <span><em style="background:#8A9CF0"></em>얕은수면 3h 06m</span>
+        <span><em style="background:#B9C6F7"></em>REM 1h 21m</span>
+        <span><em style="background:#E2E7F7"></em>각성 34m</span>
+      </div>
+      <div class="stats"><div><small>수면 효율</small><b>91%</b></div><div><small>취침</small><b>23:48</b></div><div><small>기상</small><b>07:23</b></div></div>
+    </div>
+    <div class="card panel">
+      <div class="panel-head"><b>생체 지표</b><small>심박수 · HRV</small></div>
+      <svg width="318" height="68" viewBox="0 0 318 68" fill="none">
+        <polyline points="4,44 48,38 92,47 136,30 180,36 224,22 268,28 314,18" stroke="#5A6BE0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <polyline points="4,58 48,54 92,60 136,49 180,55 224,44 268,50 314,42" stroke="#B9C6F7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="stats"><div><small>평균 심박수</small><b>72 bpm</b></div><div><small>평균 HRV</small><b>48 ms</b></div><div><small>안정 시</small><b>61 bpm</b></div></div>
+    </div>
+    <div class="card panel">
+      <div class="panel-head"><b>체성분</b><small>측정 시점 기록</small></div>
+      <div class="body-comp">
+        <div><small>체중</small><b>58.4 kg</b></div>
+        <div><small>체지방</small><b>16.2 kg</b></div>
+        <div><small>근육량</small><b>38.9 kg</b></div>
+        <div><small>골격근량</small><b>22.6 kg</b></div>
+        <div><small>기초대사량</small><b>1,342</b></div>
+      </div>
+      <div class="measured">최근 측정 2026. 07. 28 · 측정한 날에만 기록돼요</div>
+    </div>
+  </div>
+  <div class="nav">
+    <div><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z" stroke="#A6ADC4" stroke-width="1.8" stroke-linejoin="round"/></svg><span>홈</span></div>
+    <div><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M4 12a8 7 0 1 1 8 7H7l-3 2z" stroke="#A6ADC4" stroke-width="1.8" stroke-linejoin="round"/></svg><span>AI 챗봇</span></div>
+    <div class="on"><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M5 19V9M10 19V5M15 19v-7M20 19v-4" stroke="#5A6BE0" stroke-width="2" stroke-linecap="round"/></svg><span>라이프로그</span></div>
+    <div><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3.2" stroke="#A6ADC4" stroke-width="1.8"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6L18 18M18 6l-1.4 1.4M7.4 16.6L6 18" stroke="#A6ADC4" stroke-width="1.8" stroke-linecap="round"/></svg><span>설정</span></div>
+  </div>
+</body>
