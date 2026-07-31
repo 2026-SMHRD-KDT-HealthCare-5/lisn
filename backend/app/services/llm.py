@@ -177,6 +177,45 @@ async def analyze_and_reply(
 # 세션 요약 — MLCM_310 종료조건
 # --------------------------------------------------------------------------
 
+DAILY_SYSTEM = """사용자의 오늘 상태를 한두 문장으로 짚어준다.
+
+지켜야 할 것:
+- 진단하지 않는다. "우울증", "불안장애" 같은 병명을 쓰지 않는다.
+- 수치를 그대로 읊지 않는다. 관찰된 패턴을 사람 말로 옮긴다.
+- 단정하지 말고 관찰한 것만 말한다. "~해 보여요", "~인 것 같아요" 처럼 쓴다.
+- 위로나 제안으로 마무리한다. 겁을 주지 않는다.
+- 한국어로 2문장 이내.
+"""
+
+
+async def daily_summary(
+    emotion_name: str, risk_level: str, sleep_min: int | None, steps: int | None
+) -> str | None:
+    """MAIN_HOME_01 ❸ — LLM 기반 일일 감정 종합 리포트.
+
+    실패하면 None 을 돌려 홈 화면이 그 칸만 비운 채로 뜨게 한다.
+    요약 하나 때문에 대시보드 전체가 실패하면 안 된다.
+    """
+    facts = [f"오늘의 감정 상태는 {emotion_name}, 위험 단계는 {risk_level}"]
+    if sleep_min is not None:
+        facts.append(f"수면 {sleep_min // 60}시간 {sleep_min % 60}분")
+    if steps is not None:
+        facts.append(f"걸음 수 {steps}")
+
+    try:
+        resp = await client().responses.create(
+            model=MODEL,
+            input=[
+                {"role": "system", "content": DAILY_SYSTEM},
+                {"role": "user", "content": ", ".join(facts)},
+            ],
+        )
+        return resp.output_text
+    except Exception as e:
+        logger.info("일일 요약 생성 실패: %s", e)
+        return None
+
+
 SUMMARY_SYSTEM = """대화를 2~3문장으로 요약한다.
 사용자가 어떤 상황이었고 어떤 감정을 표현했는지 중심으로 쓴다.
 진단이나 평가를 하지 않고, 개인식별정보는 요약에 포함하지 않는다.

@@ -7,6 +7,7 @@
 개별 호출 4번이면 첫 화면 지연이 그만큼 쌓인다.
 """
 
+import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Annotated, Literal
 
@@ -18,6 +19,7 @@ from pydantic import BaseModel
 from app.core.database import get_db
 from app.core.security import CurrentUser
 from app.models import Emotion, EmotionRiskScore, HealingContent, LifelogMetric
+from app.services import llm
 
 router = APIRouter(tags=["home"])
 
@@ -26,6 +28,35 @@ DbSession = Annotated[AsyncSession, Depends(get_db)]
 # 위험 단계 -> 시스템 액션. 서버가 확정해 내려준다.
 # 클라이언트에 규칙을 복제하면 반드시 어긋난다(API설계_사전결정 3절).
 _ACTION = {"NORMAL": "CHAT", "CAUTION": "CONTENT", "CRITICAL": "EMERGENCY"}
+
+# score_id -> 생성된 요약. 분석이 갱신되면 키가 바뀌어 자연히 무효화된다.
+#
+# ⚠ 프로세스 내 캐시라 워커를 여러 개 띄우면 워커마다 한 번씩 생성된다.
+#   데모 규모에서는 문제가 없지만, 확장한다면 요약을 EMOTION_RISK_SCORES 의
+#   컬럼으로 저장하는 편이 맞다. 그때는 04·05 문서 개정이 함께 필요하다.
+_SUMMARY_CACHE: dict[uuid.UUID, str | None] = {}
+_SUMMARY_CACHE_MAX = 500
+
+
+async def _cached_daily_summary(
+    score_id: uuid.UUID,
+    emotion_name: str,
+    risk_level: str,
+    sleep_min: int | None,
+    steps: int | None,
+) -> str | None:
+    if score_id in _SUMMARY_CACHE:
+        return _SUMMARY_CACHE[score_id]
+
+    text = await llm.daily_summary(emotion_name, risk_level, sleep_min, steps)
+
+    # 무한히 자라지 않게 오래된 것부터 버린다(dict 는 삽입 순서를 유지한다).
+    if len(_SUMMARY_CACHE) >= _SUMMARY_CACHE_MAX:
+        for key in list(_SUMMARY_CACHE)[: _SUMMARY_CACHE_MAX // 2]:
+            del _SUMMARY_CACHE[key]
+
+    _SUMMARY_CACHE[score_id] = text
+    return text
 
 
 class EmotionToday(BaseModel):
@@ -138,10 +169,20 @@ async def home(user: CurrentUser, db: DbSession):
             for c in cards
         ]
 
-    # TODO(AI 한줄 요약): MAIN_HOME_01 ❸ 은 LLM 기반 일일 감정 종합 리포트다.
-    #   EMOTION_RISK_SCORES 가 채워진 뒤에 붙인다. 지금은 분석 트리거가 없어
-    #   원본 데이터 자체가 없다.
+    # MAIN_HOME_01 ❸ — LLM 기반 일일 감정 종합 리포트.
+    #
+    # 홈은 앱을 열 때마다 호출된다. 매번 OpenAI 를 부르면 비용과 지연이 그대로
+    # 쌓이므로, 같은 분석 결과에 대해서는 한 번만 생성하고 재사용한다.
+    # 분석이 갱신되면(score_id 가 바뀌면) 자동으로 다시 생성된다.
     ai_summary = None
+    if emotion_today and row:
+        ai_summary = await _cached_daily_summary(
+            row[0].score_id,
+            emotion_today.emotion_name,
+            emotion_today.risk_level,
+            summary.total_sleep_min,
+            summary.steps,
+        )
 
     return HomeOut(
         emotion_today=emotion_today,
