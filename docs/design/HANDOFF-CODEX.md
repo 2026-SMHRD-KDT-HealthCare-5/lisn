@@ -7,7 +7,10 @@
 
 ## 0. 한 문단 요약
 
-귀기울임(LISN)은 스마트워치 라이프로그를 AI로 분석해 1인가구의 정서 위험을 조기 감지하고 페르소나 LLM 챗봇으로 케어하는 Android 앱입니다. **현재 Flutter 앱은 화면설계서를 참조하지 않고 만들어져 문서와 어긋나 있습니다. 문서가 정본이고 앱을 문서에 맞춰 재구축합니다.** 화면 7개 → 13개, 관리자 웹 2개가 추가됩니다.
+귀기울임(LISN)은 스마트워치 라이프로그를 AI로 분석해 1인가구의 정서 위험을 조기 감지하고
+페르소나 LLM 챗봇으로 케어하는 Android 앱입니다. 화면설계서가 UI 범위의 정본입니다.
+Flutter 인증 흐름과 React 관리자 로그인은 구현됐고, 나머지 업무 화면은 문서의 13개 앱
+화면·관리자 웹 2개 기준으로 계속 재구축합니다.
 
 ---
 
@@ -38,7 +41,7 @@ frontend/
 │   │   ├── config/         API base URL, 환경 분기
 │   │   ├── models/         인증 DTO
 │   │   ├── services/       HTTP 클라이언트·토큰 저장·인증 API
-│   │   ├── screens/        7개 화면 (전부 하드코딩 목업)
+│   │   ├── screens/        9개 파일 (인증은 API 연동, 업무 데이터는 목업)
 │   │   ├── theme/app_theme.dart
 │   │   └── widgets/common_widgets.dart
 │   └── android/            패키지 com.lisn.maeume · minSdk 26
@@ -70,17 +73,17 @@ frontend/
 
 | 화면 ID | 현재 파일 | 할 일 |
 |---|---|---|
-| `MAIN_LOGIN_01` | `login_screen.dart` | 수정 — 비밀번호 찾기 추가. **「로그인 유지」는 넣지 말 것**(아래 4절) |
-| `MAIN_LOGIN_02` | 없음 | 신규 — 비밀번호 재설정 |
+| `MAIN_LOGIN_01` | `login_screen.dart` | 완료 — 실제 로그인 API·비밀번호 찾기. **「로그인 유지」 없음** |
+| `MAIN_LOGIN_02` | `password_reset_screen.dart` | 완료 — 재설정 요청·확정 API |
 | `MAIN_JOIN_01` | `join_screen.dart` STEP01 | 유지 |
-| `MAIN_JOIN_02` | `join_screen.dart` STEP02 | 수정 — 키(height_cm) 입력 추가 |
-| `MAIN_JOIN_03` | 없음 | 신규 — 웨어러블 연동 |
+| `MAIN_JOIN_02` | `join_screen.dart` STEP02 | 완료 — 키(`height_cm`) 선택 입력·회원가입 API |
+| `MAIN_JOIN_03` | `join_screen.dart` STEP03 | UI 일부 완료 — Health Connect 권한 연동 필요 |
 | `MAIN_HOME_01` | `home_screen.dart` | 유지 |
 | `MAIN_CHAT_01` | `chat_screen.dart` 성격 선택부 | 유지 |
 | `MAIN_CHAT_02` | `chat_screen.dart` 대화부 | 수정 — 대화 기록 조회·상세·삭제 추가 |
 | `MAIN_LIFELOG_01` | `lifelog_screen.dart` | **전면 재작성** |
 | `MAIN_REPORT_01` | 없음 | 신규 — 정서 리포트 |
-| `MAIN_SETTING_01` | `settings_screen.dart` | **전면 재작성** |
+| `MAIN_SETTING_01` | `settings_screen.dart` | 실제 로그아웃 완료 — 설정·기기 API 연동 필요 |
 | `MAIN_SETTING_02` | 없음 | 신규 — 계정 관리·탈퇴 |
 | `MAIN_EMERGENCY_01` | 없음 | **신규 · 최우선** |
 | `ADMIN_LOGIN_01` | `admin/src/App.jsx` | 완료 — React, 실제 인증 API·역할 가드 |
@@ -175,13 +178,14 @@ API 는 전부 ISO 8601 UTC 입니다. 로컬 변환은 표시 직전에만 하�
 
 ---
 
-## 7. 아직 안 정해진 것
+## 7. 남은 UI 결정·확인
 
 | 항목 | 상태 |
 |---|---|
-| 긴급 상담 번호 표기 | 문서는 `109 / 1577-0199` 병기. **1577-0199 가 109 로 통합됐는지 확인 전.** 시안은 109 만 표기 |
-| 앱 상단 `마음이 ♥` 하트 | 원본 시안은 이모지 💙, 신규 시안은 텍스트 + 포인트 색. 통일 필요 |
-| `height_cm` 입력 위치 | `MAIN_JOIN_02` 권장. `MAIN_JOIN_03` 도 후보 |
+| 긴급 상담 번호 표기 | 확인 완료 — 위기 화면은 `109` 단일 노출 |
+| 앱 상단 `마음이 ♥` 하트 | 현재 코드는 텍스트 + 포인트 색. 최종 자산 표기는 팀 확인 필요, SVG 권장 |
+| `height_cm` 입력 위치 | `MAIN_JOIN_02` 선택 입력으로 구현 완료 |
+| 화면설계서 PPTX 배치 | 완성 시안 6장 배치와 기존 화면의 ❶❷❸ 마커 작업 남음 |
 
 ---
 

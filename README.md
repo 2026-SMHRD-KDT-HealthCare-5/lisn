@@ -2,6 +2,9 @@
 
 **멀티모달 라이프로그 감정 분석 기반 맞춤형 LLM 케어 및 모니터링 시스템**
 
+> **최종 점검** 2026.07.31 · 현재 구현은 인증 API 6개, Flutter 인증 흐름,
+> React 관리자 로그인·권한 가드까지 완료된 상태입니다.
+
 Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog anomaly detection (LSTM AE + LightGBM) with persona-based LLM care | Flutter · FastAPI · PostgreSQL
 
 스마트워치·체성분계에서 자동 수집되는 라이프로그 시계열을 AI로 분석해 1인가구의 정서적 위험 징후를 조기에 탐지하고, 페르소나 기반 LLM 챗봇으로 정서 케어를 제공하는 모니터링 서비스입니다.
@@ -30,8 +33,8 @@ Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog anomal
 
 | 영역 | 기술 |
 |---|---|
-| Frontend | Flutter (사용자 앱) · React + Chart.js (관리자 관제 대시보드) |
-| Backend | FastAPI — 비동기 REST API, 15분 주기 배치 스케줄러, JWT 인증 |
+| Frontend | Flutter (사용자 앱) · React + Vite (관리자 관제 웹) |
+| Backend | FastAPI — 비동기 REST API, JWT 인증 구현 · 앱 push 수신 설계 |
 | Database | PostgreSQL — UUID v4 / TIMESTAMPTZ / JSONB |
 | AI / ML | PyTorch · LSTM Autoencoder · LightGBM · Pandas / Scikit-learn |
 | LLM | OpenAI API (페르소나 대화 · 위기 문맥 탐지 · 세션 요약) / Whisper (STT) |
@@ -45,11 +48,11 @@ Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog anomal
 
 ```
 [수집 계층]   Flutter App · Health Connect (Android)
-              활동량 · 수면단계 · 심박 · HRV · 체성분   |   15분 주기
+              활동량 · 수면단계 · 심박 · HRV · 체성분   |   최소 15분 간격
                        |  HTTPS / REST
                        v
 [비즈니스 서버]  FastAPI  <->  PostgreSQL
-                 JWT 인증 · UPSERT 적재 · 배치 스케줄러
+                 JWT 인증 · 앱 push 수신/UPSERT 적재(구현 예정)
                        |  내부 API
                        v
 [AI 추론 서버]   1차  LSTM Autoencoder  ->  anomaly_score (재구성 오차)
@@ -77,7 +80,8 @@ lisn/
 │   ├── extracted/            산출물 HWP·PPTX 본문 추출본 (버전 diff 비교용)
 │   └── review/               문서 검수·개정 관리
 ├── tools/
-│   └── hwp2txt.ps1           HWP 본문 추출 스크립트
+│   ├── doc2txt.py            PDF·PPTX 기준 본문 추출 스크립트
+│   └── hwp2txt.ps1           HWP 직접 파싱 보조 스크립트
 └── Documents/                산출물 원본 (HWP · PPTX)
 ```
 
@@ -101,14 +105,42 @@ psql -U postgres -c "CREATE DATABASE lisn;"
 psql -U postgres -d lisn -f db/schema.sql
 ```
 
-`schema.sql` 은 05 테이블명세서 원문을 그대로 옮긴 baseline 입니다. **개정 대기 항목이 `[05-A]` `[05-B]` `[05-C]` 주석으로 표시되어 있으니 실행 전에 확인하세요.** 특히 `[05-C]` 는 현재 정의대로면 회원가입 INSERT 가 실패하는 실제 결함입니다.
+`schema.sql` 은 05 테이블명세서와 정합을 맞춘 현재 스키마 정본입니다. 8개 테이블과
+`EMOTIONS` 9종 시드를 생성합니다. 기존 DB가 구버전이면 개발 단계에서는 스키마를 다시
+적용합니다.
+
+### 애플리케이션 실행
+
+```powershell
+Copy-Item backend\.env.example backend\.env
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
+cd backend
+uvicorn app.main:app --reload
+```
+
+```powershell
+cd frontend\app
+flutter pub get
+flutter run
+```
+
+```powershell
+cd frontend\admin
+npm install
+npm run dev
+```
+
+환경별 DB 접속 정보와 비밀값은 `backend/.env`에만 넣고 커밋하지 않습니다.
 
 ### 문서 작업
 
-산출물은 모두 HWP 라 git 이 바이너리로 취급해 변경 내용을 볼 수 없습니다. `tools/hwp2txt.ps1` 로 본문을 텍스트로 뽑아 `docs/extracted/` 에 두면 버전 간 diff 비교가 가능합니다. 한컴오피스 설치 없이 동작합니다.
+산출물 원본은 바이너리라 Git diff로 본문을 비교할 수 없습니다. HWP를 PDF로 내보낸 뒤
+`tools/doc2txt.py`를 실행해 `docs/extracted/`를 갱신하는 방식이 가장 정확합니다.
+HWP 직접 확인이 필요할 때만 `tools/hwp2txt.ps1`을 보조로 사용합니다.
 
 ```powershell
-.\tools\hwp2txt.ps1 -Path ".\Documents\02_요구사항정의서_귀기울임.hwp"
+python tools\doc2txt.py
 ```
 
 문서를 수정한 뒤에는 추출본도 함께 갱신해 커밋해주세요.
@@ -119,7 +151,7 @@ psql -U postgres -d lisn -f db/schema.sql
 
 - 작업은 개인 브랜치에서 진행하고 `main` 으로 병합합니다. (`feat/`, `docs/`, `fix/` 접두사)
 - `.env` 는 절대 커밋하지 않습니다. **OpenAI API 키가 공개 저장소에 올라가면 즉시 폐기해야 합니다.**
-- 산출물 문서를 수정하면 `docs/review/문서개정_체크리스트.md` 의 해당 항목에 체크하세요.
+- 산출물 문서를 수정하면 추출본도 갱신하고, 완료 근거는 `docs/review/작업이력.md`에 기록합니다.
 
 ---
 
@@ -132,4 +164,4 @@ psql -U postgres -d lisn -f db/schema.sql
 
 ## 라이선스
 
-[MIT](LICENSE)
+별도 라이선스 파일은 아직 확정·추가되지 않았습니다.

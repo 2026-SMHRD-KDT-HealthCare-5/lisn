@@ -1,6 +1,7 @@
 # 개발환경 세팅 가이드
 
 > 귀기울임(LISN) 팀 전원용. **역할 구분 없이 모두 같은 환경**으로 맞춥니다.
+> **현행성 점검** 2026.07.31
 > 처음 하시는 분 기준으로 썼습니다. 위에서부터 순서대로 따라오시면 됩니다.
 >
 > **전체 3~4시간** 정도 걸립니다. Flutter 가 제일 오래 걸려요.
@@ -46,7 +47,9 @@ https://git-scm.com/download/win
 ## 2. Python 3.12
 
 > **버전이 왜 3.12 여야 하나요**
-> 최신 버전(3.13 · 3.14)은 **PyTorch 가 아직 지원하지 않습니다.** 그대로 진행하면 8번에서 `torch` 만 조용히 빠지고, **AI 모델을 돌릴 때가 되어서야** 문제를 발견하게 됩니다.
+> PyTorch는 현재 Windows에서 Python 3.10~3.14를 지원합니다. 다만 이 프로젝트는 팀원 간
+> 재현성과 기존 검증 환경을 맞추기 위해 **Python 3.12로 고정**합니다. 다른 지원 버전도
+> 설치는 가능하지만, 의존성 결과가 달라질 수 있으므로 프로젝트 환경에는 섞지 않습니다.
 
 ### 먼저 — 아나콘다가 있는지 확인하세요
 
@@ -97,7 +100,7 @@ conda activate lisn
 
 **왜 이쪽이 나은가**
 
-- 3.12.7 을 찾아 헤맬 필요가 없습니다
+- Python.org에서 특정 3.12 설치 파일을 찾아 헤맬 필요가 없습니다
 - **다른 수업·과제의 파이썬 환경을 건드리지 않습니다**
 - 팀원 전원이 같은 명령을 쓰므로 버전이 저절로 통일됩니다
 - PATH 등록, Microsoft Store 문제를 겪지 않습니다
@@ -115,19 +118,20 @@ https://www.python.org/downloads/
 > ### ⚠ 페이지 맨 위의 노란 버튼을 누르지 마세요
 > 그 버튼은 **최신 버전**을 받습니다.
 >
-> **`Python 3.12.7` 을 받으세요** — 버전까지 정확히 이것입니다.
+> **`Python 3.12.10` 을 받으세요** — Windows 설치 파일을 제공하는 마지막 3.12 전체
+> 유지보수 릴리스입니다.
 > 1. 페이지를 아래로 스크롤해서 **`Looking for a specific release?`** 표를 찾습니다
-> 2. 목록에서 왼쪽 파란 링크 **`Python 3.12.7`** 클릭 (옆의 Download 버튼 말고 링크 쪽)
+> 2. 목록에서 왼쪽 파란 링크 **`Python 3.12.10`** 클릭 (옆의 Download 버튼 말고 링크 쪽)
 > 3. 열린 페이지를 **맨 아래까지** 내려서 `Files` 표를 찾습니다
-> 4. **`Windows installer (64-bit)`** 클릭 → `python-3.12.7-amd64.exe`
+> 4. **`Windows installer (64-bit)`** 클릭 → `python-3.12.10-amd64.exe`
 >
 > `Windows embeddable package` 나 `ARM64` 가 아닙니다. **`Windows installer (64-bit)`** 입니다.
 
-> ### 왜 하필 3.12.7 인가요 — 더 최신 3.12 를 고르면 막힙니다
-> 목록에는 `3.12.13`(2026.03) 처럼 더 최신 3.12 가 있지만, **이들에는 Windows 설치 파일이 없습니다.** 소스 코드(`tar.gz`)만 올라와 있어서 눌러도 받을 게 없습니다.
+> ### 왜 하필 3.12.10 인가요
+> `3.12.10`은 Python 3.12의 마지막 전체 유지보수 릴리스이며 Windows 64-bit 설치 파일을
+> 제공합니다. 이후 3.12 릴리스는 보안 수정 단계라 설치 파일 제공 방식이 다를 수 있습니다.
 >
-> Python 은 버전이 `security` 단계에 들어가면 보안 패치를 소스로만 배포합니다. 3.12 는 2024년 10월에 그 단계로 넘어갔고, **직전 릴리스인 3.12.7 이 마지막 Windows 설치 파일**입니다.
-> (3.12.13 페이지 원문: "binary installers are no longer provided for it")
+> 이미 3.12.x 환경이 정상 동작한다면 패치 버전만 맞추려고 재설치할 필요는 없습니다.
 
 ---
 
@@ -148,14 +152,14 @@ python --version
 
 > 폴더 위치는 상관없습니다. 어디서 실행하든 결과는 같습니다.
 
-**`Python 3.12.x` 가 나와야 정상입니다.** (방법 2 는 정확히 `3.12.7`)
+**`Python 3.12.x` 가 나와야 정상입니다.** (신규 설치 권장은 `3.12.10`)
 
 ### 다른 결과가 나왔다면
 
 | 나온 결과 | 무슨 뜻인가 | 해야 할 일 |
 |---|---|---|
 | `Python 3.12.x` | 정상 | 다음 단계로 |
-| `Python 3.13.x` · `3.14.x` 등 다른 버전 | 방법 1: 환경이 활성화 안 됨 · 방법 2: 잘못 받음 | **①** |
+| `Python 3.13.x` · `3.14.x` 등 다른 버전 | PyTorch 지원 여부와 별개로 프로젝트 표준 환경이 아님 | **①** |
 | `Python` 만 뜨고 숫자가 없음 | Microsoft Store 가짜 파일 | **②** |
 | Microsoft Store 창이 열림 | Python 이 실제로는 없습니다 | **②** |
 | `python 을 찾을 수 없습니다` | PATH 미등록 | **②** |
@@ -181,8 +185,12 @@ conda create -n lisn python=3.12 -y --force
 
 **방법 2(python.org)로 하신 경우** — 아래 둘 중 하나로 해결하세요.
 
-- **기존 버전을 지우지 않고 골라 쓰기 (권장)** — 3.12.7 을 추가 설치한 뒤, 앞으로 `python` 대신 `py -3.12` 를 씁니다. 8번 명령도 `py -3.12 -m pip install ...` 로 바뀝니다. 다른 프로그램이 기존 버전을 쓰고 있을 수 있어 이쪽이 안전합니다.
-- **기존 버전 제거** — 윈도우 키 → <kbd>앱</kbd> 검색 → **설치된 앱** 에서 `Python 3.13`·`3.14` 를 제거한 뒤 3.12.7 설치. 매번 `py -3.12` 를 붙이는 게 번거로우면 이쪽. 단 다른 프로젝트가 깨질 수 있습니다.
+- **기존 버전을 지우지 않고 골라 쓰기 (권장)** — 3.12.10을 추가 설치한 뒤, 앞으로
+  `python` 대신 `py -3.12`를 씁니다. 8번 명령도
+  `py -3.12 -m pip install ...`로 바뀝니다. 다른 프로그램이 기존 버전을 쓰고 있을 수
+  있어 이쪽이 안전합니다.
+- **프로젝트용 3.12 환경을 분리 (권장)** — 기존 Python은 제거하지 말고 `py -3.12` 또는
+  `conda activate lisn`으로 이 프로젝트에서 사용할 버전을 명시합니다.
 
 #### ② 버전이 아예 안 나올 때
 
@@ -328,10 +336,10 @@ psql --version
 > **방법 1(아나콘다)** — `Anaconda PowerShell Prompt` 를 열고 **`conda activate lisn` 을 먼저** 하세요. 프롬프트에 **`(lisn)`** 이 붙어 있어야 합니다. 안 붙은 채로 설치하면 `base` 환경에 깔려서 나중에 못 찾습니다.
 > **방법 2(python.org)** — 윈도우 키 → `powershell` 로 실행하면 됩니다.
 
-아래 한 줄을 통째로 복사해 붙여넣고 엔터.
+AI 공통 라이브러리를 설치합니다.
 
 ```
-pip install torch lightgbm scikit-learn pandas numpy fastapi uvicorn psycopg2-binary openai
+pip install torch lightgbm scikit-learn pandas numpy openai
 ```
 
 > 방법 2 에서 `py -3.12` 를 쓰기로 하신 분은 `py -3.12 -m pip install ...` 로 실행하세요.
@@ -347,10 +355,11 @@ python -c "import torch; print(torch.__version__)"
 버전 번호가 나오면 정상입니다.
 
 > ### ⚠ `ModuleNotFoundError: No module named 'torch'` 가 나오면
-> **Python 버전이 3.12 가 아닙니다.** PyTorch 가 지원하지 않는 버전이라 `torch` 만 조용히 빠지고 나머지는 설치됩니다.
-> `Successfully installed` 가 떠도 그 목록에 `torch` 가 없으면 안 깔린 겁니다.
+> 현재 활성화한 환경과 `pip`가 설치한 환경이 다른 경우가 가장 흔합니다.
+> `python --version`과 `python -m pip --version`이 같은 환경을 가리키는지 확인하세요.
 >
-> 2번으로 돌아가 **Python 3.12** 를 설치한 뒤 이 단계를 다시 실행하세요.
+> 프로젝트 표준인 Python 3.12 환경을 활성화한 뒤 `python -m pip install torch`를 다시
+> 실행하세요.
 > **AI 모델링 작업 전체가 `torch` 위에서 돌아가므로 넘어가면 안 됩니다.**
 
 ---
@@ -409,7 +418,35 @@ cd lisn
 > Set-ExecutionPolicy -Scope Process Bypass
 > ```
 
-## 9-5. 이후 최신으로 받는 법
+## 9-5. 프로젝트 의존성 설치
+
+저장소 루트(`lisn`)에서 실행합니다.
+
+```powershell
+python -m pip install -r backend\requirements.txt
+```
+
+```powershell
+cd frontend\app
+flutter pub get
+cd ..\..
+```
+
+```powershell
+cd frontend\admin
+npm install
+cd ..\..
+```
+
+백엔드 환경 파일은 공개 저장소에 올리지 않습니다.
+
+```powershell
+Copy-Item backend\.env.example backend\.env
+```
+
+복사한 `.env`의 DB 접속 정보는 단톡방 또는 Notion의 현재 값을 사용합니다.
+
+## 9-6. 이후 최신으로 받는 법
 
 `lisn` 폴더에서 PowerShell 열고
 
@@ -475,14 +512,16 @@ git pull
 | `conda 를 찾을 수 없습니다` | 일반 PowerShell 을 여신 겁니다. **`Anaconda PowerShell Prompt`** 로 여세요 |
 | 설치한 라이브러리를 못 찾음 (`ModuleNotFoundError`) | `conda activate lisn` 을 안 하신 겁니다. 프롬프트에 **`(lisn)`** 이 붙어 있는지 확인하세요 |
 | VS Code 에서만 실행이 안 됨 | 인터프리터가 다릅니다. `Ctrl+Shift+P` → `Python: Select Interpreter` → `lisn` 선택 |
-| `torch` 만 설치가 안 됨 | Python 이 3.12 가 아닙니다. `python --version` 확인 후 3.12 로 다시 설치하세요 |
-| 휠 파일명에 `cp313`·`cp314` 가 보임 | Python 3.13·3.14 를 받으신 겁니다. 3.12 여야 `cp312` 로 나옵니다 |
-| 3.12 릴리스 페이지에 `.exe` 가 없음 | `3.12.8` 이상을 고르신 겁니다. 이들은 소스 전용이라 설치 파일이 없습니다. **`3.12.7`** 로 가세요 |
+| `torch` 만 설치가 안 됨 | `python --version`과 `python -m pip --version`의 환경이 같은지 확인한 뒤 3.12 환경에서 다시 설치하세요 |
+| 휠 파일명에 `cp313`·`cp314` 가 보임 | 해당 Python 버전용 휠이라는 뜻입니다. 프로젝트 표준 3.12 환경에서는 `cp312`가 표시됩니다 |
+| 선택한 3.12 릴리스 페이지에 `.exe`가 없음 | Windows installer가 제공되는 **3.12.10** 릴리스 페이지를 사용하세요 |
 | DBeaver 접속 실패 | **Port 번호**를 먼저 확인하세요. 기본값 5432 가 아닙니다 |
 
 ---
 
 # 링크 모음
+
+- [PyTorch 공식 로컬 설치 가이드](https://pytorch.org/get-started/locally/) — 최신 Windows Python 지원 범위 확인
 
 | | |
 |---|---|

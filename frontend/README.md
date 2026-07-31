@@ -2,6 +2,8 @@
 
 사용자 앱(Flutter)과 관리자 관제 대시보드(React)가 함께 들어갑니다.
 
+> **최종 점검** 2026.07.31
+
 ```
 frontend/
 ├── app/        Flutter 사용자 앱      — Android 전용 (Health Connect 가 Android API)
