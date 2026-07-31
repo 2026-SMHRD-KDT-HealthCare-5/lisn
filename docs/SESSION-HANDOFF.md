@@ -166,11 +166,23 @@ POST /api/v1/chat/sessions/{id}/messages 로 아래를 보내 source=LLM 인지 
   - "요즘 좀 지치네요"        → CAUTION
 ```
 
+### 회귀 테스트
+
+```powershell
+cd backend
+python -m pytest -q
+```
+
+**23건.** 수동으로 확인했던 불변조건이 고정돼 있습니다. 주석에 어느 요구사항을 지키는지 적혀 있으니 실패하면 그것부터 읽으세요. 실행 방법과 규칙은 [`backend/README.md`](../backend/README.md).
+
 ### 이어서 할 것
 
 1. **`HEALING_CONTENTS` 시드** ⭐ — 비어 있어 콘텐츠 추천이 **0건**입니다. `CAUTION` 판정이 나도
-   홈에 아무것도 안 뜹니다. 04 문서 7항이 "사전 안전 검수를 거친 중립적 콘텐츠만" 을
-   원칙으로 못 박아 **사람이 골라야 합니다.** 감정 9종 × 카테고리 4종이면 20~30건 필요
+   홈에 아무것도 안 뜹니다. 틀과 기준은 준비돼 있습니다 —
+   [`힐링콘텐츠_큐레이션.md`](review/힐링콘텐츠_큐레이션.md) · [`db/seed_healing_contents.sql`](../db/seed_healing_contents.sql).
+   **URL 은 사람이 채워야 합니다.** 04 문서 7항의 목적이 추천 정확도가 아니라 안전이라,
+   검수 없이 채우면 "AI 가 틀려도 해가 없다" 는 설계가 무너집니다. `CAUTION` 감정 4종에
+   각 3~5건이면 충분합니다
 2. **프론트 연동** — 백엔드가 다 열렸으니 앱·관리자 웹의 목업을 실제 API 로 교체.
    [`HANDOFF-CODEX.md`](design/HANDOFF-CODEX.md) 참조
 3. **AI 추론 서버 본체** — 계약과 적재 경로는 완성. 모델(`LSTM AE` + `LightGBM`)만 남음.
