@@ -2,8 +2,33 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 import '../widgets/common_widgets.dart';
+import 'emergency_screen.dart';
 
 enum ChatPersona { feeling, thinking }
+
+enum ChatResponseAction { chat, content, emergency }
+
+class ChatReply {
+  const ChatReply(this.text, {this.action = ChatResponseAction.chat});
+
+  final String text;
+  final ChatResponseAction action;
+}
+
+typedef ChatReplyBuilder = ChatReply Function(
+  String userMessage,
+  ChatPersona persona,
+);
+
+ChatReply buildMockChatReply(String userMessage, ChatPersona persona) {
+  return ChatReply(
+    persona == ChatPersona.feeling
+        ? '많이 힘드셨겠어요. 그런 마음이 드는 건 너무 자연스러워요. '
+            '오늘의 지은님에게 가장 필요한 건 무엇일까요?'
+        : '상황을 하나씩 정리해볼게요. 가장 스트레스가 컸던 순간과 '
+            '바꿀 수 있는 부분을 나눠서 살펴볼까요?',
+  );
+}
 
 class ChatMessage {
   const ChatMessage(this.text, {required this.fromUser});
@@ -12,7 +37,9 @@ class ChatMessage {
 }
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({super.key, this.replyBuilder = buildMockChatReply});
+
+  final ChatReplyBuilder replyBuilder;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -53,15 +80,24 @@ class _ChatScreenState extends State<ChatScreen> {
   void send() {
     final text = inputController.text.trim();
     if (text.isEmpty) return;
+    final reply = widget.replyBuilder(text, persona);
     setState(() {
       messages.add(ChatMessage(text, fromUser: true));
-      messages.add(ChatMessage(
-        persona == ChatPersona.feeling
-            ? '많이 힘드셨겠어요. 그런 마음이 드는 건 너무 자연스러워요. 오늘의 지은님에게 가장 필요한 건 무엇일까요?'
-            : '상황을 하나씩 정리해볼게요. 가장 스트레스가 컸던 순간과 바꿀 수 있는 부분을 나눠서 살펴볼까요?',
-        fromUser: false,
-      ));
       inputController.clear();
+    });
+
+    if (reply.action == ChatResponseAction.emergency) {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => const EmergencyScreen(),
+          fullscreenDialog: true,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      messages.add(ChatMessage(reply.text, fromUser: false));
     });
   }
 

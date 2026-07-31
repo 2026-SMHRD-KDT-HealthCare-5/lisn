@@ -41,7 +41,7 @@ frontend/
 │   │   ├── config/         API base URL, 환경 분기
 │   │   ├── models/         인증 DTO
 │   │   ├── services/       HTTP 클라이언트·토큰 저장·인증 API
-│   │   ├── screens/        9개 파일 (인증은 API 연동, 업무 데이터는 목업)
+│   │   ├── screens/        10개 파일 (인증·긴급 상담 구현, 업무 데이터는 목업)
 │   │   ├── theme/app_theme.dart
 │   │   └── widgets/common_widgets.dart
 │   └── android/            패키지 com.lisn.maeume · minSdk 26
@@ -85,7 +85,7 @@ frontend/
 | `MAIN_REPORT_01` | 없음 | 신규 — 정서 리포트 |
 | `MAIN_SETTING_01` | `settings_screen.dart` | 실제 로그아웃 완료 — 설정·기기 API 연동 필요 |
 | `MAIN_SETTING_02` | 없음 | 신규 — 계정 관리·탈퇴 |
-| `MAIN_EMERGENCY_01` | 없음 | **신규 · 최우선** |
+| `MAIN_EMERGENCY_01` | `emergency_screen.dart` | 완료 — `EMERGENCY` 액션 즉시 전환·`tel:109` 호출 |
 | `ADMIN_LOGIN_01` | `admin/src/App.jsx` | 완료 — React, 실제 인증 API·역할 가드 |
 | `ADMIN_DASH_01` | `admin/src/App.jsx` | 셸 완료 — 관리자 조회 API 구현 후 데이터 연동 |
 
@@ -143,7 +143,7 @@ API 는 전부 ISO 8601 UTC 입니다. 로컬 변환은 표시 직전에만 하�
 
 ## 5. 착수 순서 제안
 
-1. **신규 앱 화면** — `MAIN_EMERGENCY_01` 최우선, 이후 웨어러블·리포트·계정 관리
+1. **신규 앱 화면** — 긴급 상담 완료. 다음은 계정 관리 → 웨어러블 → 리포트
 2. **백엔드 API 순서에 맞춘 연동** — `users`·`devices` → `lifelog` → `chat`
 3. **기존 목업 데이터 제거** — 각 API가 완성되는 즉시 화면 DTO와 상태 처리 추가
 4. **관리자 대시보드 데이터 연동** — 관리자 조회 API가 나온 뒤 위험도 분포·고위험군 연결

@@ -58,6 +58,7 @@ flutter run --dart-define=API_BASE_URL=http://<개발-PC-IP>:8000/api/v1
 | `main_shell.dart` | 하단 네비게이션 4탭 |
 | `home_screen.dart` | `MAIN_HOME_01` |
 | `chat_screen.dart` | `MAIN_CHAT_01` · `MAIN_CHAT_02` |
+| `emergency_screen.dart` | `MAIN_EMERGENCY_01` |
 | `lifelog_screen.dart` | 라이프로그 |
 | `settings_screen.dart` | 설정 |
 

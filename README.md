@@ -2,7 +2,7 @@
 
 **멀티모달 라이프로그 감정 분석 기반 맞춤형 LLM 케어 및 모니터링 시스템**
 
-> **최종 점검** 2026.07.31 · 현재 구현은 인증 API 6개, Flutter 인증 흐름,
+> **최종 점검** 2026.07.31 · 현재 구현은 인증 API 6개, Flutter 인증·긴급 상담 흐름,
 > React 관리자 로그인·권한 가드까지 완료된 상태입니다.
 
 Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog anomaly detection (LSTM AE + LightGBM) with persona-based LLM care | Flutter · FastAPI · PostgreSQL

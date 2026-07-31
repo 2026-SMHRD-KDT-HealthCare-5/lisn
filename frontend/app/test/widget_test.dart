@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:maeume_care/screens/chat_screen.dart';
+import 'package:maeume_care/screens/emergency_screen.dart';
 import 'package:maeume_care/screens/login_screen.dart';
 import 'package:maeume_care/screens/main_shell.dart';
 import 'package:maeume_care/screens/password_reset_screen.dart';
@@ -71,5 +73,70 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('비밀번호를\n다시 설정해요'), findsOneWidget);
     expect(find.text('인증 메일 보내기'), findsOneWidget);
+  });
+
+  testWidgets('긴급 상담 화면은 109 전화 연결만 실행한다', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    var callRequested = false;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: EmergencyScreen(
+          callLauncher: () async {
+            callRequested = true;
+            return true;
+          },
+        ),
+      ),
+    );
+
+    expect(find.text('지금 많이 힘드신 것 같아요'), findsOneWidget);
+    expect(find.text('109'), findsOneWidget);
+    expect(find.byType(Checkbox), findsNothing);
+    expect(find.textContaining('정서 분석 데이터는 상담기관으로 전송되지 않아요'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('emergency-call-button')));
+    await tester.pumpAndSettle();
+    expect(callRequested, isTrue);
+  });
+
+  testWidgets('챗봇 EMERGENCY 응답은 추가 조회 없이 긴급 화면으로 전환한다', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    var replyCalls = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          body: ChatScreen(
+            replyBuilder: (message, persona) {
+              replyCalls += 1;
+              return const ChatReply(
+                '',
+                action: ChatResponseAction.emergency,
+              );
+            },
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('다정한 공감가'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byType(TextField),
+      '도움이 필요해요',
+    );
+    await tester.tap(find.byIcon(Icons.send_rounded));
+    await tester.pumpAndSettle();
+
+    expect(replyCalls, 1);
+    expect(find.text('지금 많이 힘드신 것 같아요'), findsOneWidget);
+    expect(find.text('109'), findsOneWidget);
   });
 }

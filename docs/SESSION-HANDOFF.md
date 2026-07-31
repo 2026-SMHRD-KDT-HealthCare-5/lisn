@@ -71,7 +71,7 @@ git clone https://github.com/2026-SMHRD-KDT-HealthCare-5/lisn.git
 
 1. **백엔드 라우터 구현** — `users`·`devices` → `lifelog` → `chat` 순서
 2. **실제 인증 E2E 재검증** — 새 환경에서는 `backend/.env` 구성과 PostgreSQL 실행이 먼저
-3. **Flutter 신규 화면·업무 API 연동** — 위기 화면 → 설정·웨어러블 → 라이프로그 → 챗봇
+3. **Flutter 신규 화면·업무 API 연동** — 계정 관리 → 설정·웨어러블 → 라이프로그 → 챗봇
 4. **관리자 대시보드 데이터 연동** — 관리자 조회 API 구현 후 진행
 5. **화면설계서 디자인 작업** — 완성 시안 6장 배치와 기존 와이어프레임 마커 수정
 
@@ -141,6 +141,7 @@ uvicorn app.main:app --reload
 | [`HANDOFF-CODEX.md`](design/HANDOFF-CODEX.md) | 프론트 인수인계. Codex 가 단독으로 읽고 시작 가능 |
 | 신규 화면 시안 6장 | `docs/design/` HTML 원본 + PNG 완료. 모바일 4장·관리자 웹 2장 |
 | Flutter 인증 연동 | API 6개·보안 토큰 저장·인증 게이트·로그인/가입/재설정 화면 완료 |
+| Flutter 긴급 상담 | `EMERGENCY` 액션 즉시 전환·109 전화 앱 호출·데이터 미전송 안내 |
 | 관리자 웹 인증 | Vite + React 로그인·`ADMIN` 역할 가드·대시보드 셸 완료 |
 | 프론트 개발 CORS | FastAPI에서 Vite 개발 주소(`localhost:5173`, `127.0.0.1:5173`) 허용 |
 

@@ -86,7 +86,7 @@ $edge = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 
 | 화면 | 캔버스 | 상태 |
 |---|---|---|
-| `MAIN_EMERGENCY_01` 긴급 상담 연결 | 390×844 | ✅ **완료 — 이걸 복사해서 시작하세요** |
+| `MAIN_EMERGENCY_01` 긴급 상담 연결 | 390×844 | ✅ 시안·Flutter 구현 완료 |
 | `MAIN_LOGIN_02` 비밀번호 재설정 | 390×844 | ✅ 완료 |
 | `MAIN_SETTING_02` 계정 관리·회원 탈퇴 | 390×844 | ✅ 완료 |
 | `MAIN_REPORT_01` 정서 리포트 | 390×844 | ✅ 완료 |
