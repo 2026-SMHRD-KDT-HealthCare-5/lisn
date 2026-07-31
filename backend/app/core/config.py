@@ -15,6 +15,11 @@ class Settings(BaseSettings):
     # 비밀번호 재설정 토큰. 별도 테이블을 두지 않고 짧은 수명의 JWT 로 처리한다.
     password_reset_expire_minutes: int = 30
 
+    # 컬럼 암호화 키(AES-256-GCM). base64 인코딩된 32바이트.
+    # 02-F (3) 대상은 현재 USERS.phone 하나다.
+    #   생성: python -c "import base64,os; print(base64.b64encode(os.urandom(32)).decode())"
+    encryption_key: str = "CHANGE_ME"
+
     openai_api_key: str = ""
 
     # AI 추론 서버. 내부 통신이라 인증이 없으므로 외부에 포트를 열지 말 것.

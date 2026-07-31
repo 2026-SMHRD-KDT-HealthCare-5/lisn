@@ -6,3 +6,5 @@ pydantic-settings
 email-validator
 bcrypt
 pyjwt
+cryptography
+openai

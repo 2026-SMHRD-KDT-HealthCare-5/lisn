@@ -13,6 +13,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.crypto import encrypt
 from app.core.database import get_db
 from app.core.security import (
     PURPOSE_PASSWORD_RESET,
@@ -67,9 +68,8 @@ async def signup(body: SignupRequest, db: DbSession):
         birth_date=body.birth_date,
         gender=body.gender,
         height_cm=body.height_cm,
-        # TODO(암호화): 02-F (3) 에 따라 phone 은 AES-256-GCM 으로 저장해야 한다.
-        #   지금은 평문으로 넣고 있으므로 암호화 유틸을 붙일 때 함께 고칠 것.
-        phone=body.phone,
+        # 02-F (3) — 연락처는 AES-256-GCM 으로 암호화해 저장한다.
+        phone=encrypt(body.phone),
         terms_agreed=True,
         terms_agreed_at=now,
         sensitive_agreed=True,
