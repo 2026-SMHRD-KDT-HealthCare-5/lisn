@@ -34,7 +34,24 @@ class _JoinScreenState extends State<JoinScreen> {
   String? errorMessage;
 
   @override
+  void initState() {
+    super.initState();
+    emailController.addListener(_resetEmailCheck);
+  }
+
+  /// 이메일을 고치면 이전 확인 결과를 지웁니다.
+  ///
+  /// ⚠ 그대로 두면 A 로 확인해 '사용 가능' 을 받은 뒤 B 로 고쳐도 그 문구가
+  ///   남습니다. 확인하지 않은 주소를 확인된 것으로 오인하게 됩니다.
+  void _resetEmailCheck() {
+    if (emailAvailable != null) {
+      setState(() => emailAvailable = null);
+    }
+  }
+
+  @override
   void dispose() {
+    emailController.removeListener(_resetEmailCheck);
     nameController.dispose();
     birthDateController.dispose();
     emailController.dispose();
@@ -285,20 +302,45 @@ class _JoinScreenState extends State<JoinScreen> {
               return null;
             },
           ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
-              onPressed: loading ? null : checkEmail,
-              child: Text(
-                emailAvailable == true
-                    ? '사용 가능한 이메일이에요'
-                    : emailAvailable == false
-                        ? '이미 사용 중인 이메일이에요'
-                        : '이메일 중복 확인',
-                style: const TextStyle(fontSize: 11),
+          // ⚠ 버튼 라벨이 결과 표시를 겸하고 있었습니다. 확인을 마치면
+          //   '사용 가능한 이메일이에요' 로 바뀌어, 여전히 누를 수 있는
+          //   요소인지 알 수 없었습니다. 버튼과 결과를 분리합니다.
+          Row(children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: loading ? null : checkEmail,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(44),
+                  side: const BorderSide(color: AppColors.line),
+                  foregroundColor: AppColors.primary,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('이메일 중복 확인',
+                    style: TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.w700)),
               ),
             ),
-          ),
+          ]),
+          if (emailAvailable != null) ...[
+            const SizedBox(height: 8),
+            Row(children: [
+              Icon(
+                  emailAvailable!
+                      ? Icons.check_circle_outline_rounded
+                      : Icons.info_outline_rounded,
+                  size: 14,
+                  color: emailAvailable! ? AppColors.teal : AppColors.muted),
+              const SizedBox(width: 5),
+              Text(
+                emailAvailable! ? '사용할 수 있는 이메일이에요' : '이미 사용 중인 이메일이에요',
+                style: TextStyle(
+                    fontSize: 11,
+                    color: emailAvailable! ? AppColors.teal : AppColors.muted),
+              ),
+            ]),
+          ],
+          const SizedBox(height: 18),
           _Field(
             label: '비밀번호',
             controller: passwordController,
@@ -395,28 +437,6 @@ class _JoinScreenState extends State<JoinScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _Field(
-          label: '키(cm)',
-          controller: heightController,
-          hint: '예: 165.5',
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          textInputAction: TextInputAction.next,
-          onWhy: () => _why(
-            '키는 왜 필요한가요?',
-            const [
-              '체성분 수치를 해석할 때 씁니다. 같은 근육량이라도 키에 따라 의미가 달라져요.',
-              '입력하지 않아도 모든 기능을 쓸 수 있어요.',
-              '나중에 설정에서 추가하거나 지울 수 있어요.',
-            ],
-          ),
-          validator: (value) {
-            if (value == null || value.trim().isEmpty) return null;
-            final height = double.tryParse(value.trim());
-            return height == null || height <= 0 || height > 300
-                ? '키는 0보다 크고 300 이하로 입력해주세요'
-                : null;
-          },
-        ),
-        _Field(
           label: '비상 연락처',
           controller: phoneController,
           hint: '010-0000-0000',
@@ -437,6 +457,28 @@ class _JoinScreenState extends State<JoinScreen> {
               '저장할 때 암호화되고, 설정에서 언제든 지울 수 있어요.',
             ],
           ),
+        ),
+        _Field(
+          label: '키(cm)',
+          controller: heightController,
+          hint: '예: 165.5',
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          textInputAction: TextInputAction.next,
+          onWhy: () => _why(
+            '키는 왜 필요한가요?',
+            const [
+              '체성분 수치를 해석할 때 씁니다. 같은 근육량이라도 키에 따라 의미가 달라져요.',
+              '입력하지 않아도 모든 기능을 쓸 수 있어요.',
+              '나중에 설정에서 추가하거나 지울 수 있어요.',
+            ],
+          ),
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) return null;
+            final height = double.tryParse(value.trim());
+            return height == null || height <= 0 || height > 300
+                ? '키는 0보다 크고 300 이하로 입력해주세요'
+                : null;
+          },
         ),
       ],
     );
