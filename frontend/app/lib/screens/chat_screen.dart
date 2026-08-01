@@ -364,12 +364,25 @@ class _PersonaCard extends StatelessWidget {
                             color: feeling
                                 ? AppColors.primary
                                 : AppColors.teal)))),
-            Center(
-                child: Column(mainAxisSize: MainAxisSize.min, children: [
+            // ⚠ 카드 안 내용이 카드보다 커지면 바로 넘칩니다(실제로 31px 넘쳤습니다).
+            //   화면 높이는 기기마다 다른데 여기 값은 고정이라, 크기만 줄이면
+            //   더 작은 기기에서 또 터집니다.
+            //   자리가 있으면 가운데, 모자라면 스크롤되도록 둡니다.
+            //   세로 스크롤이라 좌우 페이지 넘김과 부딪히지 않습니다.
+            // ⚠ Positioned.fill 을 빼지 마세요. Stack 의 배치 안 된 자식은 느슨한
+            //   제약을 받아 **내용 폭만큼 줄고 좌상단에 붙습니다.** 예전 Center 가
+            //   하던 일을 여기서 대신합니다.
+            Positioned.fill(child: LayoutBuilder(builder: (context, box) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: box.maxHeight),
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
               MaeumeMascot(
-                  size: 132,
+                  size: 112,
                   mood: feeling ? MascotMood.smile : MascotMood.thinking),
-              const SizedBox(height: 24),
+              const SizedBox(height: 18),
               Text(feeling ? 'FEELING' : 'THINKING',
                   style: TextStyle(
                       fontSize: 9,
@@ -404,7 +417,7 @@ class _PersonaCard extends StatelessWidget {
                           color: feeling
                               ? const Color(0xFF6678CE)
                               : const Color(0xFF38889A)))),
-              const SizedBox(height: 23),
+              const SizedBox(height: 18),
               Row(mainAxisSize: MainAxisSize.min, children: [
                 Text('이 성격으로 대화하기',
                     style: TextStyle(
@@ -415,7 +428,10 @@ class _PersonaCard extends StatelessWidget {
                             : const Color(0xFF38889A))),
                 const Icon(Icons.chevron_right_rounded, size: 17)
               ]),
-            ])),
+                  ]),
+                ),
+              );
+            })),
           ]),
         ),
       ),
