@@ -706,13 +706,12 @@ class _JoinScreenState extends State<JoinScreen> {
                   ? const Color(0xFFEEF2FF)
                   : Colors.white,
               child: Row(children: [
-                CircleAvatar(
-                    backgroundColor: const Color(0xFFEEF1FF),
-                    child: Icon(
-                        wearableChoice == _Wearable.connect
-                            ? Icons.check_rounded
-                            : Icons.watch_rounded,
-                        color: AppColors.primary)),
+                // 시계 아이콘은 무엇을 연결하는지 알려주는 표시라 완료
+                // 후에도 유지합니다. 상태는 오른쪽 끝에서 알립니다.
+                const CircleAvatar(
+                    backgroundColor: Color(0xFFEEF1FF),
+                    child:
+                        Icon(Icons.watch_rounded, color: AppColors.primary)),
                 const SizedBox(width: 13),
                 const Expanded(
                     child: Column(
@@ -724,7 +723,13 @@ class _JoinScreenState extends State<JoinScreen> {
                           style:
                               TextStyle(fontSize: 10, color: AppColors.muted))
                     ])),
-                const Icon(Icons.chevron_right_rounded)
+                // 꺾쇠는 '눌러서 더 갈 곳이 있다'는 뜻입니다. 등록을 마치면
+                // 더 할 일이 없으므로 완료 표시로 바꿉니다.
+                if (wearableChoice == _Wearable.connect)
+                  const Icon(Icons.check_circle_rounded,
+                      color: Color(0xFF63CFA7))
+                else
+                  const Icon(Icons.chevron_right_rounded)
               ])),
         ),
         if (wearableChoice == _Wearable.connect)
@@ -737,10 +742,24 @@ class _JoinScreenState extends State<JoinScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 11, color: AppColors.muted)),
           ),
-        // 등록을 마치면 이 선택지를 감춥니다. 이미 연결해 둔 사람에게
-        // '나중에 연결할게요' 가 남아 있으면 무엇을 더 해야 하나 싶습니다.
-        if (wearableChoice != _Wearable.connect) ...[
-          const SizedBox(height: 6),
+        const SizedBox(height: 18),
+        ElevatedButton(
+          // 둘 중 하나를 고르기 전에는 넘어가지 않습니다.
+          onPressed: wearableChoice == null || loading
+              ? null
+              : () => Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const MainShell()),
+                  (_) => false),
+          // STEP 01 과 같은 이유입니다. 이 시점에도 캐릭터를 만난 적이
+          // 없습니다. '마음이' 는 홈에 들어간 뒤부터 통합니다.
+          child: const Text('시작하기'),
+        ),
+        // 시작하기 아래에 둡니다. 연결이 주된 행동이고 이건 건너뛰는
+        // 선택지라, 주 버튼보다 위에 있으면 우선순위가 뒤집혀 보입니다.
+        //
+        // 등록을 마치면 감춥니다. 이미 연결해 둔 사람에게 이 문구가 남아
+        // 있으면 무엇을 더 해야 하나 싶습니다.
+        if (wearableChoice != _Wearable.connect)
           TextButton(
             onPressed: loading
                 ? null
@@ -755,19 +774,6 @@ class _JoinScreenState extends State<JoinScreen> {
                         ? AppColors.primary
                         : AppColors.muted)),
           ),
-        ],
-        const SizedBox(height: 16),
-        ElevatedButton(
-          // 둘 중 하나를 고르기 전에는 넘어가지 않습니다.
-          onPressed: wearableChoice == null || loading
-              ? null
-              : () => Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const MainShell()),
-                  (_) => false),
-          // STEP 01 과 같은 이유입니다. 이 시점에도 캐릭터를 만난 적이
-          // 없습니다. '마음이' 는 홈에 들어간 뒤부터 통합니다.
-          child: const Text('시작하기'),
-        ),
       ],
     );
   }
