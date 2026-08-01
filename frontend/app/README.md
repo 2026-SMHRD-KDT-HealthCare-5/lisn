@@ -145,6 +145,20 @@ Health Connect 는 기기·권한에 따라 주는 항목이 다릅니다. `Life
 > **남은 것 — 상단 히어로 일러스트는 아직 웃습니다.** `assets/images/login_mascot.png`
 > 하나뿐이라 코드로는 못 바꿉니다. 담담한 표정 버전이 필요합니다(디자인 작업).
 
+## 동작하지 않는 버튼을 두지 마세요
+
+챗봇 화면 왼쪽 위·오른쪽 위가 `onPressed: () {}` 인 **빈 버튼**이었습니다.
+아이콘이 예쁘게 들어가 있어 화면만 봐서는 정상으로 보입니다. **눌러야 압니다.**
+
+- **왼쪽** → 대화 기록으로 연결했습니다. 서버 API 와 `ChatService` 는 이미 있었고
+  입구만 없었습니다(`SD-12` 대화 기록 복원)
+- **오른쪽 검색** → **없앴습니다.** 화면설계서에 없는 기능이고, 만들려면 서버에
+  검색 API 부터 있어야 합니다
+
+마이크 버튼을 지운 것과 같은 판단입니다 — 눌리는데 동작하지 않으면 시연에서
+바로 드러납니다. `test/chat_history_test.dart` 가 「눌렀을 때 실제로 열리는지」와
+「검색 버튼이 없는지」를 고정합니다.
+
 ## 판단 로직을 앱에 복제하지 마세요
 
 감정→위험도→액션 매핑은 **서버가 확정**합니다(04 문서 6항). 응답의 `action` 을 그대로
@@ -180,6 +194,7 @@ Health Connect 는 기기·권한에 따라 주는 항목이 다릅니다. `Life
 | `main_shell.dart` | 하단 네비게이션 4탭 |
 | `home_screen.dart` | `MAIN_HOME_01` |
 | `chat_screen.dart` | `MAIN_CHAT_01` · `MAIN_CHAT_02` |
+| `chat_history_screen.dart` | `MAIN_CHAT_02` 대화 기록 (`SD-12`) |
 | `lifelog_screen.dart` | `MAIN_LIFELOG_01` |
 | `report_screen.dart` | `MAIN_REPORT_01` |
 | `settings_screen.dart` | `MAIN_SETTING_01` · `MAIN_SETTING_02` |

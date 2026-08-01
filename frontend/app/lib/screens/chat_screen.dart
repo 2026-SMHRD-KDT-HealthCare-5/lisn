@@ -6,6 +6,7 @@ import '../services/app_services.dart';
 import '../services/chat_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common_widgets.dart';
+import 'chat_history_screen.dart';
 import 'emergency_screen.dart';
 
 enum ChatPersona {
@@ -177,7 +178,10 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _selectionView() {
     return Column(
       children: [
-        const _ChatHeader(title: 'AI 챗봇'),
+        _ChatHeader(
+            title: 'AI 챗봇',
+            onHistory: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => ChatHistoryScreen(chatService: _chat)))),
         const Padding(
           padding: EdgeInsets.fromLTRB(22, 20, 22, 12),
           child:
@@ -491,8 +495,9 @@ class _MessageBubble extends StatelessWidget {
 }
 
 class _ChatHeader extends StatelessWidget {
-  const _ChatHeader({required this.title});
+  const _ChatHeader({required this.title, required this.onHistory});
   final String title;
+  final VoidCallback onHistory;
 
   @override
   Widget build(BuildContext context) {
@@ -500,11 +505,22 @@ class _ChatHeader extends StatelessWidget {
         height: 68,
         child:
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.menu_rounded)),
+          // 대화 기록 진입점 — MAIN_CHAT_02 · SD-12
+          //
+          // ⚠ 전에는 `onPressed: () {}` 인 **빈 버튼**이었습니다. 눌리는데 아무
+          //   일도 안 나면 시연에서 바로 드러납니다(마이크 버튼을 지운 것과
+          //   같은 이유). 서버 API 와 ChatService 는 이미 있었고 입구만 없었습니다.
+          IconButton(
+              onPressed: onHistory,
+              icon: const Icon(Icons.history_rounded),
+              tooltip: '대화 기록'),
           Text(title,
               style:
                   const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded))
+          // 오른쪽 검색 아이콘은 **없앴습니다.** 대화 내용 검색은 화면설계서에
+          // 없는 기능이고, 만들면 서버에 검색 API 부터 있어야 합니다.
+          // 자리를 비워 제목이 가운데 오도록 폭만 맞춥니다.
+          const SizedBox(width: 48),
         ]));
   }
 }
