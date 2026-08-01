@@ -45,9 +45,12 @@ flutter test
 화면설계서 캡처나 화면 확인 때 매번 로그인하지 않도록 **자동 로그인**과 **화면 바로
 띄우기**를 넣었습니다(`lib/dev_screens.dart`, 2026.08.02).
 
-```bash
-flutter emulators --launch lisn
+```powershell
+.\tools\show-screen.ps1 report
 ```
+
+에뮬레이터를 알아서 켜고 앱 폴더로 이동합니다. 직접 칠 때는 **`frontend/app` 에서**
+실행하세요 — 저장소 루트에서는 `No pubspec.yaml file found` 가 납니다.
 
 ```bash
 flutter run --dart-define=DEV_LOGIN=force --dart-define=SCREEN=report

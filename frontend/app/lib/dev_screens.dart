@@ -72,14 +72,59 @@ final Map<String, ({String id, Widget Function() build})> devScreens = {
     id: 'MAIN_SETTING_01·02',
     build: () => const MainShell(initialTab: 3)
   ),
-  'report': (id: 'MAIN_REPORT_01', build: () => const ReportScreen()),
+  // ⚠ 아래 둘은 평소에 **push 로 열리는 화면**입니다. 최상위 라우트로 그냥 띄우면
+  //   뒤로가기·닫기가 사라져 실제 화면과 달라집니다(캡처가 틀어집니다).
+  //   그래서 원래 부모 위에 얹어 띄웁니다.
+  'report': (
+    id: 'MAIN_REPORT_01',
+    // 메뉴경로가 「라이프로그 / 정서 리포트」라 라이프로그 탭 위에 얹습니다.
+    build: () => const _PushOver(
+      under: MainShell(initialTab: 2),
+      child: ReportScreen(),
+    ),
+  ),
   // 위기 화면은 CRITICAL 판정이 나야 뜹니다. 캡처하려고 그 상황을 만들 수는
   // 없으니 여기서 직접 띄웁니다. 전화 연결은 실제로 동작하므로 주의하세요.
   'emergency': (
     id: 'MAIN_EMERGENCY_01',
-    build: () => const EmergencyScreen()
+    build: () => const _PushOver(
+      under: MainShell(initialTab: 0),
+      child: EmergencyScreen(),
+    ),
   ),
 };
+
+/// `under` 를 깔고 그 위에 `child` 를 push 합니다.
+///
+/// 평소에 push 로 열리는 화면을 최상위로 띄우면 **뒤로가기 버튼이 안 생기고**
+/// 「나중에 볼게요」 같은 닫기도 동작하지 않습니다. 화면설계서 캡처가 실제와
+/// 달라지므로 원래 진입 경로를 흉내 냅니다.
+class _PushOver extends StatefulWidget {
+  const _PushOver({required this.under, required this.child});
+
+  final Widget under;
+  final Widget child;
+
+  @override
+  State<_PushOver> createState() => _PushOverState();
+}
+
+class _PushOverState extends State<_PushOver> {
+  @override
+  void initState() {
+    super.initState();
+    // 첫 프레임 뒤에 얹습니다. build 중에 push 하면 죽습니다.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(builder: (_) => widget.child),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.under;
+}
 
 /// 지정된 화면. 플래그가 없거나 모르는 키면 null 입니다.
 Widget? devScreenOrNull() {
