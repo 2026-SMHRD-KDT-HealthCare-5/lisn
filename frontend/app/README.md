@@ -46,10 +46,12 @@ flutter test
 띄우기**를 넣었습니다(`lib/dev_screens.dart`, 2026.08.02).
 
 ```powershell
-.\tools\show-screen.ps1 report
+C:\LISN\tools\show-screen.ps1 report
 ```
 
-에뮬레이터를 알아서 켜고 앱 폴더로 이동합니다. 직접 칠 때는 **`frontend/app` 에서**
+에뮬레이터를 알아서 켜고 앱 폴더로 이동합니다. **절대 경로로 적은 것은 의도한
+것입니다** — `.\tools\...` 는 저장소 루트에 있을 때만 되고, 이 폴더(`frontend/app`)
+에서 치면 `CommandNotFoundException` 이 납니다. 직접 칠 때는 **`frontend/app` 에서**
 실행하세요 — 저장소 루트에서는 `No pubspec.yaml file found` 가 납니다.
 
 ```bash
