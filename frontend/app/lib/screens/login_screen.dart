@@ -351,43 +351,64 @@ class _MobileLoginHero extends StatelessWidget {
   /// 0단계에서 참. 마스코트와 문구가 화면을 더 크게 씁니다.
   final bool expanded;
 
-  double get _fontSize => expanded ? 29 : 25;
-  double get _lineHeight => _fontSize * 1.2;
-  double get _topStart => expanded ? 104 : 92;
-
-  /// '포근히 ' 뒤에 '안아줄게요'를 붙일 때 필요한 가로 오프셋.
+  /// 헤드라인 전체.
   ///
-  /// 눈대중으로 숫자를 박으면 글꼴이나 크기가 바뀔 때 글자가 겹치거나
-  /// 벌어집니다. 실제로 재서 씁니다.
-  double _widthOf(String text) {
-    final painter = TextPainter(
-      text: TextSpan(text: text, style: _textStyle),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    return painter.width;
-  }
-
-  TextStyle get _textStyle => TextStyle(
-        fontSize: _fontSize,
-        height: 1.2,
-        fontWeight: FontWeight.w800,
-        color: AppColors.navy,
-      );
-
-  /// 헤드라인 한 덩어리. line 은 0부터 세는 줄 번호입니다.
-  Widget _headline(BuildContext context, String text,
-      {required double left, required int line}) {
-    return AnimatedPositioned(
+  /// ⚠ **좌표와 글자 크기를 하나의 진행값(t)으로 함께 계산합니다.**
+  ///   좌표는 expanded 로 즉시 정하고 크기만 AnimatedDefaultTextStyle 에
+  ///   맡기면, 둘이 다른 시간축으로 움직여 전환 중간에 글자가 겹칩니다.
+  ///   실제로 그렇게 만들었다가 '포근히' 위에 '안아줄게요'가 포개졌습니다.
+  ///
+  /// 이동 경로도 나눠둡니다. 가로·세로를 동시에 움직이면 대각선으로
+  /// 지나가며 '포근히' 를 덮습니다. **옆으로 먼저 간 뒤 올라갑니다.**
+  /// 세로로 움직일 때는 이미 '포근히' 오른쪽이라 겹칠 일이 없습니다.
+  /// 되돌아갈 때(2줄→3줄)는 같은 곡선이 역재생돼 '내려간 뒤 왼쪽으로'가 됩니다.
+  ///
+  ///   3줄(0단계)          2줄(입력 단계)
+  ///   오늘의 마음도        오늘의 마음도
+  ///   포근히              포근히 안아줄게요
+  ///   안아줄게요           ↑ 세 번째 줄이 둘째 줄 끝으로 올라온다
+  Widget _headlines() {
+    return TweenAnimationBuilder<double>(
+      // begin 을 주지 않으면 현재 값에서 이어집니다. 전환 도중에 되돌려도
+      // 처음부터 다시 시작하지 않습니다.
+      tween: Tween<double>(end: expanded ? 0.0 : 1.0),
       duration: _duration,
-      curve: Curves.easeOutCubic,
-      left: left,
-      top: _topStart + _lineHeight * line,
-      child: AnimatedDefaultTextStyle(
-        duration: _duration,
-        curve: Curves.easeOutCubic,
-        style: _textStyle,
-        child: Text(text),
-      ),
+      curve: Curves.linear, // 구간별 곡선은 아래에서 직접 적용합니다.
+      builder: (context, t, _) {
+        const ease = Curves.easeOutCubic;
+        final e = ease.transform(t);
+
+        final fontSize = 29 + (25 - 29) * e;
+        final lineHeight = fontSize * 1.2;
+        final top0 = 104 + (92 - 104) * e;
+        final style = TextStyle(
+            fontSize: fontSize,
+            height: 1.2,
+            fontWeight: FontWeight.w800,
+            color: AppColors.navy);
+
+        // 지금 크기로 실측합니다. 눈대중으로 숫자를 박으면 글꼴이나 크기가
+        // 바뀔 때 글자가 겹치거나 벌어집니다.
+        final painter = TextPainter(
+          text: TextSpan(text: '포근히 ', style: style),
+          textDirection: TextDirection.ltr,
+        )..layout();
+
+        final h = ease.transform(const Interval(0.0, 0.55).transform(t));
+        final v = ease.transform(const Interval(0.45, 1.0).transform(t));
+
+        Widget at(String text, double left, double line) => Positioned(
+              left: left,
+              top: top0 + lineHeight * line,
+              child: Text(text, style: style),
+            );
+
+        return Stack(clipBehavior: Clip.none, children: [
+          at('오늘의 마음도', 25, 0),
+          at('포근히', 25, 1),
+          at('안아줄게요', 25 + painter.width * h, 2 - v),
+        ]);
+      },
     );
   }
 
@@ -404,21 +425,10 @@ class _MobileLoginHero extends StatelessWidget {
           // 자체 배경을 칠하지 않습니다. 바깥 그라데이션이 화면 전체를
           // 덮으므로, 여기서 단색을 깔면 경계가 다시 생깁니다.
           const Positioned(left: 24, top: 25, child: LisnBrand(size: 22)),
-          // 헤드라인을 세 덩어리로 나눠 각각 자리를 옮깁니다.
-          //
           // 한 덩어리로 두고 줄바꿈만 바꾸면 '안아줄게요'가 사라졌다 다시
-          // 나타나 보입니다. 쪼개서 위치를 애니메이션하면 **같은 글자가
-          // 자리를 옮기는 것으로** 읽힙니다.
-          //
-          //   3줄(0단계)          2줄(입력 단계)
-          //   오늘의 마음도        오늘의 마음도
-          //   포근히              포근히 안아줄게요
-          //   안아줄게요           ↑ 세 번째 줄이 둘째 줄 끝으로 올라온다
-          _headline(context, '오늘의 마음도', left: 25, line: 0),
-          _headline(context, '포근히', left: 25, line: 1),
-          _headline(context, '안아줄게요',
-              left: expanded ? 25 : 25 + _widthOf('포근히 '),
-              line: expanded ? 2 : 1),
+          // 나타나 보입니다. 쪼개서 위치를 움직이면 같은 글자가 자리를
+          // 옮기는 것으로 읽힙니다.
+          Positioned.fill(child: _headlines()),
           AnimatedPositioned(
             duration: _duration,
             curve: Curves.easeOutCubic,
