@@ -7,10 +7,17 @@ import {
 } from './api.js'
 import { clearSession, readSession, saveAdminSession } from './session.js'
 
+/**
+ * 관리자 웹의 서비스명은 **귀기울임(LISN)** 입니다.
+ *
+ * '마음이'를 쓰지 않습니다. 그건 사용자 앱 안의 캐릭터 명칭이고(SD-03 확정),
+ * 여기는 캐릭터가 등장하지 않는 관제 도구입니다. 사용자도 대상자가 아니라
+ * 팀 담당자입니다. 산출물 5종과 발표자료도 전부 '귀기울임(LISN)'을 씁니다.
+ */
 function Brand({ admin = false }) {
   return (
     <div className="brand">
-      마음이 <span>♥</span>
+      귀기울임 <span>LISN</span>
       {admin && <small>ADMIN</small>}
     </div>
   )

@@ -31,8 +31,13 @@ input {
   letter-spacing: -1px;
 }
 
+/* 영문 표기는 한글 서비스명보다 작게 둡니다. 나란히 같은 크기로 두면
+   둘이 별개 이름처럼 읽힙니다. */
 .brand span {
   color: #8a9cf0;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  vertical-align: 2px;
 }
 
 .brand small {
