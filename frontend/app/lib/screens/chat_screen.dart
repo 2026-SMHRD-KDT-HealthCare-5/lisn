@@ -245,7 +245,11 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
               onPressed: endConversation,
               icon: const Icon(Icons.arrow_back_rounded)),
-          MaeumeMascot(size: 45, thinking: persona == ChatPersona.thinking),
+          MaeumeMascot(
+              size: 45,
+              mood: persona == ChatPersona.thinking
+                  ? MascotMood.thinking
+                  : MascotMood.smile),
           const SizedBox(width: 10),
           Expanded(
               child: Column(
@@ -362,7 +366,9 @@ class _PersonaCard extends StatelessWidget {
                                 : AppColors.teal)))),
             Center(
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
-              MaeumeMascot(size: 132, thinking: !feeling),
+              MaeumeMascot(
+                  size: 132,
+                  mood: feeling ? MascotMood.smile : MascotMood.thinking),
               const SizedBox(height: 24),
               Text(feeling ? 'FEELING' : 'THINKING',
                   style: TextStyle(
@@ -434,7 +440,9 @@ class _MessageBubble extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (!message.fromUser) ...[
-              MaeumeMascot(size: 42, thinking: thinking),
+              MaeumeMascot(
+                  size: 42,
+                  mood: thinking ? MascotMood.thinking : MascotMood.smile),
               const SizedBox(width: 9),
             ],
             Flexible(

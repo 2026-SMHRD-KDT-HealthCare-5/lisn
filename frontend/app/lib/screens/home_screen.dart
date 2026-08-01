@@ -117,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _metrics(data.lifelog),
             const SizedBox(height: 10),
             if (data.aiSummary != null) ...[
-              _summary(data.aiSummary!),
+              _summary(data.aiSummary!, data.emotionToday?.riskLevel),
               const SizedBox(height: 20),
             ],
             // ⚠ EMERGENCY 면 추천을 그리지 않습니다 — MLCM_510 2단계.
@@ -140,7 +140,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _hero(HomeSnapshot? data) {
     final name = widget.userName;
-    final greeting = name == null ? '안녕하세요 😊' : '안녕하세요, $name님 😊';
+    // ⚠ 위기·주의일 때는 웃는 이모지를 붙이지 않습니다. 아래 마음 상태 카드가
+    //   「지금 마음이 많이 힘들어 보여요」라고 말하는 화면에서 상단이 웃고 있으면
+    //   공감이 아니라 무시로 읽힙니다.
+    final cheerful =
+        MaeumeMascot.moodFor(data?.emotionToday?.riskLevel) == MascotMood.smile;
+    final face = cheerful ? ' 😊' : '';
+    final greeting =
+        name == null ? '안녕하세요$face' : '안녕하세요, $name님$face';
     return Container(
       height: 250,
       padding: const EdgeInsets.fromLTRB(23, 24, 23, 0),
@@ -182,9 +189,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /// ⚠ 느낌표를 쓰지 않습니다. 힘든 상태에서 밝은 어조는 「내 상태를 모르는
+  ///   앱」으로 읽혀 신뢰를 깎습니다. 담담하게 곁에 있는 문장으로 씁니다.
   String _heroSub(HomeSnapshot? data) => switch (data?.action) {
         HomeAction.emergency => '잠시 이야기 나눌까요?',
-        HomeAction.content => '오늘도 수고했어요!',
+        HomeAction.content => '오늘 하루도 애쓰셨어요.',
         HomeAction.chat => '오늘 하루는 어땠나요?',
         null => '',
       };
@@ -223,7 +232,10 @@ class _HomeScreenState extends State<HomeScreen> {
             )),
         const SizedBox(height: 18),
         Row(children: [
-          const MaeumeMascot(size: 72),
+          // ⚠ 위험도에 따라 표정이 갈립니다. 「많이 힘들어 보여요」 옆에서
+          //   웃고 있으면 공감이 아니라 무시로 읽힙니다.
+          MaeumeMascot(
+              size: 72, mood: MaeumeMascot.moodFor(emotion.riskLevel)),
           const SizedBox(width: 15),
           Expanded(
               child: Column(
@@ -343,13 +355,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return '${diff.inDays}일 전';
   }
 
-  Widget _summary(String text) {
+  Widget _summary(String text, String? riskLevel) {
     return AppCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const SectionTitle('오늘의 한 줄 요약'),
       const SizedBox(height: 14),
       Row(children: [
-        const MaeumeMascot(size: 52),
+        MaeumeMascot(size: 52, mood: MaeumeMascot.moodFor(riskLevel)),
         const SizedBox(width: 12),
         Expanded(
             child: Text(text,

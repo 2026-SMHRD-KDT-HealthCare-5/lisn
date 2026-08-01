@@ -369,7 +369,13 @@ class _ReportScreenState extends State<ReportScreen> {
         const SectionTitle('종합 요약'),
         const SizedBox(height: 14),
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const MaeumeMascot(size: 48),
+          // 요약이 「도움이 필요한 신호가 N회 관찰됐어요」인데 옆에서 웃고 있으면
+          // 안 됩니다. 심각이 한 번이라도 있으면 담담한 표정입니다.
+          MaeumeMascot(
+              size: 48,
+              mood: report.distribution.critical > 0
+                  ? MascotMood.calm
+                  : MascotMood.smile),
           const SizedBox(width: 12),
           Expanded(
             child: Text(report.summary,
