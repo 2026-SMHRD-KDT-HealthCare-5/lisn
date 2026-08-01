@@ -14,15 +14,12 @@
 
 위기 대화 탐지는 **별도 학습 모델이 아닙니다.** 키워드 규칙 + OpenAI 프롬프트 2단계로 구현합니다. (안건 3 확정)
 
-> ### ⚠ 2차 학습을 돌려봤습니다 — **샘플로는 안 됩니다** (2026.08.01)
+> ### ⚠ 2차 학습을 돌려봤습니다 — **공개 샘플로는 안 됩니다** (2026.08.01)
 >
-> [`train/train_stage2.py`](train/README.md) 로 LightGBM 을 실제 학습했습니다.
-> 결과는 **ROC-AUC 0.485** — **무작위(0.5)보다 낮습니다.**
+> 샘플을 1개 → 4개로 늘리고 피처도 넓혀봤지만 **신호가 나오지 않습니다.**
+> 자세한 실측은 아래 「샘플로 어디까지 되는지」 절에 있습니다.
 >
-> 원인은 모델이 아니라 데이터입니다. `samples/feature_matrix_sample.csv` 는
-> **참가자 10명 · 481행** 짜리 맛보기라 유효 fold 가 2개뿐입니다.
-> **GLOBEM 전체 데이터를 받아야 시작할 수 있습니다.**
->
+> **전체 데이터(참가자 497명)를 받아야 시작할 수 있습니다.**
 > 학습 스크립트는 준비돼 있으니 데이터가 오면 `--data` 로 경로만 바꿔 돌리면 됩니다.
 > 그때 지표가 올라오면 그 시점에 서버의 `_predict()` 를 교체하세요.
 
@@ -50,12 +47,98 @@
 
 ### 원본 데이터는 저장소에 없습니다
 
-용량이 3GB 를 넘어 `.gitignore` 로 제외했습니다. 각자 내려받아 이 폴더에 두세요.
+용량이 커서 `.gitignore` 로 제외했습니다. 각자 내려받아 이 폴더에 두세요.
 
 | 데이터셋 | 받는 곳 | 두는 위치 |
 |---|---|---|
 | PMData | OSF (`osfstorage-archive`) | `ai/data_raw/PMData/` |
-| GLOBEM | GitHub `microsoft/GLOBEM` | `ai/data_raw/GLOBEM/` |
+| GLOBEM **공개 샘플** | `github.com/UW-EXP/GLOBEM` `data_raw/` | `ai/data_raw/INS-W-sample_1~4/` |
+| GLOBEM **전체** | `physionet.org/content/globem` — **자격 인증 필요** | `ai/data_raw/INS-W_1~4/` |
+
+> ⚠ **`microsoft/GLOBEM` 은 존재하지 않습니다.** 2026.08.01 이전 문서에 그렇게
+> 적혀 있었는데 404 입니다. 코드·샘플은 `UW-EXP/GLOBEM`,
+> **전체 데이터는 GitHub 이 아니라 PhysioNet** 에 있습니다.
+
+#### 공개 샘플 — 자격 인증 없이 바로 받습니다
+
+`UW-EXP/GLOBEM` 저장소가 `data_raw/INS-W-sample_1~4` 로 4개 연차 샘플을 공개하고
+있습니다. 저작권자가 직접 넣어둔 것이라 라이선스 문제가 없습니다.
+
+```bash
+cd ai/data_raw
+for i in 1 2 3 4; do
+  mkdir -p "INS-W-sample_${i}/FeatureData" "INS-W-sample_${i}/SurveyData"
+  for f in sleep steps; do
+    curl -sL -o "INS-W-sample_${i}/FeatureData/${f}.csv" \
+      "https://raw.githubusercontent.com/UW-EXP/GLOBEM/main/data_raw/INS-W-sample_${i}/FeatureData/${f}.csv"
+  done
+  for f in dep_endterm dep_weekly; do
+    curl -sL -o "INS-W-sample_${i}/SurveyData/${f}.csv" \
+      "https://raw.githubusercontent.com/UW-EXP/GLOBEM/main/data_raw/INS-W-sample_${i}/SurveyData/${f}.csv"
+  done
+done
+```
+
+```bash
+python ai/preprocess/build_matrix.py
+```
+
+**샘플 4개를 합쳐도 학습이 되지 않습니다.** 실측은 아래 「샘플로 어디까지
+되는지」 절을 보세요. 파이프라인 점검용으로만 쓰세요.
+
+> **PhysioNet 데이터를 GitHub 등에 재업로드한 사본을 쓰지 마세요.**
+> Credentialed Health Data License 가 재배포를 금지합니다. 실제 사람의 건강
+> 데이터라 동의 범위를 벗어나고, 심사에서 출처를 물으면 답할 수 없습니다.
+> AI Hub 를 IRB 때문에 배제한 판단과 어긋나기도 합니다.
+
+#### 전체 데이터 — ✅ **이번 과제에서는 쓰지 않습니다** (2026.08.01 확정)
+
+PhysioNet 자격 인증(CITI 교육 → 지도교수 추천인 → DUA 서명)이 필요한데
+**심사가 최대 45일** 걸립니다. 8/28 발표까지 27일이라 승인되더라도 전처리·학습·
+검증할 시간이 남지 않습니다. **신청하지 않습니다.**
+
+> 과제 이후에 이어간다면 그때 신청하세요. 절차는
+> [physionet.org/content/globem](https://physionet.org/content/globem/) 에 있습니다.
+
+---
+
+## 샘플로 어디까지 되는지 — 2026.08.01 실측
+
+**같은 길을 다시 걷지 않도록 남깁니다.** 세 번 시도했고 전부 안 됐습니다.
+
+| 시도 | 참가자 | 피처 | ROC-AUC | 판단 |
+|---|---|---|---|---|
+| 샘플 1개 | 10명 | 8 | **0.485** | 무작위 이하. 유효 fold 2개뿐이라 평가 자체가 불가 |
+| 샘플 4개 | 40명 | 8 | **0.502** | fold 5개로 늘어 평가는 가능해졌으나 무작위 |
+| 샘플 4개 | 40명 | 98 | **0.610** ±0.188 | fold별 `0.297~0.864` — 편차가 너무 큼 |
+| **위를 20회 반복** | 40명 | 98 | **0.528** | **0.5 와 구분되지 않음** (20회 중 9회가 0.5 이하) |
+
+**0.610 은 fold 운이었습니다.** 참가자를 바꿔가며 20회 반복하니 평균 0.528,
+95% 구간이 `0.476 ~ 0.579` 로 0.5 를 포함합니다.
+
+### 왜 안 나오나
+
+참가자 40명이면 fold 하나에 8명, 그중 양성이 3~4명입니다. **한 사람이 fold
+전체 지표를 좌우합니다.** fold별 편차가 0.297~0.864 로 벌어진 게 그 증거입니다.
+전체 데이터는 **497명** — 12배 차이입니다.
+
+### 그래도 얻은 것
+
+**"성능이 나쁘다"고 말할 수 있게 됐습니다.** 샘플 1개일 때는 유효 fold 가
+2개뿐이라 그 말조차 근거가 없었습니다. 지금은 원인이 참가자 수임을 근거를 갖고
+말할 수 있습니다.
+
+> ⚠ **참가자 단위 분할(`GroupKFold`)을 무작위 분할로 바꾸지 마세요.**
+> 14일 히스토리 피처라 같은 사람의 연속된 날짜끼리 값이 거의 같습니다.
+> 무작위로 나누면 같은 사람이 학습·평가 양쪽에 들어가 **AUC 가 0.9 를 넘습니다.**
+> 그 숫자를 믿고 진행하면 전체 데이터에서 무너집니다.
+
+### 재현
+
+```bash
+python ai/preprocess/build_matrix.py
+python ai/train/train_stage2.py --data ../samples/feature_matrix_samples1to4.csv
+```
 
 ---
 
@@ -65,12 +148,23 @@
 ai/
 ├── preprocess/
 │   ├── process_pmdata.py     PMData 수면·심박 → 일별 피처
-│   └── process_globem.py     GLOBEM 수면·걸음·스크린 + BDI-II 라벨 병합
+│   ├── process_globem.py     GLOBEM 수면·걸음 + BDI-II 라벨 병합
+│   └── build_matrix.py       공개 샘플 1~4 를 한 행렬로 합침
+├── train/
+│   ├── train_stage2.py       2차 LightGBM 학습·평가
+│   └── README.md             ⚠ 지금 나오는 모델은 쓸 수 없습니다
+├── server/                   추론 서버 — 비즈니스 서버가 호출
 ├── samples/
-│   ├── pmdata_sleep_features.csv    출력 예시 (p01)
-│   └── feature_matrix_sample.csv    출력 예시 (INS-W-sample_1)
+│   ├── pmdata_sleep_features.csv          출력 예시 (p01)
+│   ├── feature_matrix_sample.csv          샘플 1개 (참가자 10명)
+│   └── feature_matrix_samples1to4.csv     샘플 1~4 (참가자 40명)
+├── models/                   학습 산출물 — .joblib 은 git 제외
 └── data_raw/                 원본 — git 제외
 ```
+
+> `process_globem.py` 는 **스크린타임을 일부러 뺍니다.** LISN 이 수집하지 않는
+> 항목으로 학습하면 배포 시 그 자리가 비어 성능이 나오지 않습니다.
+> 이유는 그 파일 주석에 적혀 있습니다 — 되살리기 전에 읽으세요.
 
 ## 실행
 

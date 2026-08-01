@@ -1,7 +1,7 @@
 {
-  "version": "lgbm-sample-n481-v0",
-  "n_rows": 481,
-  "n_participants": 10,
+  "version": "lgbm-sample-n2030-v0",
+  "n_rows": 2030,
+  "n_participants": 40,
   "features": [
     "slp_sumdurationasleepmain",
     "slp_sumdurationawakemain",
@@ -10,13 +10,14 @@
     "steps_maxsumsteps",
     "steps_minsumsteps",
     "steps_avgsumsteps",
-    "steps_mediansumsteps"
+    "steps_mediansumsteps",
+    "cohort"
   ],
   "metrics": {
-    "n_folds": 2,
-    "roc_auc": 0.48482492569921476,
-    "roc_auc_std": 0.13127128151632653,
-    "pr_auc": 0.5040799268912918
+    "n_folds": 5,
+    "roc_auc": 0.5018364819042151,
+    "roc_auc_std": 0.11184584508024713,
+    "pr_auc": 0.4918621389657525
   },
-  "positive_rate": 0.39293139293139295
+  "positive_rate": 0.45270935960591135
 }
