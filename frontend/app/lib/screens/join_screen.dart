@@ -664,13 +664,10 @@ class _JoinScreenState extends State<JoinScreen> {
                   child: Image.asset('assets/images/login_mascot.png',
                       width: 170, height: 170, fit: BoxFit.cover),
                 ),
-                const Positioned(
-                    right: 6,
-                    bottom: 14,
-                    child: CircleAvatar(
-                        radius: 19,
-                        backgroundColor: Color(0xFF63CFA7),
-                        child: Icon(Icons.check, color: Colors.white))),
+                // 마스코트에는 체크 배지를 달지 않습니다. 가입 완료는 이미
+                // 'WELCOME' 과 '가입이 완료되었어요' 로 전해집니다.
+                // 초록 체크는 아래 연결 카드의 상태 표시로만 씁니다 —
+                // 화면에 같은 기호가 둘이면 어느 쪽 완료인지 헷갈립니다.
               ],
             ),
           ),
