@@ -5,16 +5,7 @@
 /// 관리자 웹 시각화도 함께 확인해야 합니다.
 library;
 
-/// ⚠ 서버가 NUMERIC 을 **문자열로** 내려보낼 수 있습니다(Decimal 직렬화).
-///   num 으로만 캐스팅하면 조용히 null 이 됩니다 — 라이프로그에서 실제로 겪었습니다.
-double? _num(dynamic v) => switch (v) {
-      num n => n.toDouble(),
-      String s => double.tryParse(s),
-      _ => null,
-    };
-
-DateTime? _at(dynamic v) =>
-    DateTime.tryParse(v as String? ?? '')?.toLocal();
+import 'json.dart';
 
 /// ❸ 위험 단계 분포 — 안정·주의·심각 비율
 class RiskDistribution {
@@ -28,9 +19,9 @@ class RiskDistribution {
 
   factory RiskDistribution.fromJson(Map<String, dynamic> json) =>
       RiskDistribution(
-        normal: (json['normal'] as num?)?.toInt() ?? 0,
-        caution: (json['caution'] as num?)?.toInt() ?? 0,
-        critical: (json['critical'] as num?)?.toInt() ?? 0,
+        normal: jsonInt(json['normal']) ?? 0,
+        caution: jsonInt(json['caution']) ?? 0,
+        critical: jsonInt(json['critical']) ?? 0,
       );
 }
 
@@ -55,12 +46,12 @@ class RiskPoint {
   final double riskScore;
 
   factory RiskPoint.fromJson(Map<String, dynamic> json) => RiskPoint(
-        evaluatedAt: _at(json['evaluated_at']) ?? DateTime.now(),
-        emotionCode: json['emotion_code'] as String? ?? '',
-        emotionName: json['emotion_name'] as String? ?? '',
-        emotionScore: _num(json['emotion_score']) ?? 0,
-        riskLevel: json['risk_level'] as String? ?? 'NORMAL',
-        riskScore: _num(json['risk_score']) ?? 0,
+        evaluatedAt: jsonAt(json['evaluated_at']) ?? DateTime.now(),
+        emotionCode: jsonStr(json['emotion_code']),
+        emotionName: jsonStr(json['emotion_name']),
+        emotionScore: jsonNum(json['emotion_score']) ?? 0,
+        riskLevel: jsonStr(json['risk_level'], 'NORMAL'),
+        riskScore: jsonNum(json['risk_score']) ?? 0,
       );
 }
 
@@ -81,11 +72,11 @@ class LifelogPoint {
   final double? hrv;
 
   factory LifelogPoint.fromJson(Map<String, dynamic> json) => LifelogPoint(
-        collectedAt: _at(json['collected_at']) ?? DateTime.now(),
-        steps: (json['steps'] as num?)?.toInt(),
-        totalSleepMin: (json['total_sleep_min'] as num?)?.toInt(),
-        heartRate: (json['heart_rate'] as num?)?.toInt(),
-        hrv: _num(json['hrv']),
+        collectedAt: jsonAt(json['collected_at']) ?? DateTime.now(),
+        steps: jsonInt(json['steps']),
+        totalSleepMin: jsonInt(json['total_sleep_min']),
+        heartRate: jsonInt(json['heart_rate']),
+        hrv: jsonNum(json['hrv']),
       );
 }
 
@@ -113,18 +104,15 @@ class EmotionReport {
   bool get isEmpty => emotionTrend.isEmpty;
 
   factory EmotionReport.fromJson(Map<String, dynamic> json) => EmotionReport(
-        dateFrom: _at(json['date_from']),
-        dateTo: _at(json['date_to']),
-        distribution: RiskDistribution.fromJson(
-            (json['distribution'] as Map<String, dynamic>?) ?? const {}),
-        emotionTrend: ((json['emotion_trend'] as List<dynamic>?) ?? const [])
-            .whereType<Map<String, dynamic>>()
+        dateFrom: jsonAt(json['date_from']),
+        dateTo: jsonAt(json['date_to']),
+        distribution: RiskDistribution.fromJson(jsonObj(json['distribution'])),
+        emotionTrend: jsonList(json['emotion_trend'])
             .map(RiskPoint.fromJson)
             .toList(),
-        lifelogTrend: ((json['lifelog_trend'] as List<dynamic>?) ?? const [])
-            .whereType<Map<String, dynamic>>()
+        lifelogTrend: jsonList(json['lifelog_trend'])
             .map(LifelogPoint.fromJson)
             .toList(),
-        summary: json['summary'] as String? ?? '',
+        summary: jsonStr(json['summary']),
       );
 }

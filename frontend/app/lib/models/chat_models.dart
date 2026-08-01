@@ -3,6 +3,8 @@
 /// 서버 스키마(backend/app/schemas/chat.py)와 1:1로 맞춥니다.
 library;
 
+import 'json.dart';
+
 /// 서버가 확정한 액션. **클라이언트가 다시 계산하지 않습니다.**
 ///
 /// 감정→위험도→액션 매핑을 복제하면 서버와 어긋납니다
@@ -38,9 +40,9 @@ class RiskInfo {
   final String source;
 
   factory RiskInfo.fromJson(Map<String, dynamic> json) => RiskInfo(
-        level: json['level'] as String? ?? 'NORMAL',
+        level: jsonStr(json['level'], 'NORMAL'),
         action: ChatAction.parse(json['action'] as String?),
-        source: json['source'] as String? ?? 'KEYWORD',
+        source: jsonStr(json['source'], 'KEYWORD'),
       );
 }
 
@@ -58,11 +60,11 @@ class SessionStarted {
   final DateTime startedAt;
 
   factory SessionStarted.fromJson(Map<String, dynamic> json) => SessionStarted(
-        sessionId: json['session_id'] as String? ?? '',
-        personaType: json['persona_type'] as String? ?? 'FRIEND',
-        greeting: json['greeting'] as String? ?? '',
+        sessionId: jsonStr(json['session_id']),
+        personaType: jsonStr(json['persona_type'], 'FRIEND'),
+        greeting: jsonStr(json['greeting']),
         startedAt:
-            DateTime.tryParse(json['started_at'] as String? ?? '')?.toLocal() ??
+            jsonAt(json['started_at']) ??
                 DateTime.now(),
       );
 }
@@ -78,7 +80,7 @@ class MessageResult {
   factory MessageResult.fromJson(Map<String, dynamic> json) => MessageResult(
         reply: json['reply'] as String?,
         risk: RiskInfo.fromJson(
-            (json['risk'] as Map<String, dynamic>?) ?? const {}),
+            jsonObj(json['risk'])),
       );
 }
 
@@ -103,13 +105,13 @@ class ChatSessionSummary {
 
   factory ChatSessionSummary.fromJson(Map<String, dynamic> json) =>
       ChatSessionSummary(
-        sessionId: json['session_id'] as String? ?? '',
-        personaType: json['persona_type'] as String? ?? 'FRIEND',
+        sessionId: jsonStr(json['session_id']),
+        personaType: jsonStr(json['persona_type'], 'FRIEND'),
         sessionSummary: json['session_summary'] as String?,
         startedAt:
-            DateTime.tryParse(json['started_at'] as String? ?? '')?.toLocal() ??
+            jsonAt(json['started_at']) ??
                 DateTime.now(),
-        endedAt: DateTime.tryParse(json['ended_at'] as String? ?? '')?.toLocal(),
+        endedAt: jsonAt(json['ended_at']),
       );
 }
 
@@ -136,9 +138,9 @@ class ChatBubble {
   bool get isUser => role == 'user';
 
   factory ChatBubble.fromJson(Map<String, dynamic> json) => ChatBubble(
-        role: json['role'] as String? ?? 'assistant',
-        content: json['content'] as String? ?? '',
-        at: DateTime.tryParse(json['at'] as String? ?? '')?.toLocal(),
+        role: jsonStr(json['role'], 'assistant'),
+        content: jsonStr(json['content']),
+        at: jsonAt(json['at']),
       );
 }
 
@@ -151,9 +153,6 @@ class ChatSessionDetail {
   factory ChatSessionDetail.fromJson(Map<String, dynamic> json) =>
       ChatSessionDetail(
         summary: ChatSessionSummary.fromJson(json),
-        messages: ((json['messages'] as List<dynamic>?) ?? const [])
-            .whereType<Map<String, dynamic>>()
-            .map(ChatBubble.fromJson)
-            .toList(),
+        messages: jsonList(json['messages']).map(ChatBubble.fromJson).toList(),
       );
 }

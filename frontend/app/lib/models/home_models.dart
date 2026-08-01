@@ -4,6 +4,8 @@
 /// 필드를 추가할 때는 서버부터 고치세요.
 library;
 
+import 'json.dart';
+
 /// 홈이 무엇을 보여줘야 하는지. **판단은 서버가 끝냅니다.**
 ///
 /// 감정→위험도→액션 매핑을 클라이언트에 복제하지 않습니다. 규칙이 두 곳에
@@ -44,12 +46,12 @@ class EmotionToday {
   final DateTime evaluatedAt;
 
   factory EmotionToday.fromJson(Map<String, dynamic> json) => EmotionToday(
-        emotionCode: json['emotion_code'] as String? ?? '',
-        emotionName: json['emotion_name'] as String? ?? '',
-        emotionScore: (json['emotion_score'] as num?)?.toDouble() ?? 0,
-        riskLevel: json['risk_level'] as String? ?? 'NORMAL',
+        emotionCode: jsonStr(json['emotion_code']),
+        emotionName: jsonStr(json['emotion_name']),
+        emotionScore: jsonNum(json['emotion_score']) ?? 0,
+        riskLevel: jsonStr(json['risk_level'], 'NORMAL'),
         evaluatedAt:
-            DateTime.tryParse(json['evaluated_at'] as String? ?? '')?.toLocal() ??
+            jsonAt(json['evaluated_at']) ??
                 DateTime.now(),
       );
 }
@@ -70,11 +72,11 @@ class LifelogSummary {
   final DateTime? collectedAt;
 
   factory LifelogSummary.fromJson(Map<String, dynamic> json) => LifelogSummary(
-        totalSleepMin: (json['total_sleep_min'] as num?)?.toInt(),
-        steps: (json['steps'] as num?)?.toInt(),
-        hrv: (json['hrv'] as num?)?.toDouble(),
+        totalSleepMin: jsonInt(json['total_sleep_min']),
+        steps: jsonInt(json['steps']),
+        hrv: jsonNum(json['hrv']),
         collectedAt:
-            DateTime.tryParse(json['collected_at'] as String? ?? '')?.toLocal(),
+            jsonAt(json['collected_at']),
       );
 }
 
@@ -96,11 +98,11 @@ class ContentCard {
   final String externalUrl;
 
   factory ContentCard.fromJson(Map<String, dynamic> json) => ContentCard(
-        contentId: json['content_id'] as String? ?? '',
-        category: json['category'] as String? ?? '',
-        title: json['title'] as String? ?? '',
+        contentId: jsonStr(json['content_id']),
+        category: jsonStr(json['category']),
+        title: jsonStr(json['title']),
         description: json['description'] as String?,
-        externalUrl: json['external_url'] as String? ?? '',
+        externalUrl: jsonStr(json['external_url']),
       );
 }
 
@@ -129,12 +131,11 @@ class HomeSnapshot {
         emotionToday: json['emotion_today'] == null
             ? null
             : EmotionToday.fromJson(
-                json['emotion_today'] as Map<String, dynamic>),
+                jsonObj(json['emotion_today'])),
         lifelog: LifelogSummary.fromJson(
-            (json['lifelog_summary'] as Map<String, dynamic>?) ?? const {}),
+            jsonObj(json['lifelog_summary'])),
         aiSummary: json['ai_summary'] as String?,
-        recommendations: ((json['recommendations'] as List<dynamic>?) ?? const [])
-            .whereType<Map<String, dynamic>>()
+        recommendations: jsonList(json['recommendations'])
             .map(ContentCard.fromJson)
             .toList(),
       );

@@ -1,6 +1,8 @@
 /// 프로필 · 기기 연동 — MLCM_110 · MAIN_SETTING_01
 library;
 
+import 'json.dart';
+
 class UserProfile {
   const UserProfile({
     required this.userId,
@@ -30,21 +32,15 @@ class UserProfile {
   /// USER / ADMIN
   final String role;
 
-  static double? _num(dynamic v) => switch (v) {
-        num n => n.toDouble(),
-        String s => double.tryParse(s),
-        _ => null,
-      };
-
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
-        userId: json['user_id'] as String? ?? '',
-        email: json['email'] as String? ?? '',
-        name: json['name'] as String? ?? '',
+        userId: jsonStr(json['user_id']),
+        email: jsonStr(json['email']),
+        name: jsonStr(json['name']),
         phone: json['phone'] as String?,
-        heightCm: _num(json['height_cm']),
+        heightCm: jsonNum(json['height_cm']),
         gender: json['gender'] as String?,
-        personaType: json['persona_type'] as String? ?? 'FRIEND',
-        role: json['role'] as String? ?? 'USER',
+        personaType: jsonStr(json['persona_type'], 'FRIEND'),
+        role: jsonStr(json['role'], 'USER'),
       );
 }
 
@@ -64,9 +60,9 @@ class ConsentScopes {
   final bool bodyComposition;
 
   factory ConsentScopes.fromJson(Map<String, dynamic> json) => ConsentScopes(
-        activity: json['activity'] as bool? ?? true,
-        sleep: json['sleep'] as bool? ?? true,
-        bodyComposition: json['body_composition'] as bool? ?? false,
+        activity: jsonBool(json['activity'], true),
+        sleep: jsonBool(json['sleep'], true),
+        bodyComposition: jsonBool(json['body_composition']),
       );
 
   Map<String, dynamic> toJson() => {
@@ -115,16 +111,16 @@ class DeviceConnection {
 
   factory DeviceConnection.fromJson(Map<String, dynamic> json) =>
       DeviceConnection(
-        connectionId: json['connection_id'] as String? ?? '',
+        connectionId: jsonStr(json['connection_id']),
         deviceName: json['device_name'] as String?,
-        platformType: json['platform_type'] as String? ?? 'HEALTH_CONNECT',
-        permissionGranted: json['permission_granted'] as bool? ?? false,
+        platformType: jsonStr(json['platform_type'], 'HEALTH_CONNECT'),
+        permissionGranted: jsonBool(json['permission_granted']),
         agreedAt:
-            DateTime.tryParse(json['agreed_at'] as String? ?? '')?.toLocal() ??
+            jsonAt(json['agreed_at']) ??
                 DateTime.now(),
         lastSyncedAt:
-            DateTime.tryParse(json['last_synced_at'] as String? ?? '')?.toLocal(),
+            jsonAt(json['last_synced_at']),
         consentScopes: ConsentScopes.fromJson(
-            (json['consent_scopes'] as Map<String, dynamic>?) ?? const {}),
+            jsonObj(json['consent_scopes'])),
       );
 }

@@ -3,6 +3,8 @@
 /// 서버 스키마(backend/app/schemas/lifelog.py)와 1:1로 맞춥니다.
 library;
 
+import 'json.dart';
+
 /// 한 시점의 측정치.
 ///
 /// ⚠ `collected_at` 을 뺀 **전 필드가 null 일 수 있습니다.** Health Connect 는
@@ -42,32 +44,22 @@ class LifelogEntry {
   final int? heartRate;
   final double? hrv;
 
-  static int? _int(dynamic v) => (v as num?)?.toInt();
-
-  /// ⚠ 서버가 NUMERIC 컬럼을 **문자열로** 내려보낼 수 있습니다(Decimal 직렬화).
-  ///   num 으로만 캐스팅하면 조용히 null 이 됩니다.
-  static double? _num(dynamic v) => switch (v) {
-        num n => n.toDouble(),
-        String s => double.tryParse(s),
-        _ => null,
-      };
-
   factory LifelogEntry.fromJson(Map<String, dynamic> json) => LifelogEntry(
         collectedAt:
-            DateTime.tryParse(json['collected_at'] as String? ?? '')?.toLocal() ??
+            jsonAt(json['collected_at']) ??
                 DateTime.now(),
-        steps: _int(json['steps']),
-        distance: _int(json['distance']),
-        calories: _int(json['calories']),
-        totalActiveMin: _int(json['total_active_min']),
-        totalSleepMin: _int(json['total_sleep_min']),
-        deepSleepMin: _int(json['deep_sleep_min']),
-        lightSleepMin: _int(json['light_sleep_min']),
-        remSleepMin: _int(json['rem_sleep_min']),
-        awakeMin: _int(json['awake_min']),
-        sleepEfficiencyPct: _num(json['sleep_efficiency_pct']),
-        heartRate: _int(json['heart_rate']),
-        hrv: _num(json['hrv']),
+        steps: jsonInt(json['steps']),
+        distance: jsonInt(json['distance']),
+        calories: jsonInt(json['calories']),
+        totalActiveMin: jsonInt(json['total_active_min']),
+        totalSleepMin: jsonInt(json['total_sleep_min']),
+        deepSleepMin: jsonInt(json['deep_sleep_min']),
+        lightSleepMin: jsonInt(json['light_sleep_min']),
+        remSleepMin: jsonInt(json['rem_sleep_min']),
+        awakeMin: jsonInt(json['awake_min']),
+        sleepEfficiencyPct: jsonNum(json['sleep_efficiency_pct']),
+        heartRate: jsonInt(json['heart_rate']),
+        hrv: jsonNum(json['hrv']),
       );
 }
 
@@ -93,13 +85,13 @@ class BodyComposition {
   factory BodyComposition.fromJson(Map<String, dynamic> json) =>
       BodyComposition(
         measuredAt:
-            DateTime.tryParse(json['measured_at'] as String? ?? '')?.toLocal() ??
+            jsonAt(json['measured_at']) ??
                 DateTime.now(),
-        weightKg: LifelogEntry._num(json['weight_kg']),
-        bodyWaterKg: LifelogEntry._num(json['body_water_kg']),
-        bodyFatKg: LifelogEntry._num(json['body_fat_kg']),
-        muscleMassKg: LifelogEntry._num(json['muscle_mass_kg']),
-        skeletalMuscleKg: LifelogEntry._num(json['skeletal_muscle_kg']),
-        bmrKcal: LifelogEntry._int(json['bmr_kcal']),
+        weightKg: jsonNum(json['weight_kg']),
+        bodyWaterKg: jsonNum(json['body_water_kg']),
+        bodyFatKg: jsonNum(json['body_fat_kg']),
+        muscleMassKg: jsonNum(json['muscle_mass_kg']),
+        skeletalMuscleKg: jsonNum(json['skeletal_muscle_kg']),
+        bmrKcal: jsonInt(json['bmr_kcal']),
       );
 }
