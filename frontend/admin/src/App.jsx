@@ -6,6 +6,7 @@ import {
   login,
 } from './api.js'
 import { countLabel, emptyLabel, RISK_LABEL } from './labels.js'
+import UserReport from './Report.jsx'
 import { clearSession, readSession, saveAdminSession } from './session.js'
 
 /**
@@ -253,6 +254,7 @@ function PeopleTab({ token }) {
   const [error, setError] = useState('')
   const [filter, setFilter] = useState('')
   const [keyword, setKeyword] = useState('')
+  const [selected, setSelected] = useState(null)
   const query = useDebounced(keyword)
 
   useEffect(() => {
@@ -358,7 +360,22 @@ function PeopleTab({ token }) {
               </thead>
               <tbody>
                 {shown.map((row) => (
-                  <tr key={row.user_id}>
+                  <tr
+                    key={row.user_id}
+                    className={
+                      selected?.user_id === row.user_id ? 'row-open' : 'row-pick'
+                    }
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`${row.name} 상세 보기`}
+                    onClick={() => setSelected(row)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        setSelected(row)
+                      }
+                    }}
+                  >
                     <td title={row.name}>{row.name}</td>
                     <td className="muted" title={row.email}>
                       {row.email}
@@ -380,6 +397,14 @@ function PeopleTab({ token }) {
                 ))}
               </tbody>
             </table>
+          )}
+
+          {selected && (
+            <UserReport
+              token={token}
+              user={selected}
+              onClose={() => setSelected(null)}
+            />
           )}
         </div>
       )}

@@ -682,3 +682,155 @@ input {
   padding: 13px 14px;
   border-top: 1px solid #f0f2f8;
 }
+
+/* ---------------------------------------------------------------------
+   ❸ 대상자 상세 — MLCM_501 3·4단계
+   앱 MAIN_REPORT_01 과 같은 시각화 규격. 색을 바꾸면 그쪽도 함께 고칩니다.
+   --------------------------------------------------------------------- */
+.row-pick,
+.row-open {
+  cursor: pointer;
+}
+
+.row-pick:hover td,
+.row-open td {
+  background: #f7f8fc;
+}
+
+.row-open td {
+  box-shadow: inset 2px 0 0 #7890ef;
+}
+
+.data-table.people tbody tr:focus-visible {
+  outline: 2px solid #7890ef;
+  outline-offset: -2px;
+}
+
+.detail-panel {
+  margin-top: 16px;
+  padding: 18px 20px 20px;
+  background: #fff;
+  border-radius: 14px;
+}
+
+.detail-panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f0f2f8;
+}
+
+.detail-panel header strong {
+  display: block;
+  font-size: 13px;
+}
+
+.detail-panel header small {
+  font-size: 10px;
+}
+
+.detail-panel h4 {
+  margin: 20px 0 10px;
+  font-size: 10px;
+  font-weight: 750;
+  color: #97a0b5;
+}
+
+.chart-empty {
+  margin: 18px 0;
+  font-size: 11px;
+  color: #97a0b5;
+}
+
+.summary-text {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* 곡선은 가로로 늘어나도 되지만 세로는 고정한다. 세로가 늘면 같은 데이터가
+   더 가팔라 보여 0~100 고정 축을 쓰는 의미가 사라진다. */
+.trend-chart {
+  width: 100%;
+  height: 150px;
+  display: block;
+}
+
+.chart-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 9px;
+  color: #97a0b5;
+}
+
+.dist-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.dist-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dist-label {
+  width: 30px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.dist-track {
+  flex: 1;
+  height: 8px;
+  border-radius: 5px;
+  background: #f0f2f8;
+  overflow: hidden;
+}
+
+.dist-bar {
+  height: 100%;
+  border-radius: 5px;
+}
+
+.dist-bar.mint {
+  background: #5b8d83;
+}
+.dist-bar.blue {
+  background: #6289b1;
+}
+.dist-bar.peach {
+  background: #987466;
+}
+
+.dist-count {
+  width: 40px;
+  text-align: right;
+  font-size: 10px;
+}
+
+.lifelog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.lifelog-cell {
+  padding: 12px 14px;
+  border-radius: 11px;
+  background: #f7f8fc;
+}
+
+.lifelog-cell small {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 9px;
+  color: #97a0b5;
+}
+
+.lifelog-cell strong {
+  font-size: 13px;
+}

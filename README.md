@@ -80,7 +80,7 @@ Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog anomal
 |---|---|
 | 백엔드 API | 30개 **구현·검증 완료**. 회귀 테스트 45건 |
 | Flutter 앱 | 화면 13개 **전부 실제 API 연동**. 목업 없음. 테스트 20건 |
-| 관리자 관제 웹 | 로그인·역할 가드 + 분포·대상자·상세 3개 탭 완료 |
+| 관리자 관제 웹 | 로그인·역할 가드 + 분포·대상자·검색·상세·위기이력 완료 |
 | AI 추론 서버 | 구동 완료. **판정은 규칙 기반 임시값** ⚠ |
 | Health Connect | **미구현.** 권한 화면 UI 만 있음 |
 
@@ -169,6 +169,13 @@ psql -U postgres -d lisn -f db/seed_healing_contents.sql
 
 ```bash
 psql -U postgres -d lisn -f db/seed_demo_persona.sql
+```
+
+테스트를 돌리다 보면 정리되지 못한 계정이 쌓여 관제 대시보드의 「전체 N명」이
+부풀려집니다. 데이터가 하나도 안 붙은 계정만 골라 지웁니다.
+
+```bash
+psql -U postgres -d lisn -f db/cleanup_test_accounts.sql
 ```
 
 > ⚠ **만들어낸 데이터입니다.** `model_version` 이 `seed-demo-v0` 로 박혀 있어 실제
