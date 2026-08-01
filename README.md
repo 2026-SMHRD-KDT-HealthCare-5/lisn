@@ -164,6 +164,16 @@ psql -U postgres -d lisn -f db/schema.sql
 psql -U postgres -d lisn -f db/seed_healing_contents.sql
 ```
 
+관리자 관제 화면(위험도 분포 · 위기 사건 이력)은 판정 이력이 있어야 그려집니다.
+실제 라이프로그를 14일 쌓지 않고 확인하려면 데모 페르소나를 넣습니다.
+
+```bash
+psql -U postgres -d lisn -f db/seed_demo_persona.sql
+```
+
+> ⚠ **만들어낸 데이터입니다.** `model_version` 이 `seed-demo-v0` 로 박혀 있어 실제
+> 판정과 구분됩니다. 성능 근거로 쓰지 말고 운영 DB 에 넣지 마세요.
+
 ### 애플리케이션 실행
 
 최초 1회 의존성과 `backend/.env`를 준비한 뒤에는 저장소 루트에서 한 명령으로
