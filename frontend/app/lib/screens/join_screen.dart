@@ -6,7 +6,7 @@ import '../theme/app_theme.dart';
 import '../widgets/common_widgets.dart';
 import 'main_shell.dart';
 
-/// STEP 03 에서 웨어러블을 어떻게 할지 고른 결과.
+/// STEP 03 에서 스마트워치를 어떻게 할지 고른 결과.
 /// null 이면 아직 고르지 않은 상태이고, 그때는 시작하기가 눌리지 않습니다.
 enum _Wearable { connect, later }
 
@@ -691,11 +691,11 @@ class _JoinScreenState extends State<JoinScreen> {
                 fontWeight: FontWeight.w900,
                 color: AppColors.navy)),
         const SizedBox(height: 10),
-        const Text('가입이 완료되었어요.\n웨어러블을 연결하면 더 세심하게 마음을 살필 수 있어요.',
+        const Text('가입이 완료되었어요.\n스마트워치를 연결하면 더 세심하게 마음을 살필 수 있어요.',
             textAlign: TextAlign.center,
             style: TextStyle(height: 1.7, color: AppColors.muted)),
         const SizedBox(height: 28),
-        // 웨어러블 연결 여부를 여기서 한 번 묻습니다. 그냥 넘어가면
+        // 스마트워치 연결 여부를 여기서 한 번 묻습니다. 그냥 넘어가면
         // 라이프로그가 비어 홈에 아무것도 뜨지 않는데, 사용자는 왜 그런지
         // 알 수 없습니다.
         InkWell(
@@ -718,7 +718,7 @@ class _JoinScreenState extends State<JoinScreen> {
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                      Text('웨어러블 연결하기',
+                      Text('스마트워치 연결하기',
                           style: TextStyle(fontWeight: FontWeight.w800)),
                       Text('Health Connect',
                           style:
@@ -737,22 +737,26 @@ class _JoinScreenState extends State<JoinScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 11, color: AppColors.muted)),
           ),
-        const SizedBox(height: 6),
-        TextButton(
-          onPressed: loading
-              ? null
-              : () => setState(() => wearableChoice = _Wearable.later),
-          child: Text('나중에 연결할게요',
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: wearableChoice == _Wearable.later
-                      ? FontWeight.w800
-                      : FontWeight.w500,
-                  color: wearableChoice == _Wearable.later
-                      ? AppColors.primary
-                      : AppColors.muted)),
-        ),
-        const SizedBox(height: 10),
+        // 등록을 마치면 이 선택지를 감춥니다. 이미 연결해 둔 사람에게
+        // '나중에 연결할게요' 가 남아 있으면 무엇을 더 해야 하나 싶습니다.
+        if (wearableChoice != _Wearable.connect) ...[
+          const SizedBox(height: 6),
+          TextButton(
+            onPressed: loading
+                ? null
+                : () => setState(() => wearableChoice = _Wearable.later),
+            child: Text('나중에 연결할게요',
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: wearableChoice == _Wearable.later
+                        ? FontWeight.w800
+                        : FontWeight.w500,
+                    color: wearableChoice == _Wearable.later
+                        ? AppColors.primary
+                        : AppColors.muted)),
+          ),
+        ],
+        const SizedBox(height: 16),
         ElevatedButton(
           // 둘 중 하나를 고르기 전에는 넘어가지 않습니다.
           onPressed: wearableChoice == null || loading
