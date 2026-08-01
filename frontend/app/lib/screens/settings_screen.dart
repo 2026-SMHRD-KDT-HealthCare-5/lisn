@@ -187,7 +187,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(15, 8, 15, 25),
-              children: loading
+              // 당겨서 새로고침할 때 본문을 스피너로 갈아치우지 않습니다.
+              // RefreshIndicator 가 이미 위에서 진행을 알리고 있고, 보고 있던
+              // 프로필·기기 목록이 사라졌다 돌아오면 화면이 크게 튑니다.
+              children: (loading && profile == null)
                   ? [
                       const Padding(
                           padding: EdgeInsets.symmetric(vertical: 70),
@@ -208,7 +211,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 onPressed: _load, child: const Text('다시 시도')),
                           ]))
                         ]
-                      : _sections(),
+                      : loading
+                          // 갱신 중임은 흐리게 알립니다. 이 사이 토글을 누르면
+                          // 곧 덮어써질 값을 바꾸게 되므로 조작도 막습니다.
+                          ? [
+                              IgnorePointer(
+                                child: Opacity(
+                                  opacity: 0.45,
+                                  child: Column(children: _sections()),
+                                ),
+                              )
+                            ]
+                          : _sections(),
             ),
           ),
         ),
