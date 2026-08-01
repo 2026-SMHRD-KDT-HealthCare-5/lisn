@@ -727,18 +727,21 @@ class _Field extends StatelessWidget {
             Text(label,
                 style: const TextStyle(
                     fontSize: 12, fontWeight: FontWeight.w700)),
-            if (onWhy != null)
-              // 라벨 바로 옆에 둡니다. 입력란 아래에 두면 이미 넘어간 뒤라
-              // 읽지 않습니다.
+            if (onWhy != null) ...[
+              // 오른쪽 끝에 붙입니다. 라벨 옆에 바짝 두면 글자와 뭉쳐
+              // 라벨의 일부처럼 보입니다. 입력란 폭에 맞춰 떨어뜨리면
+              // 누를 수 있는 것으로 읽힙니다.
+              const Spacer(),
               IconButton(
                 onPressed: onWhy,
-                icon: const Icon(Icons.help_outline_rounded, size: 15),
+                icon: const Icon(Icons.help_outline_rounded, size: 16),
                 color: AppColors.muted,
                 visualDensity: VisualDensity.compact,
-                padding: const EdgeInsets.only(left: 5),
+                padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
                 tooltip: '왜 필요한가요?',
               ),
+            ],
           ]),
           const SizedBox(height: 8),
           TextFormField(
