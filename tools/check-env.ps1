@@ -45,9 +45,9 @@ Write-Host ''
 
 $results = @(
     Get-ToolInfo 'Git'        'git'     '--version' '버전 관리'                  '전원'
-    Get-ToolInfo 'Python'     'python'  '--version' 'AI 모델링 / FastAPI'        '김건영·윤일준'
+    Get-ToolInfo 'Python'     'python'  '--version' '서버·전처리 (3.12 로 고정)'  '김건영·윤일준'
     Get-ToolInfo 'pip'        'pip'     '--version' 'Python 패키지'              '김건영·윤일준'
-    Get-ToolInfo 'PostgreSQL' 'psql'    '--version' 'DB 서버 (schema.sql 실행)'  '윤일준·이응균'
+    Get-ToolInfo 'PostgreSQL' 'psql'    '--version' 'DB 서버 (17 로 고정)'       '윤일준·이응균'
     Get-ToolInfo 'Node.js'    'node'    '--version' 'React 관리자 대시보드'      '함은선'
     Get-ToolInfo 'npm'        'npm'     '--version' 'Node 패키지'                '함은선'
     Get-ToolInfo 'Flutter'    'flutter' '--version' '사용자 앱'                  '함은선'
@@ -58,21 +58,52 @@ $results = @(
 
 $results | Format-Table -AutoSize -Wrap
 
-# --- Python 라이브러리 (Python이 있을 때만) ---
-if (Get-Command python -ErrorAction SilentlyContinue) {
-    Write-Host '  Python 라이브러리' -ForegroundColor Cyan
+# --- Python 라이브러리 ---
+#
+# 루트 .venv 가 있으면 그쪽을 본다. 서버는 전부 .venv 로 도는데 시스템 python 을
+# 검사하면 "다 설치됐다"고 나오고도 서버가 못 뜬다.
+#
+# ⚠ psycopg2 를 찾지 않는다. 이 프로젝트는 **asyncpg** 를 쓴다.
+#   torch·lightgbm 은 모델 학습을 하지 않기로 해서 필수가 아니다(ai/README.md).
+$pyExe = Join-Path (Split-Path -Parent $PSScriptRoot) '.venv\Scripts\python.exe'
+if (-not (Test-Path $pyExe)) { $pyExe = 'python' }
+
+if ((Test-Path $pyExe) -or (Get-Command python -ErrorAction SilentlyContinue)) {
+    $where = if ($pyExe -eq 'python') { '시스템 python' } else { '.venv' }
+    Write-Host "  Python 라이브러리 ($where)" -ForegroundColor Cyan
     Write-Host '  ---------------------------------------------------------------'
-    $libs = @('torch', 'lightgbm', 'sklearn', 'pandas', 'numpy', 'fastapi', 'psycopg2', 'openai')
+
+    $libs = [ordered]@{
+        'fastapi'    = '서버 (backend · ai/server)'
+        'uvicorn'    = '서버 실행'
+        'sqlalchemy' = '모델 (backend)'
+        'asyncpg'    = 'DB 드라이버 - psycopg2 아님'
+        'pydantic'   = 'DTO'
+        'openai'     = 'LLM (Gemini 도 이 SDK 로 붙음)'
+        'pytest'     = '테스트'
+        'pandas'     = '(선택) 전처리 - ai/preprocess'
+        'numpy'      = '(선택) 전처리'
+        'sklearn'    = '(선택) 전처리 - 개인별 정규화'
+    }
+
     $libResults = @()
-    foreach ($lib in $libs) {
-        $out = python -c "import $lib, sys; print(getattr($lib,'__version__','설치됨'))" 2>$null
+    foreach ($lib in $libs.Keys) {
+        $out = & $pyExe -c "import $lib; print(getattr($lib,'__version__','설치됨'))" 2>$null
         if ($LASTEXITCODE -eq 0 -and $out) {
-            $libResults += [pscustomobject]@{ 라이브러리 = $lib; 상태 = 'O'; 버전 = $out.Trim() }
+            $libResults += [pscustomobject]@{
+                라이브러리 = $lib; 상태 = 'O'; 버전 = $out.Trim(); 용도 = $libs[$lib]
+            }
         } else {
-            $libResults += [pscustomobject]@{ 라이브러리 = $lib; 상태 = 'X'; 버전 = '-' }
+            $libResults += [pscustomobject]@{
+                라이브러리 = $lib; 상태 = 'X'; 버전 = '-'; 용도 = $libs[$lib]
+            }
         }
     }
-    $libResults | Format-Table -AutoSize
+    $libResults | Format-Table -AutoSize -Wrap
+
+    Write-Host '  없으면:  .\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt' -ForegroundColor DarkGray
+    Write-Host '  (선택) 표시는 전처리 스크립트용입니다 - 서버는 없어도 뜹니다' -ForegroundColor DarkGray
+    Write-Host ''
 }
 
 # --- 요약 ---
@@ -94,3 +125,8 @@ Write-Host '    Node.js     https://nodejs.org/'
 Write-Host '    Flutter     https://docs.flutter.dev/get-started/install/windows'
 Write-Host '    DBeaver     https://dbeaver.io/download/         (DB 클라이언트, 서버 아님)'
 Write-Host ''
+Write-Host ''
+
+# 마지막 python import 실패가 $LASTEXITCODE 에 남아 실패한 것처럼 보인다.
+# 이 스크립트는 게이트가 아니라 보고서다.
+exit 0
