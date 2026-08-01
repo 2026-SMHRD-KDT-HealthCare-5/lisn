@@ -351,6 +351,46 @@ class _MobileLoginHero extends StatelessWidget {
   /// 0단계에서 참. 마스코트와 문구가 화면을 더 크게 씁니다.
   final bool expanded;
 
+  double get _fontSize => expanded ? 29 : 25;
+  double get _lineHeight => _fontSize * 1.2;
+  double get _topStart => expanded ? 104 : 92;
+
+  /// '포근히 ' 뒤에 '안아줄게요'를 붙일 때 필요한 가로 오프셋.
+  ///
+  /// 눈대중으로 숫자를 박으면 글꼴이나 크기가 바뀔 때 글자가 겹치거나
+  /// 벌어집니다. 실제로 재서 씁니다.
+  double _widthOf(String text) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: _textStyle),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    return painter.width;
+  }
+
+  TextStyle get _textStyle => TextStyle(
+        fontSize: _fontSize,
+        height: 1.2,
+        fontWeight: FontWeight.w800,
+        color: AppColors.navy,
+      );
+
+  /// 헤드라인 한 덩어리. line 은 0부터 세는 줄 번호입니다.
+  Widget _headline(BuildContext context, String text,
+      {required double left, required int line}) {
+    return AnimatedPositioned(
+      duration: _duration,
+      curve: Curves.easeOutCubic,
+      left: left,
+      top: _topStart + _lineHeight * line,
+      child: AnimatedDefaultTextStyle(
+        duration: _duration,
+        curve: Curves.easeOutCubic,
+        style: _textStyle,
+        child: Text(text),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
@@ -364,19 +404,21 @@ class _MobileLoginHero extends StatelessWidget {
           // 자체 배경을 칠하지 않습니다. 바깥 그라데이션이 화면 전체를
           // 덮으므로, 여기서 단색을 깔면 경계가 다시 생깁니다.
           const Positioned(left: 24, top: 25, child: LisnBrand(size: 22)),
-          AnimatedPositioned(
-            duration: _duration,
-            curve: Curves.easeOutCubic,
-            left: 25,
-            top: expanded ? 104 : 92,
-            child: Text(
-                expanded ? '오늘의 마음도\n포근히\n안아줄게요' : '오늘의 마음도\n포근히 안아줄게요',
-                style: const TextStyle(
-                    fontSize: 25,
-                    height: 1.2,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.navy)),
-          ),
+          // 헤드라인을 세 덩어리로 나눠 각각 자리를 옮깁니다.
+          //
+          // 한 덩어리로 두고 줄바꿈만 바꾸면 '안아줄게요'가 사라졌다 다시
+          // 나타나 보입니다. 쪼개서 위치를 애니메이션하면 **같은 글자가
+          // 자리를 옮기는 것으로** 읽힙니다.
+          //
+          //   3줄(0단계)          2줄(입력 단계)
+          //   오늘의 마음도        오늘의 마음도
+          //   포근히              포근히 안아줄게요
+          //   안아줄게요           ↑ 세 번째 줄이 둘째 줄 끝으로 올라온다
+          _headline(context, '오늘의 마음도', left: 25, line: 0),
+          _headline(context, '포근히', left: 25, line: 1),
+          _headline(context, '안아줄게요',
+              left: expanded ? 25 : 25 + _widthOf('포근히 '),
+              line: expanded ? 2 : 1),
           AnimatedPositioned(
             duration: _duration,
             curve: Curves.easeOutCubic,
