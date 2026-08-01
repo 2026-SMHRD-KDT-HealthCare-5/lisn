@@ -3,6 +3,7 @@ import 'auth_service.dart';
 import 'chat_service.dart';
 import 'home_service.dart';
 import 'lifelog_service.dart';
+import 'report_service.dart';
 import 'settings_service.dart';
 import 'token_storage.dart';
 
@@ -19,6 +20,7 @@ class AppServices {
   static final ChatService chat = ChatService(apiClient: apiClient);
   static final LifelogService lifelog =
       LifelogService(apiClient: apiClient);
+  static final ReportService report = ReportService(apiClient: apiClient);
   static final SettingsService settings =
       SettingsService(apiClient: apiClient);
 }

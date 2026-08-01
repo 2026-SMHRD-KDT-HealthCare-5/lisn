@@ -5,6 +5,7 @@ import '../models/home_models.dart';
 import '../services/app_services.dart';
 import '../services/home_service.dart';
 import '../theme/app_theme.dart';
+import 'report_screen.dart';
 import '../widgets/common_widgets.dart';
 
 /// MAIN_HOME_01
@@ -185,9 +186,16 @@ class _HomeScreenState extends State<HomeScreen> {
     final score = emotion.emotionScore.clamp(0, 100).toDouble();
     return AppCard(
       child: Column(children: [
-        const SectionTitle('오늘의 마음 상태',
-            trailing: Text('자세히 보기  ›',
-                style: TextStyle(fontSize: 10, color: AppColors.primary))),
+        SectionTitle('오늘의 마음 상태',
+            // 정서 리포트(MAIN_REPORT_01)로 들어갑니다. 메뉴경로는
+            // 라이프로그 하위지만, 오늘 상태를 본 자리에서 바로 기간별
+            // 추이로 넘어가는 흐름이 자연스럽습니다.
+            trailing: GestureDetector(
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const ReportScreen())),
+              child: const Text('자세히 보기  ›',
+                  style: TextStyle(fontSize: 10, color: AppColors.primary)),
+            )),
         const SizedBox(height: 18),
         Row(children: [
           const MaeumeMascot(size: 72),

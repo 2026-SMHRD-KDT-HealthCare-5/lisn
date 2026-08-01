@@ -5,6 +5,7 @@ import '../models/lifelog_models.dart';
 import '../services/app_services.dart';
 import '../services/lifelog_service.dart';
 import '../theme/app_theme.dart';
+import 'report_screen.dart';
 import '../widgets/common_widgets.dart';
 
 /// MAIN_LIFELOG_01
@@ -57,12 +58,23 @@ class _LifelogScreenState extends State<LifelogScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Column(children: [
-        const SizedBox(
-            height: 68,
-            child: Center(
+        SizedBox(
+          height: 68,
+          child: Row(children: [
+            const SizedBox(width: 15),
+            const Expanded(
                 child: Text('라이프로그',
                     style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.w900)))),
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.w900))),
+            // 화면설계서 메뉴경로: 라이프로그 / 정서 리포트
+            TextButton(
+              onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ReportScreen())),
+              child: const Text('정서 리포트  ›',
+                  style: TextStyle(fontSize: 11, color: AppColors.primary)),
+            ),
+          ]),
+        ),
         Expanded(
           child: FutureBuilder<List<LifelogEntry>>(
             future: _future,

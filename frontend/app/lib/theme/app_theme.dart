@@ -12,6 +12,11 @@ abstract final class AppColors {
   static const mint = Color(0xFFEAF8F4);
   static const blue = Color(0xFFEAF5FF);
   static const teal = Color(0xFF48AFA1);
+
+  // 선(line) 위에 쓰는 진한 변형. pink/purple/mint 는 배경용 연한 색이라
+  // 곡선에 쓰면 보이지 않습니다.
+  static const purple2 = Color(0xFF8B7FD4);
+  static const mint2 = Color(0xFF4FB89E);
 }
 
 abstract final class AppTheme {
