@@ -351,79 +351,53 @@ class _MobileLoginHero extends StatelessWidget {
   /// 0단계에서 참. 마스코트와 문구가 화면을 더 크게 씁니다.
   final bool expanded;
 
-  /// 헤드라인 전체.
+  /// 헤드라인.
   ///
-  /// ⚠ **좌표와 글자 크기를 하나의 진행값(t)으로 함께 계산합니다.**
-  ///   좌표는 expanded 로 즉시 정하고 크기만 AnimatedDefaultTextStyle 에
-  ///   맡기면, 둘이 다른 시간축으로 움직여 전환 중간에 글자가 겹칩니다.
-  ///   실제로 그렇게 만들었다가 '포근히' 위에 '안아줄게요'가 포개졌습니다.
+  /// 3줄 ↔ 2줄은 서로 다른 문자열이라 글자를 이어붙일 수 없습니다.
+  /// 겹쳐 놓고 **교차 페이드**로 넘깁니다.
   ///
-  /// 이동은 직선입니다. 대신 **겹치는 구간에서만 잠깐 비웁니다.**
-  ///
-  /// ㄱ자로 꺾어 가는 방법도 써봤지만 움직임이 기계적으로 보였습니다.
-  /// 경로는 자연스럽게 두고, '포근히' 를 지나는 동안만 사라졌다가
-  /// 도착 지점 근처에서 다시 나타납니다. 출발과 도착이 모두 보이므로
-  /// 같은 글자가 옮겨간 것으로 읽힙니다.
+  /// ⚠ 두 문구를 **동시에** 흐리게 하면 반투명끼리 포개져 글자가 뭉갭니다.
+  ///   switchOutCurve·switchInCurve 로 구간을 갈라 **나가는 쪽이 완전히
+  ///   사라진 뒤 들어오는 쪽이 나타나게** 합니다.
   ///
   ///   3줄(0단계)          2줄(입력 단계)
   ///   오늘의 마음도        오늘의 마음도
   ///   포근히              포근히 안아줄게요
-  ///   안아줄게요           ↑ 세 번째 줄이 둘째 줄 끝으로 올라온다
-  Widget _headlines() {
-    return TweenAnimationBuilder<double>(
-      // begin 을 주지 않으면 현재 값에서 이어집니다. 전환 도중에 되돌려도
-      // 처음부터 다시 시작하지 않습니다.
-      tween: Tween<double>(end: expanded ? 0.0 : 1.0),
+  ///   안아줄게요
+  Widget _headline() {
+    final style = TextStyle(
+        fontSize: expanded ? 29 : 25,
+        height: 1.2,
+        fontWeight: FontWeight.w800,
+        color: AppColors.navy);
+
+    return AnimatedPositioned(
       duration: _duration,
-      curve: Curves.linear, // 구간별 곡선은 아래에서 직접 적용합니다.
-      builder: (context, t, _) {
-        const ease = Curves.easeOutCubic;
-        final e = ease.transform(t);
-
-        final fontSize = 29 + (25 - 29) * e;
-        final lineHeight = fontSize * 1.2;
-        final top0 = 104 + (92 - 104) * e;
-        final style = TextStyle(
-            fontSize: fontSize,
-            height: 1.2,
-            fontWeight: FontWeight.w800,
-            color: AppColors.navy);
-
-        // 지금 크기로 실측합니다. 눈대중으로 숫자를 박으면 글꼴이나 크기가
-        // 바뀔 때 글자가 겹치거나 벌어집니다.
-        final painter = TextPainter(
-          text: TextSpan(text: '포근히 ', style: style),
-          textDirection: TextDirection.ltr,
-        )..layout();
-
-        // 겹침을 피하는 투명도.
-        //   0.00~0.12  제자리에서 온전히 보인다
-        //   0.12~0.34  '포근히' 로 들어가기 전에 사라진다
-        //   0.34~0.70  가려도 될 구간 — 비어 있다
-        //   0.70~0.92  '포근히' 오른쪽으로 빠져나온 뒤 다시 나타난다
-        final gone = const Interval(0.12, 0.34, curve: Curves.easeIn).transform(t);
-        final back = const Interval(0.70, 0.92, curve: Curves.easeOut).transform(t);
-        final opacity = ((1 - gone) + back).clamp(0.0, 1.0);
-
-        Widget at(String text, double left, double line) => Positioned(
-              left: left,
-              top: top0 + lineHeight * line,
-              child: Text(text, style: style),
-            );
-
-        return Stack(clipBehavior: Clip.none, children: [
-          at('오늘의 마음도', 25, 0),
-          at('포근히', 25, 1),
-          Positioned(
-            left: 25 + painter.width * e,
-            top: top0 + lineHeight * (2 - e),
-            child: Opacity(
-              opacity: opacity,
-              child: Text('안아줄게요', style: style),
-            ),
+      curve: Curves.easeOutCubic,
+      left: 25,
+      top: expanded ? 104 : 92,
+      child: AnimatedDefaultTextStyle(
+        duration: _duration,
+        curve: Curves.easeOutCubic,
+        style: style,
+        child: AnimatedSwitcher(
+          duration: _duration,
+          // 앞 절반은 나가는 쪽만, 뒤 절반은 들어오는 쪽만.
+          switchOutCurve: const Interval(0.0, 0.5, curve: Curves.easeIn),
+          switchInCurve: const Interval(0.5, 1.0, curve: Curves.easeOut),
+          transitionBuilder: (child, animation) =>
+              FadeTransition(opacity: animation, child: child),
+          layoutBuilder: (current, previous) => Stack(
+            alignment: Alignment.topLeft,
+            children: [...previous, if (current != null) current],
           ),
-        ]);
-      },
+          child: Text(
+            expanded ? '오늘의 마음도\n포근히\n안아줄게요' : '오늘의 마음도\n포근히 안아줄게요',
+            // 키가 바뀌어야 AnimatedSwitcher 가 교체를 감지합니다.
+            key: ValueKey(expanded),
+          ),
+        ),
+      ),
     );
   }
 
@@ -440,10 +414,7 @@ class _MobileLoginHero extends StatelessWidget {
           // 자체 배경을 칠하지 않습니다. 바깥 그라데이션이 화면 전체를
           // 덮으므로, 여기서 단색을 깔면 경계가 다시 생깁니다.
           const Positioned(left: 24, top: 25, child: LisnBrand(size: 22)),
-          // 한 덩어리로 두고 줄바꿈만 바꾸면 '안아줄게요'가 사라졌다 다시
-          // 나타나 보입니다. 쪼개서 위치를 움직이면 같은 글자가 자리를
-          // 옮기는 것으로 읽힙니다.
-          Positioned.fill(child: _headlines()),
+          _headline(),
           AnimatedPositioned(
             duration: _duration,
             curve: Curves.easeOutCubic,
