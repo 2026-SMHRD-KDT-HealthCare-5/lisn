@@ -358,10 +358,12 @@ class _MobileLoginHero extends StatelessWidget {
   ///   맡기면, 둘이 다른 시간축으로 움직여 전환 중간에 글자가 겹칩니다.
   ///   실제로 그렇게 만들었다가 '포근히' 위에 '안아줄게요'가 포개졌습니다.
   ///
-  /// 이동 경로도 나눠둡니다. 가로·세로를 동시에 움직이면 대각선으로
-  /// 지나가며 '포근히' 를 덮습니다. **옆으로 먼저 간 뒤 올라갑니다.**
-  /// 세로로 움직일 때는 이미 '포근히' 오른쪽이라 겹칠 일이 없습니다.
-  /// 되돌아갈 때(2줄→3줄)는 같은 곡선이 역재생돼 '내려간 뒤 왼쪽으로'가 됩니다.
+  /// 이동은 직선입니다. 대신 **겹치는 구간에서만 잠깐 비웁니다.**
+  ///
+  /// ㄱ자로 꺾어 가는 방법도 써봤지만 움직임이 기계적으로 보였습니다.
+  /// 경로는 자연스럽게 두고, '포근히' 를 지나는 동안만 사라졌다가
+  /// 도착 지점 근처에서 다시 나타납니다. 출발과 도착이 모두 보이므로
+  /// 같은 글자가 옮겨간 것으로 읽힙니다.
   ///
   ///   3줄(0단계)          2줄(입력 단계)
   ///   오늘의 마음도        오늘의 마음도
@@ -394,8 +396,14 @@ class _MobileLoginHero extends StatelessWidget {
           textDirection: TextDirection.ltr,
         )..layout();
 
-        final h = ease.transform(const Interval(0.0, 0.55).transform(t));
-        final v = ease.transform(const Interval(0.45, 1.0).transform(t));
+        // 겹침을 피하는 투명도.
+        //   0.00~0.12  제자리에서 온전히 보인다
+        //   0.12~0.34  '포근히' 로 들어가기 전에 사라진다
+        //   0.34~0.70  가려도 될 구간 — 비어 있다
+        //   0.70~0.92  '포근히' 오른쪽으로 빠져나온 뒤 다시 나타난다
+        final gone = const Interval(0.12, 0.34, curve: Curves.easeIn).transform(t);
+        final back = const Interval(0.70, 0.92, curve: Curves.easeOut).transform(t);
+        final opacity = ((1 - gone) + back).clamp(0.0, 1.0);
 
         Widget at(String text, double left, double line) => Positioned(
               left: left,
@@ -406,7 +414,14 @@ class _MobileLoginHero extends StatelessWidget {
         return Stack(clipBehavior: Clip.none, children: [
           at('오늘의 마음도', 25, 0),
           at('포근히', 25, 1),
-          at('안아줄게요', 25 + painter.width * h, 2 - v),
+          Positioned(
+            left: 25 + painter.width * e,
+            top: top0 + lineHeight * (2 - e),
+            child: Opacity(
+              opacity: opacity,
+              child: Text('안아줄게요', style: style),
+            ),
+          ),
         ]);
       },
     );
