@@ -30,8 +30,8 @@ git clone https://github.com/2026-SMHRD-KDT-HealthCare-5/lisn.git
 .\tools\check-env.ps1
 ```
 
-의존성과 `backend/.env`를 구성한 뒤에는 루트에서 아래 명령 하나로 FastAPI·관리자 웹·
-Flutter를 실행할 수 있습니다.
+의존성과 `backend/.env`를 구성한 뒤에는 루트에서 아래 명령 하나로 FastAPI·AI 추론 서버·
+관리자 웹·Flutter를 실행할 수 있습니다.
 
 ```powershell
 .\tools\start-dev.ps1

@@ -66,6 +66,28 @@
       }
     },
     {
+      "label": "LISN: AI 추론 서버",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\tools\\start-dev.ps1",
+        "-Service",
+        "Ai"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
       "label": "LISN: 관리자 웹",
       "type": "process",
       "command": "powershell.exe",

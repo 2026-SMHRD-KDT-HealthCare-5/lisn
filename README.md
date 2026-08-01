@@ -125,7 +125,7 @@ lisn/
 │   ├── llm/                 LLM 작업 규칙 · 사용 이력
 │   └── review/              문서 검수·개정 관리
 ├── tools/
-│   ├── start-dev.ps1         백엔드 · 관리자 웹 · Flutter 통합 실행
+│   ├── start-dev.ps1         백엔드 · AI 서버 · 관리자 웹 · Flutter 통합 실행
 │   ├── doc2txt.py            PDF·PPTX 기준 본문 추출 스크립트
 │   └── hwp2txt.ps1           HWP 직접 파싱 보조 스크립트
 ├── .vscode/tasks.json        VS Code 공용 실행 작업
@@ -167,7 +167,7 @@ psql -U postgres -d lisn -f db/seed_healing_contents.sql
 ### 애플리케이션 실행
 
 최초 1회 의존성과 `backend/.env`를 준비한 뒤에는 저장소 루트에서 한 명령으로
-백엔드·관리자 웹·Flutter를 각각 새 터미널에 실행할 수 있습니다.
+백엔드·AI 추론 서버·관리자 웹·Flutter를 각각 새 터미널에 실행할 수 있습니다.
 
 ```powershell
 .\tools\start-dev.ps1
@@ -205,6 +205,10 @@ uvicorn main:app --reload --port 8001
 ```
 
 환경별 DB 접속 정보와 비밀값은 `backend/.env`에만 넣고 커밋하지 않습니다.
+
+> **AI 추론 서버는 `.env` 를 스스로 읽지 않습니다.** 개별 실행할 때는 `AI_DATABASE_URL`
+> 이나 `DATABASE_URL` 을 직접 넘기세요. `start-dev.ps1` 은 `backend\.env` 에서 읽어
+> 넘겨줍니다.
 
 > **관리자 웹은 5173 포트여야 합니다.** 백엔드 `CORS_ORIGINS` 가 그 주소만 허용합니다.
 > 이전 vite 인스턴스가 5173 을 잡고 있으면 새 창이 5174 로 뜨고 요청이 전부 CORS 로

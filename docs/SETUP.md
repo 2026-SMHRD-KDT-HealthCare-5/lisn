@@ -455,12 +455,18 @@ Copy-Item backend\.env.example backend\.env
 .\tools\start-dev.ps1
 ```
 
-FastAPI 백엔드, React 관리자 웹, Flutter 앱이 각각 별도 PowerShell 창에서 시작됩니다.
+FastAPI 백엔드, AI 추론 서버, React 관리자 웹, Flutter 앱이 각각 별도 PowerShell 창에서
+시작됩니다.
 
 - 백엔드 API 문서: `http://127.0.0.1:8000/docs`
+- AI 추론 서버: `http://127.0.0.1:8001/health`
 - 관리자 웹: `http://localhost:5173`
 - Flutter 앱: 연결된 Android 기기 또는 에뮬레이터
 - 종료: 각 실행 창에서 `Ctrl+C`를 누른 뒤 창 닫기
+
+> AI 추론 서버는 backend 와 **같은 `.venv`·같은 DB** 를 씁니다. 스크립트가
+> `backend\.env` 의 `DATABASE_URL` 을 읽어 넘겨줍니다 — 이 서버는 `.env` 를 스스로
+> 읽지 않아서, 넘겨주지 않으면 기본값으로 붙었다가 인증에 실패합니다.
 
 아직 실행하지 않고 누락된 준비 항목만 보고 싶으면 다음 명령을 사용합니다.
 
@@ -470,7 +476,7 @@ FastAPI 백엔드, React 관리자 웹, Flutter 앱이 각각 별도 PowerShell 
 
 VS Code를 사용하면 루트의 `lisn.code-workspace`를 연 뒤 `Ctrl+Shift+B`만 눌러도 같은
 통합 실행 작업이 동작합니다. `Ctrl+Shift+P` → `Tasks: Run Task`에서는 전체 실행뿐 아니라
-백엔드·관리자 웹·Flutter를 각각 따로 실행할 수도 있습니다.
+백엔드·AI 추론 서버·관리자 웹·Flutter를 각각 따로 실행할 수도 있습니다.
 
 > 스크립트 실행 정책 오류가 나오면
 > `Set-ExecutionPolicy -Scope Process Bypass`를 먼저 실행하세요.
