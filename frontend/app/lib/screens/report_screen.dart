@@ -171,7 +171,11 @@ class _ReportScreenState extends State<ReportScreen> {
                   // 화면이 크게 튑니다.
                   AsyncSnapshot(connectionState: ConnectionState.waiting)
                       when _last != null =>
-                    [_stale(_last!)],
+                    [
+                      // ⚠ RepaintBoundary 를 달지 않습니다. 이 상태에서 PDF 를
+                      //   찍으면 바뀐 기간의 머리말에 이전 기간의 그림이 들어갑니다.
+                      StaleContent(child: Column(children: _body(_last!))),
+                    ],
                   AsyncSnapshot(connectionState: ConnectionState.waiting) => [
                       const _Pad(
                           child:
@@ -197,20 +201,6 @@ class _ReportScreenState extends State<ReportScreen> {
             );
           },
         ),
-      ),
-    );
-  }
-
-  /// 다시 불러오는 동안 보여줄 직전 리포트.
-  ///
-  /// ⚠ `RepaintBoundary` 를 달지 않습니다. 이 상태에서 PDF 를 찍으면 **바뀐 기간의
-  ///   머리말에 이전 기간의 그림**이 들어갑니다. 상담기관에 내는 문서라 그런 조합이
-  ///   나오면 안 됩니다. `IgnorePointer` 로 내보내기 버튼도 막습니다.
-  Widget _stale(EmotionReport report) {
-    return IgnorePointer(
-      child: Opacity(
-        opacity: 0.45,
-        child: Column(children: _body(report)),
       ),
     );
   }

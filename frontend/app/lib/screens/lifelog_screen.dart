@@ -101,14 +101,7 @@ class _LifelogScreenState extends State<LifelogScreen> {
                 // 다시 불러오는 중. 이전 목록이 있으면 두고 흐리게만 처리한다.
                 AsyncSnapshot(connectionState: ConnectionState.waiting)
                     when _last != null =>
-                  [
-                    IgnorePointer(
-                      child: Opacity(
-                        opacity: 0.45,
-                        child: Column(children: _body(_last!)),
-                      ),
-                    )
-                  ],
+                  [StaleContent(child: Column(children: _body(_last!)))],
                 AsyncSnapshot(connectionState: ConnectionState.waiting) =>
                   [const _Centered(child: CircularProgressIndicator(strokeWidth: 2.5))],
                 AsyncSnapshot(hasError: true, :final error) => [

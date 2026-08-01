@@ -130,3 +130,33 @@ class SectionTitle extends StatelessWidget {
     );
   }
 }
+
+/// 다시 불러오는 동안 남겨두는 직전 내용.
+///
+/// **다시 조회할 때 화면을 로딩으로 갈아치우지 않습니다.** 보여줄 것이 이미
+/// 있는데 비우면 본문이 통째로 접혔다 펴져 화면이 크게 튑니다. 실제로
+/// 홈·라이프로그·리포트·설정 네 화면에서 지적을 받아 고쳤습니다.
+///
+/// 로딩 표시는 **보여줄 것이 아직 없을 때만**(최초 진입) 씁니다.
+///
+/// ⚠ 조작을 막는 것이 핵심입니다. 흐린 값은 곧 덮어써지므로, 이 사이 토글을
+///   누르면 사라질 값을 바꾸게 됩니다.
+///
+/// ⚠ 이 안에 `RepaintBoundary` 를 두지 마세요. 리포트 PDF 는 화면을 캡처해
+///   만들기 때문에, 흐린 상태가 찍히면 **바뀐 기간의 머리말에 이전 기간의
+///   그림**이 들어갑니다.
+class StaleContent extends StatelessWidget {
+  const StaleContent({super.key, required this.child});
+
+  final Widget child;
+
+  /// 갱신 중임이 보이되 내용은 읽을 수 있는 정도.
+  static const double opacity = 0.45;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Opacity(opacity: opacity, child: child),
+    );
+  }
+}

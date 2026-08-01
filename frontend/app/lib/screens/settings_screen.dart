@@ -214,14 +214,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       : loading
                           // 갱신 중임은 흐리게 알립니다. 이 사이 토글을 누르면
                           // 곧 덮어써질 값을 바꾸게 되므로 조작도 막습니다.
-                          ? [
-                              IgnorePointer(
-                                child: Opacity(
-                                  opacity: 0.45,
-                                  child: Column(children: _sections()),
-                                ),
-                              )
-                            ]
+                          ? [StaleContent(child: Column(children: _sections()))]
                           : _sections(),
             ),
           ),

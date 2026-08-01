@@ -71,9 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // 보여줄 것이 있으면 로딩으로 덮지 않습니다. RefreshIndicator 가
               // 이미 위에서 진행을 알리고 있고, 본문까지 비우면 화면이 크게 튑니다.
               if (_last != null) {
-                return IgnorePointer(
-                  child: Opacity(opacity: 0.45, child: _content(_last!)),
-                );
+                return StaleContent(child: _content(_last!));
               }
               return _scroll([const _Loading()]);
             }
