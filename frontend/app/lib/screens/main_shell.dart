@@ -7,14 +7,20 @@ import 'lifelog_screen.dart';
 import 'settings_screen.dart';
 
 class MainShell extends StatefulWidget {
-  const MainShell({super.key});
+  const MainShell({super.key, this.initialTab = 0});
+
+  /// 처음 열 탭. 0 홈 · 1 챗봇 · 2 라이프로그 · 3 설정.
+  ///
+  /// 평소에는 0 입니다. 화면설계서용으로 특정 화면을 바로 띄울 때만 씁니다
+  /// (`--dart-define=SCREEN=...`, `main.dart` 참조).
+  final int initialTab;
 
   @override
   State<MainShell> createState() => _MainShellState();
 }
 
 class _MainShellState extends State<MainShell> {
-  int currentIndex = 0;
+  late int currentIndex = widget.initialTab;
 
   @override
   Widget build(BuildContext context) {

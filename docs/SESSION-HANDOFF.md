@@ -267,6 +267,21 @@ psql -U postgres -d lisn -f db\seed_demo_persona.sql
 > ⚠ 관리자 API 는 **JWT 가 아니라 DB 의 `role`** 을 봅니다. 승격하면 기존 토큰으로도
 > 즉시 열립니다. 다만 **관리자 웹은 재로그인**해야 합니다(세션 저장 시점에 판정).
 
+### 앱 화면을 빨리 보려면 — 개발 편의 플래그
+
+화면설계서 캡처용으로 **자동 로그인 + 화면 바로 띄우기**를 넣었습니다(2026.08.02).
+
+```powershell
+flutter run --dart-define=DEV_LOGIN=true --dart-define=SCREEN=report
+```
+
+`SCREEN` 키 — `login` `reset` `join` `home` `chat` `lifelog` `setting` `report` `emergency`
+
+> ⚠ **인증을 우회하는 경로입니다.** 컴파일 시점 플래그라 평소 빌드에는 영향이 없고
+> 릴리스 빌드에서는 무시되지만, **존재 자체를 알고 있어야 합니다.**
+> 구현·안전장치는 [`frontend/app/lib/dev_screens.dart`](../frontend/app/lib/dev_screens.dart)
+> 파일 상단 주석에 정리돼 있습니다.
+
 ### 회귀 테스트 — 전체 88건
 
 | 대상 | 건수 | 실행 |

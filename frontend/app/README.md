@@ -40,6 +40,32 @@ flutter test
 테스트 20건은 **모델 파싱 · 안전 규칙 · 재조회 시 화면 유지**를 고정합니다. 실패하면 주석에 적힌 요구사항 ID 부터
 읽으세요.
 
+## ⚠ 개발 편의 플래그 — 인증 우회 경로가 있습니다
+
+화면설계서 캡처나 화면 확인 때 매번 로그인하지 않도록 **자동 로그인**과 **화면 바로
+띄우기**를 넣었습니다(`lib/dev_screens.dart`, 2026.08.02).
+
+```bash
+flutter run --dart-define=DEV_LOGIN=true --dart-define=SCREEN=report
+```
+
+| 플래그 | 하는 일 |
+|---|---|
+| `DEV_LOGIN=true` | 켤 때 데모 계정으로 자동 로그인 |
+| `SCREEN=<키>` | 그 화면으로 바로 시작 |
+
+`SCREEN` 키 — `login` `reset` `join` `home` `chat` `lifelog` `setting` `report` `emergency`
+
+> ### 되돌리거나 지울 때 알아야 할 것
+>
+> - **컴파일 시점 플래그입니다.** 값을 주지 않은 평소 빌드에는 아무 영향이 없습니다
+> - **릴리스 빌드에서는 무시**합니다(`kReleaseMode` 검사). 이 검사를 빼지 마세요
+> - 계정은 `demo.crisis@lisn-test.example` 입니다. `.example` 은 RFC 2606 예약
+>   도메인이라 실제로 존재할 수 없습니다
+> - **인증 검사만 끄는 방식이 아닙니다.** 그러면 화면은 떠도 서버 호출이 전부 401 이라
+>   빈 화면만 보입니다. 실제 토큰을 받아야 데이터까지 그려집니다
+> - 데이터가 보이려면 백엔드가 떠 있고 `db/seed_demo_persona.sql` 이 들어가 있어야 합니다
+
 ## 서버 JSON 을 직접 캐스팅하지 마세요
 
 `lib/models/json.dart` 의 헬퍼(`jsonInt`·`jsonNum`·`jsonAt`·`jsonStr`·`jsonBool`·`jsonObj`·
