@@ -230,58 +230,70 @@ class _LoginScreenState extends State<LoginScreen> {
       const SizedBox(height: 28),
 
       // ---- 1단계 이후: 이메일 ----
-      if (step != _Step.intro) ...[
-        const Text('이메일',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 9),
-        TextFormField(
-          controller: emailController,
-          focusNode: emailFocus,
-          keyboardType: TextInputType.emailAddress,
-          textInputAction: TextInputAction.next,
-          autofillHints: const [AutofillHints.email],
-          onFieldSubmitted: (_) {
-            if (_emailLooksReady) passwordFocus.requestFocus();
-          },
-          validator: (value) {
-            final email = value?.trim() ?? '';
-            if (!email.contains('@') || !email.contains('.')) {
-              return '올바른 이메일을 입력해주세요';
-            }
-            return null;
-          },
-        ),
-      ],
-
-      // ---- 2단계: 비밀번호 ----
-      if (step == _Step.password) ...[
-        const SizedBox(height: 20),
-        const Text('비밀번호',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 9),
-        TextFormField(
-          controller: passwordController,
-          focusNode: passwordFocus,
-          obscureText: true,
-          textInputAction: TextInputAction.done,
-          autofillHints: const [AutofillHints.password],
-          onFieldSubmitted: (_) => login(),
-          validator: (value) =>
-              (value?.length ?? 0) < 8 ? '비밀번호는 8자 이상 입력해주세요' : null,
-        ),
-        // 비밀번호 칸과 함께 나타납니다. 이메일만 있는 단계에서는
-        // 아직 필요 없는 선택지입니다.
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton(
-            onPressed: loading
-                ? null
-                : () => Navigator.pushNamed(context, '/password-reset'),
-            child:
-                const Text('비밀번호를 잊으셨나요?', style: TextStyle(fontSize: 11)),
+      if (step != _Step.intro)
+        _Reveal(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text('이메일',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 9),
+              TextFormField(
+                controller: emailController,
+                focusNode: emailFocus,
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.email],
+                onFieldSubmitted: (_) {
+                  if (_emailLooksReady) passwordFocus.requestFocus();
+                },
+                validator: (value) {
+                  final email = value?.trim() ?? '';
+                  if (!email.contains('@') || !email.contains('.')) {
+                    return '올바른 이메일을 입력해주세요';
+                  }
+                  return null;
+                },
+              ),
+            ],
           ),
         ),
-      ],
+
+      // ---- 2단계: 비밀번호 ----
+      if (step == _Step.password)
+        _Reveal(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 20),
+              const Text('비밀번호',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 9),
+              TextFormField(
+                controller: passwordController,
+                focusNode: passwordFocus,
+                obscureText: true,
+                textInputAction: TextInputAction.done,
+                autofillHints: const [AutofillHints.password],
+                onFieldSubmitted: (_) => login(),
+                validator: (value) =>
+                    (value?.length ?? 0) < 8 ? '비밀번호는 8자 이상 입력해주세요' : null,
+              ),
+              // 비밀번호 칸과 함께 나타납니다. 이메일만 있는 단계에서는
+              // 아직 필요 없는 선택지입니다.
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: loading
+                      ? null
+                      : () => Navigator.pushNamed(context, '/password-reset'),
+                  child: const Text('비밀번호를 잊으셨나요?',
+                      style: TextStyle(fontSize: 11)),
+                ),
+              ),
+            ],
+          ),
+        ),
 
       if (errorMessage != null) ...[
         const SizedBox(height: 6),
@@ -338,6 +350,34 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ],
     ];
+  }
+}
+
+/// 새로 나타나는 입력란을 흐릿하게 띄우며 살짝 밀어 올립니다.
+///
+/// `AnimatedSize` 는 **자리(높이)만** 부드럽게 늘려줍니다. 그 안의 위젯은
+/// 첫 프레임부터 완전히 보여서, 칸이 열리는 동안 글자가 툭 나타나 보입니다.
+///
+/// 위젯이 트리에 붙는 순간이 곧 등장 시점이라 상태를 따로 두지 않습니다.
+class _Reveal extends StatelessWidget {
+  const _Reveal({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0, end: 1),
+      duration: _LoginScreenState._revealDuration,
+      // 자리가 어느 정도 열린 뒤에 나타납니다. 처음부터 같이 시작하면
+      // 아직 좁은 칸에서 글자가 잘려 보입니다.
+      curve: const Interval(0.35, 1.0, curve: Curves.easeOut),
+      builder: (context, t, child) => Opacity(
+        opacity: t,
+        child: Transform.translate(offset: Offset(0, 10 * (1 - t)), child: child),
+      ),
+      child: child,
+    );
   }
 }
 
