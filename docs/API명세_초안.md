@@ -306,8 +306,16 @@ Flutter 에 `MAIN_REPORT_01` 화면이 이미 있어 그대로 조판할 수 있
 ### `GET /admin/dashboard`
 `MLCM_501` ❶ — `{ "normal": 128, "caution": 34, "critical": 5, "evaluated_at": "..." }`
 
-### `GET /admin/users?risk_level=&limit=&offset=`
+### `GET /admin/users?risk_level=&q=&limit=&offset=`
 ❷ 대상자 목록. 기본 정렬은 **위험도 높은 순 → 최근 평가순**.
+
+평가 이력이 없는 사용자도 포함한다(`risk_level: null`). 관리자 입장에서 "분석된 적 없는 사람"도 관리 대상이다.
+
+**`q`** — 이름·이메일 부분 일치 검색(대소문자 무시, 100자 제한). `risk_level` 과 **AND** 로 걸린다. 2026.08.02 추가.
+
+> **연락처로는 검색할 수 없다.** `phone` 은 AES-256-GCM 컬럼 암호화라(`02-F`(3)) 같은 값도 암호문이 매번 달라 부분 일치가 성립하지 않는다. 복호화해 비교하려면 전 사용자를 메모리로 올려야 하므로 하지 않는다. 검색 편의보다 저장 시점의 보호를 택한 결과다(안건 4).
+>
+> `%`·`_` 는 **리터럴로 취급**한다. 이스케이프하지 않으면 `%` 한 글자가 전체 조회가 되고, `_` 가 임의의 한 글자로 동작해 결과가 조용히 틀어진다.
 
 ### `GET /admin/users/{user_id}/report?from=&to=`
 ❸ — `GET /reports` 와 동일 스키마. 대상 `user_id` 만 관리자가 지정한다.

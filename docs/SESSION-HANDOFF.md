@@ -205,14 +205,14 @@ psql -U postgres -d lisn -f db\seed_demo_persona.sql
 > ⚠ 관리자 API 는 **JWT 가 아니라 DB 의 `role`** 을 봅니다. 승격하면 기존 토큰으로도
 > 즉시 열립니다. 다만 **관리자 웹은 재로그인**해야 합니다(세션 저장 시점에 판정).
 
-### 회귀 테스트 — 전체 78건
+### 회귀 테스트 — 전체 85건
 
 | 대상 | 건수 | 실행 |
 |---|---|---|
 | 백엔드 | 45 | `cd backend` → `python -m pytest -q` (개발 DB 필요) |
 | AI 추론 서버 | 13 | `python -m pytest ai/server -q` (**DB 불필요**) |
 | Flutter 앱 | 17 | `cd frontend/app` → `flutter test` |
-| 관리자 웹 | 3 | `cd frontend/admin` → `npm test` |
+| 관리자 웹 | 10 | `cd frontend/admin` → `npm test` |
 
 수동으로 확인했던 불변조건이 고정돼 있습니다. **주석에 어느 요구사항을 지키는 테스트인지
 적혀 있으니 실패하면 그것부터 읽으세요.**
