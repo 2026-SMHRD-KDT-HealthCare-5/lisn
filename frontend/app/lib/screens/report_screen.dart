@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../models/auth_models.dart' show ApiException;
 import '../models/report_models.dart';
 import '../services/app_services.dart';
+import '../services/report_pdf.dart';
 import '../services/report_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common_widgets.dart';
@@ -45,6 +47,10 @@ class _ReportScreenState extends State<ReportScreen> {
   _Range range = _Range.week;
   late Future<EmotionReport> _future;
 
+  /// PDF 로 찍을 영역. 화면에 그려진 뒤에만 캡처가 됩니다.
+  final _captureKey = GlobalKey();
+  bool exporting = false;
+
   @override
   void initState() {
     super.initState();
@@ -64,6 +70,50 @@ class _ReportScreenState extends State<ReportScreen> {
       range = next;
       _future = _load();
     });
+  }
+
+  /// ❺ PDF 내보내기 — FR-MN-001
+  ///
+  /// 화면을 이미지로 찍어 A4 문서에 넣고 공유 시트를 띄웁니다.
+  /// 이름·기간·생성일시는 캡처가 아니라 PDF 머리말로 그려집니다 —
+  /// 상담기관 제출 문서라 기기가 달라도 같은 자리에 있어야 합니다.
+  Future<void> _exportPdf(EmotionReport report) async {
+    if (exporting) return;
+    setState(() => exporting = true);
+    try {
+      final boundary = _captureKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
+      if (boundary == null) {
+        throw StateError('캡처할 영역을 찾지 못했습니다');
+      }
+      final image = await ReportPdf.capture(boundary);
+      if (image == null) {
+        throw StateError('화면을 이미지로 만들지 못했습니다');
+      }
+
+      // 이름은 프로필에서 가져옵니다. 실패해도 PDF 는 만듭니다 —
+      // 이름 하나 때문에 내보내기 전체가 막히면 안 됩니다.
+      String name = '';
+      try {
+        name = (await AppServices.settings.profile()).name;
+      } catch (_) {}
+
+      await ReportPdf.share(
+        capture: image,
+        report: report,
+        userName: name,
+        generatedAt: DateTime.now(),
+      );
+    } catch (e, stack) {
+      // 원인을 삼키지 않습니다. 사용자에게는 짧은 문구만 보여주고
+      // 실제 오류는 로그로 남겨야 다음에 원인을 찾을 수 있습니다.
+      debugPrint('[report-pdf] 내보내기 실패: $e\n$stack');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('PDF를 만들지 못했습니다. 잠시 후 다시 시도해주세요.')));
+    } finally {
+      if (mounted) setState(() => exporting = false);
+    }
   }
 
   @override
@@ -105,7 +155,14 @@ class _ReportScreenState extends State<ReportScreen> {
                           ? error.message
                           : '리포트를 불러오지 못했습니다.'),
                     ],
-                  _ => _body(snap.data!),
+                  _ => [
+                      // PDF 로 찍을 영역. 기간 선택 버튼은 문서에 들어갈
+                      // 내용이 아니므로 바깥에 둡니다.
+                      RepaintBoundary(
+                        key: _captureKey,
+                        child: Column(children: _body(snap.data!)),
+                      ),
+                    ],
                 },
               ],
             );
@@ -288,18 +345,22 @@ class _ReportScreenState extends State<ReportScreen> {
           ),
         ]),
         const SizedBox(height: 18),
-        // TODO(PDF): FR-MN-001 — 상담기관·주치의 등과 공유용 내보내기.
-        //   서버 엔드포인트를 두지 않기로 했으므로 앱에서 조판한다.
-        //   pdf·printing 패키지와 한글 폰트 임베드가 필요하다.
-        //   ⚠ 상담기관 제출 문서이므로 기간·생성일시·본인 식별 정보는
-        //     기기와 무관하게 같은 위치에 있어야 한다.
+        // ❺ PDF 내보내기 — FR-MN-001
+        // 서버 엔드포인트를 두지 않고 앱에서 조판합니다.
+        // 방식과 규격은 services/report_pdf.dart 주석 참고.
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
-            onPressed: null,
-            icon: const Icon(Icons.picture_as_pdf_outlined, size: 17),
-            label: const Text('PDF로 내보내기 (준비 중)',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+            onPressed: exporting ? null : () => _exportPdf(report),
+            icon: exporting
+                ? const SizedBox(
+                    width: 15,
+                    height: 15,
+                    child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(Icons.picture_as_pdf_outlined, size: 17),
+            label: Text(exporting ? '만드는 중...' : 'PDF로 내보내기',
+                style: const TextStyle(
+                    fontSize: 12, fontWeight: FontWeight.w700)),
             style: OutlinedButton.styleFrom(
               minimumSize: const Size.fromHeight(46),
               side: const BorderSide(color: AppColors.line),
