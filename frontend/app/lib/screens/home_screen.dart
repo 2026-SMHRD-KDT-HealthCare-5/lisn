@@ -27,14 +27,34 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late Future<HomeSnapshot> _future;
 
+  /// 마지막으로 성공한 홈 내용.
+  ///
+  /// 당겨서 새로고침할 때 화면을 로딩으로 갈아치우면 **보고 있던 내용이 통째로
+  /// 사라졌다 돌아옵니다.** RefreshIndicator 가 이미 위에서 진행 표시를 하고
+  /// 있으므로, 본문은 그대로 두는 편이 맞습니다.
+  HomeSnapshot? _last;
+
   @override
   void initState() {
     super.initState();
-    _future = (widget.homeService ?? AppServices.home).fetch();
+    _future = _loadAndKeep();
+  }
+
+  /// 성공한 결과만 보관합니다.
+  ///
+  /// ⚠ `then(...).ignore()` 를 async/await 로 바꾸지 마세요. 조회가 즉시 실패하면
+  ///   FutureBuilder 가 구독하기 전에 오류가 도착해 미처리 예외로 보고됩니다.
+  ///   자세한 내용은 report_screen.dart 의 같은 함수 주석에 있습니다.
+  Future<HomeSnapshot> _loadAndKeep() {
+    final future = (widget.homeService ?? AppServices.home).fetch();
+    future.then((snapshot) {
+      if (mounted) _last = snapshot;
+    }).ignore();
+    return future;
   }
 
   Future<void> _refresh() async {
-    final next = (widget.homeService ?? AppServices.home).fetch();
+    final next = _loadAndKeep();
     setState(() => _future = next);
     await next.catchError((_) => throw Exception());
   }
@@ -48,6 +68,13 @@ class _HomeScreenState extends State<HomeScreen> {
           future: _future,
           builder: (context, snap) {
             if (snap.connectionState == ConnectionState.waiting) {
+              // 보여줄 것이 있으면 로딩으로 덮지 않습니다. RefreshIndicator 가
+              // 이미 위에서 진행을 알리고 있고, 본문까지 비우면 화면이 크게 튑니다.
+              if (_last != null) {
+                return IgnorePointer(
+                  child: Opacity(opacity: 0.45, child: _content(_last!)),
+                );
+              }
               return _scroll([const _Loading()]);
             }
             if (snap.hasError) {
