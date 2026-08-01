@@ -26,7 +26,7 @@ class MaeumeApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       navigatorKey: appNavigatorKey,
-      title: '마음이',
+      title: '귀기울임',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       initialRoute: '/',

@@ -2,8 +2,16 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 
-class MaeumeBrand extends StatelessWidget {
-  const MaeumeBrand({super.key, this.size = 23});
+/// 서비스명 표기 — **귀기울임**
+///
+/// ⚠ 여기에 '마음이'를 쓰지 않습니다. 그건 챗봇 캐릭터의 이름이고
+///   서비스명이 아닙니다(SD-03 확정). 산출물 5종과 발표자료, 관리자 웹이
+///   모두 '귀기울임(LISN)'을 쓰므로 앱만 다른 이름이면 정합성이 깨집니다.
+///
+///   '마음이'는 **캐릭터가 말하거나 캐릭터를 가리킬 때만** 씁니다.
+///   예) '마음이가 생각하고 있어요' · 페르소나 프롬프트의 자기소개
+class LisnBrand extends StatelessWidget {
+  const LisnBrand({super.key, this.size = 23});
   final double size;
 
   @override
@@ -11,13 +19,23 @@ class MaeumeBrand extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('마음이',
+        Text('귀기울임',
             style: TextStyle(
                 fontSize: size,
                 fontWeight: FontWeight.w900,
                 color: const Color(0xFF24325F))),
-        const SizedBox(width: 3),
-        Icon(Icons.favorite, size: size * .72, color: const Color(0xFF8D98E8)),
+        const SizedBox(width: 4),
+        // 영문 표기는 한글 서비스명보다 작게 둡니다. 같은 크기로 나란히 두면
+        // 둘이 별개 이름처럼 읽힙니다.
+        Padding(
+          padding: EdgeInsets.only(top: size * .18),
+          child: Text('LISN',
+              style: TextStyle(
+                  fontSize: size * .5,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: .5,
+                  color: const Color(0xFF8D98E8))),
+        ),
       ],
     );
   }

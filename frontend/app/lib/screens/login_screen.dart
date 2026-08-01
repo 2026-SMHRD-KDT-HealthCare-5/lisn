@@ -221,7 +221,7 @@ class _MobileLoginHero extends StatelessWidget {
         clipBehavior: Clip.hardEdge,
         children: [
           const ColoredBox(color: Color(0xFFEDF2FF), child: SizedBox.expand()),
-          const Positioned(left: 24, top: 25, child: MaeumeBrand(size: 22)),
+          const Positioned(left: 24, top: 25, child: LisnBrand(size: 22)),
           const Positioned(
             left: 25,
             top: 92,
@@ -261,7 +261,7 @@ class _DesktopLoginVisual extends StatelessWidget {
       child: Stack(
         children: [
           const Align(
-              alignment: Alignment.topLeft, child: MaeumeBrand(size: 26)),
+              alignment: Alignment.topLeft, child: LisnBrand(size: 26)),
           const Align(
             alignment: Alignment(-.65, -.15),
             child: Column(

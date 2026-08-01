@@ -124,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight)),
       child: Stack(children: [
-        const Align(alignment: Alignment.topLeft, child: MaeumeBrand()),
+        const Align(alignment: Alignment.topLeft, child: LisnBrand()),
         const Align(
             alignment: Alignment.topRight,
             child: Badge(
