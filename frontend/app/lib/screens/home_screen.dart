@@ -158,12 +158,18 @@ class _HomeScreenState extends State<HomeScreen> {
               end: Alignment.bottomRight)),
       child: Stack(children: [
         const Align(alignment: Alignment.topLeft, child: LisnBrand()),
-        const Align(
-            alignment: Alignment.topRight,
-            child: Badge(
-                smallSize: 7,
-                child: Icon(Icons.notifications_none_rounded,
-                    color: AppColors.navy))),
+        // ⚠ **알림 종 아이콘을 되살리지 마세요.**
+        //
+        //   여기에 `Badge(smallSize: 7)` 로 빨간 점이 찍힌 종이 있었습니다.
+        //   문제가 셋이었습니다.
+        //     1. 화면설계서 `MAIN_HOME_01` ❶~❺ 에 **알림 항목이 없습니다**
+        //     2. 서버에 알림 API 가 없습니다. 설정 화면은 이 점을 스위치 비활성화와
+        //        「알림 기능은 준비 중이에요」로 정직하게 알리는데, 홈이 빨간 점으로
+        //        **읽지 않은 알림이 있다고 주장**해 두 화면이 서로 모순됐습니다
+        //     3. `IconButton` 도 아닌 정적 `Icon` 이라 **눌리지도 않았습니다**
+        //
+        //   FCM 을 붙이고 알림 목록 API 가 생기면 그때 넣으세요. 그 전까지는
+        //   없는 편이 낫습니다 — 마이크 버튼·챗봇 검색 아이콘과 같은 판단입니다.
         Positioned(
             left: 0,
             top: 58,

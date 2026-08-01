@@ -139,6 +139,19 @@ void main() {
     }
   });
 
+  testWidgets('구현되지 않은 알림 종 아이콘을 두지 않는다', (tester) async {
+    // ⚠ 빨간 배지가 찍힌 종이 있었습니다. 화면설계서 ❶~❺ 에 알림 항목이 없고,
+    //   서버에 알림 API 도 없습니다. 설정 화면은 「준비 중」이라고 정직하게
+    //   알리는데 홈이 빨간 점으로 「읽지 않은 알림 있음」을 주장해 모순됐습니다.
+    //   눌리지도 않는 정적 Icon 이었습니다.
+    await _pump(
+      tester,
+      _homeJson(code: 'JOY', name: '기쁨', risk: 'NORMAL', action: 'CHAT'),
+    );
+    expect(find.byIcon(Icons.notifications_none_rounded), findsNothing);
+    expect(find.byType(Badge), findsNothing);
+  });
+
   testWidgets('위기 상태에서는 인사말에 웃는 이모지를 붙이지 않는다', (tester) async {
     await _pump(
       tester,
