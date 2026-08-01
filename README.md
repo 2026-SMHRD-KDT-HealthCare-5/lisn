@@ -2,8 +2,9 @@
 
 **멀티모달 라이프로그 감정 분석 기반 맞춤형 LLM 케어 및 모니터링 시스템**
 
-> **최종 점검** 2026.07.31 · 현재 구현은 인증 API 6개, Flutter 인증·긴급 상담 흐름,
-> React 관리자 로그인·권한 가드까지 완료된 상태입니다.
+> **최종 점검** 2026.08.01 · API 30개 · 앱 화면 13개 · 관리자 웹 2개가 전부 연동돼
+> **수집 → 분석 → 케어 → 관제 전 구간이 관통합니다.** 남은 구현은 Health Connect
+> 실기기 연동이고, 정서 판정은 **규칙 기반 임시값**입니다(아래 「현재 구현 상태」).
 
 Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog anomaly detection (LSTM AE + LightGBM) with persona-based LLM care | Flutter · FastAPI · PostgreSQL
 
@@ -34,11 +35,15 @@ Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog anomal
 | 영역 | 기술 |
 |---|---|
 | Frontend | Flutter (사용자 앱) · React + Vite (관리자 관제 웹) |
-| Backend | FastAPI — 비동기 REST API, JWT 인증 구현 · 앱 push 수신 설계 |
-| Database | PostgreSQL — UUID v4 / TIMESTAMPTZ / JSONB |
+| Backend | FastAPI — 비동기 REST API, JWT 인증, 앱 push UPSERT 수신 |
+| Database | PostgreSQL 17 — UUID v4 / TIMESTAMPTZ / JSONB |
 | AI / ML | PyTorch · LSTM Autoencoder · LightGBM · Pandas / Scikit-learn |
-| LLM | OpenAI API (페르소나 대화 · 위기 문맥 탐지 · 세션 요약) / Whisper (STT) |
+| LLM | OpenAI API (페르소나 대화 · 위기 문맥 탐지 · 세션 요약) |
 | 데이터 연동 | Health Connect (Android) |
+
+> 음성 입력(Whisper STT)은 **이번 범위에서 제외**했습니다. 위기 판정 전에 응답을 흘릴 수
+> 없는 구조라 스트리밍도 쓰지 않습니다 — `CRITICAL` 일 때 이미 나간 글자를 회수할 수
+> 없기 때문입니다.
 
 **플랫폼 범위** — Android 전용입니다. Health Connect 가 Android 전용 API이며, iOS 는 HealthKit 기반 별도 연동 계층이 필요해 본 과제 기간 내 구현 대상에서 제외했습니다.
 
@@ -52,18 +57,50 @@ Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog anomal
                        |  HTTPS / REST
                        v
 [비즈니스 서버]  FastAPI  <->  PostgreSQL
-                 JWT 인증 · 앱 push 수신/UPSERT 적재(구현 예정)
+                 JWT 인증 · 앱 push 수신/UPSERT 적재 · 키워드 위기 필터
                        |  내부 API
                        v
 [AI 추론 서버]   1차  LSTM Autoencoder  ->  anomaly_score (재구성 오차)
                  2차  LightGBM          ->  감정 9종 · risk_score
-                      OpenAI            ->  페르소나 대화 · 위기 문맥 탐지
                        |
                        v
 [시스템 액션]   NORMAL -> CHAT   |   CAUTION -> CONTENT   |   CRITICAL -> EMERGENCY
 ```
 
 대용량 시계열 수집과 LLM 추론 부하가 서로 간섭하지 않도록 비즈니스 로직 서버와 AI 추론 서버를 분리했습니다.
+
+**위기 문맥 탐지는 비즈니스 서버에 둡니다.** `NFR-DV-003` 이 외부 API 장애 시에도 키워드
+필터 단독 동작을 요구하므로, AI 추론 서버에 두면 그 서버가 죽을 때 같이 죽습니다.
+
+---
+
+## 현재 구현 상태 (2026.08.01)
+
+| 영역 | 상태 |
+|---|---|
+| 백엔드 API | 30개 **구현·검증 완료**. 회귀 테스트 23건 |
+| Flutter 앱 | 화면 13개 **전부 실제 API 연동**. 목업 없음. 테스트 17건 |
+| 관리자 관제 웹 | 로그인·역할 가드 + 분포·대상자·상세 3개 탭 완료 |
+| AI 추론 서버 | 구동 완료. **판정은 규칙 기반 임시값** ⚠ |
+| Health Connect | **미구현.** 권한 화면 UI 만 있음 |
+
+> ### ⚠ 정서 판정 수치를 성능 근거로 쓰지 마세요
+>
+> `model_version` 이 `rule-placeholder-v0` 이면 모델 결과가 아니라 임의 임계값입니다.
+>
+> **이번 과제에서는 모델을 학습하지 않습니다.** GLOBEM 공개 샘플 4개를 다 합쳐도
+> 참가자 40명이라 ROC-AUC **0.528**(95% 구간이 0.5 를 포함) — 무작위와 구분되지
+> 않습니다. 전체 데이터(497명)는 PhysioNet 자격 심사가 **최대 45일**이라 8/28 발표까지
+> 남은 27일로는 승인돼도 쓸 시간이 없습니다. 실측 근거는 [`ai/README.md`](ai/README.md).
+>
+> 학습 대신 **전처리 → 추론 → 적재 → 액션 전환 파이프라인의 완성도**로 갑니다.
+> `_predict()` 하나만 바꾸면 모델이 들어가도록 계약을 고정해 뒀습니다.
+
+> ### LLM 은 현재 Gemini 로 돕니다 — 임시입니다
+>
+> `.env` 의 `LLM_PROVIDER` 로 전환합니다. 평소 개발은 Gemini(무료 한도), 정확도 검사·
+> 시연은 OpenAI. **산출 문서의 "외부 OpenAI API" 가 정본**이고, OpenAI 경로는 살아
+> 있습니다. Gemini 는 OpenAI 호환 엔드포인트라 SDK 는 `openai` 를 그대로 씁니다.
 
 ---
 
@@ -72,13 +109,21 @@ Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog anomal
 ```
 lisn/
 ├── backend/     FastAPI 비즈니스 서버          (윤일준)
-├── ai/          AI 추론 서버 · 모델링          (김건영)
-├── frontend/    Flutter 앱 · React 관리자 웹   (함은선)
+├── ai/
+│   ├── server/              FastAPI 추론 서버 (포트 8001)   (김건영)
+│   ├── preprocess/          라이프로그 전처리
+│   └── train/               2단계 모델 학습 스크립트
+├── frontend/
+│   ├── app/                 Flutter 사용자 앱               (함은선)
+│   ├── admin/               React + Vite 관리자 관제 웹
+│   └── design/              화면 시안 (앱 빌드 제외)
 ├── db/
-│   └── schema.sql            8개 테이블 DDL + EMOTIONS 마스터 시드
+│   ├── schema.sql           8개 테이블 DDL + EMOTIONS 마스터 시드
+│   └── seed_healing_contents.sql   힐링 콘텐츠 시드
 ├── docs/
-│   ├── extracted/            산출물 HWP·PPTX 본문 추출본 (버전 diff 비교용)
-│   └── review/               문서 검수·개정 관리
+│   ├── extracted/           산출물 HWP·PPTX 본문 추출본 (버전 diff 비교용)
+│   ├── llm/                 LLM 작업 규칙 · 사용 이력
+│   └── review/              문서 검수·개정 관리
 ├── tools/
 │   ├── start-dev.ps1         백엔드 · 관리자 웹 · Flutter 통합 실행
 │   ├── doc2txt.py            PDF·PPTX 기준 본문 추출 스크립트
@@ -98,7 +143,8 @@ git clone https://github.com/2026-SMHRD-KDT-HealthCare-5/lisn.git
 
 ### DB 구축
 
-PostgreSQL 13 이상이 필요합니다. (12 이하면 `db/schema.sql` 상단 주석의 `pgcrypto` 확장 참고)
+**PostgreSQL 17 로 고정합니다.** 팀 재현성을 위해 버전을 통일합니다.
+(13 미만이면 `db/schema.sql` 상단 주석의 `pgcrypto` 확장 참고)
 
 ```bash
 psql -U postgres -c "CREATE DATABASE lisn;"
@@ -111,6 +157,12 @@ psql -U postgres -d lisn -f db/schema.sql
 `schema.sql` 은 05 테이블명세서와 정합을 맞춘 현재 스키마 정본입니다. 8개 테이블과
 `EMOTIONS` 9종 시드를 생성합니다. 기존 DB가 구버전이면 개발 단계에서는 스키마를 다시
 적용합니다.
+
+콘텐츠 추천(`CAUTION` 액션)을 쓰려면 힐링 콘텐츠도 넣습니다.
+
+```bash
+psql -U postgres -d lisn -f db/seed_healing_contents.sql
+```
 
 ### 애플리케이션 실행
 
@@ -147,7 +199,19 @@ npm install
 npm run dev
 ```
 
+```powershell
+cd ai\server
+uvicorn main:app --reload --port 8001
+```
+
 환경별 DB 접속 정보와 비밀값은 `backend/.env`에만 넣고 커밋하지 않습니다.
+
+> **관리자 웹은 5173 포트여야 합니다.** 백엔드 `CORS_ORIGINS` 가 그 주소만 허용합니다.
+> 이전 vite 인스턴스가 5173 을 잡고 있으면 새 창이 5174 로 뜨고 요청이 전부 CORS 로
+> 막힙니다. 먼저 남은 프로세스를 정리하세요.
+>
+> **`role` 은 JWT 에 박힙니다.** `UPDATE users SET role='ADMIN'` 만 하고 기존 토큰을
+> 쓰면 계속 403 입니다. **승격 후 재로그인**해야 합니다.
 
 ### 문서 작업
 
@@ -166,7 +230,7 @@ python tools\doc2txt.py
 ## 협업 규칙
 
 - 작업은 개인 브랜치에서 진행하고 `main` 으로 병합합니다. (`feat/`, `docs/`, `fix/` 접두사)
-- `.env` 는 절대 커밋하지 않습니다. **OpenAI API 키가 공개 저장소에 올라가면 즉시 폐기해야 합니다.**
+- `.env` 는 절대 커밋하지 않습니다. **API 키(OpenAI·Gemini)가 공개 저장소에 올라가면 즉시 폐기해야 합니다.**
 - 산출물 문서를 수정하면 추출본도 갱신하고, 완료 근거는 `docs/review/작업이력.md`에 기록합니다.
 
 ---
