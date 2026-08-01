@@ -732,16 +732,24 @@ class _JoinScreenState extends State<JoinScreen> {
                   const Icon(Icons.chevron_right_rounded)
               ])),
         ),
-        if (wearableChoice == _Wearable.connect)
-          // ⚠ 연동 정보만 등록했을 뿐 기기 권한은 아직 없습니다.
-          //   Health Connect 는 on-device 권한 모델이라 앱이 따로 받아야
-          //   합니다. 다 된 것처럼 두면 데이터가 안 들어올 때 헤맵니다.
-          const Padding(
+        // ⚠ 연동 정보만 등록했을 뿐 기기 권한은 아직 없습니다.
+        //   Health Connect 는 on-device 권한 모델이라 앱이 따로 받아야
+        //   합니다. 다 된 것처럼 두면 데이터가 안 들어올 때 헤맵니다.
+        //
+        // ⚠ 보이지 않을 때도 **자리를 차지하게** 둡니다. 나타났다 사라지면
+        //   그만큼 아래 내용이 밀려 화면 전체가 흔들립니다.
+        Visibility(
+          visible: wearableChoice == _Wearable.connect,
+          maintainSize: true,
+          maintainAnimation: true,
+          maintainState: true,
+          child: const Padding(
             padding: EdgeInsets.only(top: 8),
             child: Text('연동을 등록했어요. 설정에서 건강 데이터 권한을 켜면 기록이 쌓입니다.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 11, color: AppColors.muted)),
           ),
+        ),
         const SizedBox(height: 18),
         ElevatedButton(
           // 둘 중 하나를 고르기 전에는 넘어가지 않습니다.
@@ -759,9 +767,15 @@ class _JoinScreenState extends State<JoinScreen> {
         //
         // 등록을 마치면 감춥니다. 이미 연결해 둔 사람에게 이 문구가 남아
         // 있으면 무엇을 더 해야 하나 싶습니다.
-        if (wearableChoice != _Wearable.connect)
-          TextButton(
-            onPressed: loading
+        // 다만 **자리는 남겨둡니다** — 사라지면서 위 내용이 딸려 올라가면
+        // 화면이 흔들립니다.
+        Visibility(
+          visible: wearableChoice != _Wearable.connect,
+          maintainSize: true,
+          maintainAnimation: true,
+          maintainState: true,
+          child: TextButton(
+            onPressed: loading || wearableChoice == _Wearable.connect
                 ? null
                 : () => setState(() => wearableChoice = _Wearable.later),
             child: Text('나중에 연결할게요',
@@ -774,6 +788,7 @@ class _JoinScreenState extends State<JoinScreen> {
                         ? AppColors.primary
                         : AppColors.muted)),
           ),
+        ),
       ],
     );
   }
