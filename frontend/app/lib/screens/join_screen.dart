@@ -21,6 +21,7 @@ class _JoinScreenState extends State<JoinScreen> {
   final birthDateController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final passwordConfirmController = TextEditingController();
   final heightController = TextEditingController();
   final phoneController = TextEditingController();
   String? gender;
@@ -38,6 +39,7 @@ class _JoinScreenState extends State<JoinScreen> {
     birthDateController.dispose();
     emailController.dispose();
     passwordController.dispose();
+    passwordConfirmController.dispose();
     heightController.dispose();
     phoneController.dispose();
     super.dispose();
@@ -305,7 +307,49 @@ class _JoinScreenState extends State<JoinScreen> {
             validator: (value) =>
                 (value?.length ?? 0) < 8 ? '비밀번호는 8자 이상 입력해주세요' : null,
           ),
-          const SizedBox(height: 10),
+          // 화면설계서 ❷ 가 '비밀번호/비밀번호 확인' 을 규정합니다.
+          // 서버는 확인값을 받지 않으므로 여기서만 대조합니다.
+          _Field(
+            label: '비밀번호 확인',
+            controller: passwordConfirmController,
+            obscure: true,
+            textInputAction: TextInputAction.next,
+            validator: (value) => value != passwordController.text
+                ? '비밀번호가 일치하지 않습니다'
+                : null,
+          ),
+          // ❹~❻ 사용자 인적사항 — 문서에 선택 표기가 없으므로 필수입니다.
+          // ⚠ schema.sql 은 birth_date·gender 를 NULL 허용으로 두지만,
+          //   그건 저장 가능 여부고 화면 요건과는 별개입니다.
+          _Field(
+            label: '생년월일',
+            controller: birthDateController,
+            hint: '1994-05-16',
+            keyboardType: TextInputType.datetime,
+            textInputAction: TextInputAction.next,
+            validator: (value) {
+              final text = value?.trim() ?? '';
+              if (text.isEmpty) return '생년월일을 입력해주세요';
+              return DateTime.tryParse(text) == null
+                  ? 'YYYY-MM-DD 형식으로 입력해주세요'
+                  : null;
+            },
+          ),
+          const Text('성별',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(
+            initialValue: gender,
+            decoration: const InputDecoration(hintText: '선택해주세요'),
+            items: const [
+              DropdownMenuItem(value: 'MALE', child: Text('남성')),
+              DropdownMenuItem(value: 'FEMALE', child: Text('여성')),
+              DropdownMenuItem(value: 'OTHER', child: Text('기타')),
+            ],
+            onChanged: (value) => setState(() => gender = value),
+            validator: (value) => value == null ? '성별을 선택해주세요' : null,
+          ),
+          const SizedBox(height: 22),
           _optionalSection(),
           const SizedBox(height: 22),
           if (errorMessage != null) ...[
@@ -350,33 +394,6 @@ class _JoinScreenState extends State<JoinScreen> {
     final fields = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _Field(
-          label: '생년월일',
-          controller: birthDateController,
-          hint: '1994-05-16',
-          keyboardType: TextInputType.datetime,
-          textInputAction: TextInputAction.next,
-          validator: (value) {
-            if (value == null || value.trim().isEmpty) return null;
-            return DateTime.tryParse(value.trim()) == null
-                ? 'YYYY-MM-DD 형식으로 입력해주세요'
-                : null;
-          },
-        ),
-        const Text('성별',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          initialValue: gender,
-          decoration: const InputDecoration(hintText: '선택해주세요'),
-          items: const [
-            DropdownMenuItem(value: 'MALE', child: Text('남성')),
-            DropdownMenuItem(value: 'FEMALE', child: Text('여성')),
-            DropdownMenuItem(value: 'OTHER', child: Text('기타')),
-          ],
-          onChanged: (value) => setState(() => gender = value),
-        ),
-        const SizedBox(height: 18),
         _Field(
           label: '키(cm)',
           controller: heightController,
