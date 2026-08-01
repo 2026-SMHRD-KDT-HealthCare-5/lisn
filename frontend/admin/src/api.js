@@ -88,11 +88,21 @@ export function fetchDashboard(token) {
  *
  * 아직 평가 이력이 없는 사용자도 포함된다(risk_level=null).
  * 관리자 입장에서 "분석된 적 없는 사람"도 관리 대상이다.
+ *
+ * `query` 는 이름·이메일 부분 일치 검색이며 위험도 필터와 AND 로 걸린다.
+ * 서버가 LIKE 메타문자를 이스케이프하므로 클라이언트에서 가공하지 않는다.
+ *
+ * ⚠ 연락처로는 검색할 수 없다. AES-256-GCM 컬럼 암호화라 같은 값도 암호문이
+ *   매번 달라 부분 일치가 성립하지 않는다(02-F 3항 · 안건 4).
  */
-export function fetchUsers(token, { riskLevel, limit = 50, offset = 0 } = {}) {
+export function fetchUsers(
+  token,
+  { riskLevel, query, limit = 50, offset = 0 } = {},
+) {
   return request('/admin/users', {
     token,
-    params: { risk_level: riskLevel, limit, offset },
+    // request() 가 빈 문자열을 알아서 빼므로 공백만 남은 검색어는 전체 조회가 된다.
+    params: { risk_level: riskLevel, q: query?.trim(), limit, offset },
     fallback: '대상자 목록을 불러오지 못했습니다.',
   })
 }

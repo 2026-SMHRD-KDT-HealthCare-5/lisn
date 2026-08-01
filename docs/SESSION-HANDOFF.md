@@ -150,7 +150,12 @@ AI 서버가 없어도 push 는 성공합니다. 분석 실패로 되돌리면 �
 > **2026.08.01** — 스텁이 아니라 실제 서버가 `ai/server/` 에 들어왔습니다. 판정만 아직
 > 규칙 기반입니다. 아래 3-4 절 「다음」 3번 참조.
 
-> ⚠ **`role` 은 JWT 에 박힙니다.** `UPDATE users SET role='ADMIN'` 후 **재로그인해야** 관리자 API 가 열립니다. 기존 토큰으로는 계속 403 입니다.
+> **`role` 승격은 API 에 즉시 반영됩니다.** `require_admin` 이 JWT 클레임이 아니라
+> **DB 의 `role`** 을 읽기 때문입니다(`tests/test_admin.py` 로 고정). 토큰에 role 이
+> 들어가 있지만 아무도 읽지 않습니다.
+>
+> **다만 관리자 웹은 재로그인이 필요합니다.** 로그인 응답의 role 로 세션 저장 여부를
+> 정하기 때문에(`admin/src/session.js`), 승격 전에 로그인해 뒀다면 세션 자체가 없습니다.
 
 전부 **실제 서버로 검증**했습니다. 검증 내역은 [`작업이력.md`](review/작업이력.md) 22·23차.
 
@@ -197,14 +202,14 @@ psql -U postgres -d lisn -f db\seed_demo_persona.sql
 > 구분됩니다. **성능 근거로 쓰지 마세요.** 지우려면
 > `DELETE FROM USERS WHERE email='demo.crisis@lisn-test.example';`
 
-> ⚠ 관리자 API 는 **JWT 가 아니라 DB 의 `role`** 을 봅니다. `ADMIN` 으로 올린 뒤
-> **재로그인**해야 열립니다.
+> ⚠ 관리자 API 는 **JWT 가 아니라 DB 의 `role`** 을 봅니다. 승격하면 기존 토큰으로도
+> 즉시 열립니다. 다만 **관리자 웹은 재로그인**해야 합니다(세션 저장 시점에 판정).
 
-### 회귀 테스트 — 전체 66건
+### 회귀 테스트 — 전체 78건
 
 | 대상 | 건수 | 실행 |
 |---|---|---|
-| 백엔드 | 33 | `cd backend` → `python -m pytest -q` (개발 DB 필요) |
+| 백엔드 | 45 | `cd backend` → `python -m pytest -q` (개발 DB 필요) |
 | AI 추론 서버 | 13 | `python -m pytest ai/server -q` (**DB 불필요**) |
 | Flutter 앱 | 17 | `cd frontend/app` → `flutter test` |
 | 관리자 웹 | 3 | `cd frontend/admin` → `npm test` |

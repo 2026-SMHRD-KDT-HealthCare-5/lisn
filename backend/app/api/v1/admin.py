@@ -88,6 +88,13 @@ async def list_users(
     risk_level: Annotated[
         Literal["NORMAL", "CAUTION", "CRITICAL"] | None, Query()
     ] = None,
+    q: Annotated[
+        str | None,
+        Query(
+            max_length=100,
+            description="이름·이메일 부분 일치 검색 (대소문자 무시)",
+        ),
+    ] = None,
     limit: Annotated[int, Query(ge=1, le=200)] = 50,
     offset: Annotated[int, Query(ge=0)] = 0,
 ):
@@ -95,9 +102,17 @@ async def list_users(
 
     아직 평가 이력이 없는 사용자도 포함한다(risk_level=null). 관리자 입장에서
     "분석된 적 없는 사람"도 관리 대상이다.
+
+    `q` 는 이름·이메일 검색이다. 위험도 필터와 **AND** 로 걸린다 —
+    "심각한 사람 중에서 김씨" 를 찾는 것이 관제에서 실제로 필요한 동작이다.
+
+    ⚠ **연락처(phone)로는 검색할 수 없다.** AES-256-GCM 으로 컬럼 암호화돼 있어
+      (02-F 3항) 같은 값이라도 암호문이 매번 달라 LIKE 가 성립하지 않는다.
+      복호화해서 비교하려면 전 사용자를 메모리로 올려야 하므로 하지 않는다.
+      검색 편의보다 저장 시점의 보호를 택한 결과다(안건 4).
     """
     sub = _latest_score_subq()
-    rows = await db.execute(
+    stmt = (
         select(User, EmotionRiskScore, Emotion)
         .outerjoin(
             sub, sub.c.user_id == User.user_id
@@ -110,6 +125,23 @@ async def list_users(
         .outerjoin(Emotion, Emotion.emotion_id == EmotionRiskScore.emotion_id)
         .where(User.role == "USER")
     )
+
+    # 검색은 SQL 로 넘긴다. 아래 위험도 필터처럼 파이썬에서 거르면 전 사용자를
+    # 메모리로 올린 뒤 버리게 된다.
+    keyword = (q or "").strip()
+    if keyword:
+        # LIKE 메타문자를 이스케이프한다. 안 하면 '%' 한 글자가 전체 조회가 되고,
+        # '_' 가 임의의 한 글자로 동작해 검색 결과가 조용히 틀어진다.
+        escaped = (
+            keyword.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        )
+        pattern = f"%{escaped}%"
+        stmt = stmt.where(
+            User.name.ilike(pattern, escape="\\")
+            | User.email.ilike(pattern, escape="\\")
+        )
+
+    rows = await db.execute(stmt)
 
     out: list[AdminUserRow] = []
     for user, score, emotion in rows:

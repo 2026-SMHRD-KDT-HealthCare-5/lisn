@@ -523,8 +523,65 @@ input {
 
 .filter-row {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 7px;
   margin-bottom: 16px;
+}
+
+/* 검색 — 위험도 칩과 같은 줄 오른쪽 끝. 화면이 좁아지면 아래로 접힌다. */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 0 10px;
+  border: 1px solid #e3e7f2;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.search-box:focus-within {
+  border-color: #7890ef;
+  background: #f8f9ff;
+}
+
+.search-box span {
+  font-size: 12px;
+  color: #97a0b5;
+}
+
+.search-box input {
+  width: 168px;
+  padding: 7px 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 11px;
+  color: #24325f;
+}
+
+.search-box input::placeholder {
+  color: #b6bccd;
+}
+
+/* type="search" 의 브라우저 기본 X 버튼. 위치·색을 맞출 수 없어 직접 그린다. */
+.search-box input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.search-clear {
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+  line-height: 1;
+  color: #97a0b5;
+  cursor: pointer;
+}
+
+.search-clear:hover {
+  color: #24325f;
 }
 
 .chip {

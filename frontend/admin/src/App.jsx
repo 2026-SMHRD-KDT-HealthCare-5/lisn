@@ -229,23 +229,37 @@ function OverviewTab({ token }) {
   )
 }
 
+/** 검색어 입력이 멎을 때까지 기다린다. 글자마다 요청하면 관제 목록처럼
+ *  응답이 큰 조회에서 앞선 요청이 뒤늦게 도착해 결과가 뒤집힌다. */
+function useDebounced(value, delay = 250) {
+  const [settled, setSettled] = useState(value)
+  useEffect(() => {
+    const timer = setTimeout(() => setSettled(value), delay)
+    return () => clearTimeout(timer)
+  }, [value, delay])
+  return settled
+}
+
 /** ❷ 대상자 목록 — 심각 → 주의 → 안정 순으로 내려온다 */
 function PeopleTab({ token }) {
   const [rows, setRows] = useState(null)
   const [error, setError] = useState('')
   const [filter, setFilter] = useState('')
+  const [keyword, setKeyword] = useState('')
+  const query = useDebounced(keyword)
+  const searching = query.trim().length > 0
 
   useEffect(() => {
     let alive = true
     setRows(null)
     setError('')
-    fetchUsers(token, { riskLevel: filter || undefined })
+    fetchUsers(token, { riskLevel: filter || undefined, query })
       .then((result) => alive && setRows(result))
       .catch((e) => alive && setError(e.message))
     return () => {
       alive = false
     }
-  }, [token, filter])
+  }, [token, filter, query])
 
   return (
     <>
@@ -259,13 +273,54 @@ function PeopleTab({ token }) {
             {level ? RISK_LABEL[level] : '전체'}
           </button>
         ))}
+
+        <div className="search-box">
+          <span aria-hidden="true">⌕</span>
+          <input
+            type="search"
+            value={keyword}
+            maxLength={100}
+            placeholder="이름 또는 이메일"
+            aria-label="대상자 검색"
+            onChange={(event) => setKeyword(event.target.value)}
+          />
+          {keyword && (
+            <button
+              type="button"
+              className="search-clear"
+              aria-label="검색어 지우기"
+              onClick={() => setKeyword('')}
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
+
+      {rows && rows.length > 0 && (
+        <p className="hint">
+          {searching
+            ? `"${query.trim()}" 검색 결과 ${rows.length}명`
+            : `${rows.length}명`}
+          {filter && ` · ${RISK_LABEL[filter]} 필터 적용 중`}
+        </p>
+      )}
+
       {error ? (
         <NoticePanel text={error} />
       ) : !rows ? (
         <LoadingPanel />
       ) : rows.length === 0 ? (
-        <NoticePanel text="해당하는 대상자가 없습니다." />
+        /* 검색 결과 없음과 필터 결과 없음을 구분한다. 같은 문구를 쓰면
+           검색어를 고쳐야 하는지 필터를 풀어야 하는지 알 수 없다. */
+        <NoticePanel
+          text={
+            searching
+              ? `"${query.trim()}"에 해당하는 대상자가 없습니다.` +
+                (filter ? ` ${RISK_LABEL[filter]} 필터를 풀고 다시 찾아보세요.` : '')
+              : '해당하는 대상자가 없습니다.'
+          }
+        />
       ) : (
         <table className="data-table">
           <thead>
@@ -356,7 +411,11 @@ const TABS = [
     '관제 대시보드',
     '전체 대상자의 최근 정서 위험 신호를 확인합니다.',
   ],
-  ['people', '대상자 조회', '위험도별로 대상자를 확인합니다.'],
+  [
+    'people',
+    '대상자 조회',
+    '위험도로 좁히거나 이름·이메일로 검색합니다.',
+  ],
   ['events', '위기 사건 이력', 'CRITICAL 로 판정된 기록입니다.'],
 ]
 

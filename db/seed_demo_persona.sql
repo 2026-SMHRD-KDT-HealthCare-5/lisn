@@ -181,8 +181,9 @@ COMMIT;
 --   GET /api/v1/admin/emergency-events
 --   GET /api/v1/admin/users?risk_level=CRITICAL
 --
---  ⚠ role 은 JWT 에 박힙니다. UPDATE users SET role='ADMIN' 만 하고 기존
---    토큰을 쓰면 계속 403 입니다. 승격 후 재로그인하세요.
+--  ⚠ 관리자 권한은 DB 의 USERS.role 을 봅니다(JWT 클레임이 아닙니다).
+--    승격하면 기존 토큰으로도 즉시 열립니다. 다만 관리자 웹은 로그인 시점에
+--    세션 저장 여부를 정하므로 재로그인이 필요합니다.
 --
 -- =====================================================================
 --  정리 — 시드를 지울 때

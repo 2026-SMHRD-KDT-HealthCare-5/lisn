@@ -78,7 +78,7 @@ Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog anomal
 
 | 영역 | 상태 |
 |---|---|
-| 백엔드 API | 30개 **구현·검증 완료**. 회귀 테스트 23건 |
+| 백엔드 API | 30개 **구현·검증 완료**. 회귀 테스트 45건 |
 | Flutter 앱 | 화면 13개 **전부 실제 API 연동**. 목업 없음. 테스트 17건 |
 | 관리자 관제 웹 | 로그인·역할 가드 + 분포·대상자·상세 3개 탭 완료 |
 | AI 추론 서버 | 구동 완료. **판정은 규칙 기반 임시값** ⚠ |
@@ -224,8 +224,12 @@ uvicorn main:app --reload --port 8001
 > 이전 vite 인스턴스가 5173 을 잡고 있으면 새 창이 5174 로 뜨고 요청이 전부 CORS 로
 > 막힙니다. 먼저 남은 프로세스를 정리하세요.
 >
-> **`role` 은 JWT 에 박힙니다.** `UPDATE users SET role='ADMIN'` 만 하고 기존 토큰을
-> 쓰면 계속 403 입니다. **승격 후 재로그인**해야 합니다.
+> **`role` 승격은 API 에 즉시 반영됩니다.** `require_admin` 이 JWT 클레임이 아니라
+> **DB 의 `role`** 을 읽기 때문입니다(`tests/test_admin.py` 로 고정). 토큰에 role 이
+> 들어가 있지만 아무도 읽지 않습니다.
+>
+> **다만 관리자 웹은 재로그인이 필요합니다.** 로그인 응답의 role 로 세션 저장 여부를
+> 정하기 때문에(`admin/src/session.js`), 승격 전에 로그인해 뒀다면 세션 자체가 없습니다.
 
 ### 문서 작업
 
