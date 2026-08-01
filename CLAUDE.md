@@ -125,6 +125,7 @@ CFB(OLE) 컨테이너를 파싱하고 raw deflate 를 풉니다. **Python 없이
     프로젝트 환경은 검증된 버전을 통일합니다.
   - PostgreSQL 은 **17 로 고정**.
 - Edge 는 어느 PC 에나 있습니다. 헤드리스 렌더링(`--headless=new --screenshot`)에 쓸 수 있어 Node 없이도 HTML → PNG 가 됩니다.
+- **`flutter analyze` 는 경로에 한글이 있으면 죽습니다.** 이 PC 의 `바탕 화면` 때문에 LSP 채널이 메시지를 잘라먹고 `FormatException: Unterminated string` → 분석 서버 exit 255 가 납니다. **`dart analyze` 를 쓰세요** — 같은 규칙으로 같은 결과가 나옵니다. `flutter test` 는 영향 없습니다.
 - git 인증은 GCM(Git Credential Manager)을 씁니다. Windows 자격 증명에 토큰이 저장돼 있으면 **에이전트 도구에서도 프롬프트 없이 push 가 됩니다.** 새 PC 에서는 자격 증명이 없으므로, 대화형 터미널에서 `git push` 를 한 번 실행해 브라우저 로그인으로 등록한 뒤 이어가세요.
   - 확인 방법: `cmdkey /list` 에 `git:https://github.com` 항목이 있으면 등록된 상태입니다.
   - 실제 인증 여부는 `git push --dry-run` 으로 확인하세요. 아무것도 올리지 않으면서 쓰기 권한까지 검증됩니다. 공개 저장소라 `fetch` 성공만으로는 인증 여부를 알 수 없습니다.

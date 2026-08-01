@@ -2,14 +2,17 @@
 
 사용자 앱(Flutter)과 관리자 관제 대시보드(React)가 함께 들어갑니다.
 
-> **최종 점검** 2026.07.31
+> **최종 점검** 2026.08.01
 
 ```
 frontend/
 ├── app/        Flutter 사용자 앱      — Android 전용 (Health Connect 가 Android API)
-├── admin/      React 관리자 관제 웹   — 로그인·권한 가드 완료
+├── admin/      React 관리자 관제 웹   — 로그인·권한 가드·관제 3개 탭 완료
 └── design/     디자인 시안            — 앱 빌드에 포함되지 않음
 ```
+
+**앱 13개 화면과 관리자 웹이 전부 실제 API 에 붙었습니다.** 목업 데이터는 없습니다.
+남은 구현은 **Health Connect 실기기 연동** 하나입니다.
 
 ## app/ — Flutter 사용자 앱
 
@@ -24,13 +27,13 @@ app/lib/
 └── widgets/    화면 간 공유 위젯
 ```
 
-인증 영역은 실제 FastAPI와 연동됐습니다.
+주요 파일은 이렇습니다.
 
 - `config/api_config.dart` — `API_BASE_URL` 환경 분기
-- `models/auth_models.dart` — 로그인·회원가입 DTO
-- `services/api_client.dart` — JSON 요청, Bearer 헤더, FastAPI 오류 처리, 타임아웃
+- `models/json.dart` — **서버 JSON 파싱은 반드시 이걸 씁니다** (아래 참조)
+- `services/api_client.dart` — JSON 요청, Bearer 헤더, FastAPI 오류 처리, 타임아웃, 401 로그아웃
 - `services/token_storage.dart` — access token과 만료 시각을 보안 저장소에 저장
-- `services/auth_service.dart` — 인증 API 6개 호출
+- `services/report_pdf.dart` — 리포트 화면을 캡처해 PDF 로 조판
 - `screens/auth_gate.dart` — 유효한 토큰이 있으면 홈, 없으면 로그인으로 이동
 
 Android 에뮬레이터의 기본 API 주소는 `http://10.0.2.2:8000/api/v1`입니다. 실기기나 배포 환경에서는 실행 시 바꿉니다.
@@ -39,14 +42,12 @@ Android 에뮬레이터의 기본 API 주소는 `http://10.0.2.2:8000/api/v1`입
 flutter run --dart-define=API_BASE_URL=http://<개발-PC-IP>:8000/api/v1
 ```
 
-로그인·회원가입·비밀번호 재설정은 API 연동이 끝났고, 홈·챗봇·라이프로그·설정의 데이터는 아직 하드코딩 목업입니다.
+> ⚠ **`flutter analyze` 는 이 저장소 경로에서 죽습니다**(경로에 한글이 있어 LSP 채널이
+> 메시지를 잘라먹음). `dart analyze` 를 쓰세요. 자세한 내용과 앱 쪽 함정은
+> [`app/README.md`](app/README.md) 에 있습니다.
 
-남은 연동 순서는 이렇습니다.
-
-1. 백엔드 `users`·`devices` 라우터가 완성되면 설정·웨어러블 연동
-2. `POST /lifelog/batch`와 조회 API가 완성되면 홈·라이프로그
-3. 챗봇 API가 완성되면 대화·위기 화면 전환
-4. 관리자 API가 완성되면 React 관제 대시보드 데이터 연동
+남은 것은 **Health Connect 실기기 연동**입니다. `MAIN_JOIN_03` 의 권한 화면은 UI 만 있고
+실제 권한 요청·주기 수집이 없습니다. 서버 `POST /lifelog/batch` 는 이미 UPSERT 로 동작합니다.
 
 ### 화면 구성
 
@@ -54,19 +55,20 @@ flutter run --dart-define=API_BASE_URL=http://<개발-PC-IP>:8000/api/v1
 |---|---|
 | `login_screen.dart` | `MAIN_LOGIN_01` |
 | `password_reset_screen.dart` | `MAIN_LOGIN_02` |
-| `join_screen.dart` | `MAIN_JOIN_01` · `MAIN_JOIN_02` |
+| `join_screen.dart` | `MAIN_JOIN_01` · `MAIN_JOIN_02` · `MAIN_JOIN_03` |
 | `main_shell.dart` | 하단 네비게이션 4탭 |
 | `home_screen.dart` | `MAIN_HOME_01` |
 | `chat_screen.dart` | `MAIN_CHAT_01` · `MAIN_CHAT_02` |
+| `lifelog_screen.dart` | `MAIN_LIFELOG_01` |
+| `report_screen.dart` | `MAIN_REPORT_01` |
+| `settings_screen.dart` | `MAIN_SETTING_01` · `MAIN_SETTING_02` |
 | `emergency_screen.dart` | `MAIN_EMERGENCY_01` |
-| `lifelog_screen.dart` | 라이프로그 |
-| `settings_screen.dart` | 설정 |
 
 ## admin/ — React 관리자 관제 웹
 
-Vite + React 기반 관리자 로그인 화면과 `ADMIN` 역할 가드를 구현했습니다. 사용자 앱과 같은
-`POST /api/v1/auth/login`을 사용하며, 일반 사용자 토큰은 저장하지 않고 접근을 차단합니다.
-관리자 세션이 확인되면 대시보드 셸로 진입합니다.
+Vite + React 기반입니다. 사용자 앱과 같은 `POST /api/v1/auth/login`을 사용하며, 일반 사용자
+토큰은 저장하지 않고 접근을 차단합니다. 관제 3개 탭(위험도 분포 · 대상자 목록 · 상세)이
+실제 관리자 API 에 붙어 있습니다.
 
 ```powershell
 cd frontend/admin
@@ -75,8 +77,14 @@ npm run dev
 ```
 
 기본 API 주소는 `http://localhost:8000/api/v1`입니다. 다른 환경에서는
-`VITE_API_BASE_URL`로 바꿉니다. 위험도 분포·고위험 사용자 목록 등 실제 대시보드 데이터는
-관리자 조회 API가 구현된 뒤 연결합니다.
+`VITE_API_BASE_URL`로 바꿉니다.
+
+> ⚠ **5173 포트여야 합니다.** 백엔드 `CORS_ORIGINS` 가 그 주소만 허용합니다. 이전 vite
+> 인스턴스가 5173 을 잡고 있으면 새 창이 **5174 로 뜨고 요청이 전부 CORS 로 막힙니다.**
+> 400 이 계속 나면 주소창의 포트부터 보세요.
+>
+> ⚠ **`role` 은 JWT 에 박힙니다.** `UPDATE users SET role='ADMIN'` 만 하고 기존 토큰을
+> 쓰면 계속 403 입니다. **승격 후 재로그인**해야 합니다.
 
 ## design/ — 디자인 시안
 
