@@ -180,17 +180,21 @@ AI 서버가 없어도 push 는 성공합니다. 분석 실패로 되돌리면 �
   기본 재시도(2회)면 죽은 모델 하나가 `NFR-DV-001` 3초 예산을 통째로 먹습니다(실측 13.95초)
 - **쓰면 안 되는 모델** — `gemini-3.5-flash`(503) · `gemini-2.5-pro`(429, 무료 한도 없음)
 
-### 회귀 테스트 — 전체 56건
+### 회귀 테스트 — 전체 66건
 
 | 대상 | 건수 | 실행 |
 |---|---|---|
-| 백엔드 | 23 | `cd backend` → `python -m pytest -q` (개발 DB 필요) |
+| 백엔드 | 33 | `cd backend` → `python -m pytest -q` (개발 DB 필요) |
 | AI 추론 서버 | 13 | `python -m pytest ai/server -q` (**DB 불필요**) |
 | Flutter 앱 | 17 | `cd frontend/app` → `flutter test` |
 | 관리자 웹 | 3 | `cd frontend/admin` → `npm test` |
 
 수동으로 확인했던 불변조건이 고정돼 있습니다. **주석에 어느 요구사항을 지키는 테스트인지
 적혀 있으니 실패하면 그것부터 읽으세요.**
+
+> **`backend/tests/test_schema_drift.py` 는 DB 없이 돕니다.** `schema.sql` 과
+> SQLAlchemy 모델의 컬럼이 어긋나는 순간 잡습니다 — `create_all()` 도 alembic 도
+> 안 쓰는 구조라 그 전에는 아무것도 알려주지 않았습니다.
 
 > `ai/server` 테스트는 **모델이 아니라 정책**을 고정합니다. `_predict()` 를 실제 모델로
 > 교체해도 그대로 통과해야 합니다 — 통과하지 않으면 정책(`risk_level_of` · `_has_signal`)

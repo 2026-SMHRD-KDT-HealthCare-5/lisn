@@ -74,6 +74,10 @@ app/
 - **alembic 을 쓰지 않습니다.** 정본이 둘이 되면 04·05 문서와 대조할 기준이 파이썬 코드로 옮겨갑니다
 - 스키마를 바꿀 때는 `schema.sql` 을 고치고 **DB 를 다시 만듭니다**
 
+> 그 대가로 **둘이 어긋나도 아무것도 알려주지 않습니다.** 한쪽에만 컬럼을 추가하면
+> 운영 중에 `UndefinedColumnError` 로 처음 드러납니다. `tests/test_schema_drift.py`
+> 가 컬럼 이름 집합을 대조해 이걸 막습니다 — **DB 없이 0.03초에 돕니다.**
+
 ### 시각 컬럼에는 `TimestampTZ` 를 명시하세요
 
 `Mapped[datetime]` 만 쓰면 SQLAlchemy 가 `timezone=False` 로 추론해 `TIMESTAMP WITHOUT TIME ZONE` 을 만듭니다. 그 상태로 tz-aware 값을 넣으면 asyncpg 가 죽습니다. 04 문서는 전 컬럼 `TIMESTAMPTZ` 를 규정합니다.
@@ -94,7 +98,13 @@ app/
 python -m pytest -q
 ```
 
-개발 DB 를 그대로 씁니다. 테스트마다 고유 계정을 만들고 끝나면 지우므로 기존 데이터에 영향이 없습니다.
+**33건.** 개발 DB 를 그대로 씁니다. 테스트마다 고유 계정을 만들고 끝나면 지우므로 기존 데이터에 영향이 없습니다.
+
+DB 없이 스키마 정합만 보려면 이것만 돌려도 됩니다.
+
+```powershell
+python -m pytest tests/test_schema_drift.py -q
+```
 
 주석에 **어느 요구사항을 지키는 테스트인지** 적혀 있습니다. 실패하면 그 주석부터 읽으세요.
 
