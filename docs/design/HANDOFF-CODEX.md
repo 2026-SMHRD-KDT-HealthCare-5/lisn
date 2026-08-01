@@ -1,7 +1,7 @@
 # 프론트엔드 인수인계 — Codex 용
 
 > 이 문서만 읽고도 작업을 시작할 수 있게 썼습니다. 대화 맥락 없이 단독으로 성립합니다.
-> **최종 갱신** 2026.07.31
+> **최종 갱신** 2026.08.01
 
 ---
 
@@ -9,8 +9,8 @@
 
 귀기울임(LISN)은 스마트워치 라이프로그를 AI로 분석해 1인가구의 정서 위험을 조기 감지하고
 페르소나 LLM 챗봇으로 케어하는 Android 앱입니다. 화면설계서가 UI 범위의 정본입니다.
-Flutter 인증 흐름과 React 관리자 로그인은 구현됐고, 나머지 업무 화면은 문서의 13개 앱
-화면·관리자 웹 2개 기준으로 계속 재구축합니다.
+**앱 화면 13개와 관리자 웹 2개가 모두 실제 API 에 붙었습니다.** 목업 데이터는 남아 있지
+않습니다. 남은 것은 Health Connect 실기기 연동과 화면설계서 PPTX 의 디자인 작업입니다.
 
 ---
 
@@ -30,7 +30,7 @@ Flutter 인증 흐름과 React 관리자 로그인은 구현됐고, 나머지 �
 
 ### 코드 위치
 
-`함은선` 브랜치에서 프론트엔드 작업을 이어갑니다. 2026.07.31 기준 main 최신 커밋을
+`함은선` 브랜치에서 프론트엔드 작업을 이어갑니다. 2026.08.01 기준 main 최신 커밋을
 fast-forward로 반영한 상태입니다.
 
 ```
@@ -39,31 +39,44 @@ frontend/
 │   ├── lib/
 │   │   ├── main.dart
 │   │   ├── config/         API base URL, 환경 분기
-│   │   ├── models/         인증 DTO
-│   │   ├── services/       HTTP 클라이언트·토큰 저장·인증 API
-│   │   ├── screens/        10개 파일 (인증·긴급 상담 구현, 업무 데이터는 목업)
+│   │   ├── models/         DTO 6종 + json.dart (공용 파싱 헬퍼)
+│   │   ├── services/       HTTP 클라이언트·토큰 저장·업무 API 6종·PDF 조판
+│   │   ├── screens/        11개 파일 — 전부 실제 API 연동
 │   │   ├── theme/app_theme.dart
 │   │   └── widgets/common_widgets.dart
+│   ├── test/               17건 (모델 파싱·세션 규칙)
 │   └── android/            패키지 com.lisn.maeume · minSdk 26
-├── admin/                  Vite + React 관리자 웹
+├── admin/                  Vite + React 관리자 웹 — 로그인 + 관제 3개 탭
 └── design/                 디자인 시안
 ```
 
 ### 무엇이 없나
 
-- 인증 외 화면의 서버 통신은 아직 없습니다. 로그인·회원가입·비밀번호 재설정 API 6개는 연동 완료됐습니다
-- 상태관리 패키지 없음 (`setState` 만)
-- Health Connect 연동 패키지 없음
-- 관리자 웹은 로그인·`ADMIN` 역할 가드·대시보드 셸까지 구현됐고, 실제 관제 데이터 API 연동이 남았습니다
+- **Health Connect 연동 패키지 없음.** `MAIN_JOIN_03` 의 권한 화면은 UI 만 있고 실제
+  권한 요청·수집이 없습니다. **남은 것 중 가장 큽니다**
+- 상태관리 패키지 없음 (`setState` 만). MVP 범위에서는 의도한 선택입니다
+- 자동 로그인 없음 — refresh token 이 없어서입니다(4절 참조)
 
-### 인증 연동 완료
+### 연동 완료
 
 - `http` 공통 클라이언트와 `flutter_secure_storage` 토큰 저장
-- access token 만료 확인을 포함한 인증 게이트
-- FastAPI 오류 `detail` 표시와 인증 요청의 401 로그아웃 처리
-- 로그인·회원가입·이메일 중복 확인·로그아웃·비밀번호 재설정 요청/확정
+- access token 만료 확인을 포함한 인증 게이트, 401 자동 로그아웃
+- **앱 화면 전부** — 인증 6개 · 홈 · 챗봇 · 라이프로그 · 설정/기기 · 리포트
+- **관리자 웹 전부** — 로그인·`ADMIN` 역할 가드 · 위험도 분포 · 대상자 목록 · 상세
 - 기본 Base URL은 Android 에뮬레이터용 `http://10.0.2.2:8000/api/v1`
-- `flutter analyze`·`flutter test`·Android debug APK 빌드 통과
+- `flutter analyze`·`flutter test`(17건)·Android debug APK 빌드 통과
+
+### 서버 JSON 을 직접 캐스팅하지 마세요
+
+`lib/models/json.dart` 의 헬퍼(`jsonInt`·`jsonNum`·`jsonAt`·`jsonObj`·`jsonList` …)를 쓰세요.
+두 가지가 실제로 터진 적이 있습니다.
+
+- **PostgreSQL `NUMERIC` 은 문자열로 옵니다.** `hrv`·`sleep_efficiency_pct`·`emotion_score`
+  가 `'36.50'` 으로 와서 `as num?` 이 조용히 null 이 됐습니다
+- **중첩 객체는 `Map<String, dynamic>` 이 아닙니다.** `json['distribution'] as Map<String,
+  dynamic>?` 이 `_Map<dynamic, dynamic>` 캐스트 실패로 예외를 던졌습니다
+
+`test/report_models_test.dart` 가 이 두 가지를 고정하고 있습니다.
 
 ### 화면 시안
 
@@ -71,25 +84,35 @@ frontend/
 
 ### 화면 대응
 
-| 화면 ID | 현재 파일 | 할 일 |
+| 화면 ID | 현재 파일 | 상태 |
 |---|---|---|
-| `MAIN_LOGIN_01` | `login_screen.dart` | 완료 — 실제 로그인 API·비밀번호 찾기. **「로그인 유지」 없음** |
+| `MAIN_LOGIN_01` | `login_screen.dart` | 완료 — 3단계 점진 노출. **「로그인 유지」 없음** |
 | `MAIN_LOGIN_02` | `password_reset_screen.dart` | 완료 — 재설정 요청·확정 API |
-| `MAIN_JOIN_01` | `join_screen.dart` STEP01 | 유지 |
-| `MAIN_JOIN_02` | `join_screen.dart` STEP02 | 완료 — 키(`height_cm`) 선택 입력·회원가입 API |
-| `MAIN_JOIN_03` | `join_screen.dart` STEP03 | UI 일부 완료 — Health Connect 권한 연동 필요 |
-| `MAIN_HOME_01` | `home_screen.dart` | 유지 |
-| `MAIN_CHAT_01` | `chat_screen.dart` 성격 선택부 | 유지 |
-| `MAIN_CHAT_02` | `chat_screen.dart` 대화부 | 수정 — 대화 기록 조회·상세·삭제 추가 |
-| `MAIN_LIFELOG_01` | `lifelog_screen.dart` | **전면 재작성** |
-| `MAIN_REPORT_01` | 없음 | 신규 — 정서 리포트 |
-| `MAIN_SETTING_01` | `settings_screen.dart` | 실제 로그아웃 완료 — 설정·기기 API 연동 필요 |
-| `MAIN_SETTING_02` | 없음 | 신규 — 계정 관리·탈퇴 |
+| `MAIN_JOIN_01` | `join_screen.dart` STEP01 | 완료 — 약관 동의 |
+| `MAIN_JOIN_02` | `join_screen.dart` STEP02 | 완료 — 기본/선택 입력 분리 · `?` 설명 |
+| `MAIN_JOIN_03` | `join_screen.dart` STEP03 | UI 완료 — **Health Connect 권한 연동만 남음** |
+| `MAIN_HOME_01` | `home_screen.dart` | 완료 — 요약·콘텐츠 추천·`action` 분기 |
+| `MAIN_CHAT_01` | `chat_screen.dart` 성격 선택부 | 완료 |
+| `MAIN_CHAT_02` | `chat_screen.dart` 대화부 | 완료 — 기록 조회·상세·삭제 |
+| `MAIN_LIFELOG_01` | `lifelog_screen.dart` | 완료 — 재작성 후 API 연동 |
+| `MAIN_REPORT_01` | `report_screen.dart` | 완료 — 분포·추이·PDF 내보내기 |
+| `MAIN_SETTING_01` | `settings_screen.dart` | 완료 — 프로필·페르소나·기기 동의 범위 |
+| `MAIN_SETTING_02` | `settings_screen.dart` 하단 | 완료 — 비밀번호 변경·탈퇴(`MLCM_103` 2단계 확인) |
 | `MAIN_EMERGENCY_01` | `emergency_screen.dart` | 완료 — `EMERGENCY` 액션 즉시 전환·`tel:109` 호출 |
 | `ADMIN_LOGIN_01` | `admin/src/App.jsx` | 완료 — React, 실제 인증 API·역할 가드 |
-| `ADMIN_DASH_01` | `admin/src/App.jsx` | 셸 완료 — 관리자 조회 API 구현 후 데이터 연동 |
+| `ADMIN_DASH_01` | `admin/src/App.jsx` | 완료 — 분포·대상자·상세 3개 탭 |
 
-`join_screen.dart` 는 약관 동의와 정보 입력이 한 파일에 STEP 으로 들어가 있습니다. 문서는 3개 화면으로 정의하므로 **분리를 권합니다.**
+`join_screen.dart` 는 약관 동의와 정보 입력이 한 파일에 STEP 으로 들어가 있습니다. 문서는 3개 화면으로 정의하지만, 세 단계가 **하나의 가입 흐름을 공유**(입력값 이월·뒤로가기)하므로 파일은 합쳐 둡니다. 화면 ID 는 STEP 주석으로 표시돼 있습니다.
+
+### 리포트 PDF 는 서버가 만들지 않습니다
+
+`GET /reports/export` 는 **없습니다.** `GET /reports` 응답을 받아 앱이 조판합니다
+(`services/report_pdf.dart`).
+
+- 한글 폰트를 PDF 에 심으면 4~8MB 가 붙습니다. 그래서 **화면을 캡처해 이미지로 넣고**,
+  헤더만 실제 PDF 텍스트로 그립니다. 기본 Helvetica 에 한글 글리프가 없어 **헤더는 영문**입니다
+- `RenderRepaintBoundary.toImage` 는 `debugNeedsPaint` 상태에서 assert 로 죽습니다.
+  캡처 직전 `setState` 로 프레임을 더럽히면 반드시 터지니 `endOfFrame` 을 기다리세요
 
 ---
 
@@ -141,12 +164,12 @@ API 는 전부 ISO 8601 UTC 입니다. 로컬 변환은 표시 직전에만 하�
 
 ---
 
-## 5. 착수 순서 제안
+## 5. 남은 작업
 
-1. **신규 앱 화면** — 긴급 상담 완료. 다음은 계정 관리 → 웨어러블 → 리포트
-2. **백엔드 API 순서에 맞춘 연동** — `users`·`devices` → `lifelog` → `chat`
-3. **기존 목업 데이터 제거** — 각 API가 완성되는 즉시 화면 DTO와 상태 처리 추가
-4. **관리자 대시보드 데이터 연동** — 관리자 조회 API가 나온 뒤 위험도 분포·고위험군 연결
+1. **Health Connect 실기기 연동** ⭐ — `MAIN_JOIN_03` 의 권한 요청과 주기적 수집·push.
+   지금은 UI 만 있습니다. 서버 `POST /lifelog/batch` 는 이미 UPSERT 로 동작합니다
+2. **화면설계서 PPTX 디자인** — 완성 시안 6장 배치와 기존 와이어프레임 ❶❷❸ 마커 (함은선 님)
+3. **실기기 QA** — 지금까지 검증은 Android 에뮬레이터 기준입니다
 
 ---
 
@@ -183,7 +206,7 @@ API 는 전부 ISO 8601 UTC 입니다. 로컬 변환은 표시 직전에만 하�
 | 항목 | 상태 |
 |---|---|
 | 긴급 상담 번호 표기 | 확인 완료 — 위기 화면은 `109` 단일 노출 |
-| 앱 상단 `마음이 ♥` 하트 | 현재 코드는 텍스트 + 포인트 색. 최종 자산 표기는 팀 확인 필요, SVG 권장 |
+| 앱 상단 `마음이 ♥` | **철회.** 「마음이」는 챗봇 캐릭터 이름이라 브랜드 자리에 쓰면 앱 이름으로 오인됩니다. 브랜드는 `귀기울임 LISN`(`LisnBrand`) 이고, **앱 상단에는 표시하지 않습니다** — 로그인·가입 등 앱을 처음 식별해야 하는 화면에만 둡니다 |
 | `height_cm` 입력 위치 | `MAIN_JOIN_02` 선택 입력으로 구현 완료 |
 | 화면설계서 PPTX 배치 | 완성 시안 6장 배치와 기존 화면의 ❶❷❸ 마커 작업 남음 |
 
