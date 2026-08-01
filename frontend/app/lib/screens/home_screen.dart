@@ -231,29 +231,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(fontSize: 10, color: AppColors.primary)),
             )),
         const SizedBox(height: 18),
-        Row(children: [
+        // 마스코트와 점수를 한 줄에 두고, **문구는 카드 폭 전체**를 씁니다.
+        // 셋을 가로로 늘어놓으면 양쪽이 폭을 먹어 문구가 「보 / 여요」처럼
+        // 단어 중간에서 잘립니다. 상태를 알리는 문장이 그렇게 보이면 안 됩니다.
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           // ⚠ 위험도에 따라 표정이 갈립니다. 「많이 힘들어 보여요」 옆에서
           //   웃고 있으면 공감이 아니라 무시로 읽힙니다.
           MaeumeMascot(
               size: 72, mood: MaeumeMascot.moodFor(emotion.riskLevel)),
-          const SizedBox(width: 15),
-          Expanded(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                Text(emotion.emotionName,
-                    style: const TextStyle(
-                        fontSize: 27,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.primary)),
-                const SizedBox(height: 5),
-                Text(_riskMessage(emotion.riskLevel),
-                    style: const TextStyle(
-                        fontSize: 10, height: 1.6, color: AppColors.muted))
-              ])),
           SizedBox(
-              width: 100,
-              height: 100,
+              width: 92,
+              height: 92,
               child: Stack(alignment: Alignment.center, children: [
                 Positioned.fill(
                     child: CircularProgressIndicator(
@@ -270,6 +258,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 ])
               ])),
         ]),
+        const SizedBox(height: 16),
+        // ⚠ **감정 이름(emotion_name)을 사용자에게 보여주지 않습니다.**
+        //
+        //   마스터 9종에 「위기」·「절망」이 들어 있습니다. 힘들어하는 사람 화면에
+        //   그 단어를 헤드라인으로 박으면 관찰이 아니라 **사람에 대한 판정**으로
+        //   읽힙니다. 02 요구사항의 「진단 금지」에 걸리고, 라벨이 내면화되면
+        //   상태를 더 굳힙니다.
+        //
+        //   아래 문구가 이미 상태를 전달하므로 라벨이 정보를 더하지 않습니다.
+        //   관리자 화면은 그대로 둡니다 — 담당자가 판단하는 데 필요한 용어입니다.
+        SizedBox(
+            width: double.infinity,
+            child: Text(_riskMessage(emotion.riskLevel),
+                style: const TextStyle(
+                    fontSize: 14,
+                    height: 1.7,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.navy))),
       ]),
     );
   }
