@@ -8,6 +8,9 @@ LightGBM 으로 교체해도 이 테스트는 그대로 통과해야 합니다.
     python -m pytest ai/server -q
 """
 
+import re
+from pathlib import Path
+
 import pytest
 
 from main import (
@@ -37,23 +40,42 @@ def row(steps=None, sleep=None):
 # ==========================================================================
 
 
-def test_감정_마스터는_스키마와_같은_9종이다():
+SCHEMA_SQL = Path(__file__).resolve().parents[2] / "db" / "schema.sql"
+
+
+def emotions_from_schema() -> dict[str, str]:
+    """schema.sql 의 EMOTIONS 시드에서 코드 -> 카테고리를 읽는다.
+
+    상수를 여기 또 적으면 정본이 세 곳이 된다. 파일을 직접 읽는다.
+    """
+    text = SCHEMA_SQL.read_text(encoding="utf-8")
+    block = re.search(
+        r"INSERT\s+INTO\s+EMOTIONS[^;]*?VALUES(.*?);", text, re.DOTALL | re.IGNORECASE
+    )
+    assert block, "schema.sql 에서 EMOTIONS 시드를 찾지 못했습니다"
+
+    return {
+        code: category
+        for code, category in re.findall(
+            r"\(\s*'(\w+)'\s*,\s*'[^']*'\s*,\s*'(\w+)'\s*\)", block.group(1)
+        )
+    }
+
+
+def test_감정_마스터가_schema_sql_과_같다():
     """EMOTION_CATEGORY 는 schema.sql 감정 마스터의 복제본이다.
 
-    한쪽만 고치면 AI 서버가 내려준 emotion_code 를 비즈니스 서버가 적재하지
-    못하고 조용히 건너뛴다. 개수와 코드가 어긋나면 여기서 먼저 걸린다.
+    요청마다 EMOTIONS 를 조회하지 않으려고 복제해 뒀다. 한쪽만 고치면 AI 서버가
+    내려준 emotion_code 를 비즈니스 서버가 적재하지 **못하고 조용히 건너뛴다.**
+    로그에 경고만 남아서 「분석이 가끔 안 된다」로 보인다.
     """
-    assert set(EMOTION_CATEGORY) == {
-        "JOY",
-        "DELIGHT",
-        "HAPPINESS",
-        "SADNESS",
-        "ANXIETY",
-        "LONELINESS",
-        "ANGER",
-        "DESPAIR",
-        "CRISIS",
-    }
+    master = emotions_from_schema()
+    assert len(master) == 9, f"파싱된 감정: {sorted(master)}"
+    assert EMOTION_CATEGORY == master, (
+        "schema.sql 을 고쳤으면 ai/server/main.py 의 EMOTION_CATEGORY 도 고쳐야 합니다.\n"
+        f"  schema.sql: {sorted(master.items())}\n"
+        f"  main.py   : {sorted(EMOTION_CATEGORY.items())}"
+    )
 
 
 def test_CRISIS_는_점수와_무관하게_항상_CRITICAL():
