@@ -24,6 +24,10 @@ class _JoinScreenState extends State<JoinScreen> {
   final heightController = TextEditingController();
   final phoneController = TextEditingController();
   String? gender;
+
+  /// 선택 입력 묶음이 펼쳐졌는지. 접혀 있어도 첫 칸이 살짝 보입니다.
+  bool optionalOpen = false;
+
   bool loading = false;
   bool? emailAvailable;
   String? errorMessage;
@@ -266,19 +270,6 @@ class _JoinScreenState extends State<JoinScreen> {
                 (value?.trim().isEmpty ?? true) ? '이름을 입력해주세요' : null,
           ),
           _Field(
-            label: '생년월일 · 선택',
-            controller: birthDateController,
-            hint: '1994-05-16',
-            keyboardType: TextInputType.datetime,
-            textInputAction: TextInputAction.next,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) return null;
-              return DateTime.tryParse(value.trim()) == null
-                  ? 'YYYY-MM-DD 형식으로 입력해주세요'
-                  : null;
-            },
-          ),
-          _Field(
             label: '이메일',
             controller: emailController,
             hint: 'user@example.com',
@@ -314,43 +305,9 @@ class _JoinScreenState extends State<JoinScreen> {
             validator: (value) =>
                 (value?.length ?? 0) < 8 ? '비밀번호는 8자 이상 입력해주세요' : null,
           ),
-          const Text(
-            '성별 · 선택',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 8),
-          DropdownButtonFormField<String>(
-            initialValue: gender,
-            decoration: const InputDecoration(hintText: '선택해주세요'),
-            items: const [
-              DropdownMenuItem(value: 'MALE', child: Text('남성')),
-              DropdownMenuItem(value: 'FEMALE', child: Text('여성')),
-              DropdownMenuItem(value: 'OTHER', child: Text('기타')),
-            ],
-            onChanged: (value) => setState(() => gender = value),
-          ),
-          const SizedBox(height: 18),
-          _Field(
-            label: '키(cm) · 선택',
-            controller: heightController,
-            hint: '예: 165.5',
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            textInputAction: TextInputAction.next,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) return null;
-              final height = double.tryParse(value.trim());
-              return height == null || height <= 0 || height > 300
-                  ? '키는 0보다 크고 300 이하로 입력해주세요'
-                  : null;
-            },
-          ),
-          _Field(
-            label: '연락처 · 선택',
-            controller: phoneController,
-            hint: '010-0000-0000',
-            keyboardType: TextInputType.phone,
-            textInputAction: TextInputAction.done,
-          ),
+          const SizedBox(height: 10),
+          _optionalSection(),
+          const SizedBox(height: 22),
           if (errorMessage != null) ...[
             Text(
               errorMessage!,
@@ -376,6 +333,228 @@ class _JoinScreenState extends State<JoinScreen> {
                 : const Text('회원가입 완료'),
           ),
         ],
+      ),
+    );
+  }
+
+  /// 선택 입력 묶음 — MAIN_JOIN_02
+  ///
+  /// 접어서 완전히 감추지 않습니다. **윗부분이 살짝 보이게 잘라두고**
+  /// 아래를 흐리게 덮어, 더 있다는 걸 알아채고 스스로 펼치게 합니다.
+  /// 완전히 접혀 있으면 대부분 그냥 지나칩니다.
+  ///
+  /// 필수와 섞어두면 어디까지 채워야 하는지 알 수 없어 중간에 막힙니다.
+  /// 화면설계서도 비상 연락처를 「선택사항」으로 적고 있는데 화면만
+  /// 구분이 없던 상태였습니다.
+  Widget _optionalSection() {
+    final fields = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _Field(
+          label: '생년월일',
+          controller: birthDateController,
+          hint: '1994-05-16',
+          keyboardType: TextInputType.datetime,
+          textInputAction: TextInputAction.next,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) return null;
+            return DateTime.tryParse(value.trim()) == null
+                ? 'YYYY-MM-DD 형식으로 입력해주세요'
+                : null;
+          },
+        ),
+        const Text('성별',
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          initialValue: gender,
+          decoration: const InputDecoration(hintText: '선택해주세요'),
+          items: const [
+            DropdownMenuItem(value: 'MALE', child: Text('남성')),
+            DropdownMenuItem(value: 'FEMALE', child: Text('여성')),
+            DropdownMenuItem(value: 'OTHER', child: Text('기타')),
+          ],
+          onChanged: (value) => setState(() => gender = value),
+        ),
+        const SizedBox(height: 18),
+        _Field(
+          label: '키(cm)',
+          controller: heightController,
+          hint: '예: 165.5',
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          textInputAction: TextInputAction.next,
+          onWhy: () => _why(
+            '키는 왜 필요한가요?',
+            const [
+              '체성분 수치를 해석할 때 씁니다. 같은 근육량이라도 키에 따라 의미가 달라져요.',
+              '입력하지 않아도 모든 기능을 쓸 수 있어요.',
+              '나중에 설정에서 추가하거나 지울 수 있어요.',
+            ],
+          ),
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) return null;
+            final height = double.tryParse(value.trim());
+            return height == null || height <= 0 || height > 300
+                ? '키는 0보다 크고 300 이하로 입력해주세요'
+                : null;
+          },
+        ),
+        _Field(
+          label: '비상 연락처',
+          controller: phoneController,
+          hint: '010-0000-0000',
+          keyboardType: TextInputType.phone,
+          textInputAction: TextInputAction.done,
+          // ⚠ 문구를 담담하게 씁니다. 가입 첫날에 위기 상황을 설명하면
+          //   불안을 심어 오히려 입력을 피하게 됩니다.
+          //   '자동으로 연락이 가지 않는다'는 반드시 넣습니다. 그 말이 없으면
+          //   내 상태가 남에게 알려진다고 여겨 아예 적지 않습니다.
+          //   실제로도 그런 기능이 없습니다 — FR-MN-002 는 본인이 109 에
+          //   거는 구조입니다.
+          onWhy: () => _why(
+            '비상 연락처는 왜 필요한가요?',
+            const [
+              '혼자 감당하기 어려운 상황이 생겼을 때 도움을 요청할 수 있는 연락처예요.',
+              '평소에는 쓰지 않고, 자동으로 연락이 가지도 않아요.',
+              '입력하지 않아도 모든 기능을 쓸 수 있어요.',
+              '저장할 때 암호화되고, 설정에서 언제든 지울 수 있어요.',
+            ],
+          ),
+        ),
+      ],
+    );
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.soft,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      padding: const EdgeInsets.fromLTRB(15, 14, 15, 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('선택 입력',
+                    style:
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
+                SizedBox(height: 3),
+                Text('건너뛰어도 가입할 수 있어요',
+                    style: TextStyle(fontSize: 10, color: AppColors.muted)),
+              ]),
+          const SizedBox(height: 12),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 420),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topCenter,
+            child: optionalOpen
+                // 펼친 뒤에는 같은 자리에 ^ 를 둡니다. 열고 닫는 손잡이가
+                // 한 곳에 있어야 어디를 눌러야 할지 헤매지 않습니다.
+                ? Column(children: [
+                    fields,
+                    GestureDetector(
+                      onTap: () => setState(() => optionalOpen = false),
+                      behavior: HitTestBehavior.opaque,
+                      child: const SizedBox(
+                        height: 34,
+                        width: double.infinity,
+                        child: Icon(Icons.keyboard_arrow_up_rounded,
+                            size: 26, color: AppColors.primary),
+                      ),
+                    ),
+                  ])
+                // 접힌 상태 — 첫 칸의 라벨과 입력창 윗부분만 보입니다.
+                //
+                // ⚠ ConstrainedBox 로 자르면 자식이 더 크다고 오버플로 경고가
+                //   납니다. SizedBox 로 **자리만** 잡고 OverflowBox 로 자식이
+                //   제 크기를 갖게 둔 뒤 ClipRect 로 잘라야 경고가 없습니다.
+                : SizedBox(
+                    height: 74,
+                    child: ClipRect(
+                      child: Stack(children: [
+                        OverflowBox(
+                          alignment: Alignment.topCenter,
+                          minHeight: 0,
+                          maxHeight: double.infinity,
+                          child: fields,
+                        ),
+                        // 잘린 자리를 흐리게 덮고 그 위에 v 를 얹습니다.
+                        // 흐려지는 것만으로는 눌러야 한다는 게 전해지지 않습니다.
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          height: 44,
+                          child: GestureDetector(
+                            onTap: () => setState(() => optionalOpen = true),
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    AppColors.soft.withValues(alpha: 0),
+                                    AppColors.soft,
+                                  ],
+                                ),
+                              ),
+                              child: const Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Icon(Icons.keyboard_arrow_down_rounded,
+                                    size: 26, color: AppColors.primary),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ]),
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 선택 항목이 왜 필요한지 알려주는 바텀시트.
+  ///
+  /// 툴팁으로는 담기지 않습니다. 비상 연락처 설명은 네 줄이고,
+  /// 그중 한 줄이라도 빠지면 오해를 부릅니다.
+  void _why(String title, List<String> lines) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 4, 24, 26),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 16),
+              for (final line in lines)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('· ',
+                            style: TextStyle(color: AppColors.muted)),
+                        Expanded(
+                          child: Text(line,
+                              style: const TextStyle(
+                                  fontSize: 12,
+                                  height: 1.7,
+                                  color: AppColors.muted)),
+                        ),
+                      ]),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -464,6 +643,7 @@ class _Field extends StatelessWidget {
     this.keyboardType,
     this.textInputAction,
     this.validator,
+    this.onWhy,
   });
 
   final String label;
@@ -474,6 +654,9 @@ class _Field extends StatelessWidget {
   final TextInputAction? textInputAction;
   final String? Function(String?)? validator;
 
+  /// 주면 라벨 옆에 `?` 가 붙습니다. 왜 필요한지 설명할 항목에만 씁니다.
+  final VoidCallback? onWhy;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -481,9 +664,23 @@ class _Field extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style:
-                  const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+          Row(children: [
+            Text(label,
+                style: const TextStyle(
+                    fontSize: 12, fontWeight: FontWeight.w700)),
+            if (onWhy != null)
+              // 라벨 바로 옆에 둡니다. 입력란 아래에 두면 이미 넘어간 뒤라
+              // 읽지 않습니다.
+              IconButton(
+                onPressed: onWhy,
+                icon: const Icon(Icons.help_outline_rounded, size: 15),
+                color: AppColors.muted,
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.only(left: 5),
+                constraints: const BoxConstraints(),
+                tooltip: '왜 필요한가요?',
+              ),
+          ]),
           const SizedBox(height: 8),
           TextFormField(
             controller: controller,
