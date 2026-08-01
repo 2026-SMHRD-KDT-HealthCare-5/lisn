@@ -25,17 +25,17 @@ flutter run --dart-define=API_BASE_URL=http://<개발-PC-IP>:8000/api/v1
 ## 검증
 
 ```bash
-dart analyze
+flutter analyze
 ```
 
 ```bash
 flutter test
 ```
 
-> ⚠ **`flutter analyze` 는 이 저장소 경로에서 죽습니다.** 경로에 한글(`바탕 화면`)이 들어가
-> LSP 채널이 메시지를 잘라 먹고 `FormatException: Unterminated string` 으로 분석 서버가
-> 종료됩니다(exit 255). **`dart analyze` 를 쓰세요** — 같은 규칙으로 같은 결과가 나옵니다.
-> 경로에 한글이 없는 PC 에서는 `flutter analyze` 도 정상입니다.
+> ⚠ **저장소 경로에 한글이 있으면 `flutter analyze` 가 죽습니다.** LSP 채널이 메시지를
+> 잘라 먹고 `FormatException: Unterminated string` 으로 분석 서버가 종료됩니다(exit 255).
+> `바탕 화면` 아래에 뒀을 때 실제로 겪었고, `C:\LISN` 으로 옮겨 해소됐습니다.
+> 다시 겪으면 **`dart analyze`** 로 우회하세요 — 같은 규칙으로 같은 결과가 나옵니다.
 
 테스트 17건은 **모델 파싱과 안전 규칙**을 고정합니다. 실패하면 주석에 적힌 요구사항 ID 부터
 읽으세요.

@@ -42,9 +42,9 @@ Android 에뮬레이터의 기본 API 주소는 `http://10.0.2.2:8000/api/v1`입
 flutter run --dart-define=API_BASE_URL=http://<개발-PC-IP>:8000/api/v1
 ```
 
-> ⚠ **`flutter analyze` 는 이 저장소 경로에서 죽습니다**(경로에 한글이 있어 LSP 채널이
-> 메시지를 잘라먹음). `dart analyze` 를 쓰세요. 자세한 내용과 앱 쪽 함정은
-> [`app/README.md`](app/README.md) 에 있습니다.
+> ⚠ **저장소 경로에 한글이 있으면 `flutter analyze` 가 죽습니다**(LSP 채널이 메시지를
+> 잘라먹음). `C:\LISN` 에서는 정상이고, 다시 겪으면 `dart analyze` 로 우회합니다.
+> 앱 쪽 함정은 [`app/README.md`](app/README.md) 에 있습니다.
 
 남은 것은 **Health Connect 실기기 연동**입니다. `MAIN_JOIN_03` 의 권한 화면은 UI 만 있고
 실제 권한 요청·주기 수집이 없습니다. 서버 `POST /lifelog/batch` 는 이미 UPSERT 로 동작합니다.

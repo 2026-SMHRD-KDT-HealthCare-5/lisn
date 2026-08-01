@@ -1,6 +1,13 @@
 ﻿Add-Type -AssemblyName System.IO.Compression.FileSystem
 
-$f = "C:\Users\showm\OneDrive\바탕 화면\LISN\Documents\화면설계서_귀기울임.pptx"
+# 저장소 위치를 기준으로 잡는다. 절대경로를 박아 두면 다른 PC·다른 폴더에서 못 돈다
+# (실제로 저장소를 C:\LISN 으로 옮겼을 때 여기서 깨졌다).
+$f = Join-Path (Split-Path -Parent $PSScriptRoot) 'Documents\화면설계서_귀기울임.pptx'
+
+if (-not (Test-Path $f)) {
+    Write-Host "대상 파일이 없습니다: $f" -ForegroundColor Yellow
+    exit 1
+}
 
 # 슬라이드별 교체 쌍. 정확히 1건 매칭될 때만 적용한다.
 $plan = @{

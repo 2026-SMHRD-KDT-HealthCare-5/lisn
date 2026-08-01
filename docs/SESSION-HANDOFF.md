@@ -200,8 +200,9 @@ AI 서버가 없어도 push 는 성공합니다. 분석 실패로 되돌리면 �
 > 교체해도 그대로 통과해야 합니다 — 통과하지 않으면 정책(`risk_level_of` · `_has_signal`)
 > 을 같이 들어낸 것입니다.
 
-> ⚠ **`flutter analyze` 는 이 경로에서 죽습니다**(한글 경로 → LSP 메시지 잘림, exit 255).
-> `dart analyze` 를 쓰세요. `flutter test` 는 영향 없습니다.
+> ⚠ **저장소 경로에 한글이 있으면 `flutter analyze` 가 죽습니다**(LSP 메시지 잘림, exit 255).
+> `바탕 화면` 아래에 뒀을 때 겪었고 `C:\LISN` 으로 옮겨 해소됐습니다. 다시 겪으면
+> `dart analyze` 로 우회하세요. `flutter test` 는 영향 없습니다.
 
 ### 이어서 할 것
 
