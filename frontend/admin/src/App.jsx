@@ -5,6 +5,7 @@ import {
   fetchUsers,
   login,
 } from './api.js'
+import { countLabel, emptyLabel, RISK_LABEL } from './labels.js'
 import { clearSession, readSession, saveAdminSession } from './session.js'
 
 /**
@@ -139,7 +140,6 @@ function LoginPage({ onAuthenticated }) {
   )
 }
 
-const RISK_LABEL = { NORMAL: '안정', CAUTION: '주의', CRITICAL: '심각' }
 const RISK_TONE = { NORMAL: 'mint', CAUTION: 'blue', CRITICAL: 'peach' }
 
 function stamp(value) {
@@ -242,24 +242,45 @@ function useDebounced(value, delay = 250) {
 
 /** ❷ 대상자 목록 — 심각 → 주의 → 안정 순으로 내려온다 */
 function PeopleTab({ token }) {
-  const [rows, setRows] = useState(null)
+  /**
+   * 결과를 만들어낸 조건을 값과 **함께** 담는다.
+   *
+   * 화면 문구가 살아 있는 filter·query 를 읽으면, 다시 불러오는 동안 이전
+   * 목록 위에 새 조건이 얹혀 `"하늘" 검색 결과 33명` 처럼 없는 상태를 만든다.
+   */
+  const [result, setResult] = useState(null) // { items, query, filter }
+  const [pending, setPending] = useState(true)
   const [error, setError] = useState('')
   const [filter, setFilter] = useState('')
   const [keyword, setKeyword] = useState('')
   const query = useDebounced(keyword)
-  const searching = query.trim().length > 0
 
   useEffect(() => {
     let alive = true
-    setRows(null)
+    // ⚠ 여기서 result 를 비우지 않는다. 비우면 조회할 때마다 표가 통째로
+    //   사라졌다 돌아와 화면이 크게 튄다(실측: 본문 높이 1598 -> 720 -> 1598).
+    //   이전 목록을 둔 채 흐리게만 처리한다.
+    setPending(true)
     setError('')
     fetchUsers(token, { riskLevel: filter || undefined, query })
-      .then((result) => alive && setRows(result))
-      .catch((e) => alive && setError(e.message))
+      .then((items) => {
+        if (!alive) return
+        setResult({ items, query: query.trim(), filter })
+        setPending(false)
+      })
+      .catch((e) => {
+        if (!alive) return
+        setError(e.message)
+        setPending(false)
+      })
     return () => {
       alive = false
     }
   }, [token, filter, query])
+
+  const shown = result?.items ?? null
+  const shownQuery = result?.query ?? ''
+  const shownFilter = result?.filter ?? ''
 
   return (
     <>
@@ -284,74 +305,83 @@ function PeopleTab({ token }) {
             aria-label="대상자 검색"
             onChange={(event) => setKeyword(event.target.value)}
           />
-          {keyword && (
-            <button
-              type="button"
-              className="search-clear"
-              aria-label="검색어 지우기"
-              onClick={() => setKeyword('')}
-            >
-              ×
-            </button>
-          )}
+          {/* 조건부로 그리면 첫 글자에서 검색창 폭이 변해 오른쪽 정렬이 밀린다.
+              항상 자리를 차지하게 두고 보이기만 끈다. */}
+          <button
+            type="button"
+            className="search-clear"
+            aria-label="검색어 지우기"
+            aria-hidden={keyword ? undefined : true}
+            tabIndex={keyword ? 0 : -1}
+            style={keyword ? undefined : { visibility: 'hidden' }}
+            onClick={() => setKeyword('')}
+          >
+            ×
+          </button>
         </div>
       </div>
 
-      {rows && rows.length > 0 && (
-        <p className="hint">
-          {searching
-            ? `"${query.trim()}" 검색 결과 ${rows.length}명`
-            : `${rows.length}명`}
-          {filter && ` · ${RISK_LABEL[filter]} 필터 적용 중`}
-        </p>
-      )}
-
       {error ? (
         <NoticePanel text={error} />
-      ) : !rows ? (
+      ) : shown === null ? (
+        /* 최초 진입에만 뜬다. 이후 조회는 이전 목록을 두고 흐리게 처리한다. */
         <LoadingPanel />
-      ) : rows.length === 0 ? (
-        /* 검색 결과 없음과 필터 결과 없음을 구분한다. 같은 문구를 쓰면
-           검색어를 고쳐야 하는지 필터를 풀어야 하는지 알 수 없다. */
-        <NoticePanel
-          text={
-            searching
-              ? `"${query.trim()}"에 해당하는 대상자가 없습니다.` +
-                (filter ? ` ${RISK_LABEL[filter]} 필터를 풀고 다시 찾아보세요.` : '')
-              : '해당하는 대상자가 없습니다.'
-          }
-        />
       ) : (
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>이름</th>
-              <th>이메일</th>
-              <th>위험도</th>
-              <th>감정</th>
-              <th>평가 시각</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.user_id}>
-                <td>{row.name}</td>
-                <td className="muted">{row.email}</td>
-                <td>
-                  {/* 평가 이력이 없으면 '안정'이 아니라 '미평가'다.
-                      없는 것을 정상으로 표시하면 위험을 놓친다. */}
-                  <span
-                    className={row.risk_level ? RISK_TONE[row.risk_level] : 'muted'}
-                  >
-                    {row.risk_level ? RISK_LABEL[row.risk_level] : '미평가'}
-                  </span>
-                </td>
-                <td className="muted">{row.emotion_code ?? '—'}</td>
-                <td className="muted">{stamp(row.evaluated_at)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className={pending ? 'results is-pending' : 'results'}>
+          {/* 결과가 없어도 줄을 없애지 않는다. 사라지면 아래 내용이 통째로
+              올라왔다 내려간다. 눈에 안 보이는 공백이 소스에 박히면 다음 사람이
+              헷갈리므로 이스케이프로 적는다. */}
+          <p className="hint">
+            {countLabel({
+              count: shown.length,
+              query: shownQuery,
+              filter: shownFilter,
+            }) || ' '}
+          </p>
+
+          {shown.length === 0 ? (
+            /* 검색 결과 없음과 필터 결과 없음을 구분한다. 같은 문구를 쓰면
+               검색어를 고쳐야 하는지 필터를 풀어야 하는지 알 수 없다. */
+            <NoticePanel
+              text={emptyLabel({ query: shownQuery, filter: shownFilter })}
+            />
+          ) : (
+            <table className="data-table people">
+              <thead>
+                <tr>
+                  <th>이름</th>
+                  <th>이메일</th>
+                  <th>위험도</th>
+                  <th>감정</th>
+                  <th>평가 시각</th>
+                </tr>
+              </thead>
+              <tbody>
+                {shown.map((row) => (
+                  <tr key={row.user_id}>
+                    <td title={row.name}>{row.name}</td>
+                    <td className="muted" title={row.email}>
+                      {row.email}
+                    </td>
+                    <td>
+                      {/* 평가 이력이 없으면 '안정'이 아니라 '미평가'다.
+                          없는 것을 정상으로 표시하면 위험을 놓친다. */}
+                      <span
+                        className={
+                          row.risk_level ? RISK_TONE[row.risk_level] : 'muted'
+                        }
+                      >
+                        {row.risk_level ? RISK_LABEL[row.risk_level] : '미평가'}
+                      </span>
+                    </td>
+                    <td className="muted">{row.emotion_code ?? '—'}</td>
+                    <td className="muted">{stamp(row.evaluated_at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       )}
     </>
   )
