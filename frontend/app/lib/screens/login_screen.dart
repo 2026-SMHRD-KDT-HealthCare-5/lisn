@@ -35,6 +35,10 @@ class _LoginScreenState extends State<LoginScreen> {
   final emailFocus = FocusNode();
   final passwordFocus = FocusNode();
 
+  // 단계 전환 애니메이션. 짧으면 화면이 튀는 것처럼 보입니다.
+  // 520ms 는 히어로 축소와 입력란 펼침이 한 동작으로 읽히는 길이입니다.
+  static const _revealDuration = Duration(milliseconds: 520);
+
   _Step step = _Step.intro;
   bool loading = false;
   String? errorMessage;
@@ -147,7 +151,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [Color(0xFFEDF2FF), Color(0xFFFFFFFF)],
-                              stops: [0.0, 0.72],
+                              // 화면 중간을 조금 지난 지점부터 옅어집니다.
+                              // 위쪽이 단색으로 충분히 유지돼야 마스코트가
+                              // 배경에 얹힌 것처럼 보이지 않습니다.
+                              stops: [0.58, 1.0],
                             ),
                           ),
                     child: SingleChildScrollView(
@@ -168,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: Form(
                                   key: formKey,
                                   child: AnimatedSize(
-                                    duration: const Duration(milliseconds: 260),
+                                    duration: _revealDuration,
                                     curve: Curves.easeOutCubic,
                                     alignment: Alignment.topCenter,
                                     child: Column(
@@ -337,13 +344,17 @@ class _LoginScreenState extends State<LoginScreen> {
 class _MobileLoginHero extends StatelessWidget {
   const _MobileLoginHero({this.expanded = false});
 
+  /// _LoginScreenState._revealDuration 과 같은 길이여야 합니다.
+  /// 다르면 히어로와 입력란이 따로 움직여 두 동작으로 보입니다.
+  static const _duration = Duration(milliseconds: 520);
+
   /// 0단계에서 참. 마스코트와 문구가 화면을 더 크게 씁니다.
   final bool expanded;
 
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 260),
+      duration: _duration,
       curve: Curves.easeOutCubic,
       height: expanded ? 330 : 228,
       width: double.infinity,
@@ -354,7 +365,7 @@ class _MobileLoginHero extends StatelessWidget {
           // 덮으므로, 여기서 단색을 깔면 경계가 다시 생깁니다.
           const Positioned(left: 24, top: 25, child: LisnBrand(size: 22)),
           AnimatedPositioned(
-            duration: const Duration(milliseconds: 260),
+            duration: _duration,
             curve: Curves.easeOutCubic,
             left: 25,
             top: expanded ? 104 : 92,
@@ -367,7 +378,7 @@ class _MobileLoginHero extends StatelessWidget {
                     color: AppColors.navy)),
           ),
           AnimatedPositioned(
-            duration: const Duration(milliseconds: 260),
+            duration: _duration,
             curve: Curves.easeOutCubic,
             width: expanded ? 300 : 226,
             height: expanded ? 300 : 226,
