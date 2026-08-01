@@ -33,6 +33,27 @@ class SettingsService {
     return UserProfile.fromJson(json);
   }
 
+  /// 기기 연동 등록 — MLCM_110
+  ///
+  /// ⚠ `permissionGranted` 는 **기기 내 권한 승인 상태**입니다. 서버가 가진
+  ///   토큰이 아닙니다. Health Connect 는 on-device 권한 모델이라 앱이
+  ///   사용자에게 권한을 받아야 하고, 그 전까지는 false 로 등록합니다.
+  Future<DeviceConnection> createConnection({
+    String? deviceName,
+    bool permissionGranted = false,
+  }) async {
+    final json = await _apiClient.post(
+      '/devices/connections',
+      body: {
+        if (deviceName != null) 'device_name': deviceName,
+        'platform_type': 'HEALTH_CONNECT',
+        'permission_granted': permissionGranted,
+      },
+      authenticated: true,
+    );
+    return DeviceConnection.fromJson(json);
+  }
+
   Future<List<DeviceConnection>> connections() async {
     final rows =
         await _apiClient.getList('/devices/connections', authenticated: true);

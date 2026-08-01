@@ -6,6 +6,10 @@ import '../theme/app_theme.dart';
 import '../widgets/common_widgets.dart';
 import 'main_shell.dart';
 
+/// STEP 03 에서 웨어러블을 어떻게 할지 고른 결과.
+/// null 이면 아직 고르지 않은 상태이고, 그때는 시작하기가 눌리지 않습니다.
+enum _Wearable { connect, later }
+
 class JoinScreen extends StatefulWidget {
   const JoinScreen({super.key});
 
@@ -29,9 +33,23 @@ class _JoinScreenState extends State<JoinScreen> {
   /// 선택 입력 묶음이 펼쳐졌는지. 접혀 있어도 첫 칸이 살짝 보입니다.
   bool optionalOpen = false;
 
+  _Wearable? wearableChoice;
+
   bool loading = false;
   bool? emailAvailable;
   String? errorMessage;
+
+  /// 연동 정보를 등록합니다. 기기 권한은 별도이므로 permission_granted 는
+  /// false 로 두고, 화면에서 설정에서 켜라고 안내합니다.
+  Future<void> _connectWearable() async {
+    if (wearableChoice == _Wearable.connect) return;
+    await runRequest(() async {
+      await AppServices.settings.createConnection(deviceName: 'Health Connect');
+      if (mounted) {
+        setState(() => wearableChoice = _Wearable.connect);
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -209,7 +227,10 @@ class _JoinScreenState extends State<JoinScreen> {
       key: const ValueKey(0),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _heading('STEP 01', '마음이와 시작하기 전에', '안전하고 세심한 케어를 위해 약관을 확인해주세요.'),
+        // ⚠ 여기에 '마음이'를 쓰지 않습니다. 가입 전 사용자는 캐릭터를 본 적이
+        //   없어 그 이름이 무엇을 가리키는지 알 수 없습니다.
+        //   캐릭터 명칭은 서비스를 쓰기 시작한 뒤에만 통합니다.
+        _heading('STEP 01', '시작하기 전에', '안전하고 세심한 케어를 위해 약관을 확인해주세요.'),
         const SizedBox(height: 28),
         AppCard(
           color: const Color(0xFFF5F7FF),
@@ -624,24 +645,34 @@ class _JoinScreenState extends State<JoinScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 30),
+        // 로그인 화면과 같은 마스코트를 씁니다. MaeumeMascot 은 '• ᴗ •' 로
+        // 그린 임시 위젯이라, 가입을 마친 첫 화면에 쓰기에는 로그인에서 본
+        // 캐릭터와 달라 보입니다.
         Center(
-          child: Stack(
-            children: [
-              Container(
-                  width: 155,
-                  height: 155,
-                  decoration: const BoxDecoration(
-                      shape: BoxShape.circle, color: Color(0xFFEEF2FF)),
-                  alignment: Alignment.center,
-                  child: const MaeumeMascot(size: 95)),
-              const Positioned(
-                  right: 4,
-                  bottom: 8,
-                  child: CircleAvatar(
-                      radius: 18,
-                      backgroundColor: Color(0xFF63CFA7),
-                      child: Icon(Icons.check, color: Colors.white))),
-            ],
+          child: SizedBox(
+            width: 190,
+            height: 190,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                    width: 175,
+                    height: 175,
+                    decoration: const BoxDecoration(
+                        shape: BoxShape.circle, color: Color(0xFFEEF2FF))),
+                ClipOval(
+                  child: Image.asset('assets/images/login_mascot.png',
+                      width: 170, height: 170, fit: BoxFit.cover),
+                ),
+                const Positioned(
+                    right: 6,
+                    bottom: 14,
+                    child: CircleAvatar(
+                        radius: 19,
+                        backgroundColor: Color(0xFF63CFA7),
+                        child: Icon(Icons.check, color: Colors.white))),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 28),
@@ -664,29 +695,74 @@ class _JoinScreenState extends State<JoinScreen> {
             textAlign: TextAlign.center,
             style: TextStyle(height: 1.7, color: AppColors.muted)),
         const SizedBox(height: 28),
-        const AppCard(
-            child: Row(children: [
-          CircleAvatar(
-              backgroundColor: Color(0xFFEEF1FF),
-              child: Icon(Icons.watch_rounded, color: AppColors.primary)),
-          SizedBox(width: 13),
-          Expanded(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                Text('웨어러블 연결하기',
-                    style: TextStyle(fontWeight: FontWeight.w800)),
-                Text('Health Connect',
-                    style: TextStyle(fontSize: 10, color: AppColors.muted))
+        // 웨어러블 연결 여부를 여기서 한 번 묻습니다. 그냥 넘어가면
+        // 라이프로그가 비어 홈에 아무것도 뜨지 않는데, 사용자는 왜 그런지
+        // 알 수 없습니다.
+        InkWell(
+          onTap: loading ? null : _connectWearable,
+          borderRadius: BorderRadius.circular(14),
+          child: AppCard(
+              color: wearableChoice == _Wearable.connect
+                  ? const Color(0xFFEEF2FF)
+                  : Colors.white,
+              child: Row(children: [
+                CircleAvatar(
+                    backgroundColor: const Color(0xFFEEF1FF),
+                    child: Icon(
+                        wearableChoice == _Wearable.connect
+                            ? Icons.check_rounded
+                            : Icons.watch_rounded,
+                        color: AppColors.primary)),
+                const SizedBox(width: 13),
+                const Expanded(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                      Text('웨어러블 연결하기',
+                          style: TextStyle(fontWeight: FontWeight.w800)),
+                      Text('Health Connect',
+                          style:
+                              TextStyle(fontSize: 10, color: AppColors.muted))
+                    ])),
+                const Icon(Icons.chevron_right_rounded)
               ])),
-          Icon(Icons.chevron_right_rounded)
-        ])),
-        const SizedBox(height: 18),
+        ),
+        if (wearableChoice == _Wearable.connect)
+          // ⚠ 연동 정보만 등록했을 뿐 기기 권한은 아직 없습니다.
+          //   Health Connect 는 on-device 권한 모델이라 앱이 따로 받아야
+          //   합니다. 다 된 것처럼 두면 데이터가 안 들어올 때 헤맵니다.
+          const Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: Text('연동을 등록했어요. 설정에서 건강 데이터 권한을 켜면 기록이 쌓입니다.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 11, color: AppColors.muted)),
+          ),
+        const SizedBox(height: 6),
+        TextButton(
+          onPressed: loading
+              ? null
+              : () => setState(() => wearableChoice = _Wearable.later),
+          child: Text('나중에 연결할게요',
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: wearableChoice == _Wearable.later
+                      ? FontWeight.w800
+                      : FontWeight.w500,
+                  color: wearableChoice == _Wearable.later
+                      ? AppColors.primary
+                      : AppColors.muted)),
+        ),
+        const SizedBox(height: 10),
         ElevatedButton(
-          onPressed: () => Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const MainShell()),
-              (_) => false),
-          child: const Text('마음이 시작하기'),
+          // 둘 중 하나를 고르기 전에는 넘어가지 않습니다.
+          onPressed: wearableChoice == null || loading
+              ? null
+              : () => Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const MainShell()),
+                  (_) => false),
+          // STEP 01 과 같은 이유입니다. 이 시점에도 캐릭터를 만난 적이
+          // 없습니다. '마음이' 는 홈에 들어간 뒤부터 통합니다.
+          child: const Text('시작하기'),
         ),
       ],
     );
