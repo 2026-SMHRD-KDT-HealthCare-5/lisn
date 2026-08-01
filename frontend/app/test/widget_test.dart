@@ -60,7 +60,8 @@ void main() {
     // 0단계 — 입력란이 아직 없고 회원가입만 함께 보인다.
     expect(find.text('다시 만나 반가워요'), findsOneWidget);
     expect(find.byType(TextFormField), findsNothing);
-    expect(find.text('처음 오셨나요? 회원가입'), findsOneWidget);
+    // 회원가입은 테두리 없이 글자만 둡니다. Text.rich 라 조각으로 찾습니다.
+    expect(find.textContaining('회원가입'), findsOneWidget);
     expect(find.text('비밀번호를 잊으셨나요?'), findsNothing);
 
     // 1단계 — 이메일만.
@@ -69,7 +70,7 @@ void main() {
     expect(find.byType(TextFormField), findsOneWidget);
     expect(find.text('비밀번호를 잊으셨나요?'), findsNothing);
     // 로그인을 시작하면 회원가입은 감춘다.
-    expect(find.text('처음 오셨나요? 회원가입'), findsNothing);
+    expect(find.textContaining('회원가입'), findsNothing);
 
     // 2단계 — 이메일이 형태를 갖추면 비밀번호와 재설정 링크가 함께 나타난다.
     await tester.enterText(find.byType(TextFormField), 'user@example.com');

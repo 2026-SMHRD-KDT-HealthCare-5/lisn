@@ -136,38 +136,53 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 if (desktop) const Expanded(child: _DesktopLoginVisual()),
                 Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        // 0단계에서는 히어로가 더 큽니다. 마스코트가 화면을
-                        // 온전히 쓰도록 두고, 입력이 시작되면 자리를 내줍니다.
-                        if (!desktop) _MobileLoginHero(expanded: intro),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 480),
-                          child: Padding(
-                            padding: EdgeInsets.fromLTRB(
-                                desktop ? 50 : 30,
-                                desktop ? 100 : (intro ? 30 : 38),
-                                desktop ? 50 : 30,
-                                intro ? 40 : 70),
-                            child: AutofillGroup(
-                              child: Form(
-                                key: formKey,
-                                child: AnimatedSize(
-                                  duration: const Duration(milliseconds: 260),
-                                  curve: Curves.easeOutCubic,
-                                  alignment: Alignment.topCenter,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: _formChildren(desktop, intro),
+                  child: Container(
+                    // 히어로와 입력 영역 사이의 흰색 경계를 없앱니다.
+                    // 위에서 아래로 옅어지는 한 장의 배경이라 화면이 끊기지
+                    // 않고, 입력 영역은 아래쪽이라 여전히 밝게 유지됩니다.
+                    decoration: desktop
+                        ? null
+                        : const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Color(0xFFEDF2FF), Color(0xFFFFFFFF)],
+                              stops: [0.0, 0.72],
+                            ),
+                          ),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          // 0단계에서는 히어로가 더 큽니다. 마스코트가 화면을
+                          // 온전히 쓰도록 두고, 입력이 시작되면 자리를 내줍니다.
+                          if (!desktop) _MobileLoginHero(expanded: intro),
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 480),
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                  desktop ? 50 : 30,
+                                  desktop ? 100 : (intro ? 30 : 38),
+                                  desktop ? 50 : 30,
+                                  intro ? 40 : 70),
+                              child: AutofillGroup(
+                                child: Form(
+                                  key: formKey,
+                                  child: AnimatedSize(
+                                    duration: const Duration(milliseconds: 260),
+                                    curve: Curves.easeOutCubic,
+                                    alignment: Alignment.topCenter,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: _formChildren(desktop, intro),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -284,21 +299,35 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
 
       // 회원가입은 0단계에서만 보입니다.
+      //
+      // 테두리도 배경도 두지 않고 글자만 둡니다. 버튼 두 개가 나란히 있으면
+      // 어느 쪽이 주된 행동인지 흐려집니다. 로그인이 주고, 회원가입은
+      // 그 아래 놓인 안내에 가깝습니다.
       if (intro) ...[
-        const SizedBox(height: 24),
-        FilledButton.tonal(
+        const SizedBox(height: 18),
+        TextButton(
           onPressed: loading
               ? null
               : () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const JoinScreen())),
-          style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(48),
-            backgroundColor: AppColors.soft,
-            foregroundColor: AppColors.primary,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          style: TextButton.styleFrom(
+            minimumSize: const Size.fromHeight(44),
+            foregroundColor: AppColors.muted,
+            overlayColor: AppColors.primary,
           ),
-          child: const Text('처음 오셨나요? 회원가입'),
+          child: const Text.rich(
+            TextSpan(children: [
+              TextSpan(
+                  text: '처음 오셨나요?  ',
+                  style: TextStyle(fontSize: 13, color: AppColors.muted)),
+              TextSpan(
+                  text: '회원가입',
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.primary)),
+            ]),
+          ),
         ),
       ],
     ];
@@ -321,7 +350,8 @@ class _MobileLoginHero extends StatelessWidget {
       child: Stack(
         clipBehavior: Clip.hardEdge,
         children: [
-          const ColoredBox(color: Color(0xFFEDF2FF), child: SizedBox.expand()),
+          // 자체 배경을 칠하지 않습니다. 바깥 그라데이션이 화면 전체를
+          // 덮으므로, 여기서 단색을 깔면 경계가 다시 생깁니다.
           const Positioned(left: 24, top: 25, child: LisnBrand(size: 22)),
           AnimatedPositioned(
             duration: const Duration(milliseconds: 260),
