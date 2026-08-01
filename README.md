@@ -79,7 +79,7 @@ Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog anomal
 | 영역 | 상태 |
 |---|---|
 | 백엔드 API | 30개 **구현·검증 완료**. 회귀 테스트 45건 |
-| Flutter 앱 | 화면 13개 **전부 실제 API 연동**. 목업 없음. 테스트 17건 |
+| Flutter 앱 | 화면 13개 **전부 실제 API 연동**. 목업 없음. 테스트 20건 |
 | 관리자 관제 웹 | 로그인·역할 가드 + 분포·대상자·상세 3개 탭 완료 |
 | AI 추론 서버 | 구동 완료. **판정은 규칙 기반 임시값** ⚠ |
 | Health Connect | **미구현.** 권한 화면 UI 만 있음 |

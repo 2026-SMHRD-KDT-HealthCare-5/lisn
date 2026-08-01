@@ -28,6 +28,12 @@ class _LifelogScreenState extends State<LifelogScreen> {
   int range = 1;
   late Future<List<LifelogEntry>> _future;
 
+  /// 마지막으로 성공한 기록.
+  ///
+  /// 기간을 바꿀 때 스피너로 갈아치우면 목록이 통째로 사라졌다 돌아와
+  /// 화면이 크게 튑니다. 이전 목록을 두고 흐리게만 처리합니다.
+  List<LifelogEntry>? _last;
+
   LifelogService get _service => widget.lifelogService ?? AppServices.lifelog;
 
   static const _days = [1, 7, 30];
@@ -35,7 +41,7 @@ class _LifelogScreenState extends State<LifelogScreen> {
   @override
   void initState() {
     super.initState();
-    _future = _load();
+    _future = _loadAndKeep();
   }
 
   Future<List<LifelogEntry>> _load() {
@@ -47,10 +53,22 @@ class _LifelogScreenState extends State<LifelogScreen> {
     );
   }
 
+  /// 성공한 결과만 보관합니다. 실패가 보고 있던 목록을 지우지 않습니다.
+  ///
+  /// ⚠ `then(...).ignore()` 를 async/await 로 바꾸지 마세요. 이유는
+  ///   report_screen.dart 의 같은 함수 주석에 있습니다.
+  Future<List<LifelogEntry>> _loadAndKeep() {
+    final future = _load();
+    future.then((rows) {
+      if (mounted) _last = rows;
+    }).ignore();
+    return future;
+  }
+
   void _changeRange(int next) {
     setState(() {
       range = next;
-      _future = _load();
+      _future = _loadAndKeep();
     });
   }
 
@@ -80,6 +98,17 @@ class _LifelogScreenState extends State<LifelogScreen> {
             future: _future,
             builder: (context, snap) {
               final body = switch (snap) {
+                // 다시 불러오는 중. 이전 목록이 있으면 두고 흐리게만 처리한다.
+                AsyncSnapshot(connectionState: ConnectionState.waiting)
+                    when _last != null =>
+                  [
+                    IgnorePointer(
+                      child: Opacity(
+                        opacity: 0.45,
+                        child: Column(children: _body(_last!)),
+                      ),
+                    )
+                  ],
                 AsyncSnapshot(connectionState: ConnectionState.waiting) =>
                   [const _Centered(child: CircularProgressIndicator(strokeWidth: 2.5))],
                 AsyncSnapshot(hasError: true, :final error) => [
@@ -95,7 +124,7 @@ class _LifelogScreenState extends State<LifelogScreen> {
                         const SizedBox(height: 12),
                         TextButton(
                             onPressed: () =>
-                                setState(() => _future = _load()),
+                                setState(() => _future = _loadAndKeep()),
                             child: const Text('다시 시도')),
                       ]),
                     )
@@ -104,7 +133,7 @@ class _LifelogScreenState extends State<LifelogScreen> {
               };
 
               return RefreshIndicator(
-                onRefresh: () async => setState(() => _future = _load()),
+                onRefresh: () async => setState(() => _future = _loadAndKeep()),
                 child: ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(15, 8, 15, 25),

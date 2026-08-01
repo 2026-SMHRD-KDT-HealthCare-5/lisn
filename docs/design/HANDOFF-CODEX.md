@@ -44,7 +44,7 @@ frontend/
 │   │   ├── screens/        11개 파일 — 전부 실제 API 연동
 │   │   ├── theme/app_theme.dart
 │   │   └── widgets/common_widgets.dart
-│   ├── test/               17건 (모델 파싱·세션 규칙)
+│   ├── test/               20건 (모델 파싱·재조회 시 화면 유지)
 │   └── android/            패키지 com.lisn.maeume · minSdk 26
 ├── admin/                  Vite + React 관리자 웹 — 로그인 + 관제 3개 탭
 └── design/                 디자인 시안
@@ -64,7 +64,7 @@ frontend/
 - **앱 화면 전부** — 인증 6개 · 홈 · 챗봇 · 라이프로그 · 설정/기기 · 리포트
 - **관리자 웹 전부** — 로그인·`ADMIN` 역할 가드 · 위험도 분포 · 대상자 목록 · 상세
 - 기본 Base URL은 Android 에뮬레이터용 `http://10.0.2.2:8000/api/v1`
-- `flutter analyze`·`flutter test`(17건)·Android debug APK 빌드 통과
+- `flutter analyze`·`flutter test`(20건)·Android debug APK 빌드 통과
 
 ### 서버 JSON 을 직접 캐스팅하지 마세요
 

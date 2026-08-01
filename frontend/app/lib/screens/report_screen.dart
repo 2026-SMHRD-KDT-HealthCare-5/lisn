@@ -47,6 +47,13 @@ class _ReportScreenState extends State<ReportScreen> {
   _Range range = _Range.week;
   late Future<EmotionReport> _future;
 
+  /// 마지막으로 성공한 리포트.
+  ///
+  /// 기간을 바꿀 때 화면을 스피너로 갈아치우면 **본문이 통째로 접혔다 펴집니다.**
+  /// 분포·곡선·라이프로그·요약이 한 번에 사라지니 움직임이 큽니다.
+  /// 이전 내용을 두고 흐리게만 처리합니다.
+  EmotionReport? _last;
+
   /// PDF 로 찍을 영역. 화면에 그려진 뒤에만 캡처가 됩니다.
   final _captureKey = GlobalKey();
   bool exporting = false;
@@ -54,7 +61,7 @@ class _ReportScreenState extends State<ReportScreen> {
   @override
   void initState() {
     super.initState();
-    _future = _load();
+    _future = _loadAndKeep();
   }
 
   Future<EmotionReport> _load() {
@@ -65,10 +72,26 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
+  /// 성공한 결과만 보관합니다. 실패는 이전 내용을 지우지 않습니다 —
+  /// 통신이 한 번 끊겼다고 보고 있던 리포트가 사라질 이유가 없습니다.
+  ///
+  /// ⚠ `then(...).ignore()` 를 async/await 로 바꾸지 마세요. 조회가 즉시 실패하면
+  ///   FutureBuilder 가 구독하기 전에 오류가 도착해 **미처리 예외로 보고**됩니다
+  ///   (화면은 정상 처리되는데 로그만 더러워지고, 위젯 테스트는 실패합니다).
+  ///   여기서 곧바로 리스너를 달아 그 경합을 없앱니다. 화면 처리는 아래
+  ///   FutureBuilder 가 하므로 파생 future 의 오류만 흘려보냅니다.
+  Future<EmotionReport> _loadAndKeep() {
+    final future = _load();
+    future.then((report) {
+      if (mounted) _last = report;
+    }).ignore();
+    return future;
+  }
+
   void _changeRange(_Range next) {
     setState(() {
       range = next;
-      _future = _load();
+      _future = _loadAndKeep();
     });
   }
 
@@ -143,6 +166,12 @@ class _ReportScreenState extends State<ReportScreen> {
                 ),
                 const SizedBox(height: 18),
                 ...switch (snap) {
+                  // 기간을 바꾸는 중. 이전 리포트가 있으면 그대로 두고 흐리게만
+                  // 처리합니다. 스피너로 갈아치우면 본문이 통째로 접혔다 펴져
+                  // 화면이 크게 튑니다.
+                  AsyncSnapshot(connectionState: ConnectionState.waiting)
+                      when _last != null =>
+                    [_stale(_last!)],
                   AsyncSnapshot(connectionState: ConnectionState.waiting) => [
                       const _Pad(
                           child:
@@ -168,6 +197,20 @@ class _ReportScreenState extends State<ReportScreen> {
             );
           },
         ),
+      ),
+    );
+  }
+
+  /// 다시 불러오는 동안 보여줄 직전 리포트.
+  ///
+  /// ⚠ `RepaintBoundary` 를 달지 않습니다. 이 상태에서 PDF 를 찍으면 **바뀐 기간의
+  ///   머리말에 이전 기간의 그림**이 들어갑니다. 상담기관에 내는 문서라 그런 조합이
+  ///   나오면 안 됩니다. `IgnorePointer` 로 내보내기 버튼도 막습니다.
+  Widget _stale(EmotionReport report) {
+    return IgnorePointer(
+      child: Opacity(
+        opacity: 0.45,
+        child: Column(children: _body(report)),
       ),
     );
   }
