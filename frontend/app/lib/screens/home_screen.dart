@@ -231,17 +231,38 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(fontSize: 10, color: AppColors.primary)),
             )),
         const SizedBox(height: 18),
-        // 마스코트와 점수를 한 줄에 두고, **문구는 카드 폭 전체**를 씁니다.
-        // 셋을 가로로 늘어놓으면 양쪽이 폭을 먹어 문구가 「보 / 여요」처럼
-        // 단어 중간에서 잘립니다. 상태를 알리는 문장이 그렇게 보이면 안 됩니다.
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        // 마스코트 · 문구 · 점수를 한 줄에 둡니다.
+        //
+        // ⚠ 문구가 카드 중앙에 오도록 폭을 벌어 놨습니다(마스코트 62 · 링 86).
+        //   기본값(72 · 100)이면 문구에 143dp 밖에 안 남아 「보 / 여요」처럼
+        //   단어 중간에서 잘립니다. 상태를 알리는 문장이 그렇게 보이면 안 됩니다.
+        //   **크기를 되돌리려면 아래 문구 길이도 같이 확인하세요.**
+        Row(children: [
           // ⚠ 위험도에 따라 표정이 갈립니다. 「많이 힘들어 보여요」 옆에서
           //   웃고 있으면 공감이 아니라 무시로 읽힙니다.
           MaeumeMascot(
-              size: 72, mood: MaeumeMascot.moodFor(emotion.riskLevel)),
+              size: 62, mood: MaeumeMascot.moodFor(emotion.riskLevel)),
+          const SizedBox(width: 12),
+          // ⚠ **감정 이름(emotion_name)을 사용자에게 보여주지 않습니다.**
+          //
+          //   마스터 9종에 「위기」·「절망」이 들어 있습니다. 힘들어하는 사람 화면에
+          //   그 단어를 헤드라인으로 박으면 관찰이 아니라 **사람에 대한 판정**으로
+          //   읽힙니다. 02 요구사항의 「진단 금지」에 걸리고, 라벨이 내면화되면
+          //   상태를 더 굳힙니다.
+          //
+          //   아래 문구가 이미 상태를 전달하므로 라벨이 정보를 더하지 않습니다.
+          //   관리자 화면은 그대로 둡니다 — 담당자가 판단하는 데 필요한 용어입니다.
+          Expanded(
+              child: Text(_riskMessage(emotion.riskLevel),
+                  style: const TextStyle(
+                      fontSize: 12,
+                      height: 1.75,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.navy))),
+          const SizedBox(width: 4),
           SizedBox(
-              width: 92,
-              height: 92,
+              width: 86,
+              height: 86,
               child: Stack(alignment: Alignment.center, children: [
                 Positioned.fill(
                     child: CircularProgressIndicator(
@@ -252,40 +273,26 @@ class _HomeScreenState extends State<HomeScreen> {
                 Column(mainAxisSize: MainAxisSize.min, children: [
                   Text(score.round().toString(),
                       style: const TextStyle(
-                          fontSize: 22, fontWeight: FontWeight.w900)),
+                          fontSize: 21, fontWeight: FontWeight.w900)),
                   const Text('/100',
                       style: TextStyle(fontSize: 9, color: AppColors.muted))
                 ])
               ])),
         ]),
-        const SizedBox(height: 16),
-        // ⚠ **감정 이름(emotion_name)을 사용자에게 보여주지 않습니다.**
-        //
-        //   마스터 9종에 「위기」·「절망」이 들어 있습니다. 힘들어하는 사람 화면에
-        //   그 단어를 헤드라인으로 박으면 관찰이 아니라 **사람에 대한 판정**으로
-        //   읽힙니다. 02 요구사항의 「진단 금지」에 걸리고, 라벨이 내면화되면
-        //   상태를 더 굳힙니다.
-        //
-        //   아래 문구가 이미 상태를 전달하므로 라벨이 정보를 더하지 않습니다.
-        //   관리자 화면은 그대로 둡니다 — 담당자가 판단하는 데 필요한 용어입니다.
-        SizedBox(
-            width: double.infinity,
-            child: Text(_riskMessage(emotion.riskLevel),
-                style: const TextStyle(
-                    fontSize: 14,
-                    height: 1.7,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.navy))),
       ]),
     );
   }
 
   /// ⚠ 위기 상황에 경고색이나 위협적인 문구를 쓰지 않습니다.
   ///   불안을 키우면 오히려 앱을 피하게 됩니다. 담담하게 씁니다.
+  ///
+  /// ⚠ **한 줄이 카드 안에서 안 접히도록 길이를 맞춰 뒀습니다.** 가장 긴 줄이
+  ///   「혼자 견디지 않아도 괜찮아요.」(13자)입니다. 늘리면 단어 중간에서 잘려
+  ///   「보 / 여요」처럼 보입니다. **고치면 실기기에서 줄바꿈을 확인하세요.**
   String _riskMessage(String riskLevel) => switch (riskLevel) {
-        'CRITICAL' => '지금 마음이 많이 힘들어 보여요.\n혼자 견디지 않아도 괜찮아요.',
-        'CAUTION' => '평소와 조금 다른 하루였네요.\n무리하지 않아도 괜찮아요.',
-        _ => '평소보다 안정적인 상태예요.\n잘 관리하고 있어요!',
+        'CRITICAL' => '마음이 많이 힘들어 보여요.\n혼자 견디지 않아도 괜찮아요.',
+        'CAUTION' => '평소와 조금 다른 하루예요.\n무리하지 않아도 괜찮아요.',
+        _ => '평소보다 안정적인 상태예요.\n잘 지내고 계세요.',
       };
 
   Widget _metrics(LifelogSummary log) {
