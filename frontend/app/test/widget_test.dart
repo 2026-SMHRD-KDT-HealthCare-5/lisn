@@ -41,7 +41,7 @@ void main() {
     expect(find.text('오늘은 어떤 방식으로\n이야기 나눌까요?'), findsOneWidget);
   });
 
-  testWidgets('미로그인 사용자는 로그인 화면과 입력 검증을 본다', (tester) async {
+  testWidgets('로그인은 마스코트 화면에서 시작하고 입력란은 단계적으로 나타난다', (tester) async {
     tester.view.physicalSize = const Size(360, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -57,11 +57,53 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    // 0단계 — 입력란이 아직 없고 회원가입만 함께 보인다.
     expect(find.text('다시 만나 반가워요'), findsOneWidget);
+    expect(find.byType(TextFormField), findsNothing);
+    expect(find.text('처음 오셨나요? 회원가입'), findsOneWidget);
+    expect(find.text('비밀번호를 잊으셨나요?'), findsNothing);
+
+    // 1단계 — 이메일만.
     await tester.tap(find.text('로그인'));
     await tester.pumpAndSettle();
-    expect(find.text('올바른 이메일을 입력해주세요'), findsOneWidget);
+    expect(find.byType(TextFormField), findsOneWidget);
+    expect(find.text('비밀번호를 잊으셨나요?'), findsNothing);
+    // 로그인을 시작하면 회원가입은 감춘다.
+    expect(find.text('처음 오셨나요? 회원가입'), findsNothing);
+
+    // 2단계 — 이메일이 형태를 갖추면 비밀번호와 재설정 링크가 함께 나타난다.
+    await tester.enterText(find.byType(TextFormField), 'user@example.com');
+    await tester.pumpAndSettle();
+    expect(find.byType(TextFormField), findsNWidgets(2));
+    expect(find.text('비밀번호를 잊으셨나요?'), findsOneWidget);
+  });
+
+  testWidgets('로그인 단계에서 비밀번호 검증이 동작한다', (tester) async {
+    tester.view.physicalSize = const Size(360, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: const LoginScreen(),
+        routes: {
+          '/password-reset': (_) => const PasswordResetScreen(),
+        },
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('로그인'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField), 'user@example.com');
+    await tester.pumpAndSettle();
+
+    // 비밀번호를 비운 채 제출하면 그 칸만 걸린다.
+    await tester.tap(find.text('로그인'));
+    await tester.pumpAndSettle();
     expect(find.text('비밀번호는 8자 이상 입력해주세요'), findsOneWidget);
+    expect(find.text('올바른 이메일을 입력해주세요'), findsNothing);
   });
 
   testWidgets('비밀번호 재설정 화면으로 이동한다', (tester) async {
@@ -78,6 +120,12 @@ void main() {
         },
       ),
     );
+    await tester.pumpAndSettle();
+
+    // 재설정 링크는 비밀번호 단계에서만 나오므로 거기까지 진행한다.
+    await tester.tap(find.text('로그인'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField), 'user@example.com');
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('비밀번호를 잊으셨나요?'));
