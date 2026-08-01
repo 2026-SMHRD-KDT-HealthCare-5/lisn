@@ -333,7 +333,7 @@ class _PersonaCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final feeling = persona == ChatPersona.feeling;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 18),
+      padding: const EdgeInsets.fromLTRB(8, 6, 8, 12),
       child: InkWell(
         borderRadius: BorderRadius.circular(25),
         onTap: onTap,
@@ -374,28 +374,32 @@ class _PersonaCard extends StatelessWidget {
             //   하던 일을 여기서 대신합니다.
             Positioned.fill(child: LayoutBuilder(builder: (context, box) {
               return SingleChildScrollView(
+                // ⚠ 카드 위아래로 숨 쉴 자리입니다. 빼면 마스코트가 카드
+                //   테두리에 붙고 「이 성격으로 대화하기」가 바닥에 닿습니다.
+                padding: const EdgeInsets.symmetric(vertical: 18),
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: box.maxHeight),
+                  constraints:
+                      BoxConstraints(minHeight: box.maxHeight - 36),
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
               MaeumeMascot(
-                  size: 112,
+                  size: 84,
                   mood: feeling ? MascotMood.smile : MascotMood.thinking),
-              const SizedBox(height: 18),
+              const SizedBox(height: 14),
               Text(feeling ? 'FEELING' : 'THINKING',
                   style: TextStyle(
                       fontSize: 9,
                       letterSpacing: 1.8,
                       fontWeight: FontWeight.w900,
                       color: feeling ? AppColors.primary : AppColors.teal)),
-              const SizedBox(height: 7),
+              const SizedBox(height: 6),
               Text(feeling ? '다정한 공감가' : '이성적인 분석가',
                   style: const TextStyle(
                       fontSize: 24,
                       color: AppColors.navy,
                       fontWeight: FontWeight.w900)),
-              const SizedBox(height: 10),
+              const SizedBox(height: 9),
               Text(
                   feeling
                       ? '감정을 먼저 이해하고\n따뜻하게 공감해요'
@@ -403,7 +407,7 @@ class _PersonaCard extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                       fontSize: 12, height: 1.6, color: AppColors.muted)),
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
               Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
@@ -417,7 +421,7 @@ class _PersonaCard extends StatelessWidget {
                           color: feeling
                               ? const Color(0xFF6678CE)
                               : const Color(0xFF38889A)))),
-              const SizedBox(height: 18),
+              const SizedBox(height: 16),
               Row(mainAxisSize: MainAxisSize.min, children: [
                 Text('이 성격으로 대화하기',
                     style: TextStyle(
