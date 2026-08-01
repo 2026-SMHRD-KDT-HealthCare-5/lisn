@@ -17,7 +17,8 @@
 ///
 /// | 플래그 | 하는 일 |
 /// |---|---|
-/// | `DEV_LOGIN=true` | 앱을 켤 때 데모 계정으로 **자동 로그인**합니다 |
+/// | `DEV_LOGIN=true` | 세션이 없으면 데모 계정으로 **자동 로그인** |
+/// | `DEV_LOGIN=force` | 기존 세션을 **버리고** 데모 계정으로 다시 로그인 |
 /// | `SCREEN=<키>` | 그 화면으로 **바로 뜹니다** (아래 `devScreens` 참조) |
 ///
 /// 둘은 독립입니다. `DEV_LOGIN` 만 주면 평소 흐름대로 홈까지 갑니다.
@@ -100,8 +101,14 @@ Widget? devScreenOrNull() {
 //  자동 로그인
 // ---------------------------------------------------------------------------
 
-/// `--dart-define=DEV_LOGIN=true` 일 때만 켜집니다.
-const bool _devLoginRequested = bool.fromEnvironment('DEV_LOGIN');
+/// `--dart-define=DEV_LOGIN=true` 또는 `=force` 일 때 켜집니다.
+///
+/// - `true`  — 유효한 세션이 없을 때만 로그인
+/// - `force` — **기존 세션을 버리고** 데모 계정으로 다시 로그인
+///
+/// `force` 가 필요한 이유: 앞서 손으로 다른 계정에 로그인해 뒀으면 토큰이 남아 있어
+/// 그 계정 데이터가 그려집니다. 화면설계서 캡처를 뜰 때 **엉뚱한 데이터가 찍히는데
+/// 화면은 정상으로 보여** 알아채기 어렵습니다.
 
 /// 기본은 데모 페르소나입니다. 14일치 데이터가 들어 있어 화면이 비지 않습니다.
 /// 다른 계정으로 보려면 `--dart-define=DEV_EMAIL=...` 로 바꾸세요.
@@ -114,8 +121,11 @@ const String _devPassword = String.fromEnvironment(
   defaultValue: 'rldnfdla',
 );
 
+const String _devLoginMode = String.fromEnvironment('DEV_LOGIN');
+
 /// 릴리스 빌드에서는 플래그를 줘도 켜지지 않습니다.
-bool get devLoginEnabled => _devLoginRequested && !kReleaseMode;
+bool get devLoginEnabled =>
+    (_devLoginMode == 'true' || _devLoginMode == 'force') && !kReleaseMode;
 
 /// 유효한 세션이 없으면 데모 계정으로 로그인합니다.
 ///
@@ -123,8 +133,21 @@ bool get devLoginEnabled => _devLoginRequested && !kReleaseMode;
 /// 시드를 안 넣은 상태에서 「왜 로그인 화면이 뜨지」로 헤매지 않게 하기 위해서입니다.
 Future<void> devLoginIfNeeded() async {
   if (!devLoginEnabled) return;
-  if (await AppServices.tokenStore.hasValidSession()) {
-    debugPrint('[dev] 이미 유효한 세션이 있어 자동 로그인을 건너뜁니다.');
+
+  if (_devLoginMode == 'force') {
+    await AppServices.tokenStore.clear();
+    debugPrint('[dev] 기존 세션을 버리고 다시 로그인합니다 (DEV_LOGIN=force).');
+  } else if (await AppServices.tokenStore.hasValidSession()) {
+    // ⚠ 어느 계정인지 반드시 알립니다. 손으로 다른 계정에 로그인해 뒀다면 그
+    //   계정 데이터가 그려지는데, 화면은 멀쩡해 보여 캡처를 뜬 뒤에야 압니다.
+    String who = '(확인 실패)';
+    try {
+      who = (await AppServices.settings.profile()).email;
+    } catch (_) {}
+    debugPrint(
+      '[dev] 이미 로그인돼 있어 건너뜁니다 — 현재 계정: $who\n'
+      '      데모 계정으로 바꾸려면 --dart-define=DEV_LOGIN=force',
+    );
     return;
   }
   try {

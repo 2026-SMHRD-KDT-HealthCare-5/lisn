@@ -241,8 +241,12 @@ Flutter의 인증 API 6개·보안 토큰 저장·인증 게이트와 `MAIN_EMER
 **화면 바로 띄우기**를 넣었습니다.
 
 ```bash
-flutter run --dart-define=DEV_LOGIN=true --dart-define=SCREEN=report
+flutter run --dart-define=DEV_LOGIN=force --dart-define=SCREEN=report
 ```
+
+- 에뮬레이터는 `flutter emulators --launch lisn` 으로 켭니다(이 PC 에 이미 있음)
+- `DEV_LOGIN=true` 는 **이미 로그인돼 있으면 건너뜁니다.** 캡처용으로는 `force` 를
+  쓰세요 — 안 그러면 손으로 로그인해 둔 다른 계정 데이터가 조용히 찍힙니다
 
 - **컴파일 시점 플래그**라 평소 빌드에는 영향이 없습니다
 - **릴리스 빌드에서는 무시**합니다(`kReleaseMode`). 이 검사를 빼지 마세요

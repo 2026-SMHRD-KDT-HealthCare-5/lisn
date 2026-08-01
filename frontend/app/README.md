@@ -46,13 +46,22 @@ flutter test
 띄우기**를 넣었습니다(`lib/dev_screens.dart`, 2026.08.02).
 
 ```bash
-flutter run --dart-define=DEV_LOGIN=true --dart-define=SCREEN=report
+flutter emulators --launch lisn
+```
+
+```bash
+flutter run --dart-define=DEV_LOGIN=force --dart-define=SCREEN=report
 ```
 
 | 플래그 | 하는 일 |
 |---|---|
-| `DEV_LOGIN=true` | 켤 때 데모 계정으로 자동 로그인 |
+| `DEV_LOGIN=true` | 세션이 없을 때만 데모 계정으로 자동 로그인 |
+| `DEV_LOGIN=force` | **기존 세션을 버리고** 데모 계정으로 다시 로그인 |
 | `SCREEN=<키>` | 그 화면으로 바로 시작 |
+
+> ⚠ **캡처를 뜰 때는 `force` 를 쓰세요.** `true` 는 이미 로그인돼 있으면 건너뛰는데,
+> 손으로 다른 계정에 로그인해 뒀다면 **그 계정 데이터가 그려집니다.** 화면은 멀쩡해
+> 보여서 캡처를 뜬 뒤에야 압니다. 실제로 한 번 겪었습니다.
 
 `SCREEN` 키 — `login` `reset` `join` `home` `chat` `lifelog` `setting` `report` `emergency`
 
