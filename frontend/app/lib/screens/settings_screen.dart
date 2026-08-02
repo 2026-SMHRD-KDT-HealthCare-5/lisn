@@ -7,6 +7,7 @@ import '../services/settings_service.dart';
 import '../services/sync_worker.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common_widgets.dart';
+import 'account_screen.dart';
 import 'login_screen.dart';
 
 /// MAIN_SETTING_01
@@ -111,65 +112,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  /// 회원 탈퇴 — MLCM_103.
-  ///
-  /// ⚠ CASCADE 로 라이프로그·대화기록이 **전부 지워지고 되돌릴 수 없습니다.**
-  ///   삭제 범위를 먼저 알리는 것이 MLCM_103 3단계 요건입니다.
-  Future<void> _deleteAccount() async {
-    // MLCM_103 2단계 — 비밀번호 재확인(본인 확인). 서버도 본문 없이 오면 거절한다.
-    final passwordController = TextEditingController();
-    final password = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('정말 탈퇴하시겠어요?'),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Text(
-            '탈퇴하면 아래 정보가 모두 삭제되고 되돌릴 수 없어요.\n\n'
-            '· 라이프로그 측정 기록\n· 대화 기록과 요약\n· 정서 분석 결과\n· 계정 정보',
-            style: TextStyle(fontSize: 12, height: 1.7),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: passwordController,
-            obscureText: true,
-            decoration: const InputDecoration(
-              labelText: '본인 확인을 위해 비밀번호를 입력해주세요',
-              labelStyle: TextStyle(fontSize: 11),
-            ),
-          ),
-        ]),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('취소')),
-          TextButton(
-              onPressed: () =>
-                  Navigator.of(dialogContext).pop(passwordController.text),
-              child: const Text('탈퇴하기')),
-        ],
-      ),
-    );
-    passwordController.dispose();
-    if (password == null || password.isEmpty || !mounted) return;
-
-    try {
-      await _service.deleteAccount(password);
-      await AppServices.tokenStore.clear();
-      // 탈퇴는 계정 자체가 사라집니다. 워커가 남아 있으면 없는 계정으로
-      // 계속 전송을 시도합니다.
-      try {
-        await cancelLifelogSync();
-      } catch (_) {}
-      if (!mounted) return;
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-        (_) => false,
-      );
-    } catch (e) {
-      _toast(e is ApiException ? e.message : '탈퇴 처리에 실패했습니다.');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -233,10 +175,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
         AppCard(
             padding: EdgeInsets.zero,
             child: Column(children: [
+              // ❸ 계정 관리 — 화면설계서는 여기서 **이동**하도록 규정합니다.
+              //    전에는 탈퇴 버튼이 이 자리에 직접 있었습니다(MAIN_SETTING_02
+              //    화면 자체가 없었음). 되돌리지 마세요.
               _SettingsRow(
-                  icon: Icons.delete_outline_rounded,
-                  label: '회원 탈퇴',
-                  onTap: busy ? null : _deleteAccount),
+                  icon: Icons.manage_accounts_outlined,
+                  label: '계정 관리',
+                  onTap: busy
+                      ? null
+                      : () => Navigator.of(context)
+                          .push(MaterialPageRoute<void>(
+                              builder: (_) => const AccountScreen()))
+                          .then((_) => _load())),
               _SettingsRow(
                   icon: Icons.logout_rounded,
                   label: loggingOut ? '로그아웃 중...' : '로그아웃',

@@ -86,6 +86,22 @@ class SettingsService {
   ///
   /// ⚠ **비밀번호 재확인이 필수입니다**(MLCM_103 2단계 본인 확인).
   ///   서버가 본문 없이 오는 요청을 422 로 거절합니다.
+  /// 비밀번호 변경 — `MAIN_SETTING_02` ❷ · `MLCM_101`
+  ///
+  /// 서버가 현재 비밀번호를 검증합니다. 틀리면 `ApiException` 이 납니다.
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) =>
+      _apiClient.patch(
+        '/users/me/password',
+        body: {
+          'current_password': currentPassword,
+          'new_password': newPassword,
+        },
+        authenticated: true,
+      );
+
   Future<void> deleteAccount(String password) => _apiClient.delete(
         '/users/me',
         body: {'password': password},

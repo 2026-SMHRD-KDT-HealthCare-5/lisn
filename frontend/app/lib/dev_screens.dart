@@ -44,6 +44,7 @@ library;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'screens/account_screen.dart';
 import 'screens/emergency_screen.dart';
 import 'screens/join_screen.dart';
 import 'screens/login_screen.dart';
@@ -66,11 +67,18 @@ final Map<String, ({String id, Widget Function() build})> devScreens = {
     id: 'MAIN_LIFELOG_01',
     build: () => const MainShell(initialTab: 2)
   ),
-  // MAIN_SETTING_02(계정 관리·탈퇴)는 별도 화면이 아니라 설정 탭 **하단**입니다.
-  // 열고 아래로 스크롤하세요.
   'setting': (
-    id: 'MAIN_SETTING_01·02',
+    id: 'MAIN_SETTING_01',
     build: () => const MainShell(initialTab: 3)
+  ),
+  // 설정 ❸ 에서 push 로 열리는 화면입니다. 최상위로 띄우면 뒤로가기가
+  // 사라져 실제와 달라지므로 설정 탭 위에 얹습니다.
+  'account': (
+    id: 'MAIN_SETTING_02',
+    build: () => const _PushOver(
+      under: MainShell(initialTab: 3),
+      child: AccountScreen(),
+    ),
   ),
   // ⚠ 아래 둘은 평소에 **push 로 열리는 화면**입니다. 최상위 라우트로 그냥 띄우면
   //   뒤로가기·닫기가 사라져 실제 화면과 달라집니다(캡처가 틀어집니다).

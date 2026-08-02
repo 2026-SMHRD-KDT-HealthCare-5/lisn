@@ -13,6 +13,7 @@ class UserProfile {
     this.phone,
     this.heightCm,
     this.gender,
+    this.joinedAt,
   });
 
   final String userId;
@@ -32,6 +33,16 @@ class UserProfile {
   /// USER / ADMIN
   final String role;
 
+  /// 가입 시각 — `MAIN_SETTING_02` ❶ 「가입일」.
+  ///
+  /// ⚠ **`USERS` 에 `created_at` 컬럼이 없습니다.** 대신 필수 약관 동의 시각을
+  ///   씁니다. 약관 동의 없이는 가입이 성립하지 않고(`chk_terms_logic`),
+  ///   가입 처리에서 같은 `now` 로 함께 기록됩니다.
+  ///
+  ///   컬럼을 새로 만들지 않은 이유는 `db/schema.sql` 이 정본이라 04·05 문서까지
+  ///   같이 고쳐야 하기 때문입니다. 표시용 한 칸 때문에 치를 값이 아닙니다.
+  final DateTime? joinedAt;
+
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
         userId: jsonStr(json['user_id']),
         email: jsonStr(json['email']),
@@ -41,6 +52,9 @@ class UserProfile {
         gender: json['gender'] as String?,
         personaType: jsonStr(json['persona_type'], 'FRIEND'),
         role: jsonStr(json['role'], 'USER'),
+        joinedAt: json['terms_agreed_at'] is String
+            ? DateTime.tryParse(json['terms_agreed_at'] as String)?.toLocal()
+            : null,
       );
 }
 
