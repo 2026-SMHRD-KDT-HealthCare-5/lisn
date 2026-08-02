@@ -1,7 +1,7 @@
 """라이프로그 엔드포인트 — MLCM_200
 
 화면: MAIN_LIFELOG_01 (조회) · 수집은 앱 백그라운드
-명세: docs/API명세_초안.md 4절
+명세: docs/결정/API명세_초안.md 4절
 
 수집 구조는 **앱 push** 다(안건 1-1). Health Connect 는 Android on-device
 권한 모델이라 서버가 보유할 OAuth 토큰이 없고, 서버가 단말 데이터를 당겨올

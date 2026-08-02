@@ -1,7 +1,7 @@
 """챗봇 엔드포인트 — MLCM_300 · MLCM_310 · MLCM_320
 
 화면: MAIN_CHAT_01 · MAIN_CHAT_02
-명세: docs/API명세_초안.md 5절
+명세: docs/결정/API명세_초안.md 5절
 """
 
 import uuid

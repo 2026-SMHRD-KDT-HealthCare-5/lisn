@@ -1,7 +1,7 @@
 """정서 리포트 엔드포인트 — MLCM_500
 
 화면: MAIN_REPORT_01
-명세: docs/API명세_초안.md 6절
+명세: docs/결정/API명세_초안.md 6절
 """
 
 from datetime import datetime

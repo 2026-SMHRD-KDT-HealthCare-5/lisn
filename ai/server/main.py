@@ -264,4 +264,4 @@ def risk_level_of(emotion_code: str, emotion_score: float) -> str:
 # 2. 위기 탐지에는 학습 모델이 없습니다(안건 3 — 키워드 + OpenAI 프롬프트).
 #    ML 서버로 보낼 이유가 없고 왕복만 한 번 늘어 NFR-DV-001 3초 요건에 불리합니다.
 #
-# docs/API명세_초안.md 의 내부 API 절도 이 구조로 고쳤습니다(2026.08.01 철회 표기).
+# docs/결정/API명세_초안.md 의 내부 API 절도 이 구조로 고쳤습니다(2026.08.01 철회 표기).

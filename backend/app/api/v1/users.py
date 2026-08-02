@@ -1,7 +1,7 @@
 """사용자 엔드포인트 — MLCM_103 · MLCM_300
 
 화면: MAIN_SETTING_01 · MAIN_SETTING_02
-명세: docs/API명세_초안.md 2절
+명세: docs/결정/API명세_초안.md 2절
 """
 
 from typing import Annotated

@@ -1,7 +1,7 @@
 """인증 엔드포인트 — MLCM_100 · MLCM_101 · MLCM_102
 
 화면: MAIN_LOGIN_01 · MAIN_LOGIN_02 · MAIN_JOIN_01 · MAIN_JOIN_02 · ADMIN_LOGIN_01
-명세: docs/API명세_초안.md 1절
+명세: docs/결정/API명세_초안.md 1절
 """
 
 import logging

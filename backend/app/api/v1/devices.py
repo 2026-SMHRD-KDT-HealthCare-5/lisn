@@ -1,7 +1,7 @@
 """디바이스 연동 엔드포인트 — MLCM_110
 
 화면: MAIN_JOIN_03 · MAIN_SETTING_01
-명세: docs/API명세_초안.md 3절
+명세: docs/결정/API명세_초안.md 3절
 """
 
 import uuid
