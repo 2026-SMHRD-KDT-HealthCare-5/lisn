@@ -14,6 +14,17 @@ frontend/
 **앱 14개 화면과 관리자 웹이 전부 실제 API 에 붙었습니다.** 목업 데이터는 없습니다.
 남은 구현은 **Health Connect 실기기 연동** 하나입니다.
 
+> ### ⚠ 제출·시연 전에 릴리스로 한 번 굽고 켜보세요
+>
+> **에뮬레이터·디버그로는 보이지 않는 결함이 셋 있었습니다**(2026.08.02 수정).
+> 평문 HTTP 가 릴리스에서만 차단되고, `tel`·`https` 는 Android 11+ 패키지 가시성
+> 선언이 없으면 열리지 않습니다. 증상이 「서버가 죽었다」·「전화 앱이 없다」로
+> 보여서 원인을 찾기 어렵습니다.
+>
+> **실기기는 API 주소를 두 곳에** 넣어야 합니다 — `--dart-define` 과
+> `app/android/app/src/main/res/xml/network_security_config.xml`.
+> 자세한 것은 [`app/README.md`](app/README.md) 「실기기」 절.
+
 ## app/ — Flutter 사용자 앱
 
 ```

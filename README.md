@@ -3,14 +3,15 @@
 **멀티모달 라이프로그 감정 분석 기반 맞춤형 LLM 케어 및 모니터링 시스템**
 
 > **최종 점검** 2026.08.02 · API 30개 · 앱 화면 14개 · 관리자 웹 2개가 전부 연동돼
-> **수집 → 분석 → 케어 → 관제 전 구간이 관통합니다.** 회귀 테스트 187건.
-> 화면설계서 21장과 구현이 **대조 완료**돼 어긋난 6건을 모두 맞췄습니다.
+> **수집 → 분석 → 케어 → 관제 전 구간이 관통합니다.** 회귀 테스트 213건.
+> 화면설계서 21장과 구현이 **대조 완료**돼 어긋난 6건을 모두 맞췄고,
+> 코드 전수 점검으로 **결함 14건**을 해소했습니다.
 >
-> 남은 것은 **Health Connect 실기기 검증**뿐이고(구현은 끝, 에뮬레이터에서
-> 워커 동작까지 확인), 정서 판정은 **규칙 기반 임시값**입니다
-> (아래 「현재 구현 상태」).
+> 남은 것은 **위기 판정 평가셋 검수·채점**(200건 중 180건이 AI 초안),
+> **Health Connect 실기기 검증**, `SD-B①` 문서 개정입니다. 정서 판정은
+> **규칙 기반 임시값**입니다(아래 「현재 구현 상태」).
 
-Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog anomaly detection (LSTM AE + LightGBM) with persona-based LLM care | Flutter · FastAPI · PostgreSQL
+Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog deviation analysis with persona-based LLM care and two-stage crisis detection | Flutter · FastAPI · PostgreSQL
 
 스마트워치·체성분계에서 자동 수집되는 라이프로그 시계열을 AI로 분석해 1인가구의 정서적 위험 징후를 조기에 탐지하고, 페르소나 기반 LLM 챗봇으로 정서 케어를 제공하는 모니터링 서비스입니다.
 
@@ -41,7 +42,7 @@ Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog anomal
 | Frontend | Flutter (사용자 앱) · React + Vite (관리자 관제 웹) |
 | Backend | FastAPI — 비동기 REST API, JWT 인증, 앱 push UPSERT 수신 |
 | Database | PostgreSQL 17 — UUID v4 / TIMESTAMPTZ / JSONB |
-| AI / ML | PyTorch · LSTM Autoencoder · LightGBM · Pandas / Scikit-learn |
+| AI / ML | Pandas / Scikit-learn — 전처리·검증. **감정 분류 모델은 채택하지 않았습니다**(아래 참고) |
 | LLM | OpenAI API (페르소나 대화 · 위기 문맥 탐지 · 세션 요약) |
 | 데이터 연동 | Health Connect (Android) |
 
@@ -64,8 +65,8 @@ Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog anomal
                  JWT 인증 · 앱 push 수신/UPSERT 적재 · 키워드 위기 필터
                        |  내부 API
                        v
-[AI 추론 서버]   1차  LSTM Autoencoder  ->  anomaly_score (재구성 오차)
-                 2차  LightGBM          ->  감정 9종 · risk_score
+[AI 추론 서버]   평소(14일) 대비 편차 기반 규칙 판정  ->  감정 · risk_score
+                 ※ 설계는 LSTM AE + LightGBM 2단계. 라벨 부재로 미학습 — 아래 참고
                        |
                        v
 [시스템 액션]   NORMAL -> CHAT   |   CAUTION -> CONTENT   |   CRITICAL -> EMERGENCY
@@ -82,8 +83,8 @@ Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog anomal
 
 | 영역 | 상태 |
 |---|---|
-| 백엔드 API | 30개 **구현·검증 완료**. 회귀 테스트 45건 |
-| Flutter 앱 | 화면 14개 **전부 실제 API 연동**. 목업 없음. 테스트 119건 |
+| 백엔드 API | 30개 **구현·검증 완료**. 회귀 테스트 59건 |
+| Flutter 앱 | 화면 14개 **전부 실제 API 연동**. 목업 없음. 테스트 126건 |
 | 관리자 관제 웹 | 로그인·역할 가드 + 분포·대상자·검색·상세·위기이력 완료 |
 | AI 추론 서버 | 구동 완료. **판정은 규칙 기반 임시값** ⚠ |
 | Health Connect | **구현 완료.** 권한·집계·전송·재시도. **실기기 검증만 남음** |
@@ -93,10 +94,21 @@ Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog anomal
 >
 > `model_version` 이 `rule-placeholder-v0` 이면 모델 결과가 아니라 임의 임계값입니다.
 >
-> **이번 과제에서는 모델을 학습하지 않습니다.** GLOBEM 공개 샘플 4개를 다 합쳐도
-> 참가자 40명이라 ROC-AUC **0.528**(95% 구간이 0.5 를 포함) — 무작위와 구분되지
-> 않습니다. 전체 데이터(497명)는 PhysioNet 자격 심사가 **최대 45일**이라 8/28 발표까지
-> 남은 27일로는 승인돼도 쓸 시간이 없습니다. 실측 근거는 [`ai/README.md`](ai/README.md).
+> **이번 과제에서는 모델을 학습하지 않습니다.** 데이터셋 **두 개**로 확인했습니다.
+>
+> | 데이터 | 참가자 | 라벨 | ROC-AUC |
+> |---|---|---|---|
+> | GLOBEM 공개 샘플 4개 | 40명 | BDI-II 우울 | **0.528** (95% 구간이 0.5 포함) |
+> | LifeSnaps | 63명 | **EMA 감정 7종** | **0.479 ~ 0.540** |
+>
+> 「40명이 적어서」가 아닙니다. 참가자를 늘리고(40→63) 피처를 넓히고(8→65)
+> **감정 라벨을 직접 써도** 같습니다. 정작 잡아야 할 `SAD` 가 0.485,
+> `TENSE/ANXIOUS` 가 0.497 입니다.
+>
+> ⚠ 애초에 **9종 감정 라벨이 붙은 라이프로그 데이터가 없습니다.** GLOBEM·PMData 에
+> 있는 것은 우울 척도뿐이라 `MLCM_210` 3단계를 학습할 대상 자체가 없었습니다.
+> 실측 근거는 [`ai/README.md`](ai/README.md) ·
+> [`감정라벨_데이터_후보`](docs/review/감정라벨_데이터_후보_20260802.md).
 >
 > 학습 대신 **전처리 → 추론 → 적재 → 액션 전환 파이프라인의 완성도**로 갑니다.
 > `_predict()` 하나만 바꾸면 모델이 들어가도록 계약을 고정해 뒀습니다.

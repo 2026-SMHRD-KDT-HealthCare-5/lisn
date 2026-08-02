@@ -15,7 +15,15 @@ Copy-Item .env.example .env
 | 키 | 값 |
 |---|---|
 | `DATABASE_URL` | `postgresql+asyncpg://postgres:<비밀번호>@localhost:5432/lisn` |
-| `JWT_SECRET` | 아무 긴 문자열 |
+| `JWT_SECRET` | 아무 긴 문자열. **`CHANGE_ME` 면 서버가 토큰 발급을 거부합니다** |
+
+> ⚠ `JWT_SECRET` 을 예제값 그대로 두면 안 됩니다. **이 저장소는 공개**라 예제값이
+> 곧 공개된 서명 키이고, 누구나 `role=ADMIN` 토큰을 만들어 `/admin/*` 으로 전
+> 사용자 리포트를 볼 수 있습니다. 그래서 `security._secret()` 이 아예 막습니다.
+>
+> ```powershell
+> python -c "import secrets; print(secrets.token_urlsafe(48))"
+> ```
 
 > 비밀번호에 `@` `:` `/` `#` 이 있으면 URL 인코딩이 필요합니다. `@` → `%40`
 
