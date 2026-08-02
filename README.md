@@ -24,6 +24,67 @@ Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog deviat
 
 ---
 
+## 빠른 시작
+
+> 처음이면 [`docs/SETUP.md`](docs/SETUP.md) 를 먼저 보세요. 여기는 **이미 설치가
+> 끝난 사람이 다시 띄울 때** 쓰는 최단 경로입니다.
+
+```powershell
+git clone https://github.com/2026-SMHRD-KDT-HealthCare-5/lisn.git
+```
+
+**1. DB** — PostgreSQL 17
+
+```powershell
+psql -U postgres -c "CREATE DATABASE lisn;"
+psql -U postgres -d lisn -f db/schema.sql
+```
+
+**2. 환경변수**
+
+```powershell
+Copy-Item backend\.env.example backend\.env
+```
+
+`DATABASE_URL` 과 `JWT_SECRET` 을 채웁니다. **`JWT_SECRET` 을 `CHANGE_ME` 로 두면
+서버가 토큰 발급을 거부합니다** — 이 저장소는 공개라 예제값이 곧 공개된 서명 키입니다.
+
+```powershell
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+```
+
+**3. 에뮬레이터** — Flutter 는 기기가 있어야 뜹니다
+
+```powershell
+flutter emulators --launch lisn
+```
+
+**4. 전부 실행** — 백엔드 · AI 서버 · 관리자 웹 · Flutter 가 각각 새 창에 뜹니다
+
+```powershell
+.\tools\start-dev.ps1
+```
+
+| | |
+|---|---|
+| 백엔드 API | http://localhost:8000/docs |
+| 관리자 관제 웹 | http://localhost:5173 |
+| AI 추론 서버 | http://localhost:8001/health |
+
+띄우지 않고 준비 상태만 보려면 `.\tools\start-dev.ps1 -Check` 입니다.
+VS Code 에서는 `lisn.code-workspace` 를 열고 `Ctrl+Shift+B`.
+
+**5. 화면에 데이터가 보이려면** 판정 이력이 있어야 합니다
+
+```powershell
+psql -U postgres -d lisn -f db/seed_healing_contents.sql
+psql -U postgres -d lisn -f db/seed_demo_persona.sql
+```
+
+> 시드·개별 실행·실기기 연결·문제 해결은 아래 [자세한 설정](#자세한-설정) 에 있습니다.
+
+---
+
 ## 화면
 
 앱 14개 · 관리자 웹 2개. **전부 실제 API 에 붙어 있고 목업 데이터가 없습니다.**
@@ -194,11 +255,9 @@ lisn/
 
 ---
 
-## 시작하기
+## 자세한 설정
 
-```bash
-git clone https://github.com/2026-SMHRD-KDT-HealthCare-5/lisn.git
-```
+위 [빠른 시작](#빠른-시작) 으로 안 되거나, 개별로 띄워야 할 때 봅니다.
 
 ### DB 구축
 
@@ -245,18 +304,7 @@ psql -U postgres -d lisn -f db/cleanup_test_accounts.sql
 
 ### 애플리케이션 실행
 
-최초 1회 의존성과 `backend/.env`를 준비한 뒤에는 저장소 루트에서 한 명령으로
-백엔드·AI 추론 서버·관리자 웹·Flutter를 각각 새 터미널에 실행할 수 있습니다.
-
-```powershell
-.\tools\start-dev.ps1
-```
-
-실행하지 않고 준비 상태만 확인하려면 `.\tools\start-dev.ps1 -Check`를 사용합니다.
-VS Code에서는 `lisn.code-workspace`를 열고 `Ctrl+Shift+B`를 누르면 같은 통합 실행 작업이
-동작합니다. Flutter 창에는 실행 중인 Android 에뮬레이터 또는 연결된 기기가 필요합니다.
-
-개별 실행이 필요하면 다음 기존 명령을 사용합니다.
+통합 실행은 [빠른 시작](#빠른-시작) 을 보세요. **개별로 띄워야 할 때**만 아래를 씁니다.
 
 ```powershell
 Copy-Item backend\.env.example backend\.env
