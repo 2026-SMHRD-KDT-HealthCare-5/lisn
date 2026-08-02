@@ -382,18 +382,32 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   /// ❹ 결합 차트 — 감정 추이와 같은 시간축
+  ///
+  /// ⚠ 두 계열의 **길이가 같아야 합니다.** 측정된 값만 골라 각각 배열로 만들면
+  ///   길이가 달라지고, 그러면 화면 폭을 각자 나눠 쓰게 돼 **같은 x 좌표가 서로
+  ///   다른 날**을 가리킵니다. 「그날 수면이 줄고 활동도 줄었다」로 읽히는 그림이
+  ///   실제로는 다른 날 둘을 겹쳐놓은 것이 됩니다.
+  ///   걸음은 0 을 제외하므로(「0걸음」과 「측정 안 됨」은 다릅니다) 길이가
+  ///   어긋나는 것이 흔합니다.
+  ///
+  ///   그래서 전 구간 길이를 유지하고 **빈 날은 null 로 비워** 넘깁니다.
   Widget _lifelogCard(EmotionReport report) {
-    final sleeps = report.lifelogTrend
-        .where((p) => p.totalSleepMin != null)
-        .toList();
-    final steps =
-        report.lifelogTrend.where((p) => p.steps != null && p.steps! > 0).toList();
+    final trend = report.lifelogTrend;
+    final sleeps = [
+      for (final p in trend) p.totalSleepMin?.toDouble(),
+    ];
+    final steps = [
+      for (final p in trend)
+        (p.steps != null && p.steps! > 0) ? p.steps!.toDouble() : null,
+    ];
+    final sleepCount = sleeps.whereType<double>().length;
+    final stepCount = steps.whereType<double>().length;
 
     return AppCard(
       child: Column(children: [
         const SectionTitle('수면·활동량'),
         const SizedBox(height: 16),
-        if (sleeps.length < 2 && steps.length < 2)
+        if (sleepCount < 2 && stepCount < 2)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 26),
             child: Text('같은 기간의 라이프로그가 아직 부족해요.',
@@ -404,10 +418,7 @@ class _ReportScreenState extends State<ReportScreen> {
             height: 110,
             width: double.infinity,
             child: CustomPaint(
-              painter: _DualPainter(
-                sleep: sleeps.map((p) => p.totalSleepMin!.toDouble()).toList(),
-                steps: steps.map((p) => p.steps!.toDouble()).toList(),
-              ),
+              painter: _DualPainter(sleep: sleeps, steps: steps),
             ),
           ),
           const SizedBox(height: 10),
@@ -574,26 +585,49 @@ class _TrendPainter extends CustomPainter {
   bool shouldRepaint(covariant _TrendPainter old) => old.points != points;
 }
 
-/// 수면·활동량을 같은 시간축에 겹칩니다. 단위가 달라 각자 정규화합니다.
+/// 테스트에서 결합 차트 페인터를 직접 만들기 위한 통로입니다.
+///
+/// 페인터를 공개하지 않는 대신 이 함수만 엽니다. 시간축이 어긋나는 회귀를
+/// 잡으려면 그리기 자체를 태워봐야 합니다.
+@visibleForTesting
+CustomPainter buildDualPainterForTest({
+  required List<double?> sleep,
+  required List<double?> steps,
+}) =>
+    _DualPainter(sleep: sleep, steps: steps);
+
+/// 수면·활동량을 같은 시간축에 겹칩니다. 단위가 달라 **세로만** 각자 정규화하고,
+/// **가로는 두 계열이 공유**합니다.
+///
+/// ⚠ 두 배열은 **같은 길이**여야 하며 측정이 없는 날은 null 입니다. 길이가
+///   다르면 같은 x 가 서로 다른 날을 가리켜 그래프가 거짓말을 합니다.
 class _DualPainter extends CustomPainter {
-  _DualPainter({required this.sleep, required this.steps});
+  _DualPainter({required this.sleep, required this.steps})
+      : assert(sleep.length == steps.length, '두 계열의 길이가 달라 시간축이 어긋납니다');
 
-  final List<double> sleep;
-  final List<double> steps;
+  final List<double?> sleep;
+  final List<double?> steps;
 
-  void _draw(Canvas canvas, Size size, List<double> v, Color color) {
-    if (v.length < 2) return;
-    final lo = v.reduce((a, b) => a < b ? a : b);
-    final hi = v.reduce((a, b) => a > b ? a : b);
+  void _draw(Canvas canvas, Size size, List<double?> v, Color color) {
+    final measured = v.whereType<double>().toList();
+    if (measured.length < 2 || v.length < 2) return;
+    final lo = measured.reduce((a, b) => a < b ? a : b);
+    final hi = measured.reduce((a, b) => a > b ? a : b);
     final span = (hi - lo).abs() < 1e-9 ? 1.0 : hi - lo;
 
     final path = Path();
+    var started = false;
     for (var i = 0; i < v.length; i++) {
+      final value = v[i];
+      // 측정이 없는 날은 건너뜁니다. x 는 **전 구간 기준**이라 건너뛰어도
+      // 나머지 점의 위치가 밀리지 않습니다.
+      if (value == null) continue;
       final p = Offset(
         size.width * i / (v.length - 1),
-        size.height * (1 - (v[i] - lo) / span) * .82 + size.height * .09,
+        size.height * (1 - (value - lo) / span) * .82 + size.height * .09,
       );
-      i == 0 ? path.moveTo(p.dx, p.dy) : path.lineTo(p.dx, p.dy);
+      started ? path.lineTo(p.dx, p.dy) : path.moveTo(p.dx, p.dy);
+      started = true;
     }
     canvas.drawPath(
         path,
