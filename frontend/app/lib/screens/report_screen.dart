@@ -34,7 +34,10 @@ class ReportScreen extends StatefulWidget {
 
 enum _Range {
   week('주간', 7),
-  month('월간', 30);
+  month('월간', 30),
+  // ❶ 「직접 지정」 — 화면설계서 MAIN_REPORT_01 이 규정합니다.
+  // days 는 쓰지 않고 _customFrom·_customTo 를 씁니다.
+  custom('직접 지정', 0);
 
   const _Range(this.label, this.days);
   final String label;
@@ -46,6 +49,9 @@ class _ReportScreenState extends State<ReportScreen> {
 
   _Range range = _Range.week;
   late Future<EmotionReport> _future;
+
+  /// 「직접 지정」으로 고른 구간. 고르기 전에는 null 입니다.
+  DateTimeRange? _custom;
 
   /// 마지막으로 성공한 리포트.
   ///
@@ -66,6 +72,16 @@ class _ReportScreenState extends State<ReportScreen> {
 
   Future<EmotionReport> _load() {
     final now = DateTime.now();
+    final picked = _custom;
+    if (range == _Range.custom && picked != null) {
+      // ⚠ 끝나는 날을 **그날 끝까지** 잡습니다. 그대로 보내면 자정 기준이라
+      //   고른 마지막 날이 통째로 빠집니다.
+      return _service.fetch(
+        from: picked.start,
+        to: DateTime(picked.end.year, picked.end.month, picked.end.day,
+            23, 59, 59),
+      );
+    }
     return _service.fetch(
       from: now.subtract(Duration(days: range.days)),
       to: now,
@@ -89,10 +105,49 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   void _changeRange(_Range next) {
+    if (next == _Range.custom) {
+      _pickRange();
+      return;
+    }
     setState(() {
       range = next;
       _future = _loadAndKeep();
     });
+  }
+
+  /// 「직접 지정」 — 날짜 두 개를 고릅니다.
+  ///
+  /// ⚠ **고르기를 취소하면 기간을 바꾸지 않습니다.** 먼저 range 를 custom 으로
+  ///   바꿔놓고 달력을 띄우면, 취소했을 때 구간이 없는 custom 상태로 남아
+  ///   화면이 빕니다.
+  Future<void> _pickRange() async {
+    final now = DateTime.now();
+    final picked = await showDateRangePicker(
+      context: context,
+      // 수집 시작 이전은 고를 이유가 없고, 미래는 데이터가 없습니다.
+      firstDate: DateTime(now.year - 1),
+      lastDate: now,
+      initialDateRange: _custom ??
+          DateTimeRange(start: now.subtract(const Duration(days: 7)), end: now),
+      locale: const Locale('ko'),
+      helpText: '조회 기간 선택',
+      saveText: '적용',
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      _custom = picked;
+      range = _Range.custom;
+      _future = _loadAndKeep();
+    });
+  }
+
+  /// 고른 구간을 사람이 읽는 형태로.
+  String get _customLabel {
+    final c = _custom;
+    if (c == null) return _Range.custom.label;
+    String f(DateTime d) =>
+        '${d.month}.${d.day.toString().padLeft(2, '0')}';
+    return '${f(c.start)} ~ ${f(c.end)}';
   }
 
   /// ❺ PDF 내보내기 — FR-MN-001
@@ -158,7 +213,11 @@ class _ReportScreenState extends State<ReportScreen> {
                 SegmentedButton<_Range>(
                   segments: [
                     for (final r in _Range.values)
-                      ButtonSegment(value: r, label: Text(r.label)),
+                      ButtonSegment(
+                          value: r,
+                          label: Text(r == _Range.custom && range == r
+                              ? _customLabel
+                              : r.label)),
                   ],
                   selected: {range},
                   onSelectionChanged: (v) => _changeRange(v.first),

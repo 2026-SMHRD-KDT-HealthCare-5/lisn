@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'dev_screens.dart';
 import 'screens/auth_gate.dart';
@@ -51,6 +52,16 @@ class MaeumeApp extends StatelessWidget {
       navigatorKey: appNavigatorKey,
       title: '귀기울임',
       debugShowCheckedModeBanner: false,
+      // ⚠ 날짜 선택기(정서 리포트 「직접 지정」)가 MaterialLocalizations 를
+      //   요구합니다. 없으면 **화면을 여는 순간 죽습니다.**
+      //   기본 제공은 영어뿐이라 한국어 델리게이트를 함께 넣습니다.
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('ko'), Locale('en')],
+      locale: const Locale('ko'),
       theme: AppTheme.light,
       initialRoute: '/',
       routes: {
