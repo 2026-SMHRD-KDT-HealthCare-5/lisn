@@ -211,8 +211,16 @@ uvicorn main:app --reload --port 8001
 ```
 
 `MLCM_210` 정서 위험도 분석. backend 의 `AI_SERVER_URL` 기본값(8001)과 맞춰져 있습니다.
-DB 는 backend 와 같은 것을 보고, `AI_DATABASE_URL` 이 없으면 `DATABASE_URL` 을 씁니다
-(`postgresql+asyncpg://` 접두사는 자동으로 벗겨내므로 backend `.env` 값 그대로 넣어도 됨).
+
+**DB 설정은 `backend/.env` 를 직접 읽습니다.** 환경변수를 따로 넣을 필요가 없습니다.
+`AI_DATABASE_URL` 로 갈라 쓸 수도 있고, `postgresql+asyncpg://` 접두사는 자동으로
+벗겨냅니다.
+
+- ⚠ 전에는 `.env` 를 안 읽어서 **문서대로 띄우면 DB 를 못 붙었습니다.** 하드코딩
+  기본값으로 접속해 PostgreSQL 이 인증 실패로 끊었습니다(2026.08.02 수정)
+- ⚠ 그때 asyncpg 는 `connection was closed in the middle of operation` 만 던집니다.
+  **원인은 PostgreSQL 로그에 있습니다** — 「사용자 postgres 의 password 인증을
+  실패했습니다」
 
 - **지금은 규칙 기반 임시 판정입니다.** `model_version` 이 `rule-placeholder-v0` 이면
   모델 결과가 아닙니다. 임계값도 선행연구값이 아니라 임의값이니 **성능 근거로 쓰지 마세요**

@@ -5,6 +5,7 @@ fastapi>=0.115
 uvicorn[standard]>=0.32
 pydantic>=2.9
 asyncpg>=0.30
+python-dotenv>=1.0   # backend/.env 를 읽는다
 
 # 모델 도입 시 추가 — 지금은 규칙 판정이라 필요 없습니다.
 # torch>=2.5           1차 LSTM Autoencoder

@@ -19,6 +19,52 @@ LLM·프롬프트·OpenAI API 관련 작업을 시작할 때 최신 관련 항�
 
 ---
 
+## 2026-08-02 · LLM-005 · 성능 실측에서 드러난 것 — 무료 한도·키워드 빈틈
+
+- **작업 범위**: `NFR-DV-001`·`NFR-TS-001` 실측 시도, 위기 키워드 사전 보강
+- **조회한 자료**: `PROMPT_REFERENCE.md`(4항 2단계 유지), 사전 `_comment` 설계 원칙,
+  `chat.py` `_decide()`, Gemini 429 응답 본문
+- **채택한 방법**: 「그만두고 싶」을 **medium** 으로 추가
+- **채택하지 않은 방법과 이유**: **high 에 넣지 않았습니다.** `_decide()` 는 LLM 판정이
+  없을 때 high 를 문맥 판단 없이 CRITICAL 로 확정합니다. 「회사를 그만두고 싶어요」가
+  아주 흔해서, 외부 API 장애 중에 멀쩡한 사용자에게 긴급 상담 화면이 뜹니다.
+  미탐을 줄이려 오탐을 감수하는 것은 **문맥을 볼 수 없을 때의 정책**이지 일상 표현을
+  고위험으로 분류하라는 뜻이 아닙니다
+- **성공 조건·평가 사례**:
+  - `다 그만두고 싶어요` → MEDIUM
+  - `회사를 그만두고 싶어요` → MEDIUM (**HIGH 아님**)
+  - `배고파 죽겠다`·`이 회의는 의미가 없어요` → NONE (기존 오탐 방어 유지)
+- **검증 결과**: `test_lifelog_chat.py` 13건 통과. 백엔드 전체 48건 통과
+
+### 무료 한도는 **모델당 하루 20건**입니다
+
+```
+quotaId    GenerateRequestsPerDayPerProjectPerModel-FreeTier
+quotaValue 20
+```
+
+분당이 아니라 **하루**입니다. 대화 한 번에 `reply`·`crisis` 두 모델을 쓰므로
+**대화 20번이면 그날 끝**입니다. LLM-004 에 이 값이 기록돼 있지 않았습니다.
+
+한도가 끝나면 `analyze_and_reply` 가 실패를 삼키고 `(None, verdict)` 를 돌려주며,
+라우터가 폴백 문구를 넣습니다. **화면은 멀쩡해 보입니다.** 응답 시간만 재면
+정상으로 오인합니다 — 실제로 `reply=None` 인데 3588ms 가 걸렸습니다.
+
+> **시연 위험**: 리허설을 몇 번 돌리면 본 발표 때 LLM 이 죽어 있을 수 있습니다.
+> `LLM_PROVIDER=openai` 전환이 막혀 있는 것이 여기서 실제 위험이 됩니다.
+
+### 그래서 NFR 두 건은 판정 보류입니다
+
+`NFR-DV-001` 과 정상 경로 `NFR-TS-001` 은 **한도 소진 상태에서 잰 값이라 무효**입니다.
+기존 2.19초(LLM-004)를 뒤집을 근거는 없습니다. 한도가 초기화된 뒤 첫 시도로
+다시 재야 합니다 → [`성능실측_20260802.md`](../review/성능실측_20260802.md)
+
+- **반영 파일**: `backend/app/data/crisis_keywords.json`,
+  `backend/tests/test_lifelog_chat.py`, `ai/server/main.py`, `tools/bench_nfr.py`,
+  `docs/review/성능실측_20260802.md`
+
+---
+
 ## 2026-08-01 · LLM-004 · Gemini 전환 (공급자 스위치) + LLM-002 검증 완료
 
 - 작업 범위: `backend/app/services/llm.py`, `core/config.py`, `.env.example`

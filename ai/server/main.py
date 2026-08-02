@@ -19,13 +19,31 @@ import os
 from datetime import datetime, timedelta, timezone
 
 import asyncpg
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from pathlib import Path
 from pydantic import BaseModel
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="귀기울임 AI 추론 서버", version="0.1.0")
+
+# ⚠ backend/.env 를 직접 읽는다.
+#
+#   전에는 os.getenv 만 썼다. 그런데 `cd ai\server; uvicorn main:app` 으로
+#   띄우면 환경변수가 비어 있어 아래 기본값으로 붙고, PostgreSQL 이
+#   "사용자 postgres 의 password 인증을 실패했습니다" 로 끊는다.
+#
+#   증상이 고약하다 — asyncpg 는 원인을 감추고
+#   "connection was closed in the middle of operation" 만 던진다. 503 만 보고
+#   전처리나 쿼리를 의심하게 된다(2026.08.02 실측에서 실제로 겪었다).
+#
+#   DB 는 비즈니스 서버와 같은 것을 보므로 설정도 그쪽 .env 를 그대로 쓴다.
+#   AI 서버용으로 갈라야 하면 AI_DATABASE_URL 을 환경변수로 준다.
+_BACKEND_ENV = Path(__file__).resolve().parents[2] / "backend" / ".env"
+if _BACKEND_ENV.exists():
+    load_dotenv(_BACKEND_ENV, override=False)
 
 # 비즈니스 서버와 같은 DB 를 본다. 페이로드로 시퀀스를 실어 보내면 요청이
 # 비대해지고, 전처리 규격이 바뀔 때마다 양쪽을 함께 고쳐야 한다.
