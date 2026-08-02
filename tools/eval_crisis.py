@@ -199,7 +199,7 @@ def cache_key(text, prompt, model):
     return h.hexdigest()[:32]
 
 
-def stage_llm(rows, limit, no_call, model_override=None, timeout=None):
+def stage_llm(rows, limit, no_call, model_override=None, timeout=None, only=None):
     import asyncio
     _, llm = load_backend()
     # ⚠ 평가는 **사용자 대기가 없는 배치**입니다. NFR-DV-001 의 3초 예산을
@@ -214,6 +214,17 @@ def stage_llm(rows, limit, no_call, model_override=None, timeout=None):
     cache = json.loads(CACHE.read_text(encoding='utf-8')) if CACHE.exists() else {}
 
     todo = [r for r in rows if cache_key(r['text'], prompt, model) not in cache]
+
+    # ⚠ 한도가 하루 20건이라 **어느 20건을 쓰느냐가 곧 무엇을 알게 되느냐**입니다.
+    #   순서대로 자르면 사전에 걸리는 S1 부터 소진되는데, 그건 키워드 단계에서
+    #   이미 잡히는 것들이라 새로 알게 되는 게 없습니다.
+    #   `--only S5,S6,S8,M2,M5` 처럼 **키워드가 못 잡는 유형**부터 쓰세요.
+    if only:
+        want = tuple(t.strip().upper() for t in only.split(',') if t.strip())
+        todo = [r for r in todo
+                if (r.get('category') or '').strip().upper().startswith(want)]
+        print(f'유형 필터 {want} → 대상 {len(todo)}건')
+
     print(f'캐시 {len(rows) - len(todo)}건 · 호출 필요 {len(todo)}건 · 모델 {model}')
 
     # ⚠ 캐시 키에 모델명이 들어갑니다. `--model` 로 채점해 놓고 다음에 그 옵션
@@ -319,6 +330,8 @@ def main():
     ap.add_argument('--model', help='crisis 모델 대신 쓸 모델 (한도 소진 시)')
     ap.add_argument('--timeout', type=float, default=30.0,
                     help='배치라 운영(8초)보다 넉넉히 잡습니다')
+    ap.add_argument('--only',
+                    help='채점할 유형만 골라 씁니다 (쉼표 구분, 예: S5,S6,S8,M2,M5). 한도가 하루 20건이라 키워드가 못 잡는 유형부터 쓰는 편이 낫습니다')
     ap.add_argument('--agreement', action='store_true', help='라벨러 일치율만 계산')
     args = ap.parse_args()
 
@@ -343,7 +356,8 @@ def main():
     if args.stage in ('keyword', 'both'):
         stage_keyword(rows)
     if args.stage in ('llm', 'both'):
-        stage_llm(rows, args.limit, args.no_call, args.model, args.timeout)
+        stage_llm(rows, args.limit, args.no_call, args.model, args.timeout,
+                  args.only)
 
 
 if __name__ == '__main__':

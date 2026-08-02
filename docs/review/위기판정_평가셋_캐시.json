@@ -82,5 +82,95 @@
     "severity": "LOW",
     "text": "요즘 아무것도 하기 싫어요",
     "model": "gemini-3.5-flash-lite"
+  },
+  "84935ff9b5e57b0d1752359b93ca527b": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "그동안 고마웠어요. 잘 지내세요.",
+    "model": "gemini-3.1-flash-lite"
+  },
+  "77b76eaf20c7c0f35fb7becb7df0c5c6": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이제 더 안 올 것 같아요. 마지막으로 인사드리려고요.",
+    "model": "gemini-3.1-flash-lite"
+  },
+  "6d061631bc1a6b22b1ee9e32773100de": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "그동안 얘기 들어줘서 진짜 고마웠어 잘 있어 🙂",
+    "model": "gemini-3.1-flash-lite"
+  },
+  "ccbfe6bdaaae7f516eedc29355f54ce8": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "다들 행복하게 지냈으면 좋겠어요. 저는 이만 갈게요.",
+    "model": "gemini-3.1-flash-lite"
+  },
+  "b62354b585d937d0755158828b99c32f": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "마지막으로 한 번만 얘기하고 싶었어요. 들어줘서 고마워요.",
+    "model": "gemini-3.1-flash-lite"
+  },
+  "78dc5cda8973f15cae685a3cc0bfa6b7": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "고양이는 언니가 키워주기로 했어요. 잘 부탁한다고 얘기해놨어요.",
+    "model": "gemini-3.1-flash-lite"
+  },
+  "9d0071b42d54bcf35a8970aa9a08ae19": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "아끼던 물건들 친구들한테 하나씩 나눠줬어요.",
+    "model": "gemini-3.1-flash-lite"
+  },
+  "1d573b3df7cd65afc092619c8867276a": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "강아지 사료를 넉넉히 사뒀어요. 한동안은 괜찮을 거예요.",
+    "model": "gemini-3.1-flash-lite"
+  },
+  "9c1f5df7d85f0fbd6965255847747857": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "집 열쇠를 주인아저씨한테 미리 맡겨뒀어요.",
+    "model": "gemini-3.1-flash-lite"
+  },
+  "057dd8c170a559ce60139a1757710976": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "긴 잠을 자고 싶어요. 아주 긴 잠이요.",
+    "model": "gemini-3.1-flash-lite"
+  },
+  "ad85d1164c309f598e4892901ea139dc": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "원래부터 없던 사람처럼 되고 싶어요.",
+    "model": "gemini-3.1-flash-lite"
+  },
+  "937bc301c3ca85950878f7bb98dd8bb3": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이제 소풍을 끝낼 때가 된 것 같아요.",
+    "model": "gemini-3.1-flash-lite"
+  },
+  "13ce832850d7e33101cc428682dad49a": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "조용히 불이 꺼지듯 끝났으면 좋겠어요.",
+    "model": "gemini-3.1-flash-lite"
+  },
+  "63e585a31f2c1f3ee88f19b6a54efc60": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "스위치를 그냥 내려버리고 싶을 때가 있어요.",
+    "model": "gemini-3.1-flash-lite"
+  },
+  "8b1508c3a0b3d163bcf6ac6693862b3f": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "내가 없으면 다들 편할 텐데.",
+    "model": "gemini-3.1-flash-lite"
   }
 }
