@@ -4,6 +4,7 @@ import {
   fetchEmergencyEvents,
   fetchUsers,
   login,
+  setUnauthorizedHandler,
 } from './api.js'
 import { countLabel, emptyLabel, RISK_LABEL } from './labels.js'
 import UserReport from './Report.jsx'
@@ -34,10 +35,12 @@ function FeatureCard({ title, children }) {
   )
 }
 
-function LoginPage({ onAuthenticated }) {
+function LoginPage({ onAuthenticated, notice = '' }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  // 만료로 돌아온 경우 왜 로그인 화면인지 알려줍니다. 아무 설명 없이
+  // 로그인 화면이 뜨면 사용자는 자기가 뭘 잘못했는지 모릅니다.
+  const [error, setError] = useState(notice)
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(event) {
@@ -523,15 +526,36 @@ function Dashboard({ session, onLogout }) {
 
 export default function App() {
   const [session, setSession] = useState(readSession)
+  const [expired, setExpired] = useState(false)
 
   function logout() {
     clearSession()
     setSession(null)
   }
 
+  // 토큰이 만료되면 로그인 화면으로 돌려보냅니다.
+  //
+  // ⚠ 없으면 탭을 열어둔 채 24시간이 지났을 때 모든 조회가 401 로 실패하면서
+  //   「불러오지 못했습니다」만 반복됩니다. 세션이 남아 있어 로그인 화면으로도
+  //   안 가므로, 사용자는 서버가 죽은 줄 압니다.
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      clearSession()
+      setExpired(true)
+      setSession(null)
+    })
+    return () => setUnauthorizedHandler(null)
+  }, [])
+
   return session ? (
     <Dashboard session={session} onLogout={logout} />
   ) : (
-    <LoginPage onAuthenticated={setSession} />
+    <LoginPage
+      notice={expired ? '로그인 유효 시간이 지났습니다. 다시 로그인해주세요.' : ''}
+      onAuthenticated={(next) => {
+        setExpired(false)
+        setSession(next)
+      }}
+    />
   )
 }

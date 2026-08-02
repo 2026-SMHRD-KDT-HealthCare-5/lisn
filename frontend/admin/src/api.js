@@ -1,5 +1,25 @@
+// `import.meta.env` 는 **Vite 가 주입하는 값**이라 번들 밖(node --test)에서는
+// undefined 입니다. `?.` 이 없으면 이 모듈을 테스트에서 import 하는 순간 죽습니다.
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'
+  import.meta.env?.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'
+
+/**
+ * 토큰이 만료됐을 때 호출됩니다. App 이 등록합니다.
+ *
+ * ⚠ 이게 없으면 **24시간 뒤에 화면이 조용히 고장납니다.** 탭을 열어둔 채로
+ *   토큰이 만료되면 모든 조회가 401 로 실패하는데, 화면에는
+ *   「불러오지 못했습니다」만 뜹니다. 세션은 그대로 남아 있어 로그인
+ *   화면으로도 안 가고, 사용자는 서버가 죽은 줄 압니다.
+ *   `readSession()` 의 만료 검사는 **페이지를 새로 열 때만** 돕니다.
+ *
+ * ⚠ **403 은 여기 걸지 마세요.** 권한이 없는 것이라 재로그인해도 해결되지
+ *   않습니다. 401(만료·무효)만 세션을 버립니다.
+ */
+let unauthorizedHandler = null
+
+export function setUnauthorizedHandler(handler) {
+  unauthorizedHandler = handler
+}
 
 export class ApiError extends Error {
   constructor(message, status) {
@@ -41,6 +61,7 @@ async function request(path, { token, params, fallback } = {}) {
   }
 
   if (!response.ok) {
+    if (response.status === 401) unauthorizedHandler?.()
     throw await readError(response, fallback ?? '요청을 처리하지 못했습니다.')
   }
   return response.json()
