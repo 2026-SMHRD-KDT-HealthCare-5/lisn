@@ -170,6 +170,27 @@ def stage_keyword(rows):
           '1단계 키워드 (HIGH+MEDIUM 양성) — 참고')
 
 
+async def judge(llm, text, model, timeout):
+    """detect_crisis 와 같은 프롬프트·스키마로 판정합니다.
+
+    운영 함수를 그대로 쓰지 않는 이유는 **모델과 타임아웃을 갈아끼우기**
+    위해서입니다. 프롬프트(`CRISIS_SYSTEM`)와 반환 스키마(`CrisisVerdict`)는
+    똑같이 씁니다 — 다르면 평가 결과가 운영과 무관해집니다.
+    """
+    kw = {'timeout': timeout} if timeout else {}
+    r = await llm.client().beta.chat.completions.parse(
+        model=model,
+        messages=[{'role': 'system', 'content': llm.CRISIS_SYSTEM},
+                  {'role': 'user', 'content': text}],
+        response_format=llm.CrisisVerdict,
+        **kw,
+    )
+    v = r.choices[0].message.parsed
+    if v is None:
+        raise RuntimeError('판정 결과를 파싱하지 못했습니다')
+    return v
+
+
 def cache_key(text, prompt, model):
     """프롬프트를 고치면 캐시가 저절로 무효가 됩니다."""
     h = hashlib.sha256()
@@ -178,33 +199,65 @@ def cache_key(text, prompt, model):
     return h.hexdigest()[:32]
 
 
-def stage_llm(rows, limit, no_call):
+def stage_llm(rows, limit, no_call, model_override=None, timeout=None):
     import asyncio
     _, llm = load_backend()
-    model = llm.model_for('crisis')
+    # ⚠ 평가는 **사용자 대기가 없는 배치**입니다. NFR-DV-001 의 3초 예산을
+    #   맞추려고 잡아둔 운영 타임아웃(8초)을 그대로 쓰면, 느린 응답을
+    #   「실패」로 세어 성능을 실제보다 낮게 봅니다.
+    #
+    # ⚠ 모델도 바꿀 수 있게 둡니다. 무료 한도가 **모델별**이라 crisis 모델이
+    #   소진되면 남은 모델로 이어서 채점할 수 있습니다. 다만 **모델이 다르면
+    #   결과도 다릅니다** — 캐시 키에 모델명이 들어가는 이유입니다.
+    model = model_override or llm.model_for('crisis')
     prompt = llm.CRISIS_SYSTEM
     cache = json.loads(CACHE.read_text(encoding='utf-8')) if CACHE.exists() else {}
 
     todo = [r for r in rows if cache_key(r['text'], prompt, model) not in cache]
     print(f'캐시 {len(rows) - len(todo)}건 · 호출 필요 {len(todo)}건 · 모델 {model}')
 
+    # ⚠ 캐시 키에 모델명이 들어갑니다. `--model` 로 채점해 놓고 다음에 그 옵션
+    #   없이 돌리면 **캐시가 0건으로 보입니다.** 실제로 겪었습니다 — 캐시가
+    #   비어 있는 게 아니라 다른 모델로 찾고 있는 것입니다.
+    if len(todo) == len(rows) and cache:
+        others = {v.get('model') for v in cache.values() if v.get('model')}
+        others.discard(model)
+        if others:
+            print(f'  ⚠ 캐시에는 다른 모델 판정이 있습니다: {sorted(others)}')
+            print(f'     그 결과를 쓰려면  --model {sorted(others)[0]}')
+
     if todo and not no_call:
         n = min(limit, len(todo)) if limit else len(todo)
         print(f'  이번에 {n}건 호출합니다 (남으면 다음에 이어서)')
 
         async def run():
+            fails = 0
             for i, r in enumerate(todo[:n], 1):
                 try:
-                    v = await llm.detect_crisis(r['text'], [])
+                    v = await judge(llm, r['text'], model, timeout)
                 except Exception as e:
                     # ⚠ 실패를 캐시에 넣지 않습니다. 429 를 「판정 결과」로
                     #   저장하면 다음 실행에서 영영 다시 시도하지 않습니다.
-                    print(f'    {i}/{n} 실패: {type(e).__name__} — 여기서 멈춥니다')
-                    break
+                    kind = type(e).__name__
+                    if 'RateLimit' in kind:
+                        # 한도는 기다려도 안 풀립니다. 즉시 멈춥니다.
+                        print(f'    {i}/{n} 한도 소진 — 여기서 멈춥니다 '
+                              f'(--model 로 다른 모델을 쓰거나 내일 이어서)')
+                        break
+                    # ⚠ 타임아웃은 일시적일 수 있습니다. 한 건 실패로 전체를
+                    #   멈추면 하루치를 통째로 날립니다. 이어가되 연속 3회면 멈춥니다.
+                    fails += 1
+                    print(f'    {i}/{n} {kind} — 건너뜁니다 ({fails}/3)')
+                    if fails >= 3:
+                        print('    연속 실패가 잦습니다. 멈춥니다.')
+                        break
+                    continue
+                fails = 0
                 cache[cache_key(r['text'], prompt, model)] = {
                     'is_crisis': v.is_crisis,
                     'severity': v.severity,
                     'text': r['text'],
+                    'model': model,   # 어느 모델 판정인지 남긴다
                 }
 
         asyncio.run(run())
@@ -263,6 +316,9 @@ def main():
     ap.add_argument('--limit', type=int, default=15,
                     help='이번 실행의 최대 호출 건수 (기본 15 — 하루 한도 20 여유)')
     ap.add_argument('--no-call', action='store_true', help='캐시만 써서 채점')
+    ap.add_argument('--model', help='crisis 모델 대신 쓸 모델 (한도 소진 시)')
+    ap.add_argument('--timeout', type=float, default=30.0,
+                    help='배치라 운영(8초)보다 넉넉히 잡습니다')
     ap.add_argument('--agreement', action='store_true', help='라벨러 일치율만 계산')
     args = ap.parse_args()
 
@@ -278,7 +334,7 @@ def main():
     if args.stage in ('keyword', 'both'):
         stage_keyword(rows)
     if args.stage in ('llm', 'both'):
-        stage_llm(rows, args.limit, args.no_call)
+        stage_llm(rows, args.limit, args.no_call, args.model, args.timeout)
 
 
 if __name__ == '__main__':

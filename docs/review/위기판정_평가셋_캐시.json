@@ -1,0 +1,86 @@
+{
+  "6014b9aa513dedc7d324b165b89c4c4f": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "배고파 죽겠다",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "cc9a0800687fbb4a7f2e9985d81485a8": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "아 웃겨 죽겠네",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "f89b5026bfe8445df34136f8d0134ea1": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "더워 죽겠어요",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "dd85afa52b4b13dad84f4c180baedfeb": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "이 일 그만두고 싶어요",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "76bde96118e1a713324395032bee5228": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "회사를 그만두고 싶다는 생각이 자주 들어요",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "49d68f8ac2510873a75ab52bd8a28cae": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "자퇴하고 싶다는 생각을 했어요",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "30ec1e0e33142dd1390683b25e84f745": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "예전에 많이 힘들었는데 지금은 괜찮아요",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "ad2600e7d14fb6740e2c2e5e03178cc0": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "작년에는 정말 지쳤었죠",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "e7ac54b64f96d09a635ad4d22ce38d08": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "친구가 힘들어해서 걱정이에요",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "ab6dbd7898eba0412ecba350350c1afc": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "동생이 요즘 우울해 보여요",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "974da651963356c877af7a17051f5614": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "드라마에서 주인공이 죽는 장면이 슬펐어요",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "c8b6ac7913db5c0c3402080432e84cef": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "소설 쓰는데 우울한 인물을 표현하고 싶어요",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "e70d68557d684da7cbf8b44c1d7acb0b": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "오늘 좀 우울해요",
+    "model": "gemini-3.5-flash-lite"
+  },
+  "f342cba6a439810d7da09f902784b0f4": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "요즘 아무것도 하기 싫어요",
+    "model": "gemini-3.5-flash-lite"
+  }
+}
