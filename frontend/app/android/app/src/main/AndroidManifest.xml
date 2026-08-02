@@ -29,9 +29,15 @@
         </intent>
     </queries>
 
+    <!-- ⚠ networkSecurityConfig 를 빼지 마세요.
+         targetSdk 36 은 평문 HTTP 를 기본 차단합니다. Flutter 는 debug
+         매니페스트에만 평문을 허용해 두기 때문에, 이게 없으면 **릴리스
+         APK 만 서버에 못 붙습니다** — 에뮬레이터에서는 멀쩡해 보입니다.
+         허용 범위와 실기기 설정법은 res/xml/network_security_config.xml 참고. -->
     <application
         android:label="마음이"
         android:name="${applicationName}"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

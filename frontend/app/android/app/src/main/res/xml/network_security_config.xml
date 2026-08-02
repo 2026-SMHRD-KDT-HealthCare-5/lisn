@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  평문(HTTP) 통신 허용 범위 — 2026.08.02
+
+  ⚠ 왜 필요한가
+    targetSdk 36(Android 9+)부터 평문 HTTP 는 기본 차단입니다.
+    Flutter 템플릿은 `src/debug/AndroidManifest.xml` 에만
+    usesCleartextTraffic 을 넣어두기 때문에, 에뮬레이터 디버그 실행은
+    되는데 릴리스 APK 는 서버에 아예 붙지 못합니다.
+    화면에는 「서버에 연결할 수 없습니다」만 떠서 네트워크 문제로 보입니다.
+    실기기 QA 전에 반드시 필요한 설정입니다.
+
+  ⚠ 왜 usesCleartextTraffic 을 통째로 켜지 않았나
+    그건 모든 주소에 평문을 허용합니다. 02-F 는 전송 구간 HTTPS/TLS 를
+    규정하므로, 기본은 막아두고 개발·시연용 로컬 주소만 예외로 둡니다.
+    심사에서 물어도 "평문은 로컬 개발 주소로 한정했다"고 답할 수 있습니다.
+
+  실기기 시연 설정법은 frontend/app/README.md 「실기기」 절에 있습니다.
+-->
+<network-security-config>
+
+    <!-- 기본: 평문 금지. 외부로 나가는 통신은 HTTPS 만 허용됩니다. -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!--
+      개발·시연용 로컬 백엔드에만 평문을 허용합니다.
+
+      ⚠ 실기기로 시연하려면 개발 PC 의 IP 를 아래에 추가해야 합니다.
+        에뮬레이터 전용 주소(10.0.2.2)는 실기기에서 동작하지 않습니다.
+        ipconfig 로 IP 를 확인해 domain 한 줄을 더 넣고, 앱도 같은 주소로
+        빌드하세요(README 참고).
+
+      Android 네트워크 보안 설정은 CIDR(192.168.0.0/16)을 지원하지 않아
+      주소를 하나씩 적어야 합니다. 대역 전체를 열 수 없습니다.
+    -->
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- Android 에뮬레이터에서 호스트 PC 를 가리키는 주소 -->
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+
+        <!-- 시연 PC 의 IP 를 여기에 추가하세요. 예: 192.168.0.10 -->
+    </domain-config>
+
+</network-security-config>

@@ -22,6 +22,24 @@ Android 에뮬레이터의 기본 API 주소는 `http://10.0.2.2:8000/api/v1`입
 flutter run --dart-define=API_BASE_URL=http://<개발-PC-IP>:8000/api/v1
 ```
 
+### ⚠ 실기기·릴리스 빌드는 **주소를 두 곳**에 넣어야 합니다
+
+`--dart-define` 만으로는 안 됩니다. `targetSdk 36` 은 **평문 HTTP 를 기본
+차단**하므로 `android/app/src/main/res/xml/network_security_config.xml` 의
+허용 목록에도 같은 IP 를 넣어야 합니다.
+
+```xml
+<domain includeSubdomains="false">192.168.0.10</domain>
+```
+
+**안 넣으면 화면에 「서버에 연결할 수 없습니다」만 뜹니다.** 네트워크나 서버
+문제로 보이지만 OS 가 요청 자체를 막은 것입니다.
+
+> 에뮬레이터 **디버그** 실행은 이 설정 없이도 됩니다. Flutter 가
+> `src/debug/AndroidManifest.xml` 에만 평문을 허용해 두기 때문입니다.
+> **그래서 릴리스에서만 터지고, 에뮬레이터로는 아무리 확인해도 안 보입니다.**
+> 2026.08.02 에 실제로 그 상태였습니다(릴리스 APK 는 빌드되는데 전 API 실패).
+
 ## 검증
 
 ```bash
