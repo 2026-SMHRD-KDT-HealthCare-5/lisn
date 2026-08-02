@@ -142,6 +142,12 @@ class _LifelogScreenState extends State<LifelogScreen> {
                         showSelectedIcon: false),
                     const SizedBox(height: 16),
                     ...body,
+                    // ❺ 체성분 기록.
+                    //
+                    // ⚠ **위 목록과 따로 불러옵니다.** 체성분은 선택 동의라
+                    //   없는 사용자가 많고, 여기서 실패하거나 비었다고 활동량·
+                    //   수면까지 같이 사라지면 안 됩니다.
+                    _BodyCompositionSection(service: _service),
                   ],
                 ),
               );
@@ -254,15 +260,16 @@ class _LifelogScreenState extends State<LifelogScreen> {
   String _sleepText(int? min) =>
       min == null ? '–' : '${min ~/ 60}시간 ${min % 60}분';
 
-  String _comma(int n) => n.toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},');
+}
 
-  String _stamp(DateTime at) {
-    final diff = DateTime.now().difference(at);
-    if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
-    if (diff.inHours < 24) return '${diff.inHours}시간 전';
-    return '${diff.inDays}일 전';
-  }
+String _comma(int n) => n.toString().replaceAllMapped(
+    RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},');
+
+String _stamp(DateTime at) {
+  final diff = DateTime.now().difference(at);
+  if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
+  if (diff.inHours < 24) return '${diff.inHours}시간 전';
+  return '${diff.inDays}일 전';
 }
 
 class _Centered extends StatelessWidget {
@@ -371,4 +378,117 @@ class _LogMetric extends StatelessWidget {
       ])),
     );
   }
+}
+
+/// ❺ 체성분 기록 — `MAIN_LIFELOG_01`
+///
+/// ```
+/// ❺ 체성분 기록: 체중·체지방·근육량·기초대사량 측정 이력
+/// ```
+///
+/// ⚠ **체성분은 선택 동의 항목입니다**(`MAIN_JOIN_03` ❷ · `MAIN_SETTING_01` ❶).
+///   동의하지 않았거나 체성분계가 없으면 평생 비어 있는 게 정상입니다.
+///   그래서 「없음」을 **오류가 아니라 안내로** 그립니다.
+class _BodyCompositionSection extends StatefulWidget {
+  const _BodyCompositionSection({required this.service});
+
+  final LifelogService service;
+
+  @override
+  State<_BodyCompositionSection> createState() =>
+      _BodyCompositionSectionState();
+}
+
+class _BodyCompositionSectionState extends State<_BodyCompositionSection> {
+  late final Future<List<BodyComposition>> _future = widget.service
+      .fetchBodyComposition(limit: 30);
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<BodyComposition>>(
+      future: _future,
+      builder: (context, snap) {
+        // 불러오는 중에는 자리만 잡습니다. 스피너를 하나 더 돌리면 위쪽
+        // 스피너와 겹쳐 화면이 산만해집니다.
+        if (snap.connectionState == ConnectionState.waiting) {
+          return const SizedBox(height: 24);
+        }
+        // ⚠ 실패해도 오류를 띄우지 않습니다. 선택 항목이라 없는 게 흔하고,
+        //   위쪽 활동량·수면은 정상인데 붉은 문구가 뜨면 전체가 고장난
+        //   것처럼 보입니다. 조용히 접습니다.
+        if (snap.hasError) return const SizedBox.shrink();
+
+        final rows = snap.data ?? const <BodyComposition>[];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 22),
+            const SectionTitle('체성분 기록'),
+            const SizedBox(height: 10),
+            if (rows.isEmpty) _empty() else ..._filled(rows),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _empty() => const AppCard(
+          child: Column(children: [
+        SizedBox(height: 4),
+        Text('아직 체성분 기록이 없어요.',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800)),
+        SizedBox(height: 8),
+        Text('체성분계를 연동하고 설정에서 체성분 수집에 동의하면\n'
+            '체중·체지방·근육량이 여기에 쌓입니다.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 11, height: 1.7, color: AppColors.muted)),
+        SizedBox(height: 4),
+      ]));
+
+  List<Widget> _filled(List<BodyComposition> rows) {
+    final latest = rows.first; // 서버가 최신순으로 내려줍니다.
+    return [
+      _LogMetric(
+          icon: Icons.monitor_weight_rounded,
+          title: '체중',
+          value: _kg(latest.weightKg),
+          color: AppColors.blue),
+      _LogMetric(
+          icon: Icons.water_drop_rounded,
+          title: '체지방',
+          value: _kg(latest.bodyFatKg),
+          color: AppColors.pink),
+      _LogMetric(
+          icon: Icons.fitness_center_rounded,
+          title: '근육량',
+          value: _kg(latest.muscleMassKg),
+          color: AppColors.mint),
+      _LogMetric(
+          icon: Icons.local_fire_department_rounded,
+          title: '기초대사량',
+          value: latest.bmrKcal == null ? '–' : '${_comma(latest.bmrKcal!)} kcal',
+          color: AppColors.purple),
+      const SizedBox(height: 12),
+      // 「측정 이력」 — 최신 한 건만 보여주면 변화를 알 수 없습니다.
+      AppCard(
+        child: Column(children: [
+          for (var i = 0; i < rows.length && i < 5; i++) ...[
+            if (i > 0) const Divider(height: 18, color: AppColors.line),
+            Row(children: [
+              Expanded(
+                  child: Text(_stamp(rows[i].measuredAt),
+                      style: const TextStyle(
+                          fontSize: 11, color: AppColors.muted))),
+              Text(_kg(rows[i].weightKg),
+                  style: const TextStyle(
+                      fontSize: 12, fontWeight: FontWeight.w800)),
+            ]),
+          ],
+        ]),
+      ),
+    ];
+  }
+
+  /// 값이 없으면 0 이 아니라 '–'. 「0kg」과 「측정 안 됨」은 다릅니다.
+  String _kg(double? v) => v == null ? '–' : '${v.toStringAsFixed(1)} kg';
 }
