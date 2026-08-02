@@ -148,6 +148,17 @@ def main():
     st, recs = call('GET', f'{BASE}/contents/recommendations', token=token)
     k = len(recs) if isinstance(recs, list) else 0
     # ⚠ CRITICAL 이면 추천을 **중단하는 것이 정상**입니다 — MLCM_510 2단계.
+    #
+    # ⚠⚠ 이 검사를 너무 믿지 마세요. 2026.08.02 이전에도 통과했는데
+    #    **우연이었습니다.** 그때 `/contents/recommendations` 에는 위기 가드가
+    #    없었고, 0건이 나온 이유는 힐링 콘텐츠를 `DESPAIR`·`CRISIS` 감정에
+    #    **등록하지 않는다는 큐레이션 기준** 때문이었습니다. 즉 "가드가 있어서"가
+    #    아니라 "줄 게 없어서" 0건이었습니다.
+    #    누군가 그 감정에 콘텐츠를 넣는 순간 조용히 뚫렸을 것입니다.
+    #
+    #    지금은 서버가 `action` 을 보고 막습니다. 구조적 보장은
+    #    `backend/tests/test_review_findings.py` 쪽이 지키고, 여기서는
+    #    관통 경로가 살아 있는지만 봅니다.
     if action == 'EMERGENCY':
         check('위기 시 콘텐츠 추천 중단', k == 0,
               f'{k}건' + ('  (0건이어야 정상)' if k == 0 else '  ⚠ 위기인데 추천이 나옵니다'))
