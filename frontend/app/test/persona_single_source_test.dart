@@ -80,8 +80,8 @@ void main() {
 
       expect(find.byType(RadioListTile<String>), findsNothing);
       expect(find.byType(RadioGroup<String>), findsNothing);
-      expect(find.text('다정한 공감가'), findsNothing);
-      expect(find.text('이성적인 분석가'), findsNothing);
+      expect(find.text('따스한 공감형'), findsNothing);
+      expect(find.text('현실적인 조언형'), findsNothing);
       // ⚠ 절 제목도 함께 봅니다. 카드만 지우고 제목을 남기면 **아무것도 없는
       //   「대화 성격」 절**이 화면에 뜹니다. 실제로 그렇게 남아 있었습니다.
       expect(find.text('대화 성격'), findsNothing);
@@ -129,7 +129,7 @@ void main() {
 
     testWidgets('앱을 다시 켜도 최근에 고른 성격이 먼저 보인다', (tester) async {
       // ⚠ 텍스트 존재로 판정하면 안 됩니다. PageView 는 옆 페이지도 만들어 두므로
-      //   기본 선택이 틀려도 「이성적인 분석가」가 트리에 있습니다.
+      //   기본 선택이 틀려도 「현실적인 조언형」가 트리에 있습니다.
       //   **실제로 어느 페이지에 있는지**를 봅니다.
       await pump(tester, 'COUNSELOR');
       final view = tester.widget<PageView>(find.byType(PageView));

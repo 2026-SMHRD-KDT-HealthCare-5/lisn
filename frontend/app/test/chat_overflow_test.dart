@@ -71,7 +71,7 @@ void main() {
     //   고치기 전 코드로 돌리면 그 둘이 실패합니다.
     await _pumpAt(tester, const Size(411, 731));
     expect(tester.takeException(), isNull);
-    expect(find.text('다정한 공감가'), findsOneWidget);
+    expect(find.text('따스한 공감형'), findsOneWidget);
   });
 
   testWidgets('세로가 더 짧은 기기에서도 넘치지 않는다', (tester) async {
@@ -93,10 +93,10 @@ void main() {
 
   testWidgets('두 성격 카드를 스와이프로 넘길 수 있다', (tester) async {
     await _pumpAt(tester, const Size(411, 731));
-    expect(find.text('다정한 공감가'), findsOneWidget);
+    expect(find.text('따스한 공감형'), findsOneWidget);
     await tester.drag(find.byType(PageView), const Offset(-400, 0));
     await tester.pump(const Duration(milliseconds: 400));
-    expect(find.text('이성적인 분석가'), findsOneWidget);
+    expect(find.text('현실적인 조언형'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

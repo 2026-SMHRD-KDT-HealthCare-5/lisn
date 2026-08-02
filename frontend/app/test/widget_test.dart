@@ -218,7 +218,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('다정한 공감가'));
+    await tester.tap(find.text('따스한 공감형'));
     await tester.pumpAndSettle();
     expect(find.text('오늘 하루는 어떠셨나요?'), findsOneWidget);
 
@@ -265,7 +265,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('다정한 공감가'));
+    await tester.tap(find.text('따스한 공감형'));
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Icons.mic_none_rounded), findsNothing);

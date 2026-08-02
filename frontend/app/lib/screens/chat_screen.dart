@@ -11,13 +11,48 @@ import 'chat_history_screen.dart';
 import 'emergency_screen.dart';
 
 enum ChatPersona {
-  feeling('FRIEND'),
-  thinking('COUNSELOR');
+  feeling(
+    code: 'FRIEND',
+    tag: 'F',
+    label: '따스한 공감형',
+    description: '감정을 먼저 들어주고\n따뜻하게 위로해요.',
+  ),
+  thinking(
+    code: 'COUNSELOR',
+    tag: 'T',
+    label: '현실적인 조언형',
+    description: '상황을 객관적으로 살피고\n해결책을 함께 찾아요.',
+  );
 
-  const ChatPersona(this.code);
+  const ChatPersona({
+    required this.code,
+    required this.tag,
+    required this.label,
+    required this.description,
+  });
 
   /// 서버 persona_type. schema.sql 의 CHECK 값과 같아야 합니다.
   final String code;
+
+  /// 카드 위 표식. 화면설명의 `[F]`·`[T]` 와 같습니다.
+  final String tag;
+
+  /// 화면에 보이는 이름.
+  ///
+  /// ⚠ **화면설계서 `MAIN_CHAT_01` 과 01 프로젝트 기획서가 정본입니다.**
+  ///   전에는 앱만 「다정한 공감가/이성적인 분석가」를 쓰고 있었습니다. 문서
+  ///   3종(화면설계서·기획서·시안)이 모두 지금 이름을 쓰는데 앱 혼자
+  ///   달랐습니다 — 임의로 바꾸지 마세요.
+  ///
+  /// ⚠ 이름을 여기 모아둔 이유도 같습니다. 전에는 `personaName` 과 카드에
+  ///   각각 적혀 있어서 한쪽만 고치면 조용히 갈렸습니다.
+  final String label;
+
+  /// 카드 설명. 시안(`docs/design/MAIN_CHAT_01.png`)과 같은 문구입니다.
+  final String description;
+
+  /// 대화 화면 머리말에 쓰는 표기.
+  String get titled => '[$tag] $label';
 }
 
 class ChatMessage {
@@ -111,8 +146,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
-  String get personaName =>
-      persona == ChatPersona.feeling ? '[F] 다정한 공감가' : '[T] 이성적인 분석가';
+  String get personaName => persona.titled;
 
   void _toast(String message) {
     if (!mounted) return;
@@ -484,16 +518,13 @@ class _PersonaCard extends StatelessWidget {
                       fontWeight: FontWeight.w900,
                       color: feeling ? AppColors.primary : AppColors.teal)),
               const SizedBox(height: 6),
-              Text(feeling ? '다정한 공감가' : '이성적인 분석가',
+              Text(persona.label,
                   style: const TextStyle(
                       fontSize: 24,
                       color: AppColors.navy,
                       fontWeight: FontWeight.w900)),
               const SizedBox(height: 9),
-              Text(
-                  feeling
-                      ? '감정을 먼저 이해하고\n따뜻하게 공감해요'
-                      : '상황을 정리하고\n현실적인 해결책을 찾아요',
+              Text(persona.description,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                       fontSize: 12, height: 1.6, color: AppColors.muted)),
