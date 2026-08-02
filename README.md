@@ -24,6 +24,40 @@ Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog deviat
 
 ---
 
+## 화면
+
+앱 14개 · 관리자 웹 2개. **전부 실제 API 에 붙어 있고 목업 데이터가 없습니다.**
+
+| 홈 대시보드 | AI 챗봇 | 정서 리포트 |
+|:---:|:---:|:---:|
+| <img src="docs/design/MAIN_HOME_01.png" width="230"> | <img src="docs/design/MAIN_CHAT_01.png" width="230"> | <img src="docs/design/MAIN_REPORT_01.png" width="230"> |
+| 오늘의 상태 · 라이프로그 요약 · AI 한줄 요약 · 맞춤 콘텐츠 | 페르소나 선택(F형/T형) · 위기 문맥 실시간 판정 | 감정 추이 · 수면·활동 결합 차트 · PDF 내보내기 |
+
+| 라이프로그 | 긴급 상담 연결 | 관리자 관제 |
+|:---:|:---:|:---:|
+| <img src="docs/design/MAIN_LIFELOG_01.png" width="230"> | <img src="docs/design/MAIN_EMERGENCY_01.png" width="230"> | <img src="docs/design/ADMIN_DASH_01.png" width="230"> |
+| 수면·걸음·심박·HRV 자동 수집 | `CRITICAL` 판정 시 자동 전환 · 109 직통 | 위험도 분포 · 대상자 검색 · 위기 이력 |
+
+> **긴급 상담 화면에 경고색(빨강·주황)을 쓰지 않았습니다.** 불안을 키워 회피를
+> 유발합니다. 주목도는 색이 아니라 구조로 만들었습니다 — 하단 네비게이션 제거,
+> 요소 최소화, 브랜드 로고 제외(우리가 상담 제공자로 읽히면 안 됩니다).
+
+전체 15개 화면은 [`docs/design/`](docs/design/) 에 있습니다.
+
+---
+
+## 주요 기능
+
+| | |
+|---|---|
+| **입력 없는 정서 감지** | Health Connect 로 수면·걸음·심박·HRV 를 자동 수집해 **평소(14일) 대비 오늘의 편차**를 봅니다. 사용자가 감정을 입력할 필요가 없습니다 |
+| **2단계 위기 탐지** | 대화에서 위기 신호를 **키워드 규칙**으로 1차 선별하고 **LLM 문맥 판정**으로 2차 확정합니다. 키워드 필터가 백엔드 내부에 있어 **외부 API 가 죽어도 단독 동작**합니다(`NFR-DV-003`) |
+| **가변형 페르소나 챗봇** | F형(따스한 공감형) / T형(현실적인 조언형). 시스템 프롬프트로 성격을 주입하고 언제든 바꿉니다 |
+| **위험도별 자동 대응** | `NORMAL`→대화 · `CAUTION`→힐링 콘텐츠 · `CRITICAL`→**콘텐츠 즉시 중단 후 109 연결**. 판정은 서버가 확정하고 클라이언트는 따르기만 합니다 |
+| **관리자 관제** | 위험도 분포 · 대상자 검색 · 개인 리포트 · 위기 사건 이력 |
+
+---
+
 ## 팀 구성
 
 | 역할 | 이름 | 담당 |
@@ -137,12 +171,20 @@ lisn/
 ├── db/
 │   ├── schema.sql           8개 테이블 DDL + EMOTIONS 마스터 시드
 │   └── seed_healing_contents.sql   힐링 콘텐츠 시드
-├── docs/
-│   ├── extracted/           산출물 HWP·PPTX 본문 추출본 (버전 diff 비교용)
+├── docs/                    → 색인은 docs/README.md
+│   ├── 진행/                지금 굴러가는 것 (작업이력 · 문서개정 체크리스트)
+│   ├── 결정/                확정된 설계 결정
+│   ├── 검증/                재보고 남긴 기록 (성능실측 · 문서↔구현 대조)
+│   ├── 평가셋/              위기 판정 평가셋 (문서 + CSV + 캐시)
+│   ├── 가이드/              작업할 때 펴놓고 보는 것
+│   ├── design/              화면 시안 15장 + 만드는 법
 │   ├── llm/                 LLM 작업 규칙 · 사용 이력
-│   └── review/              문서 검수·개정 관리
+│   └── extracted/           산출물 HWP·PPTX 본문 추출본 (버전 diff 비교용)
 ├── tools/
 │   ├── start-dev.ps1         백엔드 · AI 서버 · 관리자 웹 · Flutter 통합 실행
+│   ├── smoke_mvp.py          MVP 관통 점검 (수집 → 분석 → 케어 → 관제)
+│   ├── eval_crisis.py        위기 판정 평가셋 채점
+│   ├── bench_nfr.py          비기능 요구사항 실측
 │   ├── doc2txt.py            PDF·PPTX 기준 본문 추출 스크립트
 │   └── hwp2txt.ps1           HWP 직접 파싱 보조 스크립트
 ├── .vscode/tasks.json        VS Code 공용 실행 작업
@@ -230,6 +272,39 @@ flutter pub get
 flutter run
 ```
 
+**Flutter 는 실행 중인 에뮬레이터나 연결된 기기가 있어야 합니다.**
+
+```powershell
+flutter emulators
+```
+
+```powershell
+flutter emulators --launch lisn
+```
+
+> 목록이 비어 있으면 Android Studio 의 **Device Manager** 에서 하나 만드세요.
+> `flutter emulators --create --name lisn` 로도 됩니다.
+> 실기기는 USB 로 연결하고 **개발자 옵션 → USB 디버깅**을 켠 뒤
+> `flutter devices` 에 잡히는지 확인하세요.
+
+### ⚠ 실기기는 API 주소를 **두 곳**에 넣어야 합니다
+
+```powershell
+flutter run --dart-define=API_BASE_URL=http://192.168.0.10:8000/api/v1
+```
+
+`192.168.0.10` 자리에 **개발 PC 의 IP**(`ipconfig` 로 확인)를 넣습니다. 그리고
+`frontend/app/android/app/src/main/res/xml/network_security_config.xml` 의
+허용 목록에도 같은 IP 를 넣습니다.
+
+```xml
+<domain includeSubdomains="false">192.168.0.10</domain>
+```
+
+`targetSdk 36` 은 평문 HTTP 를 기본 차단합니다. **안 넣으면 화면에 「서버에 연결할
+수 없습니다」만 뜹니다** — 네트워크나 서버 문제로 보이지만 OS 가 요청 자체를 막은
+것입니다. 에뮬레이터 기본값(`10.0.2.2`)은 실기기에서 동작하지 않습니다.
+
 ```powershell
 cd frontend\admin
 npm install
@@ -277,6 +352,17 @@ python tools\doc2txt.py
 - 작업은 개인 브랜치에서 진행하고 `main` 으로 병합합니다. (`feat/`, `docs/`, `fix/` 접두사)
 - `.env` 는 절대 커밋하지 않습니다. **API 키(OpenAI·Gemini)가 공개 저장소에 올라가면 즉시 폐기해야 합니다.**
 - 산출물 문서를 수정하면 추출본도 갱신하고, 완료 근거는 `docs/진행/작업이력.md`에 기록합니다.
+
+---
+
+## 문서
+
+| | |
+|---|---|
+| [`docs/README.md`](docs/README.md) | **문서 색인.** 어느 폴더에 무엇이 있고 언제 보는지 |
+| [`docs/SESSION-HANDOFF.md`](docs/SESSION-HANDOFF.md) | 현재 상태 · 남은 일 · 새 PC 시작 방법 |
+| [`docs/학습자료.md`](docs/학습자료.md) | 왜 이렇게 설계했나 · **되돌리면 안 되는 것** · 실패 사례 19건 |
+| [`docs/진행/작업이력.md`](docs/진행/작업이력.md) | 완료된 결정과 그 **근거**. 날짜순 누적 |
 
 ---
 
