@@ -107,8 +107,17 @@ VS Code 사용자는 `lisn.code-workspace`를 열고 `Ctrl+Shift+B`를 누르면
 
 - 문안 → [`화면설계서_개정안.md`](review/화면설계서_개정안.md) Part B (`SD-N1`~`SD-N6`)
 - 시안 → `docs/design/*.png`
-- ⚠ 슬라이드 **추가**는 `tools/patch-pptx-text.ps1` 로 못 합니다(XML 4곳 등록 필요,
-  미검증). PowerPoint 에서 직접 넣으세요. 텍스트만 바꾸는 건 스크립트가 안전합니다.
+- 슬라이드 **추가**는 이제 스크립트로 됩니다 — 2026.08.02 검증 완료.
+  ```powershell
+  .\tools\add-pptx-slide.ps1 -Path .\Documents\화면설계서_귀기울임.pptx -CloneFrom 15 -Count 6
+  ```
+  15번 슬라이드를 6장 복제해 뒤에 붙입니다. **레이아웃·서식·이미지가 그대로**
+  따라오므로 글자만 갈아끼우면 됩니다. `-WhatIf` 로 먼저 볼 수 있고,
+  **검증을 통과해야만 원본을 갈아치웁니다.**
+- 글자 교체는 `tools/patch-pptx-text.ps1`. 복제한 슬라이드에서도 **서식이
+  유지되는 것까지 확인**했습니다(크기·굵기·글꼴 동일).
+- 화면 캡처 이미지는 PowerPoint 에서 직접 교체하세요. 복제본은 원본과 같은
+  이미지를 가리킵니다.
 
 #### 2. Health Connect 실기기 연동 ⭐ — 남은 구현 중 유일하게 큽니다
 

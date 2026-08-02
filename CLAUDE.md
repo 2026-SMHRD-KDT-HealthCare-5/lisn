@@ -89,7 +89,10 @@ CFB(OLE) 컨테이너를 파싱하고 raw deflate 를 풉니다. **Python 없이
 - **교체는 정확히 1건 매칭될 때만 적용**하도록 짜세요. 0건이면 건너뛰고 보고 → 재실행해도 안전합니다
 - 적용 후 반드시 검증: 슬라이드 수 · 전체 파트 수 · 각 슬라이드 `[xml]` 파싱
 - **한 줄의 텍스트가 여러 런으로 쪼개져 있을 수 있습니다.** 서식이 다른 부분(색 다른 단어 등)에서 갈립니다. 첫 런에 새 문장을 넣고 나머지를 빈 문자열로 만드세요
-- **슬라이드를 새로 추가하는 것은 미검증**입니다. slide XML · rels · `presentation.xml` · `[Content_Types].xml` 네 곳 등록이 필요합니다
+- **슬라이드 추가는 `tools/add-pptx-slide.ps1`** 을 쓰세요. 기존 슬라이드를 복제해 붙입니다(레이아웃·서식이 따라옵니다). 2026.08.02 에 **PowerPoint 로 열어 렌더링까지 검증**했습니다
+  - 등록이 **네 곳** 필요합니다 — `ppt/slides/slideN.xml` · `slides/_rels/slideN.xml.rels` · `ppt/_rels/presentation.xml.rels` · `ppt/presentation.xml` 의 `<p:sldIdLst>` · `[Content_Types].xml` 의 `Override`. 스크립트가 전부 처리하고 **검증을 통과해야만 원본을 갈아치웁니다**
+  - ⚠ **노트 슬라이드는 복제하지 않습니다.** 노트가 원본 슬라이드로 역참조(`notesSlideN.xml.rels` → `../slides/slideN.xml`)를 갖고 있어서, 같이 복제하면 PowerPoint 가 「복구가 필요합니다」를 띄웁니다
+  - 이미지는 원본과 **공유**합니다. 화면 캡처는 PowerPoint 에서 직접 갈아끼우세요
 
 ## 화면 시안을 코드로 만들기
 
