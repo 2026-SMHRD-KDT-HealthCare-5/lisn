@@ -210,7 +210,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   List<Widget> _sections() => [
         _profileCard(),
-        const _SettingsTitle('대화 성격'),
+        // 「대화 성격」 절은 없습니다 — 챗봇 탭이 확인·변경 화면입니다(SD-A⑥).
         const _SettingsTitle('데이터 연동'),
         ..._connectionCards(),
         const _SettingsTitle('알림 설정'),

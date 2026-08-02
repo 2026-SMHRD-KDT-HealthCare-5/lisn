@@ -82,6 +82,9 @@ void main() {
       expect(find.byType(RadioGroup<String>), findsNothing);
       expect(find.text('다정한 공감가'), findsNothing);
       expect(find.text('이성적인 분석가'), findsNothing);
+      // ⚠ 절 제목도 함께 봅니다. 카드만 지우고 제목을 남기면 **아무것도 없는
+      //   「대화 성격」 절**이 화면에 뜹니다. 실제로 그렇게 남아 있었습니다.
+      expect(find.text('대화 성격'), findsNothing);
     });
 
     testWidgets('설정 화면은 성격을 저장하려 들지 않는다', (tester) async {
