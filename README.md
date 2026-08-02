@@ -49,6 +49,37 @@ cd lisn
 - VS Code 는 `lisn.code-workspace` 를 열고 `Ctrl+Shift+B`
 - 끌 때는 각 창에서 `Ctrl+C`
 
+#### 에뮬레이터는 스크립트가 켭니다
+
+앱은 **Android 전용**이라 기기가 있어야 뜹니다. `start-dev.ps1` 이 Android 기기가
+없으면 **에뮬레이터를 자동으로 켜고 부팅을 기다린 뒤** 앱을 올립니다.
+
+직접 켜려면 이렇게 합니다.
+
+```powershell
+flutter emulators
+```
+
+```powershell
+flutter emulators --launch lisn
+```
+
+만들어둔 에뮬레이터가 없으면 하나 만듭니다. Android Studio 의 **Device Manager**
+로도 됩니다.
+
+```powershell
+flutter emulators --create --name lisn
+```
+
+**실기기**는 USB 를 꽂고 **개발자 옵션 → USB 디버깅**을 켠 뒤 잡히는지 봅니다.
+
+```powershell
+flutter devices
+```
+
+> ⚠ `flutter devices` 에는 **Windows·Chrome 같은 데스크톱 타깃도 같이 나옵니다.**
+> `android-` 로 시작하는 줄이 있어야 앱이 뜹니다.
+
 ---
 
 ### 안 뜨면 — 증상별로 여기를 보세요
@@ -58,14 +89,8 @@ cd lisn
 
 <br>
 
-**Flutter 창이 「기기를 찾을 수 없다」며 닫힌다** — 에뮬레이터가 꺼져 있습니다.
-
-```powershell
-flutter emulators --launch lisn
-```
-
-목록이 비어 있으면 `flutter emulators --create --name lisn` 으로 만듭니다.
-실기기는 USB 를 꽂고 **개발자 옵션 → USB 디버깅**을 켠 뒤 `flutter devices` 로 확인하세요.
+**Flutter 창이 곧바로 닫힌다** — 에뮬레이터도 없고 실기기도 없습니다.
+위 [에뮬레이터는 스크립트가 켭니다](#에뮬레이터는-스크립트가-켭니다) 를 보세요.
 
 <br>
 

@@ -85,6 +85,44 @@ function Assert-ServiceReady {
     }
 }
 
+function Test-DeviceReady {
+    # ⚠ **Android 기기만 셉니다.** `flutter devices` 는 Windows·Chrome·Edge 같은
+    #   데스크톱 타깃도 함께 내놓습니다. 그냥 "id" 가 있는지만 보면 **항상 참**이
+    #   되어 에뮬레이터를 영영 안 켭니다. 이 앱은 Android 전용입니다.
+    $json = & flutter.bat devices --machine 2>$null | Out-String
+    return ($json -match '"targetPlatform"\s*:\s*"android')
+}
+
+function Get-FirstEmulatorId {
+    # 출력 예:  lisn • lisn • Google • android
+    # AVD 이름은 PC 마다 다르므로 'lisn' 을 하드코딩하지 않습니다.
+    $lines = & flutter.bat emulators 2>$null
+    foreach ($line in $lines) {
+        # 첫 줄이 'Id   • Name • Manufacturer • Platform' 머리글이라 그대로 두면
+        # 'Id' 를 에뮬레이터 이름으로 집어 갑니다. 실제로 그랬습니다.
+        if ($line -match '^\s*Id\s+•') { continue }
+        if ($line -match '^\s*([^\s•]+)\s+•') {
+            return $Matches[1]
+        }
+    }
+    return $null
+}
+
+function Wait-ForDevice {
+    param([int]$TimeoutSeconds = 180)
+
+    Write-Host '에뮬레이터 부팅을 기다립니다...' -ForegroundColor Cyan
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    while ((Get-Date) -lt $deadline) {
+        if (Test-DeviceReady) {
+            Write-Host '기기가 준비됐습니다.' -ForegroundColor Green
+            return $true
+        }
+        Start-Sleep -Seconds 3
+    }
+    return $false
+}
+
 function Set-WindowTitle {
     param([string]$Title)
 
@@ -159,7 +197,29 @@ switch ($Service) {
     'Flutter' {
         Set-WindowTitle 'LISN Flutter'
         Set-Location $flutterPath
-        Write-Host 'Flutter 앱 시작 (연결된 기기 또는 에뮬레이터 필요)' -ForegroundColor Cyan
+
+        # flutter run 은 에뮬레이터를 켜주지 않습니다. 기기가 없으면
+        # 「No supported devices connected」로 끝나고 창이 그대로 닫힙니다.
+        # 그래서 여기서 직접 챙깁니다.
+        if (-not (Test-DeviceReady)) {
+            $emulatorId = Get-FirstEmulatorId
+            if ($emulatorId) {
+                Write-Host "연결된 기기가 없습니다. 에뮬레이터 '$emulatorId' 를 켭니다..." -ForegroundColor Yellow
+                & flutter.bat emulators --launch $emulatorId | Out-Null
+                if (-not (Wait-ForDevice -TimeoutSeconds 180)) {
+                    Write-Host '에뮬레이터가 3분 안에 준비되지 않았습니다.' -ForegroundColor Yellow
+                    Write-Host '부팅이 끝나면 이 창에서 flutter run 을 실행하세요.'
+                    exit 1
+                }
+            } else {
+                Write-Host '연결된 기기도, 만들어둔 에뮬레이터도 없습니다.' -ForegroundColor Yellow
+                Write-Host '  에뮬레이터 만들기:  flutter emulators --create --name lisn'
+                Write-Host '  실기기라면 USB 를 꽂고 개발자 옵션 > USB 디버깅을 켜세요.'
+                exit 1
+            }
+        }
+
+        Write-Host 'Flutter 앱 시작' -ForegroundColor Cyan
         & flutter.bat run
     }
 }
