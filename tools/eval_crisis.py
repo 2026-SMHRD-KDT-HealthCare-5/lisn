@@ -69,12 +69,16 @@ def load_backend():
 def read_dataset():
     if not DATASET.exists():
         raise SystemExit(f'평가셋이 없습니다: {DATASET}')
-    rows = []
+    rows, blank = [], []
     with DATASET.open(encoding='utf-8-sig', newline='') as f:
         for r in csv.DictReader(f):
             text = (r.get('text') or '').strip()
             label = (r.get('label') or '').strip().lower()
             if not text or text.startswith('#'):
+                # ⚠ 빈 행을 조용히 건너뛰면 **진척도가 안 보입니다.**
+                #   틀만 깔아둔 상태인지, 다 채운 상태인지 구분돼야 합니다.
+                if r.get('category'):
+                    blank.append(r['category'])
                 continue
             if label not in LABELS:
                 raise SystemExit(
@@ -83,6 +87,12 @@ def read_dataset():
             rows.append(dict(r, text=text, label=label))
     if not rows:
         raise SystemExit('평가셋이 비어 있습니다. 문장을 채우세요.')
+    if blank:
+        from collections import Counter
+        print(f'\n미작성 {len(blank)}건 — 유형별 남은 수')
+        for cat, n in sorted(Counter(blank).items()):
+            print(f'    {cat:28s} {n:3d}건')
+        print()
     return rows
 
 
