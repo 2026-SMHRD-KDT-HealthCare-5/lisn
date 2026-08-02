@@ -27,11 +27,14 @@ class LisnBrand extends StatelessWidget {
         const SizedBox(width: 4),
         // 영문 표기는 한글 서비스명보다 작게 둡니다. 같은 크기로 나란히 두면
         // 둘이 별개 이름처럼 읽힙니다.
+        //
+        // ⚠ 다만 9pt 아래로는 내리지 않습니다. 홈처럼 브랜드를 작게 쓰는
+        //   자리에서 비율만 따르면 LISN 이 7pt 가 돼 글자가 뭉갭니다.
         Padding(
           padding: EdgeInsets.only(top: size * .18),
           child: Text('LISN',
               style: TextStyle(
-                  fontSize: size * .5,
+                  fontSize: (size * .5).clamp(9.0, 40.0),
                   fontWeight: FontWeight.w800,
                   letterSpacing: .5,
                   color: const Color(0xFF8D98E8))),

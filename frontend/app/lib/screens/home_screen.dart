@@ -149,15 +149,37 @@ class _HomeScreenState extends State<HomeScreen> {
     final greeting =
         name == null ? '안녕하세요$face' : '안녕하세요, $name님$face';
     return Container(
-      height: 250,
-      padding: const EdgeInsets.fromLTRB(23, 24, 23, 0),
+      // 높이를 줄여 「오늘의 마음 상태」가 위로 올라오게 합니다. 홈에서 가장
+      // 먼저 봐야 할 것은 브랜드가 아니라 오늘 상태입니다.
+      height: 214,
+      padding: const EdgeInsets.fromLTRB(22, 20, 22, 0),
       decoration: const BoxDecoration(
-          gradient: LinearGradient(
-              colors: [Color(0xFFF9FAFF), Color(0xFFE6EEFD)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight)),
-      child: Stack(children: [
-        const Align(alignment: Alignment.topLeft, child: LisnBrand()),
+        gradient: LinearGradient(
+            colors: [Color(0xFFF7F9FF), Color(0xFFDDE7FB)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight),
+        // 아래를 둥글게 잘라 흰 카드들이 그 위에 얹힌 것처럼 보이게 합니다.
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
+      ),
+      child: Stack(clipBehavior: Clip.none, children: [
+        // 마스코트를 **글자 뒤쪽**에 깔고 오른쪽으로 흘려보냅니다.
+        // 앞에 두면 인사말과 무게가 비슷해져 시선이 갈립니다.
+        Positioned(
+            right: -30,
+            bottom: -6,
+            width: 196,
+            height: 196,
+            child: Opacity(
+                opacity: .95,
+                child: Image.asset('assets/images/login_mascot.png',
+                    fit: BoxFit.contain))),
+
+        // ⚠ **브랜드를 헤드라인처럼 키우지 마세요.**
+        //   전에는 브랜드(23pt w900)와 인사말(21pt w900)이 둘 다 큰 굵은
+        //   네이비라 **헤드라인이 두 개**였습니다. 브랜드는 「어느 앱인지」를
+        //   알리는 표식이지 화면의 주제가 아닙니다.
+        const Align(alignment: Alignment.topLeft, child: LisnBrand(size: 15)),
+
         // ⚠ **알림 종 아이콘을 되살리지 마세요.**
         //
         //   여기에 `Badge(smallSize: 7)` 로 빨간 점이 찍힌 종이 있었습니다.
@@ -170,27 +192,25 @@ class _HomeScreenState extends State<HomeScreen> {
         //
         //   FCM 을 붙이고 알림 목록 API 가 생기면 그때 넣으세요. 그 전까지는
         //   없는 편이 낫습니다 — 마이크 버튼·챗봇 검색 아이콘과 같은 판단입니다.
+
         Positioned(
             left: 0,
-            top: 58,
+            right: 96,
+            bottom: 34,
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(greeting,
                   style: const TextStyle(
-                      fontSize: 21,
+                      fontSize: 29,
+                      height: 1.15,
+                      letterSpacing: -1,
                       fontWeight: FontWeight.w900,
                       color: AppColors.navy)),
-              const SizedBox(height: 5),
+              const SizedBox(height: 7),
               Text(_heroSub(data),
-                  style: const TextStyle(color: AppColors.muted))
+                  style: const TextStyle(
+                      fontSize: 13, height: 1.5, color: Color(0xFF7E88A6)))
             ])),
-        Positioned(
-            right: -18,
-            bottom: 17,
-            width: 205,
-            height: 205,
-            child: Image.asset('assets/images/login_mascot.png',
-                fit: BoxFit.cover)),
       ]),
     );
   }
