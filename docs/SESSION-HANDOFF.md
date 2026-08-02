@@ -11,7 +11,6 @@
 |---|---|
 | [`docs/review/작업이력.md`](review/작업이력.md) | **완료된 결정과 그 근거.** 날짜순 누적. 새 결정이 나오면 맨 위에 추가 |
 | [`docs/review/문서개정_체크리스트.md`](review/문서개정_체크리스트.md) | **아직 문서에 반영 안 된 개정 항목.** 반영되면 지움 |
-| [`docs/review/회의안건_20260729.md`](review/회의안건_20260729.md) | **아직 안 정해진 것.** 정해지면 지우고 작업이력으로 |
 | [`docs/llm/PROMPT_REFERENCE.md`](llm/PROMPT_REFERENCE.md) | LLM·프롬프트·API 자료 검증 결과와 출처 우선순위 |
 | [`docs/llm/USAGE_LOG.md`](llm/USAGE_LOG.md) | LLM 관련 구현에 실제 사용한 자료·방법·평가 결과 |
 | [`docs/학습자료.md`](학습자료.md) | **팀 내부 학습용.** 왜 이렇게 설계했나 · 되돌리면 안 되는 것 · 실패 사례집 |
@@ -55,7 +54,6 @@ VS Code 사용자는 `lisn.code-workspace`를 열고 `Ctrl+Shift+B`를 누르면
 2. docs/SESSION-HANDOFF.md — 시작 방법과 현재 상태
 3. docs/review/작업이력.md — 지금까지 확정된 결정과 근거
 4. docs/review/문서개정_체크리스트.md — 남은 문서 개정 항목
-5. docs/review/회의안건_20260729.md — 아직 안 정해진 것
 
 읽은 뒤에 (a) 지금 저장소 상태, (b) 막혀 있는 항목과 그 이유, (c) 바로 착수 가능한 작업을
 정리해서 알려줘. 산출물 HWP 본문이 필요하면 원본 대신 docs/extracted/ 의 추출본을 읽어.
