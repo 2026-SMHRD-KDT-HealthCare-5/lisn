@@ -328,6 +328,15 @@ def main():
     if len(rows) < 200:
         print(f'⚠ NFR-AI-001 은 200건 이상을 요구합니다. 지금 {len(rows)}건입니다.')
 
+    # ⚠ AI 초안을 그대로 최종 수치로 보고하면 NFR-AI-001 이 깨집니다.
+    #   「프롬프트 설계에 관여하지 않은 인원이 작성」 요건을 LLM 초안은 못 채웁니다.
+    #   사람이 문장을 손보고 source 를 team 으로 바꾸면 이 경고가 사라집니다.
+    draft = sum(1 for r in rows if (r.get('source') or '').strip() == 'draft-ai')
+    if draft:
+        print(f'⚠ AI 초안 {draft}건 / {len(rows)}건 — 사람이 검수하기 전 수치입니다.')
+        print('   NFR-AI-001 최종 성적으로 인용하지 마세요. '
+              '검수한 행은 source 를 team 으로 바꾸세요.')
+
     if args.agreement:
         agreement(rows)
         return
