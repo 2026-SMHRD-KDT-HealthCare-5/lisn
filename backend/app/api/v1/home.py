@@ -202,10 +202,15 @@ async def recommendations(
     """콘텐츠 추천 새로고침 — MLCM_400
 
     홈에 포함되지만 사용자가 다시 뽑아보고 싶을 때를 위해 분리한다.
+
+    ⚠ **CRITICAL 이면 빈 목록을 돌려준다** — MLCM_510 2단계(콘텐츠 추천 즉시
+      중단). `/home` 에만 이 가드를 두면, 이 엔드포인트를 직접 부르는 것만으로
+      위기 상태 사용자에게 추천이 나간다. **판정은 서버가 확정한다**는 원칙이
+      여기에도 걸린다(API설계_사전결정 3절).
     """
     row = (
         await db.execute(
-            select(EmotionRiskScore.emotion_id)
+            select(EmotionRiskScore.emotion_id, EmotionRiskScore.risk_level)
             .where(EmotionRiskScore.user_id == user.user_id)
             .order_by(EmotionRiskScore.evaluated_at.desc())
             .limit(1)
@@ -214,9 +219,13 @@ async def recommendations(
     if row is None:
         return []
 
+    emotion_id, risk_level = row
+    if _ACTION.get(risk_level) == "EMERGENCY":
+        return []
+
     cards = await db.scalars(
         select(HealingContent)
-        .where(HealingContent.emotion_id == row[0])
+        .where(HealingContent.emotion_id == emotion_id)
         .limit(limit)
     )
     return [

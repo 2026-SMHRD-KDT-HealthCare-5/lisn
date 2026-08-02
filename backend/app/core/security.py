@@ -30,6 +30,30 @@ PURPOSE_PASSWORD_RESET = "pwd_reset"
 bearer_scheme = HTTPBearer(auto_error=False)
 
 
+def _secret() -> str:
+    """JWT 서명 키. 플레이스홀더면 **동작을 거부한다.**
+
+    ⚠ `.env.example` 이 `JWT_SECRET=CHANGE_ME` 로 배포되고 **이 저장소는
+      공개**다. 새 PC 에서 예제를 복사만 하고 값을 안 바꾸면 서명 키가
+      공개된 상태로 서버가 뜬다. 그러면 누구나
+
+          {"sub": <아무 uuid>, "role": "ADMIN", "purpose": "access"}
+
+      를 직접 서명해 `/admin/*` 을 열 수 있다 — 전 사용자의 정서 리포트가
+      그 뒤에 있다.
+
+      조용히 도는 것보다 **못 뜨는 편이 낫다.** ENCRYPTION_KEY 도 같은 이유로
+      `crypto._key()` 에서 막고 있다.
+    """
+    raw = settings.jwt_secret
+    if not raw or raw == "CHANGE_ME":
+        raise RuntimeError(
+            "JWT_SECRET 이 설정되지 않았습니다. backend/.env 에 임의의 긴 문자열을 넣으세요. "
+            'python -c "import secrets; print(secrets.token_urlsafe(48))"'
+        )
+    return raw
+
+
 # --------------------------------------------------------------------------
 # 비밀번호
 # --------------------------------------------------------------------------
@@ -59,7 +83,7 @@ def create_access_token(user_id: uuid.UUID, role: str) -> tuple[str, datetime]:
         "purpose": PURPOSE_ACCESS,
         "exp": expires_at,
     }
-    token = jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+    token = jwt.encode(payload, _secret(), algorithm=settings.jwt_algorithm)
     return token, expires_at
 
 
@@ -75,13 +99,13 @@ def create_password_reset_token(user_id: uuid.UUID) -> str:
         "exp": datetime.now(timezone.utc)
         + timedelta(minutes=settings.password_reset_expire_minutes),
     }
-    return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+    return jwt.encode(payload, _secret(), algorithm=settings.jwt_algorithm)
 
 
 def decode_token(token: str, expected_purpose: str) -> dict:
     try:
         payload = jwt.decode(
-            token, settings.jwt_secret, algorithms=[settings.jwt_algorithm]
+            token, _secret(), algorithms=[settings.jwt_algorithm]
         )
     except jwt.ExpiredSignatureError:
         raise HTTPException(

@@ -20,6 +20,12 @@ from app.schemas.report import (
 )
 
 # 리포트 한 번에 내릴 최대 점수. 차트가 읽히지 않을 만큼 촘촘해지는 것을 막는다.
+#
+# ⚠ 자를 때는 **최신 쪽을 남긴다.** 오름차순에 LIMIT 을 걸면 기간 안에서 가장
+#   **오래된** 500건이 잡혀 최근 데이터가 통째로 사라진다. 분석은 라이프로그
+#   push 마다 1건씩 쌓이므로(앱 15분 주기 → 하루 최대 96건) 30일 기본 구간은
+#   금방 500건을 넘는다 — 며칠만 써도 리포트가 첫 며칠에서 멈춘다.
+#   그래서 내림차순으로 뽑고 파이썬에서 뒤집는다.
 MAX_POINTS = 500
 
 
@@ -65,13 +71,14 @@ async def build_report(
             EmotionRiskScore.evaluated_at >= date_from,
             EmotionRiskScore.evaluated_at <= date_to,
         )
-        .order_by(EmotionRiskScore.evaluated_at.asc())
+        .order_by(EmotionRiskScore.evaluated_at.desc())
         .limit(MAX_POINTS)
     )
 
     dist = RiskDistribution()
     trend: list[RiskPoint] = []
-    for score, emotion in rows:
+    # 최신순으로 받아 왔으므로 차트용으로 다시 시간순으로 되돌린다.
+    for score, emotion in reversed(list(rows)):
         trend.append(
             RiskPoint(
                 evaluated_at=score.evaluated_at,
@@ -91,7 +98,7 @@ async def build_report(
             LifelogMetric.collected_at >= date_from,
             LifelogMetric.collected_at <= date_to,
         )
-        .order_by(LifelogMetric.collected_at.asc())
+        .order_by(LifelogMetric.collected_at.desc())
         .limit(MAX_POINTS)
     )
 
@@ -109,7 +116,7 @@ async def build_report(
                 heart_rate=m.heart_rate,
                 hrv=m.hrv,
             )
-            for m in logs
+            for m in reversed(list(logs))
         ],
         summary=_summarize(dist, trend),
     )

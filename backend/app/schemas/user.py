@@ -7,6 +7,8 @@ from typing import Literal
 
 from pydantic import BaseModel, EmailStr, Field
 
+from app.schemas.common import NewPassword
+
 
 class UserProfile(BaseModel):
     """GET /users/me — phone 은 복호화해서 내린다."""
@@ -36,7 +38,7 @@ class UserUpdate(BaseModel):
 
 class PasswordChange(BaseModel):
     current_password: str
-    new_password: str = Field(min_length=8, max_length=64)
+    new_password: NewPassword
 
 
 class AccountDelete(BaseModel):

@@ -71,7 +71,12 @@ async def dashboard(admin: AdminUser, db: DbSession):
         setattr(dist, level.lower(), count)
         evaluated += count
 
-    total = await db.scalar(select(func.count()).select_from(User))
+    # ⚠ 관리자 계정은 대상자가 아니다. 여기서 빼지 않으면 `/admin/users` 목록
+    #   (role == "USER" 로 거른다)과 숫자가 안 맞아, 관리자 웹의
+    #   「전체 N명 중 M명 평가 완료」가 자기 자신을 미평가자로 세게 된다.
+    total = await db.scalar(
+        select(func.count()).select_from(User).where(User.role == "USER")
+    )
 
     return AdminDashboard(
         distribution=dist,

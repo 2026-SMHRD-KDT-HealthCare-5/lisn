@@ -67,9 +67,14 @@ def _decide(keyword: dict, verdict) -> RiskInfo:
             return RiskInfo(level="CAUTION", action="CONTENT", source="KEYWORD")
         return RiskInfo(level="NORMAL", action="CHAT", source="KEYWORD")
 
-    if verdict.is_crisis or verdict.severity == "HIGH":
+    # ⚠ severity 는 LLM 이 채우는 자유 문자열이다. 스키마에 enum 이 걸려 있지
+    #   않아 "High"·"high" 로 와도 파싱은 통과한다. 그대로 비교하면 HIGH 판정이
+    #   조용히 NORMAL 로 떨어진다 — 안전 경로라 여기서 정규화한다.
+    severity = (verdict.severity or "").strip().upper()
+
+    if verdict.is_crisis or severity == "HIGH":
         return RiskInfo(level="CRITICAL", action="EMERGENCY", source="LLM")
-    if verdict.severity == "MEDIUM" or keyword["level"] != "NONE":
+    if severity == "MEDIUM" or keyword["level"] != "NONE":
         return RiskInfo(level="CAUTION", action="CONTENT", source="LLM")
     return RiskInfo(level="NORMAL", action="CHAT", source="LLM")
 

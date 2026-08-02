@@ -11,10 +11,12 @@ from typing import Literal
 
 from pydantic import BaseModel, EmailStr, Field
 
+from app.schemas.common import NewPassword
+
 
 class SignupRequest(BaseModel):
     email: EmailStr
-    password: str = Field(min_length=8, max_length=64)
+    password: NewPassword
     name: str = Field(min_length=1, max_length=100)
     birth_date: date | None = None
     gender: Literal["MALE", "FEMALE", "OTHER"] | None = None
@@ -60,7 +62,7 @@ class PasswordResetRequest(BaseModel):
 
 class PasswordResetConfirm(BaseModel):
     token: str
-    new_password: str = Field(min_length=8, max_length=64)
+    new_password: NewPassword
 
 
 class MessageResponse(BaseModel):

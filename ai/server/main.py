@@ -163,8 +163,14 @@ def _predict(rows: list) -> dict:
     이 값으로 성능을 주장하면 안 된다.
     """
     recent = rows[-1]
-    sleeps = [r["total_sleep_min"] for r in rows if r["total_sleep_min"]]
-    steps = [r["steps"] for r in rows if r["steps"]]
+
+    # ⚠ 기준값에서 **오늘을 뺀다.** MLCM_210 2단계가 말하는 "평소"는 판정 대상일
+    #   이전의 패턴이다. 오늘을 평균에 넣으면 오늘이 스스로를 정상 쪽으로 끌어당겨
+    #   편차가 실제보다 작게 나온다 — 안전 기능에서는 **미탐**으로 기운다.
+    #   14일이면 1/14 만큼 희석되지만, 연동 직후 3일이면 1/3 이라 무시할 수 없다.
+    history = rows[:-1]
+    sleeps = [r["total_sleep_min"] for r in history if r["total_sleep_min"]]
+    steps = [r["steps"] for r in history if r["steps"]]
 
     baseline_sleep = sum(sleeps) / len(sleeps) if sleeps else None
     baseline_steps = sum(steps) / len(steps) if steps else None
