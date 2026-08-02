@@ -26,62 +26,110 @@ Multi-modal Lifelog Emotion Care & Monitoring System — wearable lifelog deviat
 
 ## 빠른 시작
 
-> 처음이면 [`docs/SETUP.md`](docs/SETUP.md) 를 먼저 보세요. 여기는 **이미 설치가
-> 끝난 사람이 다시 띄울 때** 쓰는 최단 경로입니다.
-
 ```powershell
 git clone https://github.com/2026-SMHRD-KDT-HealthCare-5/lisn.git
+cd lisn
 ```
 
-**1. DB** — PostgreSQL 17
+```powershell
+.\tools\start-dev.ps1
+```
+
+**이 한 줄이면 됩니다.** 백엔드 · AI 추론 서버 · 관리자 웹 · Flutter 가 각각
+새 창에 뜹니다.
+
+| 뜨는 것 | 주소 | 여기서 뭘 보나 |
+|---|---|---|
+| 백엔드 API | http://localhost:8000/docs | Swagger. **API 명세 정본**입니다. 여기서 바로 호출해 볼 수 있습니다 |
+| 관리자 관제 웹 | http://localhost:5173 | 위험도 분포 · 대상자 검색 · 위기 이력. **`ADMIN` 계정만** 들어갑니다 |
+| AI 추론 서버 | http://localhost:8001/health | 살아 있는지 확인용. `model_version` 도 같이 나옵니다 |
+| Flutter 앱 | 에뮬레이터·기기 창 | 사용자 앱 |
+
+- 띄우지 않고 **준비 상태만** 보려면 `.\tools\start-dev.ps1 -Check`
+- VS Code 는 `lisn.code-workspace` 를 열고 `Ctrl+Shift+B`
+- 끌 때는 각 창에서 `Ctrl+C`
+
+---
+
+### 안 뜨면 — 증상별로 여기를 보세요
+
+처음이거나 새 PC 라면 아래를 한 번씩 거쳐야 합니다.
+설치 자체가 안 돼 있으면 [`docs/SETUP.md`](docs/SETUP.md) 부터 보세요.
+
+<br>
+
+**Flutter 창이 「기기를 찾을 수 없다」며 닫힌다** — 에뮬레이터가 꺼져 있습니다.
+
+```powershell
+flutter emulators --launch lisn
+```
+
+목록이 비어 있으면 `flutter emulators --create --name lisn` 으로 만듭니다.
+실기기는 USB 를 꽂고 **개발자 옵션 → USB 디버깅**을 켠 뒤 `flutter devices` 로 확인하세요.
+
+<br>
+
+**백엔드 창이 DB 오류로 죽는다** — DB 가 없거나 스키마가 안 들어갔습니다.
+PostgreSQL 은 **17 로 고정**입니다.
 
 ```powershell
 psql -U postgres -c "CREATE DATABASE lisn;"
 psql -U postgres -d lisn -f db/schema.sql
 ```
 
-**2. 환경변수**
+<br>
+
+**백엔드가 `JWT_SECRET` 오류를 낸다** — `.env` 가 없거나 예제값 그대로입니다.
 
 ```powershell
 Copy-Item backend\.env.example backend\.env
-```
-
-`DATABASE_URL` 과 `JWT_SECRET` 을 채웁니다. **`JWT_SECRET` 을 `CHANGE_ME` 로 두면
-서버가 토큰 발급을 거부합니다** — 이 저장소는 공개라 예제값이 곧 공개된 서명 키입니다.
-
-```powershell
 python -c "import secrets; print(secrets.token_urlsafe(48))"
 ```
 
-**3. 에뮬레이터** — Flutter 는 기기가 있어야 뜹니다
+`DATABASE_URL` 과 `JWT_SECRET` 을 채웁니다. ⚠ **`CHANGE_ME` 로 두면 서버가 토큰
+발급을 거부합니다.** 이 저장소는 공개라 예제값이 곧 공개된 서명 키이고, 그대로
+두면 누구나 `role=ADMIN` 토큰을 만들 수 있습니다.
 
-```powershell
-flutter emulators --launch lisn
-```
+<br>
 
-**4. 전부 실행** — 백엔드 · AI 서버 · 관리자 웹 · Flutter 가 각각 새 창에 뜹니다
-
-```powershell
-.\tools\start-dev.ps1
-```
-
-| | |
-|---|---|
-| 백엔드 API | http://localhost:8000/docs |
-| 관리자 관제 웹 | http://localhost:5173 |
-| AI 추론 서버 | http://localhost:8001/health |
-
-띄우지 않고 준비 상태만 보려면 `.\tools\start-dev.ps1 -Check` 입니다.
-VS Code 에서는 `lisn.code-workspace` 를 열고 `Ctrl+Shift+B`.
-
-**5. 화면에 데이터가 보이려면** 판정 이력이 있어야 합니다
+**앱은 뜨는데 화면이 텅 비어 있다** — 판정 이력이 없습니다. 라이프로그를 14일
+쌓지 않고 확인하려면 데모 데이터를 넣습니다.
 
 ```powershell
 psql -U postgres -d lisn -f db/seed_healing_contents.sql
 psql -U postgres -d lisn -f db/seed_demo_persona.sql
 ```
 
-> 시드·개별 실행·실기기 연결·문제 해결은 아래 [자세한 설정](#자세한-설정) 에 있습니다.
+> ⚠ 만들어낸 데이터입니다(`model_version` 이 `seed-demo-v0`). **날짜가 바뀌면 다시
+> 실행하세요** — `now()` 기준 상대값이라 자정을 넘기면 수면·걸음이 전부 `-` 로 나옵니다.
+
+<br>
+
+**관리자 웹에서 요청이 전부 막힌다** — 포트가 5173 이 아닙니다. 백엔드
+`CORS_ORIGINS` 가 그 주소만 허용합니다. 이전 vite 가 5173 을 잡고 있으면 새 창이
+5174 로 뜹니다. **주소창의 포트부터 보세요.**
+
+<br>
+
+**실기기에서 「서버에 연결할 수 없습니다」만 뜬다** — 주소를 **두 곳**에 넣어야
+합니다. `targetSdk 36` 은 평문 HTTP 를 기본 차단합니다.
+
+```powershell
+cd frontend\app
+flutter run --dart-define=API_BASE_URL=http://192.168.0.10:8000/api/v1
+```
+
+그리고 `frontend/app/android/app/src/main/res/xml/network_security_config.xml` 에도
+같은 IP 를 넣습니다(`ipconfig` 로 확인).
+
+```xml
+<domain includeSubdomains="false">192.168.0.10</domain>
+```
+
+> 에뮬레이터 기본값(`10.0.2.2`)은 실기기에서 동작하지 않습니다. **디버그는
+> 통과하고 릴리스만 막히므로** 시연 빌드에서 처음 드러납니다.
+
+> 개별 실행 · 문서 작업 · 그 밖의 문제는 아래 [자세한 설정](#자세한-설정) 에 있습니다.
 
 ---
 
@@ -335,23 +383,11 @@ flutter emulators --launch lisn
 > 실기기는 USB 로 연결하고 **개발자 옵션 → USB 디버깅**을 켠 뒤
 > `flutter devices` 에 잡히는지 확인하세요.
 
-### ⚠ 실기기는 API 주소를 **두 곳**에 넣어야 합니다
+### 실기기 연결
 
-```powershell
-flutter run --dart-define=API_BASE_URL=http://192.168.0.10:8000/api/v1
-```
-
-`192.168.0.10` 자리에 **개발 PC 의 IP**(`ipconfig` 로 확인)를 넣습니다. 그리고
-`frontend/app/android/app/src/main/res/xml/network_security_config.xml` 의
-허용 목록에도 같은 IP 를 넣습니다.
-
-```xml
-<domain includeSubdomains="false">192.168.0.10</domain>
-```
-
-`targetSdk 36` 은 평문 HTTP 를 기본 차단합니다. **안 넣으면 화면에 「서버에 연결할
-수 없습니다」만 뜹니다** — 네트워크나 서버 문제로 보이지만 OS 가 요청 자체를 막은
-것입니다. 에뮬레이터 기본값(`10.0.2.2`)은 실기기에서 동작하지 않습니다.
+주소를 **두 곳**에 넣어야 합니다. 방법은 위
+[안 뜨면 — 증상별로 여기를 보세요](#안-뜨면--증상별로-여기를-보세요) 의
+마지막 항목에 있습니다.
 
 ```powershell
 cd frontend\admin
@@ -366,9 +402,12 @@ uvicorn main:app --reload --port 8001
 
 환경별 DB 접속 정보와 비밀값은 `backend/.env`에만 넣고 커밋하지 않습니다.
 
-> **AI 추론 서버는 `.env` 를 스스로 읽지 않습니다.** 개별 실행할 때는 `AI_DATABASE_URL`
-> 이나 `DATABASE_URL` 을 직접 넘기세요. `start-dev.ps1` 은 `backend\.env` 에서 읽어
-> 넘겨줍니다.
+> **AI 추론 서버는 `backend/.env` 를 직접 읽습니다**(2026.08.02 수정). 개별로 띄워도
+> 환경변수를 따로 넘길 필요가 없습니다. 갈라 쓰려면 `AI_DATABASE_URL` 을 주세요.
+>
+> ⚠ 전에는 안 읽어서 문서대로 띄우면 DB 에 못 붙었습니다. 그때 asyncpg 는
+> 「connection was closed in the middle of operation」만 던져 원인을 감춥니다.
+> **실제 원인은 PostgreSQL 로그**에 있습니다.
 
 > **관리자 웹은 5173 포트여야 합니다.** 백엔드 `CORS_ORIGINS` 가 그 주소만 허용합니다.
 > 이전 vite 인스턴스가 5173 을 잡고 있으면 새 창이 5174 로 뜨고 요청이 전부 CORS 로
