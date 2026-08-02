@@ -41,10 +41,29 @@ def mask_pii(text: str) -> str:
 # 1차 키워드 필터 — 03-B
 # --------------------------------------------------------------------------
 
+# ⚠ 사전은 "죽고 싶" 처럼 띄어쓰기가 들어간 형태로 적혀 있는데, 실제 사용자는
+#   "죽고싶다" 처럼 붙여 쓴다. 원문 그대로 비교하면 **공백 하나에 필터가 통째로
+#   뚫린다** — 평가셋 200건에서 실제로 확인된 결함이다.
+#
+#   그래서 사전과 입력에서 **공백만** 지우고 비교한다. 구두점은 남긴다.
+#   구두점까지 지우면 "그만두고. 싶은" 같은 문장 경계를 넘어 매칭돼 오탐이 는다.
+#   U+200B~200D · U+2060 · U+FEFF 는 눈에 안 보이는 문자다. 복사·붙여넣기로
+#   섞여 들어오면 공백처럼 필터를 뚫으므로 같이 지운다.
+_WHITESPACE = re.compile(r"[\s\u200b-\u200d\u2060\ufeff]+")
+
+
+def _squash(text: str) -> str:
+    return _WHITESPACE.sub("", text)
+
+
 @lru_cache(maxsize=1)
-def _keywords() -> tuple[list[str], list[str]]:
+def _keywords() -> tuple[list[tuple[str, str]], list[tuple[str, str]]]:
+    """(원본 키워드, 공백 제거형) 쌍. 원본은 matched 로 돌려주기 위해 남긴다."""
     data = json.loads(_KEYWORD_FILE.read_text(encoding="utf-8"))
-    return data.get("high", []), data.get("medium", [])
+    return (
+        [(k, _squash(k)) for k in data.get("high", [])],
+        [(k, _squash(k)) for k in data.get("medium", [])],
+    )
 
 
 def keyword_scan(text: str) -> dict:
@@ -54,8 +73,11 @@ def keyword_scan(text: str) -> dict:
     2차 LLM 문맥 분석까지 거쳐 결정된다.
     """
     high, medium = _keywords()
-    hits_high = [k for k in high if k in text]
-    hits_medium = [k for k in medium if k in text]
+    # 공백을 지운 쪽에서만 비교한다. 원문 매칭은 이쪽에 모두 포함되므로
+    # 따로 볼 필요가 없다 (공백을 지워도 부분 문자열 관계는 유지된다).
+    squashed = _squash(text)
+    hits_high = [k for k, s in high if s in squashed]
+    hits_medium = [k for k, s in medium if s in squashed]
 
     if hits_high:
         level = "HIGH"
