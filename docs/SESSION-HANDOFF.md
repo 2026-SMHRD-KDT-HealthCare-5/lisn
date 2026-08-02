@@ -90,7 +90,7 @@ VS Code 사용자는 `lisn.code-workspace`를 열고 `Ctrl+Shift+B`를 누르면
 |---|---|---|---|
 | 1 | **화면설계서 슬라이드 6장** ⭐⭐ | 함은선 | 착수 가능 |
 | 2 | **Health Connect 실기기 연동** ⭐ | 윤일준·함은선 | 착수 가능 |
-| 3 | 화면설계서 문안 교체 `SD-A③`·`SD-A④` | 함은선 | 착수 가능 |
+| 3 | 화면설계서 문안 교체 `SD-A③`~`SD-A⑥` **4건** | 함은선 | 착수 가능 |
 | 4 | `MUSIC`·`FOOD` 콘텐츠 | 팀 | 진행 중 |
 | 5 | 실기기 QA | 전원 | 1·2 이후 |
 | 6 | `LLM_PROVIDER=openai` 전환 검증 | 이응균 | **막힘** |
@@ -124,6 +124,10 @@ VS Code 사용자는 `lisn.code-workspace`를 열고 `Ctrl+Shift+B`를 누르면
 
 - `SD-A③` — `MAIN_JOIN_01` 민감정보 동의 항목 분리 (개인정보보호법 제23조)
 - `SD-A④` — `ADMIN_DASH_01` 대상자 검색 추가. 콜아웃 5개 → **7개**
+- `SD-A⑤` ⭐ — `MAIN_HOME_01` ❶ **감정 이름 노출 제거**. 「위기」·「절망」을
+  헤드라인으로 띄우던 것을 상태 문구로 바꿨습니다(02 요구사항 「진단 금지」)
+- `SD-A⑥` — 성격 선택 단일화. `MAIN_SETTING_01` ❸ 삭제(5→4줄),
+  `MAIN_CHAT_01` ❹ 「최근 대화 배지」 추가
 
 #### 4. `MUSIC`·`FOOD` 콘텐츠 — 팀이 직접
 
@@ -282,13 +286,13 @@ flutter run --dart-define=DEV_LOGIN=true --dart-define=SCREEN=report
 > 구현·안전장치는 [`frontend/app/lib/dev_screens.dart`](../frontend/app/lib/dev_screens.dart)
 > 파일 상단 주석에 정리돼 있습니다.
 
-### 회귀 테스트 — 전체 88건
+### 회귀 테스트 — 전체 118건
 
 | 대상 | 건수 | 실행 |
 |---|---|---|
 | 백엔드 | 45 | `cd backend` → `python -m pytest -q` (개발 DB 필요) |
 | AI 추론 서버 | 13 | `python -m pytest ai/server -q` (**DB 불필요**) |
-| Flutter 앱 | 20 | `cd frontend/app` → `flutter test` |
+| Flutter 앱 | 50 | `cd frontend/app` → `flutter test` |
 | 관리자 웹 | 10 | `cd frontend/admin` → `npm test` |
 
 수동으로 확인했던 불변조건이 고정돼 있습니다. **주석에 어느 요구사항을 지키는 테스트인지
