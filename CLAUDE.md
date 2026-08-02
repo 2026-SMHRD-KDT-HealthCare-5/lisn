@@ -260,6 +260,27 @@ frontend/
   - 특히 **챗봇 성격 이름**은 앱만 달랐습니다. `test/persona_label_test.dart` 가
     화면설계서 추출본을 직접 읽어 대조하니, 바꾸려면 **문서를 먼저** 고치세요
 
+## ⚠ 릴리스 빌드는 디버그와 다릅니다 (2026.08.02)
+
+**에뮬레이터·디버그로는 절대 안 보이는 결함이 셋 있었습니다.** 고쳐뒀지만
+같은 자리를 다시 밟기 쉬우니 알아두세요.
+
+- **평문 HTTP** — `targetSdk` 36 은 평문을 기본 차단하고, Flutter 는
+  `src/debug/AndroidManifest.xml` **에만** 허용을 넣어둡니다. 그래서
+  **릴리스 APK 만 서버에 못 붙습니다.** 화면에는 「서버에 연결할 수
+  없습니다」만 떠서 네트워크·서버 문제로 보입니다
+  - 허용 범위는 `android/app/src/main/res/xml/network_security_config.xml`
+  - `usesCleartextTraffic` 을 통째로 켜지 마세요. 기본은 막고
+    **로컬 주소만** 예외로 둔 상태입니다(02-F 가 HTTPS/TLS 를 규정)
+  - ⚠ **실기기는 주소를 두 곳에 넣어야 합니다.** `--dart-define=API_BASE_URL`
+    만으로는 안 되고 위 XML 의 `<domain>` 에도 같은 IP 를 넣어야 합니다.
+    Android 네트워크 보안 설정은 **CIDR 을 지원하지 않습니다**
+- **패키지 가시성** — Android 11+ 는 `<queries>` 에 선언하지 않은 앱을
+  못 봅니다. `tel`(109 긴급 전화)·`https`(콘텐츠 열기)가 여기 걸립니다.
+  **에뮬레이터에는 전화 앱이 없어 어차피 실패하므로 여기서는 안 보입니다**
+- **제출 전에 `flutter build apk --release` 로 한 번 굽고 켜보세요.**
+  빌드가 되는 것과 동작하는 것은 다릅니다
+
 ## 앱에 인증 우회 경로가 있습니다 (2026.08.02)
 
 화면설계서 캡처용으로 `frontend/app/lib/dev_screens.dart` 에 **자동 로그인**과
