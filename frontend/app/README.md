@@ -211,10 +211,48 @@ Health Connect 는 기기·권한에 따라 주는 항목이 다릅니다. `Life
 | `settings_screen.dart` | `MAIN_SETTING_01` · `MAIN_SETTING_02` |
 | `emergency_screen.dart` | `MAIN_EMERGENCY_01` |
 
+## 라이프로그 수집 — MLCM_200
+
+**수집 주체는 앱입니다.** Health Connect 는 Android on-device 권한 모델이라 서버가
+대신 읽을 수 없습니다(안건 1-1 확정).
+
+| 파일 | 역할 |
+|---|---|
+| `services/health_reader.dart` | **플랫폼에 닿는 유일한 파일.** 권한·읽기 |
+| `services/lifelog_aggregate.dart` | 표본 → 하루 한 행. 순수 함수 |
+| `services/lifelog_sync.dart` | 전체 흐름. 델타 구간·재시도·큐 |
+| `services/sync_store.dart` | `last_synced_at` · 실패분 보관 |
+| `services/sync_worker.dart` | 15분 주기 WorkManager 등록 |
+
+플랫폼 의존을 한 곳에 몰아둔 덕에 **집계·동기화 35건을 실기기 없이 검증**합니다.
+
+### ⚠ 행 단위는 「하루」입니다 — 15분마다 행을 만들지 마세요
+
+`MLCM_200` 이 15분 간격 **전송**을 규정하는데, 이걸 15분마다 행 하나로 읽으면
+`ai/server` 의 `rows[-1]` 이 「오늘」이 아니라 **「마지막 15분」**이 되고, 하루치
+수면 컬럼(`total_sleep_min` 등)이 32행에 흩어집니다.
+
+**전송은 15분마다, 행은 그날 것을 UPSERT 로 갱신**합니다.
+하루 경계는 **로컬 자정**이고 수면은 **깨어난 날**에 귀속됩니다.
+
+### ⚠ 두 곳을 같이 고쳐야 합니다
+
+`health_reader.dart` 의 `_types` 에 타입을 추가하면 `AndroidManifest.xml` 의 권한도
+같이 넣어야 합니다. Health Connect 는 **선언 안 된 타입을 요청하면 예외 없이 빼고
+승인**하므로, 승인은 되는데 그 지표만 영원히 null 인 상태가 됩니다.
+`test/health_permission_drift_test.dart` 가 둘을 대조합니다.
+
+### 백그라운드는 다른 아이솔레이트입니다
+
+`AppServices` 의 static 필드가 워커에서는 비어 있습니다. 워커는
+`buildSyncService()` 로 따로 조립합니다. 이걸 잊고 `AppServices.lifelog` 를 쓰면
+**백그라운드에서만 조용히 실패합니다.**
+
 ## 남은 것
 
-**Health Connect 실기기 연동** — `MAIN_JOIN_03` 의 권한 요청과 주기적 수집·push 가
-없습니다. 서버 `POST /lifelog/batch` 는 이미 UPSERT 로 동작합니다.
+**Health Connect 실기기 검증** — 구현은 끝났고 에뮬레이터에서 워커 실행까지
+확인했습니다(권한이 없어 `permissionDenied` 로 정상 종료). 실제 데이터 읽기는
+Health Connect 가 있는 실기기에서만 확인할 수 있습니다.
 
 ## 하지 않기로 한 것
 

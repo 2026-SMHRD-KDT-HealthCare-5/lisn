@@ -484,6 +484,18 @@ flutter devices
 > 만드세요. `avdmanager` 는 `JAVA_HOME` 을 요구하는데, Flutter 는 Android Studio 의
 > JDK 를 스스로 찾으므로 **`flutter` 명령 쪽이 더 잘 됩니다.**
 
+### ⚠ 에뮬레이터에는 Health Connect 가 없습니다
+
+걸음·수면 수집(`MLCM_200`)은 **에뮬레이터에서 데이터가 안 옵니다.** 고장이 아닙니다.
+로그에 이렇게 찍히면 정상입니다.
+
+```
+I/flutter: [동기화] SyncResult(SyncOutcome.permissionDenied, sent=0, queued=0)
+```
+
+앱·화면·다른 기능은 전부 정상 동작합니다. 실제 수집 확인은 **Health Connect 가 있는
+안드로이드 실기기**가 필요합니다.
+
 ---
 
 ## 13. 전체 실행해보기

@@ -90,7 +90,7 @@ VS Code 사용자는 `lisn.code-workspace`를 열고 `Ctrl+Shift+B`를 누르면
 | # | 항목 | 담당 | 상태 |
 |---|---|---|---|
 | 1 | **화면설계서 슬라이드 6장** ⭐⭐ | 함은선 | 착수 가능 |
-| 2 | **Health Connect 실기기 연동** ⭐ | 윤일준·함은선 | 착수 가능 |
+| 2 | **Health Connect 실기기 검증** ⭐ | 윤일준·함은선 | **구현 완료**, 실기기만 |
 | 3 | 화면설계서 문안 교체 `SD-A③`~`SD-A⑥` **4건** | 함은선 | 착수 가능 |
 | 4 | `MUSIC`·`FOOD` 콘텐츠 | 팀 | 진행 중 |
 | 5 | 실기기 QA | 전원 | 1·2 이후 |
@@ -119,14 +119,33 @@ VS Code 사용자는 `lisn.code-workspace`를 열고 `Ctrl+Shift+B`를 누르면
 - 화면 캡처 이미지는 PowerPoint 에서 직접 교체하세요. 복제본은 원본과 같은
   이미지를 가리킵니다.
 
-#### 2. Health Connect 실기기 연동 ⭐ — 남은 구현 중 유일하게 큽니다
+#### 2. Health Connect ⭐ — 구현은 끝났습니다. 실기기 확인만 남았습니다
 
-`MAIN_JOIN_03` 의 권한 요청과 주기적 수집·push 가 없습니다. UI 는 있습니다.
-서버 `POST /lifelog/batch` 는 **이미 UPSERT 로 동작**하므로 앱에서 보내기만 하면 됩니다.
+2026.08.02 에 권한 요청·수집·전송·재시도를 전부 구현했습니다.
 
-- `minSdk` 는 이미 26 (Health Connect 요구값)
-- 수집 주체가 **앱**입니다. 서버 스케줄러가 아닙니다(안건 1-1 확정)
-- 값이 없으면 **0 이 아니라 null** 로 보내세요. 「0걸음」과 「측정 안 됨」이 갈립니다
+**에뮬레이터에서 확인된 것** (`flutter run -d emulator-5554`)
+
+```
+D/WM-WorkerWrapper: Starting work for ...workmanager.BackgroundWorker
+I/flutter: [동기화] SyncResult(SyncOutcome.permissionDenied, sent=0, queued=0)
+I/WM-WorkerWrapper: Worker result SUCCESS
+```
+
+15분 워커가 등록되고, 백그라운드 아이솔레이트가 실제로 실행되고, Health Connect
+가 없으니 `permissionDenied` 로 정상 종료했습니다. **앱은 크래시하지 않습니다.**
+
+**실기기에서 확인할 것** — 에뮬레이터에는 Health Connect 가 없어 여기까지입니다.
+
+1. 가입 3단계에서 「연동하기」 → **권한 다이얼로그가 실제로 뜨는지**
+2. 승인 후 걸음·수면이 홈에 뜨는지 (즉시 1회 당깁니다)
+3. 앱을 닫고 15분 뒤 `last_synced_at` 이 갱신되는지
+4. Health Connect 설정에서 권한을 껐을 때 수집이 멈추는지
+
+- ⚠ 값이 없으면 **0 이 아니라 null** 입니다. 「0걸음」과 「측정 안 됨」이 갈립니다
+- ⚠ `health_reader.dart` 의 `_types` 를 고치면 **매니페스트 권한도** 고쳐야 합니다.
+  선언 안 된 타입은 예외 없이 빠진 채 승인돼, 그 지표만 영원히 null 이 됩니다
+  (`health_permission_drift_test.dart` 가 대조합니다)
+- 설계 이유는 `frontend/app/README.md` 「라이프로그 수집」 절에 있습니다
 
 #### 3. 화면설계서 문안 교체 2건
 
