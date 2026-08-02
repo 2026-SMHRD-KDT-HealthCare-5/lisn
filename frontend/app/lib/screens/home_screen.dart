@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/auth_models.dart' show ApiException;
 import '../models/home_models.dart';
@@ -12,13 +13,24 @@ import '../widgets/common_widgets.dart';
 ///
 /// **판단은 서버가 끝냅니다.** 감정→위험도→액션 매핑을 여기서 다시 계산하지
 /// 않습니다. 서버가 내려준 action 을 보고 무엇을 그릴지만 정합니다.
+/// 추천 콘텐츠 카드를 눌렀을 때 링크를 여는 함수. 테스트에서 갈아끼웁니다.
+typedef ContentLinkLauncher = Future<bool> Function(Uri url);
+
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, this.userName, this.homeService});
+  const HomeScreen({
+    super.key,
+    this.userName,
+    this.homeService,
+    this.linkLauncher,
+  });
 
   final String? userName;
 
   /// 테스트 주입용. 평소에는 null 이고 AppServices.home 을 씁니다.
   final HomeService? homeService;
+
+  /// 테스트 주입용. 평소에는 null 이고 외부 브라우저로 엽니다.
+  final ContentLinkLauncher? linkLauncher;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -418,29 +430,56 @@ class _HomeScreenState extends State<HomeScreen> {
         scrollDirection: Axis.horizontal,
         itemCount: cards.length,
         separatorBuilder: (_, __) => const SizedBox(width: 10),
-        itemBuilder: (_, i) => Container(
-          width: 132,
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-              color: palette[i % palette.length],
-              borderRadius: BorderRadius.circular(15)),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(_categoryLabel(cards[i].category),
-                style:
-                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 2),
-            Expanded(
-                child: Text(cards[i].title,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontSize: 9, height: 1.5, color: AppColors.muted))),
-            Text(_categoryEmoji(cards[i].category),
-                style: const TextStyle(fontSize: 25))
-          ]),
+        itemBuilder: (_, i) => InkWell(
+          key: ValueKey('content-card-${cards[i].contentId}'),
+          onTap: () => _openContent(cards[i]),
+          borderRadius: BorderRadius.circular(15),
+          child: Container(
+            width: 132,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+                color: palette[i % palette.length],
+                borderRadius: BorderRadius.circular(15)),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(_categoryLabel(cards[i].category),
+                  style: const TextStyle(
+                      fontSize: 12, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 2),
+              Expanded(
+                  child: Text(cards[i].title,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 9, height: 1.5, color: AppColors.muted))),
+              Text(_categoryEmoji(cards[i].category),
+                  style: const TextStyle(fontSize: 25))
+            ]),
+          ),
         ),
       ),
+    );
+  }
+
+  /// 추천 콘텐츠를 외부 브라우저로 엽니다 — MLCM_400.
+  ///
+  /// ⚠ 앱 안에서 열지 않습니다. 외부 기관 자료를 앱 화면 안에 띄우면 **우리가
+  ///   만든 내용처럼 읽힙니다.** 긴급 상담 화면에서 브랜드를 뺀 것과 같은
+  ///   이유입니다(emergency_screen.dart 주석 참고).
+  Future<void> _openContent(ContentCard card) async {
+    final uri = Uri.tryParse(card.externalUrl);
+    var opened = false;
+    if (uri != null && uri.hasScheme) {
+      try {
+        opened = await (widget.linkLauncher ??
+            (u) => launchUrl(u, mode: LaunchMode.externalApplication))(uri);
+      } catch (_) {
+        opened = false;
+      }
+    }
+    if (!mounted || opened) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('링크를 열 수 없어요. 잠시 후 다시 시도해 주세요.')),
     );
   }
 
