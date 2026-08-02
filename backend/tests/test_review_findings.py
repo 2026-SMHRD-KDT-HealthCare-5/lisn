@@ -180,3 +180,41 @@ async def test_대시보드_전체_인원에_관리자를_넣지_않는다(clien
             "DELETE", f"{BASE}/users/me", headers=headers,
             json={"password": body["password"]},
         )
+
+
+# ──────────────────────────────────────────────────────────────────────
+#  PATCH /users/me 의 setattr 루프 — 권한 상승 방어
+# ──────────────────────────────────────────────────────────────────────
+@pytest.mark.asyncio
+async def test_프로필_수정으로_권한을_올릴_수_없다(client, user):
+    """`update_me` 는 요청에서 받은 키를 그대로 `setattr` 로 밀어 넣는다.
+
+    지금은 `UserUpdate` 에 role·email 이 없고 Pydantic 이 모르는 키를 버려서
+    안전하다. 다만 **그 안전이 스키마 하나에 걸려 있다.** `extra="allow"` 가
+    붙거나 필드가 하나 추가되는 순간 권한 상승이 된다 — 리뷰로는 놓치기 쉬운
+    변경이라 여기서 못으로 박아둔다.
+    """
+    before = (await client.get(f"{BASE}/users/me", headers=user["headers"])).json()
+
+    r = await client.patch(
+        f"{BASE}/users/me",
+        headers=user["headers"],
+        json={
+            "name": "바뀐이름",
+            "role": "ADMIN",
+            "email": "attacker@lisn-test.example",
+            "password_hash": "$2b$12$0000000000000000000000000000000000000000000000000000",
+            "user_id": str(uuid.uuid4()),
+        },
+    )
+    assert r.status_code == 200, r.text
+    after = r.json()
+
+    assert after["name"] == "바뀐이름", "허용된 필드는 반영돼야 한다"
+    assert after["role"] == "USER"
+    assert after["email"] == before["email"]
+    assert after["user_id"] == before["user_id"]
+
+    # 관리자 API 가 실제로 막히는지까지 확인한다. 응답만 보고 판단하지 않는다.
+    denied = await client.get(f"{BASE}/admin/dashboard", headers=user["headers"])
+    assert denied.status_code == 403
