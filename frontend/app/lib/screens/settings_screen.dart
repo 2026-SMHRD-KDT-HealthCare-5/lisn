@@ -67,21 +67,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         .showSnackBar(SnackBar(content: Text(message)));
   }
 
-  Future<void> _changePersona(String next) async {
-    if (busy || profile?.personaType == next) return;
-    setState(() => busy = true);
-    try {
-      final updated = await _service.updateProfile(personaType: next);
-      if (!mounted) return;
-      setState(() => profile = updated);
-      _toast('대화 성격을 바꿨어요. 다음 대화부터 적용됩니다.');
-    } catch (e) {
-      _toast(e is ApiException ? e.message : '변경하지 못했습니다.');
-    } finally {
-      if (mounted) setState(() => busy = false);
-    }
-  }
-
   Future<void> _toggleConnection(DeviceConnection c, bool value) async {
     if (busy) return;
     setState(() => busy = true);
@@ -226,7 +211,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   List<Widget> _sections() => [
         _profileCard(),
         const _SettingsTitle('대화 성격'),
-        _personaCard(),
         const _SettingsTitle('데이터 연동'),
         ..._connectionCards(),
         const _SettingsTitle('알림 설정'),
@@ -271,38 +255,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ]));
   }
 
-  /// 페르소나는 서버 USERS.persona_type 이 정본입니다.
-  /// 챗봇 화면에서 고르는 것은 그 세션 한정이고, 여기서 바꾸면 기본값이 됩니다.
-  Widget _personaCard() {
-    final current = profile?.personaType ?? 'FRIEND';
-    return AppCard(
-      // Flutter 3.32 부터 RadioListTile 의 groupValue·onChanged 가 폐기됐습니다.
-      // 그룹 상태는 RadioGroup 조상이 관리합니다.
-      child: RadioGroup<String>(
-        groupValue: current,
-        // onChanged 가 non-nullable 이라 null 로 비활성화할 수 없습니다.
-        // 저장 중 중복 요청은 _changePersona 안에서 busy 로 막습니다.
-        onChanged: (v) {
-          if (v != null) _changePersona(v);
-        },
-        child: Column(children: [
-          for (final (code, title, desc) in const [
-            ('FRIEND', '다정한 공감가', '감정을 먼저 받아들이고 위로해요'),
-            ('COUNSELOR', '이성적인 분석가', '상황을 정리하고 다음 행동을 제안해요'),
-          ])
-            RadioListTile<String>(
-              contentPadding: EdgeInsets.zero,
-              value: code,
-              title: Text(title,
-                  style: const TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.w800)),
-              subtitle: Text(desc,
-                  style: const TextStyle(fontSize: 9, color: AppColors.muted)),
-            ),
-        ]),
-      ),
-    );
-  }
+  // ❸ 페르소나 항목은 **설정에서 뺐습니다.**
+  //
+  // 이 앱은 성격 선택과 대화 시작이 한 동작입니다(카드 버튼이 「이 성격으로
+  // 대화하기」). 그래서 설정에서 「바꾸기」를 누르면 결국 대화가 시작돼,
+  // 설정 변경치고는 이상한 흐름이 됩니다.
+  //
+  // 대신 **챗봇 탭이 확인 화면 역할을 합니다** — 열면 최근에 고른 성격 카드가
+  // 먼저 뜨고 「최근 대화」 표시가 붙습니다. 확인도 변경도 거기서 됩니다.
+  // 설정에 같은 것을 또 두면 어느 쪽이 실제로 적용되는지 알 수 없습니다.
+  //
+  // 화면설계서 `MAIN_SETTING_01` ❸ 삭제 → 체크리스트 `SD-A⑥`
 
   List<Widget> _connectionCards() {
     if (connections.isEmpty) {

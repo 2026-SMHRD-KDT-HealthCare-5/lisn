@@ -28,7 +28,7 @@ class _MainShellState extends State<MainShell> {
       const HomeScreen(),
       const ChatScreen(),
       const LifelogScreen(),
-      const SettingsScreen()
+      const SettingsScreen(),
     ];
     return Scaffold(
       body: IndexedStack(index: currentIndex, children: screens),

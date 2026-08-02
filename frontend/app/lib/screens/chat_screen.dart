@@ -4,6 +4,7 @@ import '../models/auth_models.dart' show ApiException;
 import '../models/chat_models.dart';
 import '../services/app_services.dart';
 import '../services/chat_service.dart';
+import '../services/settings_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common_widgets.dart';
 import 'chat_history_screen.dart';
@@ -31,11 +32,17 @@ class ChatMessage {
 ///   돌린 뒤 CRITICAL 이면 생성된 응답을 버리기 때문입니다. 판정 전에 흘린
 ///   글자는 회수할 수 없습니다. 응답이 한 번에 오는 건 의도된 설계입니다.
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key, this.chatService});
+  const ChatScreen({super.key, this.chatService, this.settingsService});
 
   /// 테스트에서 가짜 서비스를 넣기 위한 통로. 평소에는 null 이고
   /// AppServices.chat 을 씁니다.
   final ChatService? chatService;
+
+  /// 최근에 고른 성격(`USERS.persona_type`)을 읽고 쓰는 데 씁니다.
+  ///
+  /// ⚠ 주입 통로를 지우지 마세요. 없을 때 `AppServices.settings` 를 직접 쓰다가
+  ///   테스트에서 진짜 네트워크로 나가 「최근 대화」 표시가 안 뜬 적이 있습니다.
+  final SettingsService? settingsService;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -47,14 +54,54 @@ class _ChatScreenState extends State<ChatScreen> {
   final scrollController = ScrollController();
 
   ChatService get _chat => widget.chatService ?? AppServices.chat;
+  SettingsService get _settings =>
+      widget.settingsService ?? AppServices.settings;
 
   ChatPersona persona = ChatPersona.feeling;
+
+  /// 서버에 저장된 성격(`USERS.persona_type`). 마지막으로 대화한 성격입니다.
+  ///
+  /// 카드에 「최근 대화」 표시를 붙이는 데 씁니다. **기본으로 떠 있는 것만으로는
+  /// 그게 저장된 값인지 그냥 첫 카드인지 알 수 없습니다.**
+  ChatPersona? lastUsed;
   bool conversation = false;
   List<ChatMessage> messages = [];
 
   String? sessionId;
   bool starting = false;
   bool sending = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _applySavedPersona();
+  }
+
+  /// 설정에 저장된 성격(`USERS.persona_type`)을 첫 선택으로 맞춥니다.
+  ///
+  /// 설정 화면 ❸ 이 「현재 챗봇 성격」을 보여주는데, 챗봇을 열 때마다 항상
+  /// 첫 카드로 돌아가면 그 표시가 거짓이 됩니다.
+  ///
+  /// ⚠ 실패해도 조용히 넘어갑니다. 기본 선택이 어긋나는 것뿐이고, 사용자는
+  ///   어차피 카드를 넘겨 고를 수 있습니다. 여기서 오류를 띄우면 대화를
+  ///   시작하기도 전에 실패 문구부터 보게 됩니다.
+  Future<void> _applySavedPersona() async {
+    try {
+      final saved = (await _settings.profile()).personaType;
+      final match = ChatPersona.values.where((p) => p.code == saved);
+      if (!mounted || match.isEmpty) return;
+      final found = match.first;
+      setState(() {
+        lastUsed = found;
+        persona = found;
+      });
+      if (pageController.hasClients) {
+        pageController.jumpToPage(ChatPersona.values.indexOf(found));
+      }
+    } catch (_) {
+      // 기본 선택만 못 맞춘 것이라 그대로 진행합니다.
+    }
+  }
 
   @override
   void dispose() {
@@ -93,6 +140,18 @@ class _ChatScreenState extends State<ChatScreen> {
       final session =
           await _chat.startSession(personaType: selected.code);
       if (!mounted) return;
+
+      // 고른 성격을 **기본값으로도 저장**합니다(`USERS.persona_type`).
+      // 안 하면 설정 화면 ❸ 의 「현재 챗봇 성격」이 실제와 어긋납니다.
+      //
+      // ⚠ 대화 시작을 막지 않습니다. 실패해도 이번 대화는 고른 성격으로
+      //   진행되고, 기본값만 예전 값으로 남습니다.
+      setState(() => lastUsed = selected);
+      _settings
+          .updateProfile(personaType: selected.code)
+          .then((_) {}, onError: (Object e) {
+        debugPrint('[chat] 최근 성격 저장 실패: $e');
+      });
       setState(() {
         sessionId = session.sessionId;
         conversation = true;
@@ -212,9 +271,11 @@ class _ChatScreenState extends State<ChatScreen> {
             children: [
               _PersonaCard(
                   persona: ChatPersona.feeling,
+                  lastUsed: lastUsed == ChatPersona.feeling,
                   onTap: () => startConversation(ChatPersona.feeling)),
               _PersonaCard(
                   persona: ChatPersona.thinking,
+                  lastUsed: lastUsed == ChatPersona.thinking,
                   onTap: () => startConversation(ChatPersona.thinking)),
             ],
           ),
@@ -329,9 +390,13 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 
 class _PersonaCard extends StatelessWidget {
-  const _PersonaCard({required this.persona, required this.onTap});
+  const _PersonaCard(
+      {required this.persona, required this.onTap, this.lastUsed = false});
   final ChatPersona persona;
   final VoidCallback onTap;
+
+  /// 마지막으로 대화한 성격인지. 앱을 껐다 켜도 유지됩니다.
+  final bool lastUsed;
 
   @override
   Widget build(BuildContext context) {
@@ -356,6 +421,27 @@ class _PersonaCard extends StatelessWidget {
                     : const Color(0xFFD4E9EE)),
           ),
           child: Stack(children: [
+            // ⚠ 「최근 대화」 표시를 빼지 마세요. 저장된 성격 카드가 먼저 뜨긴
+            //   하지만, 표시가 없으면 **그게 내가 고른 값인지 그냥 첫 카드인지
+            //   알 수 없습니다.** 설정에서 페르소나 항목을 뺀 것도 이 표시가
+            //   그 역할을 대신하기 때문입니다.
+            if (lastUsed)
+              Positioned(
+                  top: 20,
+                  left: 20,
+                  child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                          color: Colors.white.withAlpha(210),
+                          borderRadius: BorderRadius.circular(12)),
+                      child: Text('최근 대화',
+                          style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                              color: feeling
+                                  ? const Color(0xFF6678CE)
+                                  : const Color(0xFF38889A))))),
             Positioned(
                 top: 18,
                 right: 20,
