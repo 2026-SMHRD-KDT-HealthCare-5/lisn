@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'dev_screens.dart';
@@ -6,6 +8,7 @@ import 'screens/login_screen.dart';
 import 'screens/main_shell.dart';
 import 'screens/password_reset_screen.dart';
 import 'services/app_services.dart';
+import 'services/sync_worker.dart';
 import 'theme/app_theme.dart';
 
 final appNavigatorKey = GlobalKey<NavigatorState>();
@@ -23,6 +26,18 @@ void main() async {
   // ⚠ 개발 편의 기능입니다. `--dart-define=DEV_LOGIN=true` 를 준 빌드에서만
   //   동작하고, 릴리스 빌드에서는 무시합니다 → dev_screens.dart
   await devLoginIfNeeded();
+
+  // 라이프로그 수집 워커 등록 — MLCM_200 1단계.
+  //
+  // ⚠ 여기서 **await 하지 않습니다.** WorkManager 초기화가 플랫폼 채널을
+  //   타는데, 등록이 늦어지면 그만큼 첫 화면이 늦게 뜹니다. 수집은 15분
+  //   주기라 몇 초 늦게 등록돼도 아무 차이가 없습니다.
+  //
+  // ⚠ 실패해도 앱은 떠야 합니다. 에뮬레이터나 WorkManager 를 못 쓰는 환경에서
+  //   앱 전체가 안 뜨면 원인을 찾기 어렵습니다.
+  unawaited(registerLifelogSync().catchError((Object e) {
+    debugPrint('라이프로그 워커 등록 실패: $e');
+  }));
 
   runApp(const MaeumeApp());
 }

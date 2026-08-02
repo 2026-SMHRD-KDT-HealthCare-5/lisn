@@ -4,6 +4,7 @@ import '../models/auth_models.dart' show ApiException;
 import '../models/settings_models.dart';
 import '../services/app_services.dart';
 import '../services/settings_service.dart';
+import '../services/sync_worker.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common_widgets.dart';
 import 'login_screen.dart';
@@ -95,6 +96,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } catch (_) {
       // 서버가 응답하지 않아도 로컬 토큰은 AuthService에서 반드시 폐기한다.
     }
+    // ⚠ 수집 워커도 같이 멈춥니다. 안 멈추면 로그아웃한 뒤에도 계속 돌면서
+    //   실패분을 쌓고, **다음 사람이 로그인하면 앞사람 데이터가 그 계정으로
+    //   올라갑니다.**
+    try {
+      await cancelLifelogSync();
+    } catch (_) {
+      // 워커 해제 실패로 로그아웃이 막히면 안 됩니다.
+    }
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -146,6 +155,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     try {
       await _service.deleteAccount(password);
       await AppServices.tokenStore.clear();
+      // 탈퇴는 계정 자체가 사라집니다. 워커가 남아 있으면 없는 계정으로
+      // 계속 전송을 시도합니다.
+      try {
+        await cancelLifelogSync();
+      } catch (_) {}
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const LoginScreen()),

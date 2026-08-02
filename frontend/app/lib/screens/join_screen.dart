@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../models/auth_models.dart';
 import '../services/app_services.dart';
+import '../services/health_reader.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common_widgets.dart';
 import 'main_shell.dart';
@@ -39,17 +42,57 @@ class _JoinScreenState extends State<JoinScreen> {
   bool? emailAvailable;
   String? errorMessage;
 
-  /// 연동 정보를 등록합니다. 기기 권한은 별도이므로 permission_granted 는
-  /// false 로 두고, 화면에서 설정에서 켜라고 안내합니다.
+  /// 실제로 승인된 권한 상태. 안내 문구가 여기서 갈립니다.
+  HealthPermission? healthPermission;
+
+  /// Health Connect 권한을 **실제로 요청**하고 연동 정보를 등록합니다.
+  ///
+  /// ⚠ 전에는 서버에 연동 행만 만들고 `permission_granted: false` 로 두면서
+  ///   「설정에서 켜세요」라고 안내했습니다. 그런데 **앱이 권한을 요청하지
+  ///   않으면 Health Connect 설정에 이 앱이 나타나지도 않습니다.** 켜라고
+  ///   해도 켤 수가 없었습니다. 여기서 요청해야 목록에 등록됩니다.
+  ///
+  /// 권한을 거부해도 연동 행은 만듭니다. 나중에 설정에서 다시 켤 수 있고,
+  /// 그때 `permission_granted` 만 갱신하면 됩니다.
   Future<void> _connectWearable() async {
     if (wearableChoice == _Wearable.connect) return;
     await runRequest(() async {
-      await AppServices.settings.createConnection(deviceName: 'Health Connect');
+      final reader = AppServices.healthReader;
+      var status = await reader.permissionStatus();
+      if (status == HealthPermission.denied) {
+        status = await reader.requestPermission();
+      }
+
+      await AppServices.settings.createConnection(
+        deviceName: 'Health Connect',
+        permissionGranted: status == HealthPermission.granted,
+      );
+
+      // 권한을 받았으면 바로 한 번 당겨옵니다. 15분을 기다리지 않아도
+      // 가입 직후 홈에 데이터가 보입니다.
+      if (status == HealthPermission.granted) {
+        unawaited(AppServices.lifelogSync.sync());
+      }
+
       if (mounted) {
-        setState(() => wearableChoice = _Wearable.connect);
+        setState(() {
+          wearableChoice = _Wearable.connect;
+          healthPermission = status;
+        });
       }
     });
   }
+
+  /// 연동 결과 안내 문구.
+  ///
+  /// ⚠ 실패해도 **경고 톤을 쓰지 않습니다.** 가입 마지막 단계에서 빨간 문구를
+  ///   보면 「내가 뭘 잘못했나」가 되고, 실제로는 나중에 켜도 되는 일입니다.
+  String get _healthHint => switch (healthPermission) {
+        HealthPermission.granted => '연동했어요. 걸음·수면 기록이 자동으로 쌓입니다.',
+        HealthPermission.unavailable =>
+          'Health Connect 앱을 설치하면 걸음·수면 기록이 자동으로 쌓여요.',
+        _ => '연동을 등록했어요. Health Connect 에서 권한을 켜면 기록이 쌓입니다.',
+      };
 
   @override
   void initState() {
@@ -729,9 +772,10 @@ class _JoinScreenState extends State<JoinScreen> {
                   const Icon(Icons.chevron_right_rounded)
               ])),
         ),
-        // ⚠ 연동 정보만 등록했을 뿐 기기 권한은 아직 없습니다.
-        //   Health Connect 는 on-device 권한 모델이라 앱이 따로 받아야
-        //   합니다. 다 된 것처럼 두면 데이터가 안 들어올 때 헤맵니다.
+        // ⚠ 결과에 따라 **할 일이 다릅니다.** 권한을 받았으면 더 할 게 없고,
+        //   거부했으면 Health Connect 앱에서 켜야 하고, 미설치면 설치부터
+        //   해야 합니다. 셋을 같은 문구로 덮으면 데이터가 안 들어올 때
+        //   무엇이 문제인지 알 수 없습니다.
         //
         // ⚠ 보이지 않을 때도 **자리를 차지하게** 둡니다. 나타났다 사라지면
         //   그만큼 아래 내용이 밀려 화면 전체가 흔들립니다.
@@ -740,11 +784,11 @@ class _JoinScreenState extends State<JoinScreen> {
           maintainSize: true,
           maintainAnimation: true,
           maintainState: true,
-          child: const Padding(
-            padding: EdgeInsets.only(top: 8),
-            child: Text('연동을 등록했어요. 설정에서 건강 데이터 권한을 켜면 기록이 쌓입니다.',
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(_healthHint,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 11, color: AppColors.muted)),
+                style: const TextStyle(fontSize: 11, color: AppColors.muted)),
           ),
         ),
         const SizedBox(height: 18),
