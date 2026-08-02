@@ -232,9 +232,12 @@ DB 는 backend 와 같은 것을 보고, `AI_DATABASE_URL` 이 없으면 `DATABA
 ```
 frontend/
 ├── app/        Flutter 사용자 앱 — lib/{config,models,services,screens,theme,widgets}
-├── admin/      Vite + React 관리자 관제 웹 — 로그인·ADMIN 역할 가드 완료
-└── design/     디자인 시안 (앱 빌드 제외)
+└── admin/      Vite + React 관리자 관제 웹 — 로그인·ADMIN 역할 가드 완료
 ```
+
+**화면 시안은 `docs/design/` 에 있습니다.** 전에 `frontend/design/` 에도
+있었는데, 두 곳에 흩어지면 어느 쪽이 최신인지 알 수 없어 합쳤습니다
+(옛것은 `docs/design/구버전_20260731/`).
 
 **앱 화면 14개와 관리자 웹 2개가 전부 실제 API 에 붙어 있습니다.** 목업 데이터는
 없습니다. 관리자 웹은 앱과 같은 로그인 API 를 쓰고 `ADMIN` 역할만 세션을 허용합니다.

@@ -90,8 +90,16 @@ npm run dev
 > **다만 관리자 웹은 재로그인이 필요합니다.** 로그인 응답의 role 로 세션 저장 여부를
 > 정하기 때문에(`admin/src/session.js`), 승격 전에 로그인해 뒀다면 세션 자체가 없습니다.
 
-## design/ — 디자인 시안
+## ⚠ 시안은 여기 두지 않습니다 — `docs/design/`
 
-`maeume-home.png` 등 화면 시안입니다. **앱이 실제로 쓰는 리소스가 아닙니다.**
+**화면 시안 정본은 [`docs/design/`](../docs/design/) 하나입니다.**
+화면 ID 이름(`MAIN_HOME_01.png` 등)으로 15장 있고, 만드는 방법은
+[`docs/design/README.md`](../docs/design/README.md) 에 있습니다.
 
-앱 리소스는 `app/assets/` 에 두고 `pubspec.yaml` 의 `assets:` 에 등록해야 로딩됩니다. 현재 등록된 것은 `assets/images/login_mascot.png` 하나입니다. 시안을 여기 두면 빌드 크기만 커집니다.
+전에는 `frontend/design/` 에도 홈 시안 2장이 따로 있었습니다. 시안이 두 곳에
+흩어져 있으면 **어느 쪽이 최신인지 알 수 없습니다.** 2026.08.02 에
+[`docs/design/구버전_20260731/`](../docs/design/구버전_20260731/) 로 옮겼습니다.
+
+앱 리소스는 `app/assets/` 에 두고 `pubspec.yaml` 의 `assets:` 에 등록해야
+로딩됩니다. 현재 등록된 것은 `assets/images/login_mascot.png` 하나입니다.
+**시안을 앱 폴더에 두면 빌드 크기만 커집니다.**
