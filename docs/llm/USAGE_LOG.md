@@ -83,7 +83,7 @@ LLM·프롬프트·OpenAI API 관련 작업을 시작할 때 최신 관련 항�
 「사료를 사뒀다」가 어려운 문장이라는 사실은 변하지 않습니다.
 
 - **반영 파일**: `tools/eval_crisis.py`(`--only`),
-  `docs/review/위기판정_평가셋_캐시.json`, `docs/review/위기판정_평가셋_안내.md`
+  `docs/평가셋/위기판정_평가셋_캐시.json`, `docs/평가셋/위기판정_평가셋_안내.md`
 
 ---
 
@@ -125,11 +125,11 @@ quotaValue 20
 
 `NFR-DV-001` 과 정상 경로 `NFR-TS-001` 은 **한도 소진 상태에서 잰 값이라 무효**입니다.
 기존 2.19초(LLM-004)를 뒤집을 근거는 없습니다. 한도가 초기화된 뒤 첫 시도로
-다시 재야 합니다 → [`성능실측_20260802.md`](../review/성능실측_20260802.md)
+다시 재야 합니다 → [`성능실측_20260802.md`](../검증/성능실측_20260802.md)
 
 - **반영 파일**: `backend/app/data/crisis_keywords.json`,
   `backend/tests/test_lifelog_chat.py`, `ai/server/main.py`, `tools/bench_nfr.py`,
-  `docs/review/성능실측_20260802.md`
+  `docs/검증/성능실측_20260802.md`
 
 ---
 
@@ -301,4 +301,4 @@ OpenAI 는 유료라 쿼터를 나눌 이유가 없고, **정확도 기준선**�
   - 지침 간 문서 경로와 Git 추적 상태 확인
 - 반영 파일: `AGENTS.md`, `CLAUDE.md`, `.codex/config.toml`, `.mcp.json`,
   `docs/llm/PROMPT_REFERENCE.md`, `docs/llm/USAGE_LOG.md`, `docs/SESSION-HANDOFF.md`,
-  `docs/review/작업이력.md`
+  `docs/진행/작업이력.md`

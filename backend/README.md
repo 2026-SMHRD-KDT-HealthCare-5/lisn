@@ -156,7 +156,7 @@ C:\Program Files\PostgreSQL\17\data\log\
 
 | 항목 | 비고 |
 |---|---|
-| `HEALING_CONTENTS` 의 `MUSIC`·`FOOD` | `EXERCISE`·`ARTICLE` 은 채워져 있습니다. 나머지 두 카테고리는 팀이 직접 큐레이션합니다 → [기준](../docs/review/힐링콘텐츠_큐레이션.md) |
+| `HEALING_CONTENTS` 의 `MUSIC`·`FOOD` | `EXERCISE`·`ARTICLE` 은 채워져 있습니다. 나머지 두 카테고리는 팀이 직접 큐레이션합니다 → [기준](../docs/가이드/힐링콘텐츠_큐레이션.md) |
 
 > **AI 추론 서버의 모델**은 이 저장소 범위가 아닙니다. 데이터 제약으로 이번 과제에서는
 > 규칙 기반 판정을 유지합니다 → [`ai/README.md`](../ai/README.md)
@@ -173,6 +173,6 @@ C:\Program Files\PostgreSQL\17\data\log\
 
 ## 관련 문서
 
-- [API 명세 초안](../docs/API명세_초안.md) — 구현 후에는 `/docs`(OpenAPI)가 정본
-- [API 설계 사전 결정](../docs/review/API설계_사전결정.md) — **바꾸기 전에 반드시 확인**
+- [API 명세 초안](../docs/결정/API명세_초안.md) — 구현 후에는 `/docs`(OpenAPI)가 정본
+- [API 설계 사전 결정](../docs/결정/API설계_사전결정.md) — **바꾸기 전에 반드시 확인**
 - [LLM 작업 규칙](../docs/llm/PROMPT_REFERENCE.md) · [사용 이력](../docs/llm/USAGE_LOG.md)

@@ -1,6 +1,6 @@
 """비밀번호 해시 · JWT 발급/검증 · 인증 의존성.
 
-설계 근거는 docs/review/API설계_사전결정.md 1절.
+설계 근거는 docs/결정/API설계_사전결정.md 1절.
 
 - access token 단일. refresh token 을 두지 않는다.
 - 로그아웃은 클라이언트가 토큰을 폐기하는 것으로 처리하고

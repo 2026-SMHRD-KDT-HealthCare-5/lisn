@@ -1,7 +1,7 @@
 """인증 관련 요청·응답 스키마.
 
 필드명은 snake_case 그대로 쓴다. 변환 계층을 두면 DB·API·문서 사이에
-이름이 세 벌이 된다(docs/review/API설계_사전결정.md 5절).
+이름이 세 벌이 된다(docs/결정/API설계_사전결정.md 5절).
 """
 
 import uuid

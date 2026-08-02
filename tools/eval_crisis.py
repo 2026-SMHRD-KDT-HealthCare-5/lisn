@@ -43,8 +43,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DATASET = ROOT / 'docs' / 'review' / '위기판정_평가셋.csv'
-CACHE = ROOT / 'docs' / 'review' / '위기판정_평가셋_캐시.json'
+DATASET = ROOT / 'docs' / '평가셋' / '위기판정_평가셋.csv'
+CACHE = ROOT / 'docs' / '평가셋' / '위기판정_평가셋_캐시.json'
 
 # CLPsych 2019 4단계 → 이진 정답.
 #

@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     database_url: str
 
     # 인증 — access token 단일, refresh 없음.
-    # 근거: docs/review/API설계_사전결정.md 1절
+    # 근거: docs/결정/API설계_사전결정.md 1절
     jwt_secret: str = "CHANGE_ME"
     jwt_algorithm: str = "HS256"
     jwt_expire_hours: int = 24
