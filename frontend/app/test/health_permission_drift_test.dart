@@ -36,6 +36,15 @@ const _requiredPermission = <String, String>{
   'SLEEP_LIGHT': 'READ_SLEEP',
   'SLEEP_REM': 'READ_SLEEP',
   'SLEEP_AWAKE': 'READ_SLEEP',
+  // 체성분 — 레코드 대응은 health 13.3.1 Kotlin 소스에서 확인했습니다.
+  //   WEIGHT              -> WeightRecord
+  //   BODY_FAT_PERCENTAGE -> BodyFatRecord
+  //   BODY_WATER_MASS     -> BodyWaterMassRecord
+  //   BASAL_ENERGY_BURNED -> BasalMetabolicRateRecord
+  'WEIGHT': 'READ_WEIGHT',
+  'BODY_FAT_PERCENTAGE': 'READ_BODY_FAT',
+  'BODY_WATER_MASS': 'READ_BODY_WATER_MASS',
+  'BASAL_ENERGY_BURNED': 'READ_BASAL_METABOLIC_RATE',
 };
 
 /// `health_reader.dart` 의 `_types` 목록에 적힌 타입 이름.

@@ -13,6 +13,13 @@
     <uses-permission android:name="android.permission.health.READ_HEART_RATE_VARIABILITY"/>
     <uses-permission android:name="android.permission.health.READ_SLEEP"/>
 
+    <!-- 체성분 — MAIN_LIFELOG_01 ❺ · MAIN_JOIN_03 선택 동의.
+         근육량·골격근량은 Health Connect 에 레코드가 없어 빠집니다(PL-26). -->
+    <uses-permission android:name="android.permission.health.READ_WEIGHT"/>
+    <uses-permission android:name="android.permission.health.READ_BODY_FAT"/>
+    <uses-permission android:name="android.permission.health.READ_BODY_WATER_MASS"/>
+    <uses-permission android:name="android.permission.health.READ_BASAL_METABOLIC_RATE"/>
+
     <!-- ⚠ 이게 없으면 백그라운드 워커가 **돌기는 하는데 아무것도 못 읽습니다.**
          앱을 열었을 때만 수집돼서 「가끔 되는」 것처럼 보입니다. -->
     <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND"/>

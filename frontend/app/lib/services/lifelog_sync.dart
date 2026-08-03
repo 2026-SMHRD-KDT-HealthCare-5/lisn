@@ -106,6 +106,11 @@ class LifelogSyncService {
       samples = const [];
     }
 
+    // ⚠ 체성분을 **먼저, 따로** 보냅니다. 라이프로그 전송이 실패해도 이건
+    //   이미 올라가 있어야 합니다 — 둘은 다른 테이블이고 실패 원인도 다릅니다.
+    //   여기서 던지면 라이프로그까지 못 가므로 예외를 삼킵니다.
+    await _syncBodyComposition(samples);
+
     final fresh = aggregateDaily(samples);
     final rows = _merge(await _store.pendingRows(), fresh);
 
@@ -116,6 +121,41 @@ class LifelogSyncService {
     }
 
     return _push(rows);
+  }
+
+  /// 체성분 전송 — `MAIN_LIFELOG_01` ❺.
+  ///
+  /// ## 왜 워터마크로 거르나
+  ///
+  /// `POST /body-composition` 은 **UPSERT 가 아니라 INSERT** 입니다. 같은
+  /// 측정을 다시 보내면 이력에 중복 행이 남고, 사용자 화면에 같은 몸무게가
+  /// 두 번 뜹니다. 라이프로그는 `uq_lifelog_user_collected` 가 막아주지만
+  /// 체성분 테이블에는 그런 제약이 없습니다
+  /// (→ `docs/검증/구현_갭_20260803.md`).
+  ///
+  /// ⚠ **한 건 보낼 때마다 워터마크를 옮깁니다.** 마지막에 한 번만 저장하면
+  ///   중간에 실패했을 때 성공한 것까지 다시 보냅니다.
+  ///
+  /// ⚠ 실패해도 **던지지 않습니다.** 체성분은 선택 동의 항목이라 없는
+  ///   사용자가 많고, 여기서 막히면 활동량·수면까지 못 올라갑니다.
+  Future<void> _syncBodyComposition(List<HealthSample> samples) async {
+    final all = aggregateBodyComposition(samples);
+    if (all.isEmpty) return;
+
+    final mark = await _store.lastBodyAt();
+    final fresh = mark == null
+        ? all
+        : all.where((r) => r.measuredAt.isAfter(mark)).toList();
+
+    for (final row in fresh) {
+      try {
+        await _lifelog.pushBodyComposition(row);
+        await _store.saveLastBodyAt(row.measuredAt);
+      } catch (e) {
+        debugPrint('체성분 전송 실패(다음 주기에 다시 시도): $e');
+        return;
+      }
+    }
   }
 
   /// 어디부터 읽을지.

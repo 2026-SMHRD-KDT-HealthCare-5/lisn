@@ -33,6 +33,19 @@ class LifelogService {
     return DateTime.parse(raw).toLocal();
   }
 
+  /// 체성분 한 건 전송 — `MAIN_LIFELOG_01` ❺.
+  ///
+  /// ⚠ **서버가 UPSERT 하지 않습니다.** 같은 측정을 두 번 보내면 이력에
+  ///   중복 행이 남습니다. 어디까지 보냈는지는 [LifelogSyncService] 가
+  ///   `SyncStore.lastBodyAt` 으로 기억합니다.
+  Future<void> pushBodyComposition(BodyCompositionSample row) async {
+    await _apiClient.post(
+      '/body-composition',
+      body: row.toJson(),
+      authenticated: true,
+    );
+  }
+
   Future<List<LifelogEntry>> fetch({
     DateTime? from,
     DateTime? to,

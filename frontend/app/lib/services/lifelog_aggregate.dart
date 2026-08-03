@@ -45,6 +45,16 @@ enum HealthField {
   sleepLight,
   sleepRem,
   sleepAwake,
+
+  // --- 체성분 (MAIN_LIFELOG_01 ❺) ---
+  //
+  // ⚠ **하루 집계에 섞지 않습니다.** 체성분은 측정한 순간에만 생기고
+  //   측정 빈도가 불규칙합니다. 15분 배치에 섞으면 빈 값이 대부분인 행이
+  //   쌓입니다 — 서버도 같은 이유로 테이블·엔드포인트를 분리했습니다.
+  weight,
+  bodyFatPercentage,
+  bodyWaterMass,
+  basalEnergy,
 }
 
 /// Health Connect 표본 한 건. 구간([from], [to])과 값을 가집니다.
@@ -352,3 +362,108 @@ DailyLifelog _foldDay(DateTime day, List<HealthSample> samples) {
     hrv: meanDoubleOf(HealthField.hrv),
   );
 }
+
+/// 체성분 측정 한 건. 서버 `POST /body-composition` 규격과 1:1 대응합니다.
+///
+/// ⚠ **8개 컬럼 중 4개만 채웁니다.** Health Connect 에 근육량·골격근량
+///   레코드가 없습니다(2026.08.03 확인, A안 확정 → 개정안 `PL-26`).
+///   기업 제공 데이터에는 8개가 다 있어 테이블은 그대로 둡니다 — 실서비스
+///   수집 경로와 학습 데이터 출처의 항목이 다른 것입니다.
+///
+/// ⚠ **`LEAN_BODY_MASS`(제지방량)를 근육량에 넣지 마세요.** 제지방량은
+///   근육 + 뼈 + 수분 + 장기라서 다른 값입니다. 이름이 비슷하다고 넣으면
+///   틀린 숫자가 화면에 뜹니다.
+class BodyCompositionSample {
+  const BodyCompositionSample({
+    required this.measuredAt,
+    this.weightKg,
+    this.bodyFatKg,
+    this.bodyWaterKg,
+    this.bmrKcal,
+  });
+
+  final DateTime measuredAt;
+  final double? weightKg;
+  final double? bodyFatKg;
+  final double? bodyWaterKg;
+  final int? bmrKcal;
+
+  bool get isEmpty =>
+      weightKg == null &&
+      bodyFatKg == null &&
+      bodyWaterKg == null &&
+      bmrKcal == null;
+
+  /// null 인 필드는 키 자체를 넣지 않습니다(`DailyLifelog.toJson` 과 같은 이유).
+  Map<String, dynamic> toJson() {
+    final json = <String, dynamic>{
+      'measured_at': measuredAt.toUtc().toIso8601String(),
+    };
+    void put(String k, Object? v) {
+      if (v != null) json[k] = v;
+    }
+
+    put('weight_kg', weightKg);
+    put('body_fat_kg', bodyFatKg);
+    put('body_water_kg', bodyWaterKg);
+    put('bmr_kcal', bmrKcal);
+    return json;
+  }
+}
+
+/// 체성분 표본을 **측정 건 단위**로 묶습니다. 결과는 `measuredAt` 오름차순.
+///
+/// ## 왜 분 단위로 묶나
+///
+/// 체성분계 한 번 측정이 Health Connect 에 **레코드 여러 개**로 들어옵니다
+/// (체중 / 체지방률 / 체수분이 각각). 같은 측정인데 타임스탬프가 초 단위로
+/// 어긋날 수 있어, 그대로 두면 한 번 잰 것이 세 건으로 쪼개집니다.
+///
+/// ## 체지방은 %로 오므로 체중이 있어야 kg 이 됩니다
+///
+/// 스키마는 `body_fat_kg` 인데 Health Connect 는 `BODY_FAT_PERCENTAGE` 를
+/// 줍니다. **체중이 같이 없으면 환산할 수 없어 비웁니다.** 퍼센트를 kg
+/// 칸에 그대로 넣으면 「체지방 22kg」이 「22%」로 뒤바뀝니다.
+List<BodyCompositionSample> aggregateBodyComposition(
+  List<HealthSample> samples,
+) {
+  const fields = {
+    HealthField.weight,
+    HealthField.bodyFatPercentage,
+    HealthField.bodyWaterMass,
+    HealthField.basalEnergy,
+  };
+
+  final byMinute = <DateTime, Map<HealthField, double>>{};
+  for (final s in samples) {
+    if (!fields.contains(s.field)) continue;
+    final key = DateTime(
+      s.from.year, s.from.month, s.from.day, s.from.hour, s.from.minute);
+    // 같은 분에 같은 지표가 여럿이면 마지막 것을 씁니다.
+    (byMinute[key] ??= {})[s.field] = s.value;
+  }
+
+  final keys = byMinute.keys.toList()..sort();
+  final out = <BodyCompositionSample>[];
+  for (final at in keys) {
+    final v = byMinute[at]!;
+    final weight = v[HealthField.weight];
+    final fatPct = v[HealthField.bodyFatPercentage];
+
+    final row = BodyCompositionSample(
+      measuredAt: at,
+      weightKg: _round2(weight),
+      bodyFatKg: (weight != null && fatPct != null)
+          ? _round2(weight * fatPct / 100)
+          : null,
+      bodyWaterKg: _round2(v[HealthField.bodyWaterMass]),
+      bmrKcal: v[HealthField.basalEnergy]?.round(),
+    );
+    if (!row.isEmpty) out.add(row);
+  }
+  return out;
+}
+
+/// NUMERIC(5,2) 에 맞춥니다.
+double? _round2(double? v) =>
+    v == null ? null : double.parse(v.toStringAsFixed(2));

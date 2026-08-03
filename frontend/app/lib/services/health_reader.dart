@@ -65,6 +65,16 @@ class HealthConnectReader implements HealthReader {
     HealthDataType.SLEEP_LIGHT,
     HealthDataType.SLEEP_REM,
     HealthDataType.SLEEP_AWAKE,
+
+    // 체성분 — MAIN_LIFELOG_01 ❺ · MAIN_JOIN_03 선택 동의
+    //
+    // ⚠ **근육량·골격근량은 Health Connect 에 없습니다.** LEAN_BODY_MASS
+    //   (제지방량)가 있지만 근육 + 뼈 + 수분 + 장기라 다른 값입니다.
+    //   이름이 비슷하다고 넣으면 틀린 숫자가 화면에 뜹니다(A안 확정, PL-26).
+    HealthDataType.WEIGHT,
+    HealthDataType.BODY_FAT_PERCENTAGE,
+    HealthDataType.BODY_WATER_MASS,
+    HealthDataType.BASAL_ENERGY_BURNED,
   ];
 
   static final _permissions =
@@ -158,6 +168,10 @@ class HealthConnectReader implements HealthReader {
         HealthDataType.SLEEP_LIGHT => HealthField.sleepLight,
         HealthDataType.SLEEP_REM => HealthField.sleepRem,
         HealthDataType.SLEEP_AWAKE => HealthField.sleepAwake,
+        HealthDataType.WEIGHT => HealthField.weight,
+        HealthDataType.BODY_FAT_PERCENTAGE => HealthField.bodyFatPercentage,
+        HealthDataType.BODY_WATER_MASS => HealthField.bodyWaterMass,
+        HealthDataType.BASAL_ENERGY_BURNED => HealthField.basalEnergy,
         _ => null,
       };
 

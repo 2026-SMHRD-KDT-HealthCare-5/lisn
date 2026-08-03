@@ -20,6 +20,16 @@ abstract class SyncStore {
   Future<DateTime?> lastSyncedAt();
   Future<void> saveLastSyncedAt(DateTime value);
 
+  /// 마지막으로 보낸 **체성분 측정 시각**.
+  ///
+  /// ⚠ 라이프로그 워터마크와 **따로 둡니다.** 라이프로그는 그날 행을
+  ///   UPSERT 라 다시 보내도 안전하지만, `POST /body-composition` 은
+  ///   INSERT 라 같은 걸 두 번 보내면 **이력에 중복 행이 쌓입니다.**
+  ///   `BODY_COMPOSITION_METRICS` 에는 `uq_lifelog_user_collected` 같은
+  ///   UNIQUE 제약이 없습니다(→ `docs/검증/구현_갭_20260803.md`).
+  Future<DateTime?> lastBodyAt();
+  Future<void> saveLastBodyAt(DateTime value);
+
   Future<List<DailyLifelog>> pendingRows();
   Future<void> savePending(List<DailyLifelog> rows);
   Future<void> clearPending();
@@ -29,6 +39,7 @@ class PrefsSyncStore implements SyncStore {
   PrefsSyncStore({SharedPreferences? prefs}) : _injected = prefs;
 
   static const _kLastSynced = 'lifelog.last_synced_at';
+  static const _kLastBody = 'lifelog.last_body_at';
   static const _kPending = 'lifelog.pending';
 
   /// 단말에 쌓아둘 최대 행 수.
@@ -54,6 +65,18 @@ class PrefsSyncStore implements SyncStore {
   @override
   Future<void> saveLastSyncedAt(DateTime value) async {
     await (await _prefs).setString(_kLastSynced, value.toUtc().toIso8601String());
+  }
+
+  @override
+  Future<DateTime?> lastBodyAt() async {
+    final raw = (await _prefs).getString(_kLastBody);
+    if (raw == null) return null;
+    return DateTime.tryParse(raw)?.toLocal();
+  }
+
+  @override
+  Future<void> saveLastBodyAt(DateTime value) async {
+    await (await _prefs).setString(_kLastBody, value.toUtc().toIso8601String());
   }
 
   @override
@@ -100,6 +123,14 @@ class MemorySyncStore implements SyncStore {
 
   @override
   Future<DateTime?> lastSyncedAt() async => _last;
+
+  DateTime? _lastBody;
+
+  @override
+  Future<DateTime?> lastBodyAt() async => _lastBody;
+
+  @override
+  Future<void> saveLastBodyAt(DateTime value) async => _lastBody = value;
 
   @override
   Future<void> saveLastSyncedAt(DateTime value) async => _last = value;
