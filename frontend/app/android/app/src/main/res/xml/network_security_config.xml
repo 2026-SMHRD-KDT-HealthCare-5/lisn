@@ -43,7 +43,10 @@
         <domain includeSubdomains="false">localhost</domain>
         <domain includeSubdomains="false">127.0.0.1</domain>
 
-        <!-- 시연 PC 의 IP 를 여기에 추가하세요. 예: 192.168.0.10 -->
+        <!-- 시연 PC 의 IP 를 여기에 추가하세요(ipconfig 로 확인한 실제 값).
+             ⚠ 문서의 예시 IP 를 그대로 넣지 마세요. 앱도 같은 주소로 구워야
+               하는데, 실기기용으로 구운 앱을 에뮬레이터에서 쓰면 요청이 없는
+               주소로 나가 「서버 응답이 지연되고 있습니다」만 뜹니다. -->
     </domain-config>
 
 </network-security-config>

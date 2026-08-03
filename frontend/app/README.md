@@ -29,11 +29,29 @@ flutter run --dart-define=API_BASE_URL=http://<개발-PC-IP>:8000/api/v1
 허용 목록에도 같은 IP 를 넣어야 합니다.
 
 ```xml
-<domain includeSubdomains="false">192.168.0.10</domain>
+<domain includeSubdomains="false">여기에_개발-PC-IP</domain>
 ```
 
 **안 넣으면 화면에 「서버에 연결할 수 없습니다」만 뜹니다.** 네트워크나 서버
 문제로 보이지만 OS 가 요청 자체를 막은 것입니다.
+
+> ### ⚠ 이 `--dart-define` 을 에뮬레이터에 쓰지 마세요
+>
+> `API_BASE_URL` 은 **컴파일 시점 상수**라 한 번 그렇게 구우면 그 설치본은 계속
+> 그 주소로 나갑니다. 실기기용 IP 로 구운 앱을 에뮬레이터에서 쓰면 요청이
+> 존재하지 않는 주소로 나가 10초 뒤 **「서버 응답이 지연되고 있습니다」**만
+> 뜹니다. 관리자 웹은 멀쩡하니 서버 문제로 보이지 않아 원인을 찾기 어렵습니다.
+> 2026.08.03 에 실제로 여기서 막혔습니다.
+>
+> 앱이 어디로 나가는지는 로그인 직후 호스트에서 확인합니다. `SYN_SENT` 로 남는
+> 상대 주소가 앱에 박힌 주소입니다.
+>
+> ```powershell
+> netstat -ano | Select-String ":8000"
+> ```
+>
+> **에뮬레이터는 아무 옵션 없이 `flutter run`.** 핫 리로드로는 안 바뀌니 다시
+> 빌드·설치해야 합니다.
 
 > 에뮬레이터 **디버그** 실행은 이 설정 없이도 됩니다. Flutter 가
 > `src/debug/AndroidManifest.xml` 에만 평문을 허용해 두기 때문입니다.

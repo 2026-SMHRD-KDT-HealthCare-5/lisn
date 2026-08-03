@@ -215,13 +215,40 @@ flutter devices
 | 문구 | 원인 |
 |---|---|
 | 이메일 또는 비밀번호가 올바르지 않습니다 | **그 계정이 이 PC 의 DB 에 없습니다.** 위 [로그인 계정](#5-로그인-계정--저장소에는-계정이-없습니다) |
-| 서버 응답이 지연되고 있습니다 | 요청은 갔는데 10초 안에 답이 없습니다. **백엔드가 DB 에 못 붙은 상태**입니다 → `/health/db` |
+| 서버 응답이 지연되고 있습니다 | 요청이 **엉뚱한 주소로 나가고 있거나**, 백엔드가 DB 에 못 붙었습니다. 아래 두 항목 |
 | 서버에 연결할 수 없습니다 | 연결 자체가 거부됐습니다. 백엔드 창이 떠 있는지 보세요 |
 
-> **에뮬레이터가 호스트를 못 봐서 그런 것이 아닙니다.** 에뮬레이터의 `10.0.2.2` 는
+**관리자 웹은 되는데 앱만 안 된다면** 앱에 박힌 주소를 의심하세요. 관리자 웹은
+브라우저에서 `localhost:8000` 을 쓰지만 **앱은 빌드할 때 박힌 `API_BASE_URL` 을
+씁니다.** 실기기용 예시(`192.168.0.10`)로 한 번 구우면, 그 뒤로 에뮬레이터에서도
+계속 그 주소로 나갑니다. 존재하지 않는 주소면 답이 없어 10초 뒤 타임아웃입니다.
+
+앱이 실제로 어디로 가는지는 로그인 버튼을 누른 직후 이걸로 봅니다.
+
+```powershell
+netstat -ano | Select-String ":8000"
+```
+
+`SYN_SENT` 로 남는 상대 주소가 보이면 **그게 앱에 박힌 주소**입니다. 고치려면
+`--dart-define` 없이 다시 설치하세요. 기본값이 `http://10.0.2.2:8000/api/v1` 입니다.
+
+```powershell
+cd frontend\app
+flutter run
+```
+
+> ⚠ **핫 리로드로는 안 바뀝니다.** `API_BASE_URL` 은 컴파일 시점 상수라 다시
+> 빌드·설치해야 합니다.
+
+> **에뮬레이터가 호스트를 못 봐서 그런 것은 아닙니다.** 에뮬레이터의 `10.0.2.2` 는
 > 호스트의 `127.0.0.1` 로 이어지므로, 백엔드가 `127.0.0.1:8000` 에만 열려 있어도
 > 닿습니다. 2026.08.03 에 에뮬레이터 Chrome 으로 `http://10.0.2.2:8000/health/db`
 > 를 열어 `connected` 를 확인했습니다. **여기를 의심하느라 시간을 쓰지 마세요.**
+
+<br>
+
+**백엔드가 DB 에 못 붙어서 늦는 경우**도 같은 문구가 뜹니다. `/health/db` 가
+`connected` 인지 먼저 보세요(위 4번). `/docs` 는 DB 없이도 열립니다.
 
 <br>
 
@@ -255,12 +282,8 @@ $env:PGCLIENTENCODING = 'UTF8'
 <br>
 
 **백엔드 창이 DB 오류로 죽는다** — DB 가 없거나 스키마가 안 들어갔습니다.
-PostgreSQL 은 **17 로 고정**입니다.
-
-```powershell
-psql -U postgres -c "CREATE DATABASE lisn;"
-psql -U postgres -d lisn -f db/schema.sql
-```
+PostgreSQL 은 **17 로 고정**입니다. 명령은 위
+[1. DB 먼저](#1-db-먼저--start-devps1-은-db-를-만들지-않습니다) 를 그대로 쓰세요.
 
 <br>
 
@@ -281,8 +304,10 @@ python -c "import secrets; print(secrets.token_urlsafe(48))"
 쌓지 않고 확인하려면 데모 데이터를 넣습니다.
 
 ```powershell
-psql -U postgres -d lisn -f db/seed_healing_contents.sql
-psql -U postgres -d lisn -f db/seed_demo_persona.sql
+$psql = "C:\Program Files\PostgreSQL\17\bin\psql.exe"
+$env:PGCLIENTENCODING = 'UTF8'
+& $psql -U postgres -d lisn -f db\seed_healing_contents.sql
+& $psql -U postgres -d lisn -f db\seed_demo_persona.sql
 ```
 
 > ⚠ 만들어낸 데이터입니다(`model_version` 이 `seed-demo-v0`). **날짜가 바뀌면 다시
@@ -299,20 +324,37 @@ psql -U postgres -d lisn -f db/seed_demo_persona.sql
 **실기기에서 「서버에 연결할 수 없습니다」만 뜬다** — 주소를 **두 곳**에 넣어야
 합니다. `targetSdk 36` 은 평문 HTTP 를 기본 차단합니다.
 
+> ### ⚠ 이건 실기기 전용입니다. 에뮬레이터에는 쓰지 마세요
+>
+> 아래 명령을 에뮬레이터에 한 번 쓰면 **그 뒤로 에뮬레이터에서도 계속 그 주소로
+> 나갑니다.** 존재하지 않는 주소면 「서버 응답이 지연되고 있습니다」만 뜨고,
+> 관리자 웹은 멀쩡해서 원인을 찾기 어렵습니다. 실제로 여기서 막혔습니다.
+> **에뮬레이터는 아무 옵션 없이 `flutter run`** 이면 됩니다.
+
+먼저 **이 PC 의 IP 를 확인**하세요. 아래 `<내PC_IP>` 를 그 값으로 바꿔야 합니다.
+**예시 IP 를 그대로 쓰면 안 됩니다.**
+
+```powershell
+(Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.InterfaceAlias -match 'Wi-Fi|이더넷' }).IPAddress
+```
+
 ```powershell
 cd frontend\app
-flutter run --dart-define=API_BASE_URL=http://192.168.0.10:8000/api/v1
+flutter run --dart-define=API_BASE_URL=http://<내PC_IP>:8000/api/v1
 ```
 
 그리고 `frontend/app/android/app/src/main/res/xml/network_security_config.xml` 에도
-같은 IP 를 넣습니다(`ipconfig` 로 확인).
+**같은 IP** 를 넣습니다.
 
 ```xml
-<domain includeSubdomains="false">192.168.0.10</domain>
+<domain includeSubdomains="false">여기에_같은_IP</domain>
 ```
 
 > 에뮬레이터 기본값(`10.0.2.2`)은 실기기에서 동작하지 않습니다. **디버그는
 > 통과하고 릴리스만 막히므로** 시연 빌드에서 처음 드러납니다.
+>
+> 백엔드도 `--host 0.0.0.0` 으로 띄워야 실기기에서 닿습니다. 기본은
+> `127.0.0.1` 에만 열립니다.
 
 > 개별 실행 · 문서 작업 · 그 밖의 문제는 아래 [자세한 설정](#자세한-설정) 에 있습니다.
 
