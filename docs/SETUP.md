@@ -524,6 +524,33 @@ flutter emulators --create --name lisn
 > `$env:JAVA_HOME` 은 **그 창에서만** 유지됩니다. 계속 쓰려면 5-2 와 같은 방법으로
 > 시스템 환경 변수에 `JAVA_HOME` 을 등록하세요.
 
+### PC 키보드로 타이핑하려면 — 기본은 안 됩니다
+
+`flutter emulators --create` 로 만든 AVD 는 **`hw.keyboard=no`** 가 기본입니다.
+그래서 이메일·비밀번호를 **화면 키보드를 하나씩 눌러** 넣어야 합니다. 고장이
+아니라 설정입니다.
+
+`%USERPROFILE%\.android\avd\<AVD이름>.avd\config.ini` 에서 한 줄을 바꾸세요.
+
+```powershell
+$cfg = "$env:USERPROFILE\.android\avd\lisn.avd\config.ini"
+Copy-Item $cfg "$cfg.bak"
+(Get-Content $cfg) -replace '^hw\.keyboard=no$','hw.keyboard=yes' | Set-Content $cfg -Encoding ASCII
+```
+
+**에뮬레이터를 껐다 켜야 적용됩니다.** 앱과 로그인 세션은 AVD 안에 남아 있어
+그대로입니다. 적용됐는지는 이걸로 봅니다 — `keysexposed-qwerty` 가 보여야 합니다.
+안 바뀌었으면 `keyshidden-nokeys` 로 나옵니다.
+
+```powershell
+adb shell am get-config
+```
+
+> **한글은 여전히 화면 키보드로 전환해야 합니다.** 지구본 아이콘을 누르세요.
+> PC 의 한/영 키는 에뮬레이터로 넘어가지 않습니다.
+>
+> PC 에서 복사한 텍스트는 `Ctrl+V` 로 에뮬레이터에 붙여넣을 수 있습니다.
+
 ### ⚠ 에뮬레이터에는 Health Connect 가 없습니다
 
 걸음·수면 수집(`MLCM_200`)은 **에뮬레이터에서 데이터가 안 옵니다.** 고장이 아닙니다.
@@ -719,6 +746,7 @@ login  reset  join  home  chat  lifelog  setting  report  emergency
 | PostgreSQL 설치 후 `Stack Builder` | 아무것도 체크하지 말고 **Cancel** |
 | `sdkmanager 를 인식할 수 없습니다` | Android SDK 도구도 PATH 에 없습니다. 12번의 전체 경로를 쓰세요 |
 | `JAVA_HOME is not set` | `sdkmanager`·`avdmanager` 는 `JAVA_HOME` 만 봅니다. 12번 방법 B |
+| 에뮬레이터에 **PC 키보드로 타이핑이 안 됨** | AVD 기본값이 `hw.keyboard=no` 입니다. 12번 「PC 키보드로 타이핑하려면」 |
 
 ## DB 넣기
 
