@@ -92,7 +92,17 @@ class _ChatScreenState extends State<ChatScreen> {
   SettingsService get _settings =>
       widget.settingsService ?? AppServices.settings;
 
+  /// **선택 화면에서 지금 보이는 카드.** 좌우로 넘기면 바뀝니다.
+  ///
+  /// ⚠ 대화 중인 성격과 다를 수 있습니다. 뒤로가기로 선택 화면에 돌아온 뒤
+  ///   카드를 넘기면 갈라집니다. 대화 화면은 [talking] 을 쓰세요.
   ChatPersona persona = ChatPersona.feeling;
+
+  /// **진행 중인 세션의 성격.** 세션이 없으면 null 입니다.
+  ///
+  /// [persona] 와 나눠 둔 이유는 위 주석과 같습니다. 하나로 쓰면 선택 화면에서
+  /// 카드를 넘기는 것만으로 **대화 중인 말풍선 색과 머리말이 바뀝니다.**
+  ChatPersona? activePersona;
 
   /// 서버에 저장된 성격(`USERS.persona_type`). 마지막으로 대화한 성격입니다.
   ///
@@ -105,6 +115,16 @@ class _ChatScreenState extends State<ChatScreen> {
   String? sessionId;
   bool starting = false;
   bool sending = false;
+
+  /// 대화 화면이 기준으로 삼는 성격.
+  ChatPersona get talking => activePersona ?? persona;
+
+  /// 사용자가 한 마디라도 했는지.
+  ///
+  /// 종료할 때 **요약이 나올 수 있는 대화인지**를 가릅니다. 인사말만 있는 세션은
+  /// 서버가 요약할 것이 없어 `session_summary` 가 NULL 로 남고, 대화 기록에
+  /// 「요약을 만들지 못했습니다」로 뜹니다.
+  bool get _spoken => messages.any((m) => m.fromUser);
 
   @override
   void initState() {
@@ -130,12 +150,28 @@ class _ChatScreenState extends State<ChatScreen> {
         lastUsed = found;
         persona = found;
       });
-      if (pageController.hasClients) {
-        pageController.jumpToPage(ChatPersona.values.indexOf(found));
-      }
+      _syncPage();
     } catch (_) {
       // 기본 선택만 못 맞춘 것이라 그대로 진행합니다.
     }
+  }
+
+  /// 보이는 카드를 [persona] 에 맞춥니다.
+  ///
+  /// ⚠ **다음 프레임에 맞춰야 합니다.** 전에는 `hasClients` 를 그 자리에서
+  ///   확인했는데, PageView 가 아직 붙기 전이면 그냥 건너뛰었습니다. 그러면
+  ///   `persona` 는 저장된 값인데 **화면에는 첫 카드가 보이고 점 표시도 어긋납니다**
+  ///   — 눌러야 할 카드가 뭔지 알 수 없어집니다.
+  ///
+  /// ⚠ 대화 중에는 PageView 가 트리에 없어 여기서 못 맞춥니다. 그래서 선택
+  ///   화면으로 돌아올 때 다시 부릅니다.
+  void _syncPage() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !pageController.hasClients) return;
+      final index = ChatPersona.values.indexOf(persona);
+      if (pageController.page?.round() == index) return;
+      pageController.jumpToPage(index);
+    });
   }
 
   @override
@@ -146,7 +182,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
-  String get personaName => persona.titled;
+  String get personaName => talking.titled;
 
   void _toast(String message) {
     if (!mounted) return;
@@ -162,6 +198,65 @@ class _ChatScreenState extends State<ChatScreen> {
       if (!scrollController.hasClients) return;
       scrollController.jumpTo(scrollController.position.maxScrollExtent);
     });
+  }
+
+  /// 카드를 눌렀을 때. 진행 중인 대화가 있으면 먼저 갈래를 나눕니다.
+  ///
+  /// - **같은 성격** — 새로 시작하지 않고 하던 대화로 돌아갑니다. 여기서 새
+  ///   세션을 열면 방금 하던 대화가 통째로 밀려납니다.
+  /// - **다른 성격** — 확인을 받고 지금 대화를 끝낸 뒤 새로 시작합니다.
+  ///   묻지 않고 넘어가면 **손이 미끄러진 것만으로 대화가 끝납니다.**
+  Future<void> onCardTap(ChatPersona selected) async {
+    if (starting) return;
+
+    if (sessionId != null) {
+      if (activePersona == selected) {
+        _resumeConversation();
+        return;
+      }
+      final ok = await _confirmSwitch(selected);
+      if (ok != true || !mounted) return;
+      await endConversation();
+      if (!mounted) return;
+    }
+    await startConversation(selected);
+  }
+
+  Future<bool?> _confirmSwitch(ChatPersona selected) => showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('지금 대화를 끝낼까요?',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+          content: Text(
+              '${selected.label}(으)로 새 대화를 시작하면 지금 대화는 종료돼요.\n'
+              '나눈 이야기는 대화 기록에 남습니다.',
+              style: const TextStyle(fontSize: 12, height: 1.6)),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('계속 이야기할래요')),
+            TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('끝내고 새로 시작')),
+          ],
+        ),
+      );
+
+  /// 하던 대화로 돌아갑니다. 서버를 부르지 않습니다 — 세션은 계속 열려 있습니다.
+  void _resumeConversation() {
+    setState(() => conversation = true);
+    _scrollToEnd();
+  }
+
+  /// 뒤로가기(←). **대화를 끝내지 않습니다.**
+  ///
+  /// ⚠ 전에는 여기서 [endConversation] 을 불렀습니다. 그래서 카드를 눌렀다가
+  ///   한 마디도 안 하고 나오면 **빈 세션이 종료 처리돼 대화 기록에 쌓였고**,
+  ///   서버는 요약할 내용이 없어 「요약을 만들지 못했습니다」로 남았습니다.
+  ///   실제로 13개 중 12개가 그런 세션이었습니다(2026.08.03).
+  void _leaveConversation() {
+    setState(() => conversation = false);
+    _syncPage();
   }
 
   Future<void> startConversation(ChatPersona selected) async {
@@ -188,6 +283,7 @@ class _ChatScreenState extends State<ChatScreen> {
       });
       setState(() {
         sessionId = session.sessionId;
+        activePersona = selected;
         conversation = true;
         // 첫 인사도 서버가 만듭니다. 페르소나 문구가 두 곳에 있으면 어긋납니다.
         messages = [ChatMessage(session.greeting, fromUser: false)];
@@ -243,20 +339,61 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  /// 세션 종료. 서버가 요약을 만들고 ended_at 을 기록합니다.
+  /// 「대화 종료」를 눌렀을 때. 나눈 이야기가 있으면 한 번 묻습니다.
+  ///
+  /// ⚠ 「대화 종료」가 ← 바로 옆에 있습니다. 이제 둘의 결과가 달라졌으므로
+  ///   (하나는 유지, 하나는 초기화) 잘못 눌렀을 때 되돌릴 수 있어야 합니다.
+  ///   한 마디도 안 했으면 잃을 것이 없으니 묻지 않습니다.
+  Future<void> _confirmEnd() async {
+    if (!_spoken) return endConversation();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('대화를 끝낼까요?',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+        content: const Text(
+            '끝내면 이 화면의 대화는 지워지고 새 대화로 시작해요.\n'
+            '나눈 이야기는 대화 기록에서 다시 볼 수 있어요.',
+            style: TextStyle(fontSize: 12, height: 1.6)),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('더 이야기할래요')),
+          TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('종료하기')),
+        ],
+      ),
+    );
+    if (ok == true) await endConversation();
+  }
+
+  /// 세션 종료 — 「대화 종료」 전용. 대화가 **초기화**됩니다.
   ///
   /// 종료에 실패해도 화면은 닫습니다. 세션이 열린 채로 남아도
   /// 비활성 상태가 되면 서버가 정리하고, 여기서 사용자를 붙잡아둘 이유가 없습니다.
+  ///
+  /// ⚠ **한 마디도 안 한 세션은 종료가 아니라 삭제합니다.** 서버는 메시지가
+  ///   비어 있으면 요약을 만들지 않으므로(`llm.summarize_session`), 그대로
+  ///   종료하면 대화 기록에 「요약을 만들지 못했습니다」만 남는 빈 줄이 쌓입니다.
+  ///   남길 내용이 없는 기록이라 지우는 편이 맞습니다.
   Future<void> endConversation() async {
     final id = sessionId;
+    final spoken = _spoken;
     setState(() {
       conversation = false;
       sessionId = null;
+      activePersona = null;
       messages = [];
     });
+    _syncPage();
     if (id == null) return;
     try {
-      await _chat.endSession(id);
+      if (spoken) {
+        await _chat.endSession(id);
+      } else {
+        await _chat.deleteSession(id);
+      }
     } catch (_) {
       // 조용히 넘어간다.
     }
@@ -264,8 +401,16 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: conversation ? _conversationView() : _selectionView());
+    if (!conversation) return SafeArea(child: _selectionView());
+    // 기기 뒤로가기도 ← 와 같게 둡니다. 하나는 대화를 지키고 하나는 앱을 닫으면
+    // 어느 쪽이 안전한지 알 수 없습니다.
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _leaveConversation();
+      },
+      child: SafeArea(child: _conversationView()),
+    );
   }
 
   Widget _selectionView() {
@@ -275,6 +420,10 @@ class _ChatScreenState extends State<ChatScreen> {
             title: 'AI 챗봇',
             onHistory: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => ChatHistoryScreen(chatService: _chat)))),
+        // 뒤로가기로 나온 대화가 있으면 돌아갈 길을 남깁니다. 이게 없으면
+        // 세션은 살아 있는데 화면에서 들어갈 방법이 없습니다.
+        if (sessionId != null)
+          _ResumeBanner(persona: talking, onTap: _resumeConversation),
         const Padding(
           padding: EdgeInsets.fromLTRB(22, 20, 22, 12),
           child:
@@ -306,11 +455,13 @@ class _ChatScreenState extends State<ChatScreen> {
               _PersonaCard(
                   persona: ChatPersona.feeling,
                   lastUsed: lastUsed == ChatPersona.feeling,
-                  onTap: () => startConversation(ChatPersona.feeling)),
+                  ongoing: activePersona == ChatPersona.feeling,
+                  onTap: () => onCardTap(ChatPersona.feeling)),
               _PersonaCard(
                   persona: ChatPersona.thinking,
                   lastUsed: lastUsed == ChatPersona.thinking,
-                  onTap: () => startConversation(ChatPersona.thinking)),
+                  ongoing: activePersona == ChatPersona.thinking,
+                  onTap: () => onCardTap(ChatPersona.thinking)),
             ],
           ),
         ),
@@ -341,12 +492,15 @@ class _ChatScreenState extends State<ChatScreen> {
       Padding(
         padding: const EdgeInsets.fromLTRB(15, 8, 15, 12),
         child: Row(children: [
+          // ← 는 **나가기**입니다. 대화는 그대로 두고 선택 화면으로만 돌아갑니다.
+          // 끝내는 것은 오른쪽 「대화 종료」 하나뿐입니다.
           IconButton(
-              onPressed: endConversation,
+              onPressed: _leaveConversation,
+              tooltip: '나가기 (대화는 유지돼요)',
               icon: const Icon(Icons.arrow_back_rounded)),
           MaeumeMascot(
               size: 45,
-              mood: persona == ChatPersona.thinking
+              mood: talking == ChatPersona.thinking
                   ? MascotMood.thinking
                   : MascotMood.smile),
           const SizedBox(width: 10),
@@ -361,7 +515,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     style: TextStyle(fontSize: 9, color: Color(0xFF61C799)))
               ])),
           TextButton(
-              onPressed: endConversation,
+              onPressed: _confirmEnd,
               child: const Text('대화 종료',
                   style: TextStyle(fontSize: 10, color: AppColors.muted))),
         ]),
@@ -377,7 +531,7 @@ class _ChatScreenState extends State<ChatScreen> {
             if (index >= messages.length) return const _TypingBubble();
             return _MessageBubble(
               messages[index],
-              thinking: persona == ChatPersona.thinking,
+              thinking: talking == ChatPersona.thinking,
             );
           },
         ),
@@ -423,14 +577,74 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
+/// 뒤로가기로 나온 대화로 돌아가는 배너.
+///
+/// ⚠ 이게 없으면 ← 로 나온 순간 **세션은 살아 있는데 들어갈 입구가 사라집니다.**
+///   카드를 눌러 들어갈 수는 있지만, 그게 「새로 시작」인지 「이어서」인지
+///   화면만 봐서는 알 수 없습니다.
+class _ResumeBanner extends StatelessWidget {
+  const _ResumeBanner({required this.persona, required this.onTap});
+  final ChatPersona persona;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(22, 4, 22, 0),
+      child: Material(
+        color: const Color(0xFFE8ECFF),
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Row(children: [
+              MaeumeMascot(
+                  size: 30,
+                  mood: persona == ChatPersona.thinking
+                      ? MascotMood.thinking
+                      : MascotMood.smile),
+              const SizedBox(width: 10),
+              Expanded(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                    const Text('나누던 이야기가 남아 있어요',
+                        style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.navy)),
+                    const SizedBox(height: 2),
+                    Text('${persona.label} · 이어서 대화하기',
+                        style: const TextStyle(
+                            fontSize: 10, color: AppColors.muted)),
+                  ])),
+              const Icon(Icons.chevron_right_rounded,
+                  size: 19, color: AppColors.primary),
+            ]),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _PersonaCard extends StatelessWidget {
   const _PersonaCard(
-      {required this.persona, required this.onTap, this.lastUsed = false});
+      {required this.persona,
+      required this.onTap,
+      this.lastUsed = false,
+      this.ongoing = false});
   final ChatPersona persona;
   final VoidCallback onTap;
 
   /// 마지막으로 대화한 성격인지. 앱을 껐다 켜도 유지됩니다.
   final bool lastUsed;
+
+  /// 이 성격으로 **진행 중인 대화**가 있는지. 버튼 문구가 갈립니다 —
+  /// 누르면 새로 시작하는 게 아니라 하던 대화로 돌아가기 때문입니다.
+  final bool ongoing;
 
   @override
   Widget build(BuildContext context) {
@@ -459,7 +673,7 @@ class _PersonaCard extends StatelessWidget {
             //   하지만, 표시가 없으면 **그게 내가 고른 값인지 그냥 첫 카드인지
             //   알 수 없습니다.** 설정에서 페르소나 항목을 뺀 것도 이 표시가
             //   그 역할을 대신하기 때문입니다.
-            if (lastUsed)
+            if (lastUsed || ongoing)
               Positioned(
                   top: 20,
                   left: 20,
@@ -469,7 +683,7 @@ class _PersonaCard extends StatelessWidget {
                       decoration: BoxDecoration(
                           color: Colors.white.withAlpha(210),
                           borderRadius: BorderRadius.circular(12)),
-                      child: Text('최근 대화',
+                      child: Text(ongoing ? '대화 중' : '최근 대화',
                           style: TextStyle(
                               fontSize: 9,
                               fontWeight: FontWeight.w800,
@@ -544,7 +758,7 @@ class _PersonaCard extends StatelessWidget {
                               : const Color(0xFF38889A)))),
               const SizedBox(height: 16),
               Row(mainAxisSize: MainAxisSize.min, children: [
-                Text('이 성격으로 대화하기',
+                Text(ongoing ? '이어서 대화하기' : '이 성격으로 대화하기',
                     style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,

@@ -128,6 +128,40 @@ async def test_chat_stores_masked_text(client, user):
 
 
 @pytest.mark.asyncio
+async def test_빈_세션은_대화_기록에_실리지_않는다(client, user):
+    """성격 카드를 눌렀다가 아무 말 없이 나온 세션은 목록에서 뺀다.
+
+    ⚠ 요약할 내용이 없어 `session_summary` 가 NULL 로 남는다. 그대로 실으면
+      대화 기록에 「요약을 만들지 못했습니다」만 적힌 빈 줄이 쌓인다. 실제로
+      13건 중 12건이 그런 세션이었다(2026.08.03 실측).
+
+    앱은 이제 그런 세션을 종료 대신 삭제하지만, 앱이 죽거나 삭제 요청이 못
+    나간 경우가 남으므로 서버에서도 막는다.
+    """
+    empty = await client.post(f"{BASE}/chat/sessions", headers=user["headers"], json={})
+    empty_id = empty.json()["session_id"]
+
+    talked = await client.post(f"{BASE}/chat/sessions", headers=user["headers"], json={})
+    talked_id = talked.json()["session_id"]
+    await client.post(
+        f"{BASE}/chat/sessions/{talked_id}/messages",
+        headers=user["headers"],
+        json={"content": "오늘 좀 힘들었어요"},
+    )
+
+    rows = (await client.get(f"{BASE}/chat/sessions", headers=user["headers"])).json()
+    ids = [r["session_id"] for r in rows]
+
+    assert talked_id in ids
+    assert empty_id not in ids
+
+    # 목록에서 뺐을 뿐 지운 것은 아니다 — 직접 조회는 그대로 된다.
+    assert (
+        await client.get(f"{BASE}/chat/sessions/{empty_id}", headers=user["headers"])
+    ).status_code == 200
+
+
+@pytest.mark.asyncio
 async def test_cannot_read_others_session(client, user):
     r = await client.get(
         f"{BASE}/chat/sessions/00000000-0000-0000-0000-000000000000",

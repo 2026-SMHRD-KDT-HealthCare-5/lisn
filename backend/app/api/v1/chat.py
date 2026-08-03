@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -171,10 +171,21 @@ async def list_sessions(
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
     offset: Annotated[int, Query(ge=0)] = 0,
 ):
-    """대화 기록 목록 — MAIN_CHAT_02 ❹. 본문은 제외하고 요약만 내린다."""
+    """대화 기록 목록 — MAIN_CHAT_02 ❹. 본문은 제외하고 요약만 내린다.
+
+    ⚠ **한 마디도 오가지 않은 세션은 빼고 내린다.**
+      성격 카드를 눌렀다가 아무 말 없이 나오면 세션 행만 남는다. 요약할 내용이
+      없어 `session_summary` 가 NULL 이라, 목록에 그대로 실으면 「요약을 만들지
+      못했습니다」만 적힌 빈 줄이 쌓인다. 실제로 13건 중 12건이 그랬다
+      (2026.08.03). 앱은 이제 그런 세션을 종료 대신 삭제하지만, 앱이 죽거나
+      네트워크가 끊겨 삭제가 못 나간 경우가 남으므로 여기서도 막는다.
+    """
     rows = await db.scalars(
         select(ChatSession)
-        .where(ChatSession.user_id == user.user_id)
+        .where(
+            ChatSession.user_id == user.user_id,
+            func.jsonb_array_length(ChatSession.messages) > 0,
+        )
         .order_by(ChatSession.started_at.desc())
         .limit(limit)
         .offset(offset)
