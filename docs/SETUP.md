@@ -617,11 +617,30 @@ DB 를 새로 만들면 **계정이 하나도 없습니다.** `docs/진행/작�
 
 ### 14-2. 관리자 웹에 들어가려면
 
-관리자 웹은 `role='ADMIN'` 인 계정만 세션을 허용합니다. 회원가입한 뒤 본인 계정을
-승격하세요.
+관리자 웹은 `role='ADMIN'` 인 계정만 세션을 허용합니다. **먼저 앱에서 회원가입**한
+뒤, 그 계정을 승격하세요. 승격할 계정이 없으면 아무 일도 일어나지 않습니다.
 
 ```powershell
-& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -d lisn -c "UPDATE users SET role='ADMIN' WHERE email='본인이메일';"
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -d lisn -c "UPDATE users SET role='ADMIN' WHERE email='you@example.com';"
+```
+
+> ### ⚠ `you@example.com` 을 가입한 주소로 바꿔서 실행하세요
+>
+> 자리표시자를 한글로 두고 그대로 실행하면 이 오류가 납니다.
+>
+> ```
+> 오류:  "UTF8" 인코딩에 사용할 수 없는 문자가 있음: 0xba
+> ```
+>
+> PowerShell 이 네이티브 명령에 한글을 CP949 바이트로 넘기는데 psql 은 UTF-8 로
+> 읽기 때문입니다. **`-c` 안에는 한글을 넣지 마세요.** 11-2 의 파일 읽기와
+> 방향만 반대인 같은 문제입니다.
+
+`UPDATE 1` 이 나오면 성공, `UPDATE 0` 이면 그 주소가 DB 에 없는 것입니다.
+계정 목록은 이렇게 봅니다.
+
+```powershell
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -d lisn -c "SELECT email, role FROM users;"
 ```
 
 > 승격은 API 에 **즉시** 반영됩니다(`require_admin` 이 JWT 가 아니라 DB 의 `role` 을
@@ -708,6 +727,8 @@ login  reset  join  home  chat  lifelog  setting  report  emergency
 | `0xe2 0x80 바이트로 조합된 문자(인코딩: "UHC")` | 콘솔 코드페이지가 949 라 psql 이 UHC 로 붙었습니다. `$env:PGCLIENTENCODING='UTF8'` 먼저. **그 뒤가 통째로 안 들어가니 처음부터 다시** |
 | `"users" 이름의 릴레이션이 없습니다` | 시드를 `schema.sql` 보다 먼저 실행했습니다. 11-2 순서대로 |
 | `"lisn" 데이터베이스가 없습니다` | `CREATE DATABASE lisn;` 을 안 했습니다 |
+| `"UTF8" 인코딩에 사용할 수 없는 문자가 있음: 0xba` | `-c "..."` 안에 **한글**을 넣으셨습니다. 자리표시자를 실제 값(영문)으로 바꾸세요. 14-2 |
+| 오류 메시지가 `?ㅻ쪟` 처럼 깨져 보임 | 콘솔 코드페이지가 949 라 UTF-8 메시지가 깨집니다. 내용만 안 보일 뿐 **동작에는 영향 없습니다.** `chcp 65001` 로 정상화 |
 
 ## 실행
 

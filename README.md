@@ -123,11 +123,25 @@ Copy-Item backend\.env.example backend\.env
 > 다만 **`role` 이 `USER`** 라 관리자 웹에는 못 들어갑니다.
 
 **관리자 웹**(http://localhost:5173)은 `role='ADMIN'` 인 계정만 세션을 허용합니다.
-회원가입한 뒤 본인 계정을 승격하세요.
+**먼저 앱에서 회원가입**한 뒤, 그 계정을 승격하세요.
 
 ```powershell
-& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -d lisn -c "UPDATE users SET role='ADMIN' WHERE email='본인이메일';"
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -d lisn -c "UPDATE users SET role='ADMIN' WHERE email='you@example.com';"
 ```
+
+`you@example.com` 을 **가입한 주소로 바꿔서** 실행하세요. `UPDATE 1` 이 나오면
+성공이고, `UPDATE 0` 이면 그 주소가 DB 에 없는 것입니다. 계정 목록은 이렇게 봅니다.
+
+```powershell
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -d lisn -c "SELECT email, role FROM users;"
+```
+
+> ⚠ **`-c` 안에 한글을 넣지 마세요.** PowerShell 이 네이티브 명령에 한글을 CP949
+> 바이트로 넘기는데 psql 은 UTF-8 로 읽어서 「`"UTF8" 인코딩에 사용할 수 없는
+> 문자가 있음: 0xba`」가 납니다. 자리표시자를 그대로 두고 실행하면 이걸 만납니다.
+
+> 데모 계정은 승격하지 마세요. `role` 이 `USER` 여야 관제 화면의 **대상자 목록**에
+> 뜹니다.
 
 > 승격은 API 에 즉시 반영되지만 **관리자 웹은 다시 로그인**해야 합니다. 로그인
 > 응답의 `role` 로 세션 저장 여부를 정하기 때문에, 승격 전에 로그인해 뒀다면
