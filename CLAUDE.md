@@ -74,7 +74,7 @@ pip install pypdf pdfplumber
 python tools/doc2txt.py
 ```
 
-`Documents/` 의 PDF·PPTX 를 전부 읽어 `docs/extracted/*.txt` 로 씁니다.
+`documents/` 의 PDF·PPTX 를 전부 읽어 `docs/extracted/*.txt` 로 씁니다.
 
 ### 2순위 — `tools/hwp2txt.ps1` (HWP 직접 파싱, 설치 불필요)
 
@@ -88,7 +88,7 @@ CFB(OLE) 컨테이너를 파싱하고 raw deflate 를 풉니다. **Python 없이
 
 ### 공통 규칙
 
-- **편집은 HWP, 대조는 PDF.** PDF 는 편집할 수 없으니 HWP 원본을 절대 지우지 마세요. 둘 다 `Documents/` 에 둡니다.
+- **편집은 HWP, 대조는 PDF.** PDF 는 편집할 수 없으니 HWP 원본을 절대 지우지 마세요. 둘 다 `documents/` 에 둡니다.
   - `doc2txt.py` 는 **HWP 를 읽지 않습니다.** PDF 를 다시 내보내지 않으면 추출본이 옛 내용 그대로입니다. 문서를 고쳤으면 **PDF 내보내기 → 재추출** 을 반드시 거치세요.
 - 문서가 갱신되면 **추출본도 다시 뽑아 같은 커밋에** 넣습니다. 그래야 버전 간 diff 가 보입니다.
 - **반영 여부를 문구 검색으로 판정하지 마세요.** 칸이 좁은 셀은 글자가 칸 너비에 맞춰 쪼개지고 옆 칸 텍스트와 섞여 추출됩니다(`permission_gra nted`, `terms_agreed_a t`). 표 제목 칸은 특히 심해서 `정서 리포트 및 관리자 관제 대시보드` 가 다섯 조각으로 흩어집니다.

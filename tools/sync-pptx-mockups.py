@@ -31,7 +31,7 @@ import struct
 from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 
-DECK = Path('Documents/화면설계서_귀기울임.pptx')
+DECK = Path('documents/화면설계서_귀기울임.pptx')
 DESIGN = Path('docs/design')
 
 # 폰 화면 그림의 표준 위치·크기(slide15 기준). 비율 0.4621 로 시안과 같습니다.

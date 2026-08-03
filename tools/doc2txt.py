@@ -12,7 +12,7 @@ hwp2txt.ps1 은 HWP 를 직접 파싱하지만 표 구조가 무너집니다.
 출력:
     docs/extracted/<파일명>.txt
 
-원본(Documents/)에 PDF 와 PPTX 가 있어야 합니다. HWP 만 있고 PDF 가 없으면
+원본(documents/)에 PDF 와 PPTX 가 있어야 합니다. HWP 만 있고 PDF 가 없으면
 해당 문서는 건너뜁니다. 그 경우 tools/hwp2txt.ps1 을 쓰세요.
 """
 
@@ -23,7 +23,7 @@ import sys
 import zipfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC = os.path.join(ROOT, "Documents")
+SRC = os.path.join(ROOT, "documents")
 OUT = os.path.join(ROOT, "docs", "extracted")
 
 
@@ -85,7 +85,7 @@ def main():
         glob.glob(os.path.join(SRC, "*.pptx"))
     )
     if not targets:
-        sys.exit("Documents/ 에 PDF·PPTX 가 없습니다.")
+        sys.exit("documents/ 에 PDF·PPTX 가 없습니다.")
 
     for path in targets:
         name = os.path.splitext(os.path.basename(path))[0]

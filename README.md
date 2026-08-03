@@ -525,7 +525,7 @@ lisn/
 │   └── hwp2txt.ps1           HWP 직접 파싱 보조 스크립트
 ├── .vscode/tasks.json        VS Code 공용 실행 작업
 ├── lisn.code-workspace       팀 공용 VS Code 워크스페이스
-└── Documents/                산출물 원본 (HWP · PPTX)
+└── documents/                산출물 원본 (HWP · PPTX)
 ```
 
 ---
