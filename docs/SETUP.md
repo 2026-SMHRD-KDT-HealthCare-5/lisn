@@ -1,7 +1,8 @@
 # 개발환경 세팅 가이드
 
 > 귀기울임(LISN) 팀 전원용. **역할 구분 없이 모두 같은 환경**으로 맞춥니다.
-> **최종 갱신** 2026.08.02
+> **최종 갱신** 2026.08.03 — 실제로 막혔던 지점(psql PATH · psql 인코딩 · 시스템
+> 이미지 없음 · **로그인할 계정이 없음**)을 각 단계에 넣었습니다.
 >
 > 처음 하시는 분 기준으로 썼습니다. **위에서부터 순서대로** 따라오시면 됩니다.
 > 앞 단계를 건너뛰면 뒤 단계가 안 됩니다.
@@ -36,6 +37,7 @@
 
 - [ ] 12. 에뮬레이터 만들기
 - [ ] 13. 전체 실행해보기
+- [ ] 14. 로그인할 계정 만들기 ← **빠뜨리면 앱에서 아무것도 못 합니다**
 
 ---
 
@@ -410,13 +412,31 @@ DATABASE_URL=postgresql+asyncpg://아이디:비밀번호@주소:포트/DB이름
 
 혼자 실험하거나 데모 데이터를 넣어보고 싶을 때 씁니다.
 
-```powershell
-psql -U postgres -c "CREATE DATABASE lisn;"
-```
+**아래 블록을 통째로** 붙여넣으세요. 한 줄씩 나눠 실행하면 `$psql` 과
+`PGCLIENTENCODING` 이 이어지지 않습니다.
 
 ```powershell
-psql -U postgres -d lisn -f db\schema.sql
+$psql = "C:\Program Files\PostgreSQL\17\bin\psql.exe"
+$env:PGCLIENTENCODING = 'UTF8'
+& $psql -U postgres -c "CREATE DATABASE lisn;"
+& $psql -U postgres -d lisn -f db\schema.sql
+& $psql -U postgres -d lisn -f db\seed_healing_contents.sql
+& $psql -U postgres -d lisn -f db\seed_demo_persona.sql
 ```
+
+> ### ⚠ 여기서 세 번 막힙니다. 셋 다 위 블록이 이미 피해 갑니다
+>
+> **① `psql` 을 인식할 수 없습니다** — 6번의 PATH 등록을 안 했거나, 등록하고
+> 터미널을 새로 안 연 것입니다. 전체 경로로 부르면 PATH 와 무관하게 됩니다.
+>
+> **② `0xe2 0x80 바이트로 조합된 문자(인코딩: "UHC")…`** — 한글 Windows 콘솔은
+> 코드페이지가 949 라 psql 이 `client_encoding=UHC` 로 붙습니다. `db/*.sql` 은
+> UTF-8 이고 주석에 `—`·`·`·`⚠` 가 들어 있어 변환하다 깨집니다.
+> `$env:PGCLIENTENCODING = 'UTF8'` 이 이걸 막습니다.
+> **이 오류가 나면 그 뒤가 통째로 안 들어갑니다.** 처음부터 다시 실행하세요.
+>
+> **③ `"users" 이름의 릴레이션이 없습니다`** — 시드를 `schema.sql` 보다 먼저
+> 실행한 것입니다. 위 순서를 지키면 나지 않습니다.
 
 ```
 DATABASE_URL=postgresql+asyncpg://postgres:설치할때정한비밀번호@localhost:5432/lisn
@@ -424,15 +444,13 @@ DATABASE_URL=postgresql+asyncpg://postgres:설치할때정한비밀번호@localh
 
 > 비밀번호에 `@` `:` `/` `#` 이 있으면 URL 인코딩이 필요합니다. `@` → `%40`
 
-**화면을 확인하려면 데이터가 필요합니다.** 아래 둘을 넣으세요.
+넣은 것이 무엇인지:
 
-```powershell
-psql -U postgres -d lisn -f db\seed_healing_contents.sql
-```
-
-```powershell
-psql -U postgres -d lisn -f db\seed_demo_persona.sql
-```
+| 파일 | 없으면 |
+|---|---|
+| `schema.sql` | 아무것도 안 됩니다. 8개 테이블 + `EMOTIONS` 9종 |
+| `seed_healing_contents.sql` | `CAUTION` 액션의 콘텐츠 추천이 빕니다 |
+| `seed_demo_persona.sql` | 홈·리포트·관제 화면이 전부 빕니다 |
 
 > 데모 페르소나는 14일치 라이프로그와 판정이 들어 있어 홈·리포트·관제 화면이 비지 않습니다.
 > **날짜가 바뀌면 다시 실행하세요** — 오늘 데이터가 「어제」가 되어 홈이 비어 보입니다.
@@ -480,9 +498,31 @@ flutter devices
 > **「emulator exited with code 1」** 이 나오면 **이미 켜져 있는 것**입니다.
 > `flutter devices` 로 확인해보세요.
 
-> `flutter emulators --create` 가 안 되면 Android Studio 의 **Device Manager** 에서
-> 만드세요. `avdmanager` 는 `JAVA_HOME` 을 요구하는데, Flutter 는 Android Studio 의
-> JDK 를 스스로 찾으므로 **`flutter` 명령 쪽이 더 잘 됩니다.**
+### ⚠ `No suitable Android AVD system images are available`
+
+`flutter emulators --create` 는 **시스템 이미지를 받아주지 않습니다.** 안드로이드
+스튜디오를 Standard 로 설치해도 이미지가 안 깔려 있을 수 있고, 그러면 이 명령은
+그냥 실패합니다. 둘 중 하나로 푸세요.
+
+**방법 A · Android Studio 의 Device Manager** — 이쪽이 쉽습니다.
+기기를 만들 때 시스템 이미지를 같이 내려받습니다. 잘 모르겠으면 A 로 가세요.
+
+**방법 B · 명령으로**
+
+```powershell
+$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
+& "$env:LOCALAPPDATA\Android\Sdk\cmdline-tools\latest\bin\sdkmanager.bat" "system-images;android-34;google_apis_playstore;x86_64"
+flutter emulators --create --name lisn
+```
+
+| 여기서 나는 오류 | 이유 |
+|---|---|
+| `sdkmanager 를 인식할 수 없습니다` | Android SDK 도구도 PATH 에 없습니다. 위처럼 전체 경로로 부르세요 |
+| `JAVA_HOME is not set` | **Flutter 는 Android Studio 의 JDK 를 스스로 찾지만 `sdkmanager`·`avdmanager` 는 `JAVA_HOME` 만 봅니다.** 위 첫 줄이 그걸 채웁니다 |
+
+> `sdkmanager` 가 라이선스 동의를 물어보면 `y` 를 치세요.
+> `$env:JAVA_HOME` 은 **그 창에서만** 유지됩니다. 계속 쓰려면 5-2 와 같은 방법으로
+> 시스템 환경 변수에 `JAVA_HOME` 을 등록하세요.
 
 ### ⚠ 에뮬레이터에는 Health Connect 가 없습니다
 
@@ -528,6 +568,59 @@ I/flutter: [동기화] SyncResult(SyncOutcome.permissionDenied, sent=0, queued=0
 > ### ⚠ 관리자 웹은 5173 포트여야 합니다
 > 백엔드가 그 주소만 허용합니다. 이전 창이 5173 을 잡고 있으면 새 창이 **5174 로 뜨고
 > 요청이 전부 막힙니다.** 400 이 계속 나면 주소창의 포트부터 보세요.
+
+### 13-1. 잘 떴는지는 `/health/db` 로 확인하세요
+
+```
+http://127.0.0.1:8000/health/db
+```
+
+`{"status":"ok","database":"connected"}` 가 나와야 합니다.
+
+> ### ⚠ `/docs` 로 확인하면 안 됩니다
+> Swagger 는 **DB 가 안 붙어도 열립니다.** 그래서 `/docs` 가 떴다고 넘어가면,
+> 앱에서 로그인할 때 응답이 10초를 넘겨 **「서버 응답이 지연되고 있습니다」**만
+> 뜹니다. 네트워크나 에뮬레이터 문제로 보이지만 아닙니다.
+
+---
+
+## 14. 로그인할 계정 만들기
+
+**여기를 빠뜨리면 앱을 띄워도 아무것도 못 합니다.** 실제로 여기서 오래 막혔습니다.
+
+DB 를 새로 만들면 **계정이 하나도 없습니다.** `docs/진행/작업이력.md` 에 적힌
+`admin@lisn.dev` · `user@lisn.dev` 는 **PM PC 의 로컬 DB 에서 손으로 만든 것이고
+시드에 들어 있지 않습니다.** 새 PC 에서 그 주소로 로그인하면 당연히 실패합니다.
+
+### 14-1. 일반 사용자
+
+| 방법 | 계정 |
+|---|---|
+| 앱에서 **회원가입** (권장) | 본인이 정합니다 |
+| `seed_demo_persona.sql` 을 넣었다면 | `demo.crisis@lisn-test.example` / `rldnfdla` |
+
+> 데모 계정에는 14일치 라이프로그와 판정이 붙어 있어 홈·리포트가 비지 않습니다.
+> 다만 **`role` 이 `USER`** 라 관리자 웹에는 못 들어갑니다.
+
+### 14-2. 관리자 웹에 들어가려면
+
+관리자 웹은 `role='ADMIN'` 인 계정만 세션을 허용합니다. 회원가입한 뒤 본인 계정을
+승격하세요.
+
+```powershell
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -d lisn -c "UPDATE users SET role='ADMIN' WHERE email='본인이메일';"
+```
+
+> 승격은 API 에 **즉시** 반영됩니다(`require_admin` 이 JWT 가 아니라 DB 의 `role` 을
+> 읽습니다). 다만 **관리자 웹은 다시 로그인해야 합니다** — 로그인 응답의 `role` 로
+> 세션 저장 여부를 정하기 때문에, 승격 전에 로그인해 뒀다면 세션 자체가 없습니다.
+
+> ### ⚠ `ADMIN` 계정을 시드에 넣지 않은 것은 의도한 것입니다
+> 이 저장소는 공개라, 시드에 넣는 순간 관리자 비밀번호가 공개됩니다.
+> 각자 자기 계정을 승격해서 쓰세요.
+
+> **공용 DB 를 쓰신다면** 승격 SQL 을 직접 돌리지 마시고 PM 에게 요청하세요.
+> 11-2 의 「시드 스크립트를 공용 DB 에 넣지 마세요」와 같은 이유입니다.
 
 ---
 
@@ -592,6 +685,16 @@ login  reset  join  home  chat  lifelog  setting  report  emergency
 | `conda 를 찾을 수 없습니다` | 일반 PowerShell 을 여신 겁니다. **`Anaconda PowerShell Prompt`** 로 여세요 |
 | 스크립트 실행 불가 (빨간 글씨) | `Set-ExecutionPolicy -Scope Process Bypass` 먼저 실행 |
 | PostgreSQL 설치 후 `Stack Builder` | 아무것도 체크하지 말고 **Cancel** |
+| `sdkmanager 를 인식할 수 없습니다` | Android SDK 도구도 PATH 에 없습니다. 12번의 전체 경로를 쓰세요 |
+| `JAVA_HOME is not set` | `sdkmanager`·`avdmanager` 는 `JAVA_HOME` 만 봅니다. 12번 방법 B |
+
+## DB 넣기
+
+| 증상 | 원인과 해결 |
+|---|---|
+| `0xe2 0x80 바이트로 조합된 문자(인코딩: "UHC")` | 콘솔 코드페이지가 949 라 psql 이 UHC 로 붙었습니다. `$env:PGCLIENTENCODING='UTF8'` 먼저. **그 뒤가 통째로 안 들어가니 처음부터 다시** |
+| `"users" 이름의 릴레이션이 없습니다` | 시드를 `schema.sql` 보다 먼저 실행했습니다. 11-2 순서대로 |
+| `"lisn" 데이터베이스가 없습니다` | `CREATE DATABASE lisn;` 을 안 했습니다 |
 
 ## 실행
 
@@ -603,9 +706,25 @@ login  reset  join  home  chat  lifelog  setting  report  emergency
 | `emulator exited with code 1` | 이미 켜져 있는 것입니다. `flutter devices` 로 확인 |
 | 관리자 웹에서 요청이 전부 실패 | 포트가 **5174** 로 떴을 수 있습니다. 남은 창을 닫고 다시 실행 |
 | 앱은 뜨는데 데이터가 안 보임 | 백엔드가 안 떠 있거나 시드를 안 넣은 상태입니다 |
+| 앱 로그인 — **이메일 또는 비밀번호가 올바르지 않습니다** | 그 계정이 이 PC 의 DB 에 없습니다. **14번** |
+| 앱 로그인 — **서버 응답이 지연되고 있습니다** | 요청은 갔는데 10초 안에 답이 없습니다. **백엔드가 DB 에 못 붙은 상태** → `/health/db` |
+| 앱 로그인 — **서버에 연결할 수 없습니다** | 연결 자체가 거부됐습니다. 백엔드 창이 살아 있는지 보세요 |
 | 홈의 수면·걸음이 전부 `-` | 데모 시드가 하루 지났습니다. `seed_demo_persona.sql` 을 다시 실행 |
 | DB 연결 오류 | **PostgreSQL 로그를 먼저** 보세요 — `C:\Program Files\PostgreSQL\17\data\log\` |
 | DBeaver 접속 실패 | **포트 번호**를 먼저 확인하세요. 공용 DB 는 5432 가 아닙니다 |
+
+> ### 에뮬레이터가 호스트를 못 봐서 그런 것이 아닙니다
+>
+> 앱이 서버에 못 붙는 것처럼 보이면 에뮬레이터 네트워크를 의심하기 쉬운데,
+> **거기가 아닙니다.** 에뮬레이터의 `10.0.2.2` 는 호스트의 `127.0.0.1` 로
+> 이어지므로 백엔드가 `127.0.0.1:8000` 에만 열려 있어도 닿습니다.
+>
+> 2026.08.03 에 에뮬레이터 Chrome 으로 `http://10.0.2.2:8000/health/db` 를 열어
+> `connected` 를 직접 확인했습니다. **여기를 파느라 시간을 쓰지 마세요.**
+> 계정(14번)과 `/health/db` 를 먼저 보세요.
+>
+> 실기기는 다릅니다 — `10.0.2.2` 가 통하지 않아 주소를 **두 곳**에 넣어야 합니다
+> (루트 [`README.md`](../README.md) 「실기기에서 …」 항목).
 
 ## 관리자 화면
 

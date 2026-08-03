@@ -31,6 +31,41 @@ git clone https://github.com/2026-SMHRD-KDT-HealthCare-5/lisn.git
 cd lisn
 ```
 
+#### 1. DB 먼저 — `start-dev.ps1` 은 DB 를 만들지 않습니다
+
+새 PC 라면 이걸 건너뛸 수 없습니다. **한 줄씩이 아니라 아래 블록을 통째로**
+붙여넣으세요. `$psql` 과 `PGCLIENTENCODING` 이 뒤 명령에 이어져야 합니다.
+
+```powershell
+$psql = "C:\Program Files\PostgreSQL\17\bin\psql.exe"
+$env:PGCLIENTENCODING = 'UTF8'
+& $psql -U postgres -c "CREATE DATABASE lisn;"
+& $psql -U postgres -d lisn -f db\schema.sql
+& $psql -U postgres -d lisn -f db\seed_healing_contents.sql
+& $psql -U postgres -d lisn -f db\seed_demo_persona.sql
+```
+
+- **전체 경로로 부르는 것은 의도한 것입니다.** PostgreSQL 설치 프로그램은 `bin` 을
+  PATH 에 등록하지 않아 `psql` 만 치면 「인식할 수 없습니다」가 납니다
+- **`PGCLIENTENCODING` 을 빼지 마세요.** 한글 Windows 콘솔(코드페이지 949)에서는
+  psql 이 `client_encoding=UHC` 로 붙어 UTF-8 인 `db/*.sql` 을 읽다 깨집니다
+- **순서를 지키세요.** 시드를 스키마보다 먼저 넣으면 「`users` 릴레이션이 없습니다」
+
+#### 2. `.env` 채우기
+
+```powershell
+Copy-Item backend\.env.example backend\.env
+```
+
+`DATABASE_URL` · `JWT_SECRET` · `ENCRYPTION_KEY` 를 채웁니다. 생성 명령은 아래
+[안 뜨면 — 증상별로 여기를 보세요](#안-뜨면--증상별로-여기를-보세요) 의
+`JWT_SECRET` 항목에 있습니다.
+
+> ⚠ **`CHANGE_ME` 로 두면 서버가 토큰 발급을 거부합니다.** 백엔드는 멀쩡히 뜨는데
+> 로그인만 안 됩니다.
+
+#### 3. 실행
+
 ```powershell
 .\tools\start-dev.ps1
 ```
@@ -49,6 +84,47 @@ cd lisn
 - VS Code 는 `lisn.code-workspace` 를 열고 `Ctrl+Shift+B`
 - 끌 때는 각 창에서 `Ctrl+C`
 
+#### 4. 성공 확인은 `/health/db` 로
+
+```
+http://127.0.0.1:8000/health/db
+```
+
+`{"status":"ok","database":"connected"}` 가 나와야 합니다.
+
+> ⚠ **`/docs` 로 확인하지 마세요.** Swagger 는 DB 가 안 붙어도 열립니다. DB 를
+> 못 붙은 상태로 앱에서 로그인하면 응답이 10초를 넘겨 **「서버 응답이 지연되고
+> 있습니다」**만 뜹니다 — 네트워크 문제로 보이지만 아닙니다.
+
+#### 5. 로그인 계정 — 저장소에는 계정이 없습니다
+
+**여기서 가장 많이 막힙니다.** DB 를 새로 만들면 계정이 하나도 없습니다.
+`docs/진행/작업이력.md` 에 적힌 `admin@lisn.dev` · `user@lisn.dev` 는 **PM PC 의
+로컬 DB 에서 손으로 만든 것이고 시드에 들어 있지 않습니다.** 새 PC 에서 그 주소로
+로그인하면 당연히 실패합니다.
+
+| 쓸 수 있는 계정 | 비밀번호 |
+|---|---|
+| 앱에서 직접 **회원가입** (권장) | 본인이 정합니다 |
+| `demo.crisis@lisn-test.example` — `seed_demo_persona.sql` 을 넣었을 때 | `rldnfdla` |
+
+> 데모 계정은 14일치 라이프로그·판정이 붙어 있어 홈·리포트가 비지 않습니다.
+> 다만 **`role` 이 `USER`** 라 관리자 웹에는 못 들어갑니다.
+
+**관리자 웹**(http://localhost:5173)은 `role='ADMIN'` 인 계정만 세션을 허용합니다.
+회원가입한 뒤 본인 계정을 승격하세요.
+
+```powershell
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -d lisn -c "UPDATE users SET role='ADMIN' WHERE email='본인이메일';"
+```
+
+> 승격은 API 에 즉시 반영되지만 **관리자 웹은 다시 로그인**해야 합니다. 로그인
+> 응답의 `role` 로 세션 저장 여부를 정하기 때문에, 승격 전에 로그인해 뒀다면
+> 세션 자체가 없습니다.
+>
+> ⚠ **`ADMIN` 계정을 시드로 넣지 않은 것은 의도한 것입니다.** 이 저장소는 공개라
+> 시드에 넣는 순간 관리자 비밀번호가 공개됩니다.
+
 #### 에뮬레이터는 스크립트가 켭니다
 
 앱은 **Android 전용**이라 기기가 있어야 뜹니다. `start-dev.ps1` 이 Android 기기가
@@ -64,12 +140,32 @@ flutter emulators
 flutter emulators --launch lisn
 ```
 
-만들어둔 에뮬레이터가 없으면 하나 만듭니다. Android Studio 의 **Device Manager**
-로도 됩니다.
+만들어둔 에뮬레이터가 없으면 하나 만듭니다.
 
 ```powershell
 flutter emulators --create --name lisn
 ```
+
+> ### ⚠ `No suitable Android AVD system images are available` 가 나오면
+>
+> `flutter emulators --create` 는 **시스템 이미지를 받아주지 않습니다.** 이미지가
+> 없으면 그냥 실패합니다. 둘 중 하나로 푸세요.
+>
+> **A. Android Studio 의 Device Manager** (쉽습니다) — 기기를 만들 때 이미지를
+> 같이 내려받습니다. 잘 모르겠으면 이쪽으로 가세요.
+>
+> **B. 명령으로** — `sdkmanager` 도 PATH 에 없고, `JAVA_HOME` 이 없으면
+> 「JAVA_HOME is not set」으로 멈춥니다. Flutter 는 Android Studio 의 JDK 를 스스로
+> 찾지만 **`sdkmanager`·`avdmanager` 는 `JAVA_HOME` 만 봅니다.**
+>
+> ```powershell
+> $env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
+> & "$env:LOCALAPPDATA\Android\Sdk\cmdline-tools\latest\bin\sdkmanager.bat" "system-images;android-34;google_apis_playstore;x86_64"
+> flutter emulators --create --name lisn
+> ```
+>
+> `sdkmanager` 는 라이선스 동의를 물어봅니다. `y` 를 치세요.
+> `JAVA_HOME` 은 이 창에서만 유지됩니다. 계속 쓰려면 시스템 환경 변수에 넣으세요.
 
 **실기기**는 USB 를 꽂고 **개발자 옵션 → USB 디버깅**을 켠 뒤 잡히는지 봅니다.
 
@@ -86,6 +182,45 @@ flutter devices
 
 처음이거나 새 PC 라면 아래를 한 번씩 거쳐야 합니다.
 설치 자체가 안 돼 있으면 [`docs/SETUP.md`](docs/SETUP.md) 부터 보세요.
+
+<br>
+
+**앱에서 로그인이 안 된다** — 화면 문구로 원인이 갈립니다. 문구를 먼저 보세요.
+
+| 문구 | 원인 |
+|---|---|
+| 이메일 또는 비밀번호가 올바르지 않습니다 | **그 계정이 이 PC 의 DB 에 없습니다.** 위 [로그인 계정](#5-로그인-계정--저장소에는-계정이-없습니다) |
+| 서버 응답이 지연되고 있습니다 | 요청은 갔는데 10초 안에 답이 없습니다. **백엔드가 DB 에 못 붙은 상태**입니다 → `/health/db` |
+| 서버에 연결할 수 없습니다 | 연결 자체가 거부됐습니다. 백엔드 창이 떠 있는지 보세요 |
+
+> **에뮬레이터가 호스트를 못 봐서 그런 것이 아닙니다.** 에뮬레이터의 `10.0.2.2` 는
+> 호스트의 `127.0.0.1` 로 이어지므로, 백엔드가 `127.0.0.1:8000` 에만 열려 있어도
+> 닿습니다. 2026.08.03 에 에뮬레이터 Chrome 으로 `http://10.0.2.2:8000/health/db`
+> 를 열어 `connected` 를 확인했습니다. **여기를 의심하느라 시간을 쓰지 마세요.**
+
+<br>
+
+**`psql` 을 인식할 수 없습니다** — 고장이 아닙니다. PostgreSQL 설치 프로그램은
+`bin` 을 PATH 에 등록하지 않습니다. 위 [DB 먼저](#1-db-먼저--start-devps1-은-db-를-만들지-않습니다)
+처럼 전체 경로로 부르거나, [`docs/SETUP.md`](docs/SETUP.md) 6번으로 PATH 를 등록하세요.
+
+<br>
+
+**`0xe2 0x80 바이트로 조합된 문자(인코딩: "UHC")…`** — 한글 Windows 콘솔은
+코드페이지가 949 라 psql 이 `client_encoding=UHC` 로 붙습니다. `db/*.sql` 은
+UTF-8 이고 주석에 `—`·`·`·`⚠` 가 들어 있어 변환에서 깨집니다.
+
+```powershell
+$env:PGCLIENTENCODING = 'UTF8'
+```
+
+> ⚠ **이 오류가 나면 그 뒤가 통째로 안 들어갑니다.** 스키마·시드를 처음부터 다시
+> 실행하세요. 「몇 줄만 실패했겠지」로 넘기면 테이블이 빠진 채로 진행됩니다.
+
+<br>
+
+**`"users" 이름의 릴레이션이 없습니다`** — 시드를 스키마보다 먼저 실행했습니다.
+`CREATE DATABASE` → `schema.sql` → `seed_*.sql` 순서를 지키세요.
 
 <br>
 
@@ -337,36 +472,23 @@ lisn/
 **PostgreSQL 17 로 고정합니다.** 팀 재현성을 위해 버전을 통일합니다.
 (13 미만이면 `db/schema.sql` 상단 주석의 `pgcrypto` 확장 참고)
 
-```bash
-psql -U postgres -c "CREATE DATABASE lisn;"
-```
+명령 자체는 [빠른 시작 1번](#1-db-먼저--start-devps1-은-db-를-만들지-않습니다) 에
+있습니다. **`psql` 전체 경로와 `PGCLIENTENCODING=UTF8` 이 왜 필요한지도 거기 있으니
+빼고 실행하지 마세요.** 아래는 각 파일이 무엇을 넣는지입니다.
 
-```bash
-psql -U postgres -d lisn -f db/schema.sql
-```
+| 파일 | 넣는 것 |
+|---|---|
+| `db/schema.sql` | 8개 테이블 + `EMOTIONS` 9종. **05 테이블명세서와 맞춘 스키마 정본** |
+| `db/seed_healing_contents.sql` | 힐링 콘텐츠. 없으면 `CAUTION` 액션의 콘텐츠 추천이 빕니다 |
+| `db/seed_demo_persona.sql` | 데모 계정 1명 + 14일치 라이프로그·판정. 없으면 홈·리포트·관제가 전부 빕니다 |
 
-`schema.sql` 은 05 테이블명세서와 정합을 맞춘 현재 스키마 정본입니다. 8개 테이블과
-`EMOTIONS` 9종 시드를 생성합니다. 기존 DB가 구버전이면 개발 단계에서는 스키마를 다시
-적용합니다.
-
-콘텐츠 추천(`CAUTION` 액션)을 쓰려면 힐링 콘텐츠도 넣습니다.
-
-```bash
-psql -U postgres -d lisn -f db/seed_healing_contents.sql
-```
-
-관리자 관제 화면(위험도 분포 · 위기 사건 이력)은 판정 이력이 있어야 그려집니다.
-실제 라이프로그를 14일 쌓지 않고 확인하려면 데모 페르소나를 넣습니다.
-
-```bash
-psql -U postgres -d lisn -f db/seed_demo_persona.sql
-```
+기존 DB 가 구버전이면 개발 단계에서는 스키마를 다시 적용합니다.
 
 테스트를 돌리다 보면 정리되지 못한 계정이 쌓여 관제 대시보드의 「전체 N명」이
 부풀려집니다. 데이터가 하나도 안 붙은 계정만 골라 지웁니다.
 
-```bash
-psql -U postgres -d lisn -f db/cleanup_test_accounts.sql
+```powershell
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -d lisn -f db\cleanup_test_accounts.sql
 ```
 
 > ⚠ **만들어낸 데이터입니다.** `model_version` 이 `seed-demo-v0` 로 박혀 있어 실제
