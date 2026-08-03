@@ -478,7 +478,7 @@ flutter run --dart-define=DEV_LOGIN=true --dart-define=SCREEN=report
    cd ai\server
    uvicorn main:app --reload --port 8001
    ```
-   > ⚠ 지금은 **규칙 기반 임시 판정**입니다. `model_version` 이 `rule-placeholder-v0`
+   > ⚠ **모델이 아닙니다.** `model_version` 이 `rule-` 로 시작하면
    > 이면 모델 결과가 아닙니다. **이 수치로 성능을 주장하지 마세요.**
    >
    > `risk_level_of()` 는 모델이 아니라 **정책**(04 문서 6항)입니다. `_predict()` 를
@@ -492,7 +492,7 @@ flutter run --dart-define=DEV_LOGIN=true --dart-define=SCREEN=report
    > 전체 데이터는 PhysioNet 자격 인증이 필요한데 **심사가 최대 45일**이라
    > 8/28 발표까지 27일로는 승인돼도 쓸 시간이 없습니다. **신청하지 않습니다.**
    >
-   > 규칙 기반 판정(`rule-placeholder-v0`)을 유지하고 **파이프라인 완성도**로
+   > 규칙 기반 판정(`rule-baseline-v1`)을 유지하고 **파이프라인 완성도**로
    > 발표합니다. 실측 근거는 [`ai/README.md`](../ai/README.md) 에 있습니다.
 4. **Health Connect 실기기 연동** — 위 3절 「지금 해야 할 일」 1번
 

@@ -156,14 +156,17 @@ def test_반환_계약_6필드를_지킨다():
     rows = [row(steps=5000, sleep=420) for _ in range(14)]
     result = _predict(rows)
 
-    assert set(result) == {
+    # ⚠ **여섯이 다 있는지**를 본다. 같은지가 아니다 — MLCM_220 용 부가
+    #   필드(streak_days·deviant_features)를 덧붙일 수 있어야 한다.
+    #   비즈니스 서버의 _persist 는 필요한 키만 골라 쓴다.
+    assert {
         "emotion_code",
         "emotion_score",
         "anomaly_score",
         "risk_level",
         "risk_score",
         "model_version",
-    }
+    } <= set(result)
     assert result["emotion_code"] in EMOTION_CATEGORY
     assert 0.0 <= result["emotion_score"] <= 100.0
     assert 0.0 <= result["anomaly_score"] <= 1.0
@@ -179,13 +182,17 @@ def test_risk_level_은_risk_level_of_가_정한_값과_같다():
     )
 
 
-def test_임시_판정임이_model_version_에_드러난다():
+def test_규칙_판정임이_model_version_에_드러난다():
     """이 값이 남아 있는 한 성능 근거로 쓸 수 없다는 표시가 된다.
 
     실제 모델을 넣으면 MODEL_VERSION 을 바꾸게 되고, 이 테스트가 실패하면서
     「이제 진짜 모델」이라는 사실을 문서·발표자료에 반영하도록 강제한다.
+
+    ⚠ 전에는 `rule-placeholder` 였다. 03 이 지도학습을 실측으로 닫고 규칙
+      기반을 **정식 방법으로 채택**했으므로 「자리 표시」가 아니다. 다만
+      모델은 아니라서 `rule-` 은 유지한다.
     """
-    assert MODEL_VERSION.startswith("rule-placeholder")
+    assert MODEL_VERSION.startswith("rule-")
 
     rows = [row(steps=5000, sleep=420) for _ in range(14)]
     assert _predict(rows)["model_version"] == MODEL_VERSION
@@ -207,18 +214,128 @@ def test_기준값이_0_이거나_없으면_나눗셈을_하지_않는다(sleep)
 def test_기준값에_오늘을_넣지_않는다():
     """"평소"는 판정 대상일 **이전**의 패턴이다(MLCM_210 2단계).
 
-    오늘을 평균에 넣으면 오늘이 스스로를 정상 쪽으로 끌어당겨 편차가 실제보다
+    오늘을 기준선에 넣으면 오늘이 스스로를 정상 쪽으로 끌어당겨 편차가
     작아진다. 안전 기능이라 그 방향이 **미탐**이다.
 
-    아래는 평소 400분 자던 사람이 오늘 200분만 잔 경우다.
-      오늘 제외  기준 400 -> 편차 (400-200)/400 = 0.5
-      오늘 포함  기준 366.7 -> 편차 0.4545      ← 과소평가
+    ⚠ **수치를 고정하지 않는다.** 임계값이 임의값이라 박아두면 조정을
+      방해한다. 대신 **성질**을 본다 — 평소와 다른 날이 같은 날보다 커야 한다.
+    """
+    deviated = [row(sleep=400) for _ in range(5)] + [row(sleep=200)]
+    steady = [row(sleep=400) for _ in range(5)] + [row(sleep=400)]
+
+    assert _predict(deviated)["anomaly_score"] > _predict(steady)["anomaly_score"]
+    assert _predict(steady)["anomaly_score"] == 0.0
+
+
+def test_기준선이_완전히_일정해도_이탈을_잡는다():
+    """MAD 가 0 이라고 넘기면 **가장 규칙적인 사람을 통째로 놓친다.**
+
+    매일 400분 자던 사람이 200분 잔 날이 정확히 그 경우다. 절반 이상이
+    같은 값이면 MAD 가 0 이 되는데, 실제 데이터에서도 드물지 않다.
     """
     rows = [row(sleep=400) for _ in range(5)] + [row(sleep=200)]
-    assert _predict(rows)["anomaly_score"] == 0.5
+    assert _predict(rows)["anomaly_score"] > 0.0
 
 
 def test_히스토리가_없으면_나눗셈을_하지_않는다():
     """행이 하나뿐이면 뺄 것을 빼고 나면 기준값이 없다. 죽지 않아야 한다."""
     result = _predict([row(sleep=400, steps=3000)])
     assert result["anomaly_score"] == 0.0
+
+
+# ==========================================================================
+#  개인 기준선 이탈 — 2026.08.03 신설
+# ==========================================================================
+
+
+def day(**kw):
+    """시각 컬럼까지 넣을 수 있는 행. `row()` 보다 넓다."""
+    base = {
+        "collected_at": None,
+        "steps": None,
+        "total_sleep_min": None,
+        "sleep_efficiency_pct": None,
+        "sleep_start_at": None,
+        "sleep_onset_min": None,
+        "awake_min": None,
+        "activity_start_at": None,
+        "heart_rate": None,
+        "hrv": None,
+    }
+    base.update(kw)
+    return base
+
+
+def test_좋은_쪽_이탈은_이상이_아니다():
+    """평소보다 **더 잘 잔** 날에 「이상」이 뜨면 안 된다.
+
+    양방향으로 재면 컨디션 좋은 날마다 경보가 울린다. 사용자가 신뢰를
+    잃으면 정작 필요할 때 무시한다.
+    """
+    better = [day(total_sleep_min=v) for v in (380, 400, 390, 410, 395)]
+    better.append(day(total_sleep_min=600))          # 평소보다 3시간 더 잠
+    assert _predict(better)["anomaly_score"] == 0.0
+
+
+def test_입면_시각이_자정을_넘어도_늦어진_것으로_센다():
+    """23:30 -> 01:00 은 **늦어진** 것이다.
+
+    자정 기준 분으로 재면 1410 -> 60 이라 「빨라졌다」로 뒤집힌다. 새벽까지
+    못 자는 것이 정확히 우리가 잡아야 하는 신호인데 부호가 반대가 된다.
+    """
+    from datetime import datetime
+
+    def at(h, m):
+        return datetime(2026, 8, 1, h, m)
+
+    rows = [day(sleep_start_at=at(23, 30), total_sleep_min=400) for _ in range(5)]
+    rows.append(day(sleep_start_at=at(2, 30), total_sleep_min=400))
+
+    result = _predict(rows)
+    assert "입면시각" in result["deviant_features"], result
+
+
+def test_연속_이탈일수를_센다():
+    """MLCM_220 은 이 값으로 발동한다. 하루 튄 것과 사흘 이어진 것은 다르다."""
+    steady = [day(total_sleep_min=400, steps=6000) for _ in range(6)]
+    assert _predict(steady)["streak_days"] == 0
+
+    drifting = steady[:4] + [
+        day(total_sleep_min=200, steps=1000),
+        day(total_sleep_min=180, steps=800),
+    ]
+    assert _predict(drifting)["streak_days"] >= 2
+
+
+def test_지표_하나만_튀면_이탈로_세지_않는다():
+    """측정 오차일 수 있다. 하루 워치를 늦게 찬 것만으로 접촉하면 안 된다."""
+    rows = [day(total_sleep_min=400, steps=6000) for _ in range(5)]
+    rows.append(day(total_sleep_min=200, steps=6000))     # 수면만 이탈
+    assert _predict(rows)["streak_days"] == 0
+
+
+def test_이탈한_지표_이름을_돌려준다():
+    """선제 접촉 문구가 "무엇이 달라졌는지" 말하려면 필요하다.
+
+    근거 없는 접촉은 감시로 읽힌다.
+    """
+    rows = [day(total_sleep_min=400, steps=6000) for _ in range(5)]
+    rows.append(day(total_sleep_min=180, steps=500))
+    feats = _predict(rows)["deviant_features"]
+    assert "총수면" in feats and "걸음수" in feats, feats
+
+
+def test_NUMERIC_컬럼이_Decimal_로_와도_죽지_않는다():
+    """asyncpg 는 NUMERIC 을 `Decimal` 로 준다.
+
+    float 와 섞어 곱하면 TypeError 로 판정이 통째로 죽는다. 데모 시드에서
+    실제로 500 이 났다 — `sleep_efficiency_pct` 가 NUMERIC(5,2) 이다.
+    """
+    from decimal import Decimal
+
+    rows = [day(sleep_efficiency_pct=Decimal(str(v)), total_sleep_min=400)
+            for v in (93.5, 92.8, 94.1, 93.0, 91.9)]
+    rows.append(day(sleep_efficiency_pct=Decimal("70.4"), total_sleep_min=200))
+
+    result = _predict(rows)
+    assert 0.0 <= result["anomaly_score"] <= 1.0

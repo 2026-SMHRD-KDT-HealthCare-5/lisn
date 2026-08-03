@@ -8,14 +8,22 @@
     cd ai/server
     uvicorn main:app --reload --port 8001
 
-⚠ 지금은 **규칙 기반 임시 판정**입니다. LSTM Autoencoder · LightGBM 이 아직
-  없어서, 그때까지 전체 파이프라인이 끊기지 않도록 자리를 채워둔 것입니다.
-  model_version 에 rule-placeholder 를 명시해 실제 모델 결과와 구분됩니다.
-  모델이 준비되면 _predict() 하나만 교체하면 됩니다.
+판정 방식은 **개인 기준선 이탈 탐지**입니다. 그 사람의 최근 14일을 기준선으로
+삼아 오늘이 얼마나 벗어났는지를 잽니다.
+
+⚠ **감정을 분류하지 않습니다.** 라이프로그로 감정을 맞히는 것은 03
+  빅데이터분석정의서가 실측으로 닫은 방향입니다(GLOBEM ROC-AUC 0.528 ·
+  LifeSnaps 0.479~0.540, 참가자 단위 분할). 여기서 하는 일은 **평소와 오늘의
+  대조**이고, 분류가 아니라 기술통계라 라벨이 필요 없습니다.
+
+⚠ **모델이 아닙니다.** model_version 의 `rule-` 접두사가 그 표시입니다.
+  이 값이 보이면 성능 근거로 쓰지 마세요. 임계값도 선행연구값이 아닌
+  임의값입니다.
 """
 
 import logging
 import os
+import statistics
 from datetime import datetime, timedelta, timezone
 
 import asyncpg
@@ -56,7 +64,13 @@ DATABASE_URL = os.getenv(
 # 를 규정한다. GLOBEM 의 14일 집계 단위와도 일치한다.
 BASELINE_DAYS = 14
 
-MODEL_VERSION = "rule-placeholder-v0"
+# ⚠ **모델이 아니다.** 규칙 기반 판정임이 적재된 행마다 남도록 이름에 박아둔다.
+#
+#   전에는 rule-placeholder-v0 이었다. 「모델이 준비될 때까지의 자리」라는
+#   뜻이었는데, 03 이 지도학습을 실측으로 닫고 **규칙 기반을 정식 방법으로
+#   채택**했으므로 placeholder 가 아니다. 다만 여전히 모델은 아니라서
+#   rule- 접두사는 유지한다 — 이 값이 보이면 성능 근거로 쓰지 말 것.
+MODEL_VERSION = "rule-baseline-v1"
 
 
 class AnalyzeRequest(BaseModel):
@@ -65,12 +79,23 @@ class AnalyzeRequest(BaseModel):
 
 
 class AnalyzeResponse(BaseModel):
+    """⚠ 위 6필드가 비즈니스 서버와의 계약이다. 순서·이름을 바꾸지 말 것.
+
+    아래 둘은 `MLCM_220`(선제 접촉)용으로 **덧붙인** 것이다. 비즈니스 서버의
+    `_persist` 는 필요한 키만 골라 쓰므로 추가 필드가 있어도 깨지지 않는다.
+    """
+
     emotion_code: str
     emotion_score: float
     anomaly_score: float
     risk_level: str
     risk_score: float
     model_version: str
+
+    # 마지막 날부터 연속으로 이탈한 일수. MLCM_220 이 이 값으로 발동한다.
+    streak_days: int = 0
+    # 이탈이 큰 지표 이름. 선제 접촉 문구가 "무엇이 달라졌는지" 말할 때 쓴다.
+    deviant_features: list[str] = []
 
 
 @app.get("/health")
@@ -94,6 +119,7 @@ async def analyze_lifelog(body: AnalyzeRequest):
         rows = await conn.fetch(
             """
             SELECT collected_at, steps, total_sleep_min, sleep_efficiency_pct,
+                   sleep_start_at, sleep_onset_min, awake_min, activity_start_at,
                    heart_rate, hrv
               FROM lifelog_metrics
              WHERE user_id = $1 AND collected_at >= $2
@@ -143,50 +169,207 @@ def _has_signal(rows: list) -> bool:
 
 
 # ==========================================================================
-#  모델 자리
+#  개인 기준선 이탈 탐지 — MLCM_210
 # ==========================================================================
+#
+# ⚠ **이건 감정을 맞히는 것이 아니다.** 라이프로그로 감정을 분류하는 것은
+#   03 빅데이터분석정의서가 실측으로 닫은 방향이다(GLOBEM ROC-AUC 0.528 ·
+#   LifeSnaps 0.479~0.540). 여기서 하는 일은 **그 사람의 평소와 오늘을
+#   비교하는 것**이고, 그건 분류가 아니라 기술통계라 라벨이 필요 없다.
+#
+#   그래서 정확도를 주장하지 않는다. 「평소와 다르다」는 맞고 틀림을 가릴
+#   대상이 아니라 측정값이다.
+
+# 판정에 쓰는 지표와 **나쁜 쪽 방향**.
+#
+# ⚠ 방향이 중요하다. 평소보다 **더 잘 잔** 날은 이탈이 아니다. 양방향으로
+#   세면 컨디션 좋은 날에 「이상」이 뜬다.
+#
+# ⚠ 심박·HRV 는 넣지 않았다. 기업 제공 데이터에 없고, 삼성헬스가 Health
+#   Connect 에 HRV 를 쓰지 않아 실기기에서도 안 들어온다
+#   (→ docs/검증/구현_갭_20260803.md).
+_FEATURES = [
+    ("총수면",     "total_sleep_min",      "down"),
+    ("걸음수",     "steps",                "down"),
+    ("수면효율",   "sleep_efficiency_pct", "down"),
+    ("입면지연",   "sleep_onset_min",      "up"),
+    ("야간각성",   "awake_min",            "up"),
+    ("입면시각",   "_sleep_start_min",     "up"),
+    ("활동개시",   "_activity_start_min",  "up"),
+]
+
+# 이탈로 셀 z 값과, 그런 지표가 몇 개여야 「이탈한 날」로 볼지.
+#
+# ⚠ **임의값이다.** 선행연구에서 가져온 값이 아니다. 성능 근거로 쓰지 말 것.
+DEVIATION_Z = 2.0
+MIN_DEVIANT_FEATURES = 2
+
+# anomaly_score 를 1.0 으로 채우는 z. 이것도 임의값이다.
+FULL_SCALE_Z = 4.0
+
+MODEL_VERSION_NOTE = "규칙 기반 판정 — 모델이 아니다"
+
+
+def _get(r, key):
+    """asyncpg.Record 와 dict 를 함께 받는다. 없는 키는 None."""
+    try:
+        return r[key]
+    except (KeyError, IndexError, TypeError):
+        return None
+
+
+def _sleep_start_min(r):
+    """입면 시각을 **18시 기준 분**으로. 자정을 넘어도 단조증가한다.
+
+    23:30 -> 330 · 01:00 -> 420. 그냥 자정 기준으로 재면 23:30(1410)과
+    01:00(60)이 하루를 사이에 두고 뒤집혀, **더 늦게 잔 것이 더 이른 것**으로
+    계산된다.
+    """
+    dt = _get(r, "sleep_start_at")
+    if dt is None:
+        return None
+    m = dt.hour * 60 + dt.minute
+    return m - 1080 if m >= 1080 else m + 360
+
+
+def _activity_start_min(r):
+    """활동 개시 시각을 자정 기준 분으로. 늦어질수록 크다."""
+    dt = _get(r, "activity_start_at")
+    if dt is None:
+        return None
+    return dt.hour * 60 + dt.minute
+
+
+_DERIVED = {
+    "_sleep_start_min": _sleep_start_min,
+    "_activity_start_min": _activity_start_min,
+}
+
+
+def _value(r, key):
+    """지표 하나를 float 로.
+
+    ⚠ **NUMERIC 컬럼은 asyncpg 가 `Decimal` 로 준다.** `sleep_efficiency_pct`
+      가 그렇고, float 와 섞어 곱하면 `TypeError` 로 판정이 통째로 죽는다.
+      실제로 데모 시드에서 500 이 났다. 들어오는 자리에서 한 번에 맞춘다.
+    """
+    fn = _DERIVED.get(key)
+    v = fn(r) if fn else _get(r, key)
+    return None if v is None else float(v)
+
+
+def _robust_z(value, history_values):
+    """중앙값·MAD 기준 z. 잴 수 없으면 None.
+
+    ⚠ **평균·표준편차를 쓰지 않는다.** 워치를 하루 안 찬 날 하나가 평균을
+      끌어내리면, 그 다음 날이 멀쩡한데도 이탈로 잡힌다. 중앙값은 그런
+      한 점에 흔들리지 않는다.
+
+    ⚠ **MAD 가 0 이어도 포기하지 않는다.** 값이 절반 이상 같으면 MAD 가 0 이
+      되는데, 그때 「못 잰다」로 넘기면 **가장 규칙적인 사람의 이탈을 통째로
+      놓친다.** 매일 400분 자던 사람이 200분 잔 날이 정확히 그 경우다.
+
+      평균절대편차(MeanAD)로 넘어가고, 그것도 0 이면 기준선이 완전히 평평한
+      것이므로 **다르기만 하면 최대 이탈**로 본다. Iglewicz-Hoaglin 이
+      권하는 폴백이다.
+    """
+    vals = [v for v in history_values if v is not None]
+    if value is None or len(vals) < MIN_DAYS_FOR_BASELINE:
+        return None
+
+    med = statistics.median(vals)
+    diff = value - med
+
+    mad = statistics.median([abs(v - med) for v in vals])
+    if mad:
+        return 0.6745 * diff / mad
+
+    mean_ad = sum(abs(v - med) for v in vals) / len(vals)
+    if mean_ad:
+        return diff / (1.253314 * mean_ad)
+
+    # 기준선이 완전히 평평하다. 같으면 0, 다르면 최대.
+    if diff == 0:
+        return 0.0
+    return FULL_SCALE_Z if diff > 0 else -FULL_SCALE_Z
+
+
+def _deviations(day, history):
+    """지표별 **나쁜 쪽 이탈 정도**. 좋은 쪽으로 벗어난 것은 0 이다."""
+    out = {}
+    for label, key, direction in _FEATURES:
+        z = _robust_z(_value(day, key), [_value(h, key) for h in history])
+        if z is None:
+            continue
+        dev = z if direction == "up" else -z
+        if dev > 0:
+            out[label] = dev
+    return out
+
+
+def _is_deviant(devs):
+    """이탈한 날인가 — 지표 하나만 튀는 것은 측정 오차일 수 있다."""
+    return sum(1 for d in devs.values() if d >= DEVIATION_Z) >= MIN_DEVIANT_FEATURES
+
+
+# ⚠ **아는 한계 — 서서히 나빠지는 것은 약하게 잡힌다.**
+#
+#   z 는 「최근 분포 대비 오늘이 튀는가」를 본다. 그래서 하루아침에 무너지면
+#   크게 잡히지만, **2주에 걸쳐 조금씩 나빠지면 분포 자체가 넓어져** z 가
+#   커지지 않는다.
+#
+#   데모 시드에서 실제로 그렇다. 총수면이 421분 -> 171분으로 반토막인데
+#   `deviant_features` 에는 수면효율·입면지연만 뜬다. 중간값들이 고르게
+#   퍼져 MAD 가 커졌기 때문이다.
+#
+#   `streak_days` 가 이걸 부분적으로 보완한다 — 각 날을 **그 날 이전** 기록만
+#   으로 보므로 초반에는 분포가 좁아 잡힌다. 데모에서 8일이 나오는 이유다.
+#
+#   제대로 잡으려면 **추세 검정**(Mann-Kendall 등)이 따로 필요하다. 넣지
+#   않은 이유는 검증할 라벨이 없어서다 — 03 이 닫은 그 문제와 같다.
+#   우울이 서서히 진행되는 경우가 많다는 점에서 **이건 실제 한계**다.
+
+
+def _streak(rows):
+    """마지막 날부터 **연속으로** 이탈한 일수 — `MLCM_220` 트리거.
+
+    각 날을 그 날 **이전** 기록만으로 판정한다. 뒤에서부터 세다가 이탈이
+    아닌 날을 만나면 멈춘다.
+    """
+    n = 0
+    for i in range(len(rows) - 1, 0, -1):
+        if not _is_deviant(_deviations(rows[i], rows[:i])):
+            break
+        n += 1
+    return n
+
 
 def _predict(rows: list) -> dict:
-    """⚠ 임시 규칙 판정. 여기를 실제 모델로 교체한다.
+    """개인 기준선 대비 이탈을 정량화한다 — `MLCM_210`.
 
-    교체 시 구조:
-        1차  LSTM Autoencoder — 정상 패턴 재구성 오차 -> anomaly_score
-        2차  LightGBM         — anomaly_score + 피처 -> emotion_code, risk_score
+    반환 6필드는 비즈니스 서버와의 계약이다(`backend/app/services/analysis.py`).
+    `streak_days`·`deviant_features` 는 `MLCM_220`(선제 접촉)용으로 **덧붙인**
+    것이라 기존 6필드를 건드리지 않는다.
 
-    반환 계약은 바꾸지 말 것. 비즈니스 서버가 이 여섯 필드를 그대로 적재한다
-    (backend/app/services/analysis.py).
-
-    ---
-    현재 규칙은 **모델의 근사가 아니라 자리 표시**다. 수면 부족과 활동량 급감이
-    정서 저하와 상관이 있다는 것은 선행연구에서 반복 보고된 바지만, 아래 임계값은
-    그 연구에서 가져온 값이 아니라 데모가 돌아가도록 임의로 정한 것이다.
-    이 값으로 성능을 주장하면 안 된다.
+    ⚠ `risk_level` 은 여기서 만들지 않고 `risk_level_of()` 를 부른다.
+      04 문서 6항이 정한 정책이고, 여기서 다시 계산하면 규칙이 두 곳에 생긴다.
     """
-    recent = rows[-1]
+    day = rows[-1]
 
-    # ⚠ 기준값에서 **오늘을 뺀다.** MLCM_210 2단계가 말하는 "평소"는 판정 대상일
-    #   이전의 패턴이다. 오늘을 평균에 넣으면 오늘이 스스로를 정상 쪽으로 끌어당겨
-    #   편차가 실제보다 작게 나온다 — 안전 기능에서는 **미탐**으로 기운다.
-    #   14일이면 1/14 만큼 희석되지만, 연동 직후 3일이면 1/3 이라 무시할 수 없다.
+    # ⚠ 기준선에서 **오늘을 뺀다.** MLCM_210 2단계의 "평소"는 판정 대상일
+    #   이전의 패턴이다. 오늘을 넣으면 오늘이 스스로를 정상 쪽으로 끌어당겨
+    #   편차가 작게 나온다 — 안전 기능에서 그 방향은 **미탐**이다.
     history = rows[:-1]
-    sleeps = [r["total_sleep_min"] for r in history if r["total_sleep_min"]]
-    steps = [r["steps"] for r in history if r["steps"]]
+    devs = _deviations(day, history)
 
-    baseline_sleep = sum(sleeps) / len(sleeps) if sleeps else None
-    baseline_steps = sum(steps) / len(steps) if steps else None
+    # 위에서 셋만 본다. 일곱 개 평균을 내면 두 지표가 크게 벗어나도 나머지
+    # 다섯에 희석돼 신호가 사라진다.
+    top = sorted(devs.values(), reverse=True)[:3]
+    anomaly = min(1.0, (sum(top) / len(top) / FULL_SCALE_Z)) if top else 0.0
 
-    # 개인별 기준 대비 편차. MLCM_210 이 규정한 "개인별 정규화" 의 자리다.
-    anomaly = 0.0
-    if baseline_sleep and recent["total_sleep_min"]:
-        deficit = (baseline_sleep - recent["total_sleep_min"]) / baseline_sleep
-        anomaly += max(0.0, deficit)
-    if baseline_steps and recent["steps"] is not None:
-        drop = (baseline_steps - recent["steps"]) / baseline_steps
-        anomaly += max(0.0, drop) * 0.5
-
-    anomaly = min(anomaly, 1.0)
-
-    # 모델이 내놓아야 하는 것은 여기까지 — 감정 코드와 두 점수뿐이다.
+    # ⚠ **감정을 식별하는 것이 아니다.** 이탈 정도를 9종 코드로 옮기는
+    #   규칙일 뿐이고, 03 이 "감정 코드는 라벨이 없어 규칙 기반으로 산출한다"
+    #   고 기록한 그 부분이다. 발표에서 "감정을 분류한다"고 말하지 말 것.
     if anomaly >= 0.5:
         emotion_code = "SADNESS"
     elif anomaly >= 0.25:
@@ -203,6 +386,13 @@ def _predict(rows: list) -> dict:
         "risk_level": risk_level_of(emotion_code, emotion_score),
         "risk_score": round(anomaly * 100, 2),
         "model_version": MODEL_VERSION,
+        # --- MLCM_220 용 부가 정보 (기존 6필드와 별개) ---
+        "streak_days": _streak(rows),
+        # 이탈이 큰 순서. 선제 접촉 문구가 "무엇이 달라졌는지" 말할 때 쓴다.
+        "deviant_features": [
+            k for k, _ in sorted(devs.items(), key=lambda kv: -kv[1])
+            if devs[k] >= DEVIATION_Z
+        ],
     }
 
 

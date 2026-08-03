@@ -462,7 +462,7 @@ flutter run --dart-define=API_BASE_URL=http://<내PC_IP>:8000/api/v1
 
 > ### ⚠ 정서 판정 수치를 성능 근거로 쓰지 마세요
 >
-> `model_version` 이 `rule-placeholder-v0` 이면 모델 결과가 아니라 임의 임계값입니다.
+> `model_version` 이 `rule-` 로 시작하면 모델 결과가 아니라 임의 임계값입니다.
 >
 > **이번 과제에서는 모델을 학습하지 않습니다.** 데이터셋 **두 개**로 확인했습니다.
 >

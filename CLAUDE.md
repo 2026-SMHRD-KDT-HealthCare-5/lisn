@@ -241,7 +241,7 @@ uvicorn main:app --reload --port 8001
   **원인은 PostgreSQL 로그에 있습니다** — 「사용자 postgres 의 password 인증을
   실패했습니다」
 
-- **지금은 규칙 기반 임시 판정입니다.** `model_version` 이 `rule-placeholder-v0` 이면
+- **판정은 개인 기준선 이탈 탐지입니다.** `model_version` 이 `rule-` 로 시작하면
   모델 결과가 아닙니다. 임계값도 선행연구값이 아니라 임의값이니 **성능 근거로 쓰지 마세요**
 - 모델 교체는 **`_predict()` 하나만** 바꿉니다. 반환 6필드는 비즈니스 서버와의 계약입니다
 - **`risk_level_of()` 는 모델이 아니라 정책**(04 문서 6항)입니다. `_predict()` 를 교체할 때

@@ -6,7 +6,7 @@
 외부에 열지 않는 것을 전제로 한다 — API설계_사전결정 7절.
 
 AI 추론 서버는 `ai/server` 에 있다(기본 8001). 다만 **판정은 아직 규칙 기반**이라
-model_version 이 `rule-placeholder-v0` 이면 모델 결과가 아니다 — ai/README.md 참고.
+model_version 이 `rule-` 로 시작하면 모델 결과가 아니다 — ai/README.md 참고.
 
 서버가 없거나 실패하면 조용히 넘어간다. 라이프로그 수신 자체는 이미 성공했으므로
 분석 실패로 push 를 되돌리면 안 된다.
