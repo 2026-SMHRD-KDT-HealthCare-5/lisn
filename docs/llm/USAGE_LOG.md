@@ -238,11 +238,12 @@ quotaValue 20
 
 `NFR-DV-001` 과 정상 경로 `NFR-TS-001` 은 **한도 소진 상태에서 잰 값이라 무효**입니다.
 기존 2.19초(LLM-004)를 뒤집을 근거는 없습니다. 한도가 초기화된 뒤 첫 시도로
-다시 재야 합니다 → [`성능실측_20260802.md`](../검증/성능실측_20260802.md)
+다시 재야 합니다 → [`성능실측_20260803.md`](../검증/성능실측_20260803.md)
+  (2026.08.03 재측정 완료 — 두 요건 모두 통과)
 
 - **반영 파일**: `backend/app/data/crisis_keywords.json`,
   `backend/tests/test_lifelog_chat.py`, `ai/server/main.py`, `tools/bench_nfr.py`,
-  `docs/검증/성능실측_20260802.md`
+  `docs/검증/성능실측_20260803.md`
 
 ---
 
