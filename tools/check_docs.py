@@ -226,25 +226,93 @@ def check_인용():
 
 # ---------------------------------------------------------------------------
 
+def _run(cmd, cwd, pat):
+    """테스트를 돌려 건수를 뽑습니다.
+
+    ⚠ **`shutil.which` 로 실행 파일을 찾습니다.** Windows 에서 `flutter`·`npm`
+      은 `.bat`/`.cmd` 라 `shell=False` 로는 못 찾습니다.
+    """
+    import shutil
+    import subprocess
+    exe = shutil.which(cmd[0])
+    if not exe:
+        return None, f'{cmd[0]} 을(를) PATH 에서 찾지 못했습니다'
+    try:
+        r = subprocess.run([exe] + cmd[1:], cwd=ROOT / cwd, capture_output=True,
+                           text=True, timeout=900, errors='replace')
+    except Exception as e:
+        return None, str(e)
+    out = (r.stdout or '') + (r.stderr or '')
+    m = re.findall(pat, out)
+    return (int(m[-1]) if m else None), out[-200:]
+
+
+def check_테스트건수():
+    """문서가 주장하는 회귀 테스트 건수가 실제와 같은지.
+
+    ⚠ **느립니다**(3~5분). `--with-tests` 를 줘야 돕니다.
+
+    이 검사가 필요한 이유 — `SESSION-HANDOFF.md` 에 「213건」이라 적혀 있었는데
+    내역 합(59+15+126+14)은 **214** 였습니다. 아무도 눈치채지 못했고, 그
+    사이 backend 는 59에서 77로 늘었습니다. **손으로 적은 숫자는 적는 순간부터
+    틀리기 시작합니다.**
+    """
+    suites = [
+        ('backend', ['python', '-m', 'pytest', '-q'], 'backend', r'(\d+) passed'),
+        ('AI', ['python', '-m', 'pytest', '-q'], 'ai/server', r'(\d+) passed'),
+        ('앱', ['flutter', 'test'], 'frontend/app', r'\+(\d+): All tests passed'),
+        ('관리자 웹', ['npm', 'test', '--silent'], 'frontend/admin', r'pass (\d+)'),
+    ]
+    counts, bad = {}, []
+    for name, cmd, cwd, pat in suites:
+        n, tail = _run(cmd, cwd, pat)
+        if n is None:
+            bad.append(f'{name}: 건수를 읽지 못했습니다 — {tail.strip()[:80]}')
+        else:
+            counts[name] = n
+
+    detail = ' · '.join(f'{k} {v}' for k, v in counts.items())
+    hand = DOCS / 'SESSION-HANDOFF.md'
+    claimed = re.search(r'회귀 테스트 \| \*\*(\d+)건', hand.read_text(encoding='utf-8'))
+    if claimed and len(counts) == len(suites):
+        total = sum(counts.values())
+        if int(claimed.group(1)) != total:
+            bad.append(f'SESSION-HANDOFF 는 {claimed.group(1)}건 · 실제 {total}건 ({detail})')
+    elif not claimed:
+        bad.append('SESSION-HANDOFF 에서 회귀 테스트 건수를 못 찾았습니다')
+
+    report('테스트건수', bad, '실제: ' + (detail or '측정 실패'))
+
+
 CHECKS = {
     '모델명': check_모델명,
     '성능목표': check_성능목표,
     '링크': check_링크,
     '인용': check_인용,
 }
+SLOW = {'테스트건수': check_테스트건수}
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--only', choices=list(CHECKS))
+    ap.add_argument('--only', choices=list(CHECKS) + list(SLOW))
+    ap.add_argument('--with-tests', action='store_true',
+                    help='테스트를 실제로 돌려 건수를 대조합니다 (느림)')
     args = ap.parse_args()
+
+    todo = dict(CHECKS)
+    if args.with_tests or args.only in SLOW:
+        todo.update(SLOW)
 
     print('문서 정합성 검사')
     print('=' * 60)
-    for name, fn in CHECKS.items():
+    for name, fn in todo.items():
         if args.only and name != args.only:
             continue
         fn()
+
+    if not (args.with_tests or args.only):
+        print('\n  (테스트 건수 대조는 --with-tests 로 함께 돌립니다)')
 
     print('\n' + '=' * 60)
     if FAILED:
