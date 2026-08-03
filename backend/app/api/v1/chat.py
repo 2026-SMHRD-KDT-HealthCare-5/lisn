@@ -62,80 +62,30 @@ def _risk(level: str, source: str) -> RiskInfo:
     return RiskInfo(level=level, action=risk_policy.RISK_ACTION[level], source=source)
 
 
-# `CrisisVerdict.severity` 가 가질 수 있는 값. 프롬프트가 지시하는 집합이다.
-# 여기 없는 값이 오면 **모르는 것**이지 낮은 것이 아니다.
-_SEVERITY = {"NONE", "LOW", "MEDIUM", "HIGH"}
-
-
 def _decide(keyword: dict, verdict) -> RiskInfo:
     """대화 발화 → 위험 단계 판정 — `MLCM_320`.
 
-    **여기서 정하는 것은 단계까지다.** 액션은 `risk_policy` 가 붙인다.
-    클라이언트에 규칙을 복제하면 반드시 어긋난다(API설계_사전결정 3절).
+    **판정 규칙 자체는 `risk_policy.level_for()` 에 있다.** 여기서는 그것을
+    호출하고 판정 근거(`source`)를 붙일 뿐이다.
 
-    LLM 판정이 없는 경우(API 장애)에는 키워드 결과만으로 판단하며,
-    문맥을 볼 수 없으므로 미탐을 줄이는 보수적 임계치를 적용한다.
-    HIGH 키워드가 하나라도 걸리면 문맥 판단 없이 CRITICAL 로 본다 — NFR-DV-003.
+    규칙을 여기 두면 `llm.analyze_and_reply()` 가 「생성한 응답을 버리게
+    될지」를 알 수 없어 조건을 따로 적게 된다. 실제로 그렇게 했다가
+    **취소가 안 걸려 성능 개선이 통째로 무효**가 됐다
+    (→ `docs/검증/성능실측_20260803_openai.md`).
 
-    ---
-    ## `is_crisis` 만으로 CRITICAL 을 내리지 않는다 (2026.08.03)
+    `source` 는 근거다. `KEYWORD` 면 외부 API 장애로 문맥 판단 없이 내린
+    결과다 — 클라이언트가 이걸 보고 안내 문구를 달리할 수 있다.
 
-    `is_crisis` 는 **위기 신호가 있는가**이고 `severity` 는 **얼마나
-    임박했는가**다. 전에는 `is_crisis` 하나로 CRITICAL 을 확정했는데, 그러면
-    「뭘 해도 의미가 없어요」에 109 긴급 상담 화면이 뜬다. 무의미감·고립을
-    탐지하는 것과 전화를 걸라고 하는 것은 다른 일이다.
-
-    `MLCM_320` 도 둘을 갈라 놓았다 — 4단계는 "경미한 부정적 감정이
-    감지되었으나 위험 임계치에는 미달하는 경우 → 주의 상태", 5단계는
-    "**명확한 위기 문맥** 또는 위험 임계치 초과 → 고위험"이다.
-
-    ⚠ **탐지 성능은 그대로다.** `NFR-AI-001` 평가는 `is_crisis or HIGH` 를
-      양성으로 세고 이 함수를 거치지 않는다. 재현율을 유지하면서 과잉 개입만
-      줄인다.
-
-    ⚠ **강도를 모를 때는 낮추지 않는다.** 위기라고 하면서 `severity` 가
-      규격 밖이면 CRITICAL 로 올린다. 안전 기능에서 「모름」을 「약함」으로
-      취급하면 안 된다.
-
-    ⚠ **HIGH 키워드는 LLM 이 위기라고 할 때만 CRITICAL 로 올린다.**
-      「죽고 싶」이 들어갔다고 무조건 긴급 화면을 띄우면 안 된다. 평가셋
-      200건 실측에서 **HIGH 키워드 정밀도가 0.500**(TP 10 / FP 10)이었다.
-      「예전에 죽고 싶었는데 지금은 괜찮아요」·「친구가 죽고 싶대요」가
-      전부 여기 걸린다. 문맥을 볼 수 있을 때는 **LLM 의 거부권을 살린다.**
-
-      반대로 LLM 이 위기라고 하면, 강도가 MEDIUM 이어도 HIGH 키워드가
-      함께 있으면 올린다. 명시적 표현 + 위기 확인이 겹친 상태다.
-
-      LLM 이 **없을** 때는 문맥을 볼 수단이 없으므로 종전대로 HIGH 키워드
-      단독으로 CRITICAL 이다(`NFR-DV-003`). 오탐을 감수하는 것은 문맥을
-      볼 수 없을 때의 정책이다.
+    판정 근거와 임계치의 이유는 `risk_policy.level_for()` 주석에 있다.
     """
     if verdict is None:
-        if keyword["level"] == "HIGH":
-            return _risk("CRITICAL", "KEYWORD")
-        if keyword["level"] == "MEDIUM":
-            return _risk("CAUTION", "KEYWORD")
-        return _risk("NORMAL", "KEYWORD")
+        level = risk_policy.level_for(keyword["level"], None, None)
+        return _risk(level, "KEYWORD")
 
-    # ⚠ severity 는 LLM 이 채우는 자유 문자열이다. 스키마에 enum 이 걸려 있지
-    #   않아 "High"·"high" 로 와도 파싱은 통과한다. 그대로 비교하면 HIGH 판정이
-    #   조용히 NORMAL 로 떨어진다 — 안전 경로라 여기서 정규화한다.
-    severity = (verdict.severity or "").strip().upper()
-
-    # 강도가 HIGH 면 is_crisis 와 무관하게 올린다. 둘이 어긋나면 높은 쪽을 따른다.
-    if severity == "HIGH":
-        return _risk("CRITICAL", "LLM")
-
-    if verdict.is_crisis:
-        # 위기다. 얼마나 임박했는가로 개입 강도를 정한다.
-        if keyword["level"] == "HIGH" or severity not in _SEVERITY:
-            return _risk("CRITICAL", "LLM")
-        return _risk("CAUTION", "LLM")
-
-    # LLM 이 위기가 아니라고 보았다. 키워드 단독으로 긴급 화면을 띄우지 않는다.
-    if severity == "MEDIUM" or keyword["level"] != "NONE":
-        return _risk("CAUTION", "LLM")
-    return _risk("NORMAL", "LLM")
+    level = risk_policy.level_for(
+        keyword["level"], verdict.is_crisis, verdict.severity
+    )
+    return _risk(level, "LLM")
 
 
 @router.post("/sessions", response_model=SessionStarted, status_code=status.HTTP_201_CREATED)
@@ -186,7 +136,11 @@ async def send_message(
     history = list(s.messages or [])
 
     try:
-        reply, verdict = await llm.analyze_and_reply(s.persona_type, masked, history)
+        # ⚠ 키워드 결과를 함께 넘긴다. 응답을 버리게 될지가 LLM 판정만으로
+        #   정해지지 않기 때문이다 — analyze_and_reply 주석 참조.
+        reply, verdict = await llm.analyze_and_reply(
+            s.persona_type, masked, history, keyword_level=keyword["level"]
+        )
     except RuntimeError:
         # OPENAI_API_KEY 미설정 등 호출 자체가 불가능한 경우.
         # 키워드 필터는 백엔드 내부 로직이라 계속 동작한다.

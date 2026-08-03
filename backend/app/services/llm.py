@@ -30,6 +30,7 @@ from openai import AsyncOpenAI
 from pydantic import BaseModel, Field
 
 from app.core.config import settings
+from app.services import risk_policy
 
 logger = logging.getLogger(__name__)
 
@@ -254,22 +255,76 @@ FALLBACK_REPLY = {
 # --------------------------------------------------------------------------
 
 async def analyze_and_reply(
-    persona_type: str, utterance: str, recent_turns: list[dict]
+    persona_type: str,
+    utterance: str,
+    recent_turns: list[dict],
+    keyword_level: str = "NONE",
 ) -> tuple[str | None, CrisisVerdict | None]:
     """위기 판정과 응답 생성을 동시에 호출한다.
 
     순차로 하면 LLM 왕복이 2회가 되어 전체 3초 요건(NFR-DV-001)을 넘긴다.
     Gemini 를 쓸 때는 두 호출이 **서로 다른 모델**로 나가므로(model_for 참조)
     무료 한도 RPM 도 서로 잡아먹지 않는다.
-    CRITICAL 로 판정되면 생성된 일반 응답은 **호출자가 버린다**.
 
     두 호출은 독립이므로 한쪽이 실패해도 다른 쪽 결과는 살린다.
+
+    ---
+    ## 위기가 확정되면 응답 생성을 기다리지 않는다 (2026.08.03)
+
+    전에는 `gather` 로 **둘 다 기다린 뒤** CRITICAL 이면 응답을 버렸다.
+    **버릴 것을 기다리고 있었다.** 실측에서 위기 발화가 일반 발화의 2.3배로
+    느렸던 원인이다(`NFR-TS-001` 중앙값 4964ms · 예산 3000ms).
+
+    이제 위기 판정이 먼저 끝나고 **버릴 것이 확정되면** 응답 생성을 취소하고
+    즉시 돌아온다. 실측에서 응답 생성이 위기 판정보다 **2.7배** 길었다
+    (위기 발화 기준 5151ms vs 1920ms).
+
+    **문맥 판단을 그대로 유지하므로 정밀도 손실이 없다** — 키워드만으로
+    끊는 방식(HIGH 키워드 정밀도 0.500)과 다른 점이다.
+
+    ⚠ **`keyword_level` 을 받는 이유** — 버릴지 여부는 LLM 판정만으로
+      정해지지 않는다. 「죽고 싶다」에 LLM 이 MEDIUM 을 주는 일이 잦은데,
+      최종 CRITICAL 은 HIGH 키워드가 함께 있어서 나온다. 처음 구현할 때
+      `severity == HIGH` 만 보고 취소했더니 **정작 이 경우에 취소가 안
+      걸려 효과가 없었다.** 판정 규칙은 `risk_policy.level_for()` 한 곳에
+      있고 여기서도 그것을 쓴다.
+
+    ⚠ 위기 판정이 **먼저 끝날 때만** 이득이다. 응답 생성이 먼저 끝나면
+      그대로 둘 다 받는다. 순서를 강제하지 않는다.
+
+    → `docs/검증/성능실측_20260803_openai.md`
     """
     reply_task = asyncio.create_task(generate_reply(persona_type, utterance, recent_turns))
     crisis_task = asyncio.create_task(detect_crisis(utterance, recent_turns))
 
-    results = await asyncio.gather(reply_task, crisis_task, return_exceptions=True)
-    reply, verdict = results
+    pending = {reply_task, crisis_task}
+    reply: object = None
+    verdict: object = None
+
+    while pending:
+        done, pending = await asyncio.wait(
+            pending, return_when=asyncio.FIRST_COMPLETED
+        )
+        for task in done:
+            if task is crisis_task:
+                verdict = task.exception() or task.result()
+            else:
+                reply = task.exception() or task.result()
+
+        # 위기가 확정됐고 응답이 아직이면, 기다릴 이유가 없다. 어차피 버린다.
+        if (
+            crisis_task in done
+            and not isinstance(verdict, BaseException)
+            and verdict is not None
+            and risk_policy.will_discard_reply(
+                keyword_level, verdict.is_crisis, verdict.severity
+            )
+            and reply_task in pending
+        ):
+            reply_task.cancel()
+            pending.discard(reply_task)
+            reply = None
+            break
 
     if isinstance(reply, BaseException):
         logger.warning("응답 생성 실패: %s", reply)
