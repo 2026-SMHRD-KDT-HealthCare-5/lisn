@@ -27,15 +27,19 @@ Copy-Item .env.example .env
 
 > 비밀번호에 `@` `:` `/` `#` 이 있으면 URL 인코딩이 필요합니다. `@` → `%40`
 
-DB 가 없으면 먼저 만듭니다.
+DB 가 없으면 먼저 만듭니다. **아래 블록을 통째로** 붙여넣으세요.
 
 ```powershell
-psql -U postgres -c "CREATE DATABASE lisn;"
+$psql = "C:\Program Files\PostgreSQL\17\bin\psql.exe"
+$env:PGCLIENTENCODING = 'UTF8'
+& $psql -U postgres -c "CREATE DATABASE lisn;"
+& $psql -U postgres -d lisn -f ..\db\schema.sql
 ```
 
-```powershell
-psql -U postgres -d lisn -f ..\db\schema.sql
-```
+> **전체 경로와 `PGCLIENTENCODING` 둘 다 필요합니다.** PostgreSQL 은 `bin` 을
+> PATH 에 등록하지 않고, 한글 Windows 콘솔(코드페이지 949)에서는 psql 이
+> `client_encoding=UHC` 로 붙어 UTF-8 인 `db/*.sql` 을 읽다 깨집니다.
+> 깨지면 **그 뒤가 통째로 안 들어가므로** 처음부터 다시 실행해야 합니다.
 
 ```powershell
 pip install -r requirements.txt

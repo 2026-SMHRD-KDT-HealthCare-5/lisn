@@ -41,6 +41,24 @@ git clone https://github.com/2026-SMHRD-KDT-HealthCare-5/lisn.git
 VS Code 사용자는 `lisn.code-workspace`를 열고 `Ctrl+Shift+B`를 누르면 됩니다. 실제
 프로세스를 띄우지 않고 준비 상태만 확인할 때는 `.\tools\start-dev.ps1 -Check`를 사용합니다.
 
+> ### ⚠ `start-dev.ps1` 이 해주지 않는 두 가지 (2026.08.03)
+>
+> 새 PC 에서 여기서 막힙니다. 절차와 함정은 루트
+> [`README.md`](../README.md) 「빠른 시작」과 [`SETUP.md`](SETUP.md) 에 있습니다.
+>
+> **① DB 를 만들지 않습니다.** `CREATE DATABASE` → `schema.sql` → `seed_*.sql` 을
+> 직접 넣어야 합니다. `psql` 은 PATH 에 없어 전체 경로로 불러야 하고, 한글
+> Windows 콘솔에서는 `$env:PGCLIENTENCODING='UTF8'` 없이는 UTF-8 인 `db/*.sql` 이
+> 중간에 깨집니다.
+>
+> **② 로그인할 계정을 만들지 않습니다.** 시드가 만드는 계정은
+> `demo.crisis@lisn-test.example`(비밀번호는 `seed_demo_persona.sql` 주석) 하나뿐입니다.
+> 작업이력에 적힌 `admin@lisn.dev` 는 **저장소에 없습니다** — 앱에서 회원가입한 뒤
+> `role` 을 `ADMIN` 으로 올리세요(`SETUP.md` 14번).
+>
+> 잘 떴는지는 `/docs` 가 아니라 **`/health/db` 가 `connected`** 인지로 봅니다.
+> `/docs` 는 DB 가 없어도 열립니다.
+
 그다음 아래 프롬프트를 Claude Code 에 **그대로 붙여넣으면** 이전 세션과 같은 상태에서 시작합니다.
 
 ---
@@ -352,7 +370,8 @@ AI 서버가 없어도 push 는 성공합니다. 분석 실패로 되돌리면 �
 실제로 쌓지 않고 보려면 시드를 넣으세요.
 
 ```powershell
-psql -U postgres -d lisn -f db\seed_demo_persona.sql
+$env:PGCLIENTENCODING = 'UTF8'
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -d lisn -f db\seed_demo_persona.sql
 ```
 
 `demo.crisis@lisn-test.example` / `rldnfdla` · 안정 6 → 주의 4 → **심각 4** 의 14일
