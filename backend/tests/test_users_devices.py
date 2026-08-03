@@ -109,3 +109,84 @@ async def test_consent_withdrawal_is_recorded(client, user):
         json={"consent_scopes": {"activity": True, "sleep": False, "body_composition": False}},
     )
     assert r.json()["consent_scopes"]["sleep"] is False
+
+
+# ==========================================================================
+#  알림 수신 동의 — MAIN_SETTING_01 ❷ · MLCM_400 5단계 (구현 갭 2)
+# ==========================================================================
+
+
+async def test_알림_설정_기본값은_둘_다_켜짐(client, user):
+    """`MLCM_400` 5단계가 "알림 수신 동의 상태인 경우" 를 전제한다.
+
+    기본이 꺼져 있으면 그 유스케이스가 기본 상태에서 동작하지 않는다.
+    """
+    r = await client.get(f"{BASE}/users/me/notifications", headers=user["headers"])
+    assert r.status_code == 200
+    assert r.json() == {
+        "care_alert_agreed": True,
+        "content_alert_agreed": True,
+        "fcm_token_registered": False,
+    }
+
+
+async def test_콘텐츠_알림만_꺼도_케어_알림은_남는다(client, user):
+    """**이 테스트가 토글을 둘로 나눈 이유다.**
+
+    하나로 묶으면 광고성 알림이 귀찮아 끈 사람이 선제 접촉(`MLCM_220`)까지
+    끈다. 알림을 끄는 사람일수록 앱을 안 여는 사람, 즉 놓치면 안 되는 쪽이다.
+    """
+    r = await client.patch(
+        f"{BASE}/users/me/notifications",
+        headers=user["headers"],
+        json={"content_alert_agreed": False},
+    )
+    assert r.status_code == 200
+    assert r.json()["content_alert_agreed"] is False
+    assert r.json()["care_alert_agreed"] is True
+
+
+async def test_토큰은_등록_여부만_돌려준다(client, user):
+    """토큰 자체를 응답에 실으면 저장된 값이 그대로 노출된다."""
+    r = await client.patch(
+        f"{BASE}/users/me/notifications",
+        headers=user["headers"],
+        json={"fcm_token": "fake-device-token"},
+    )
+    assert r.status_code == 200
+    assert r.json()["fcm_token_registered"] is True
+    assert "fcm_token" not in r.json()
+
+
+async def test_빈_문자열로_토큰을_지운다(client, user):
+    """로그아웃 시 토큰을 비워야 한다.
+
+    null 은 「안 바꿈」이라 그것만으로는 지울 방법이 없다.
+    """
+    await client.patch(
+        f"{BASE}/users/me/notifications",
+        headers=user["headers"],
+        json={"fcm_token": "t"},
+    )
+    r = await client.patch(
+        f"{BASE}/users/me/notifications",
+        headers=user["headers"],
+        json={"fcm_token": ""},
+    )
+    assert r.json()["fcm_token_registered"] is False
+
+
+async def test_보내지_않은_필드는_건드리지_않는다(client, user):
+    """토글 하나를 껐다고 다른 하나까지 바뀌면 안 된다."""
+    await client.patch(
+        f"{BASE}/users/me/notifications",
+        headers=user["headers"],
+        json={"care_alert_agreed": False, "content_alert_agreed": False},
+    )
+    r = await client.patch(
+        f"{BASE}/users/me/notifications",
+        headers=user["headers"],
+        json={"care_alert_agreed": True},
+    )
+    assert r.json()["care_alert_agreed"] is True
+    assert r.json()["content_alert_agreed"] is False

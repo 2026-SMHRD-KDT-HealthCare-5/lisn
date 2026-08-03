@@ -54,6 +54,8 @@ CREATE TABLE USERS (
     sensitive_agreed_at TIMESTAMPTZ,                      -- [05-K]
     role                VARCHAR(20) NOT NULL DEFAULT 'USER'   -- [SD-E1]
                             CHECK (role IN ('USER', 'ADMIN')),
+    care_alert_agreed    BOOLEAN NOT NULL DEFAULT TRUE,   -- [05-N] 케어 알림
+    content_alert_agreed BOOLEAN NOT NULL DEFAULT TRUE,   -- [05-N] 콘텐츠·리포트
     CONSTRAINT chk_terms_logic CHECK (
         (terms_agreed = FALSE AND terms_agreed_at IS NULL) OR
         (terms_agreed = TRUE  AND terms_agreed_at IS NOT NULL)
@@ -63,6 +65,30 @@ CREATE TABLE USERS (
         (sensitive_agreed = TRUE  AND sensitive_agreed_at IS NOT NULL)
     )
 );
+
+-- [05-N] ✅ 2026.08.03 확정 — 알림 수신 동의 2컬럼 신설
+--   `MLCM_400` 5단계가 "사용자가 **알림 수신 동의 상태인 경우**" 를 전제하는데
+--   그 상태를 담을 컬럼이 없었습니다. `fcm_token` 은 있는데 동의는 없어서,
+--   요구사항이 이미 전제하는 것을 저장할 수 없는 상태였습니다.
+--   신규 요구가 아니라 **기존 요구사항의 미반영**입니다.
+--
+--   ⚠ **왜 하나가 아니라 둘인가** — 안전 알림과 콘텐츠 알림을 한 토글에
+--     묶으면 **콘텐츠 알림이 귀찮아 끈 사람이 선제 접촉(MLCM_220)까지
+--     끕니다.** 그리고 알림을 끄는 사람일수록 앱을 안 여는 사람, 즉 우리가
+--     놓치면 안 되는 쪽입니다. 하나로 두는 편이 구현은 쉽지만 기능의 존재
+--     이유와 충돌합니다.
+--         care_alert_agreed     선제 접촉 · 정서 상태 안내
+--         content_alert_agreed  힐링 콘텐츠 추천(MLCM_400) · 주간 리포트
+--
+--   ⚠ **기본값이 TRUE 입니다.** `MLCM_400` 5단계가 동의 상태를 전제하는데
+--     기본이 꺼져 있으면 그 유스케이스가 기본 상태에서 동작하지 않습니다.
+--     다만 첫 실행 안내에서 끌 수 있어야 합니다 — 동의 없이 켜두는 것과
+--     다릅니다.
+--
+--   ⚠ 화면설계서 `MAIN_SETTING_01` ❷ 는 토글 **1개**로, 앱은 **3개**로 되어
+--     있었습니다. 셋 다 달랐습니다. 화면설계서가 정본이므로 그쪽을 2개로
+--     고칩니다(개정안 「알림 수신 동의를 2개로」).
+--   ⚠ 연동 문서: 04 객체 정의서 USERS 속성 목록, 05 컬럼 정의표 및 CREATE 스크립트
 
 -- [SD-E1] ✅ 2026.07.30 확정 — 관리자 구분 컬럼 신설
 --   관리자 기능이 요구사항·기능명세·발표자료에 모두 있는데 데이터 모델에

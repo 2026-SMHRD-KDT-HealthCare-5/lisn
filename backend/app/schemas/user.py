@@ -36,6 +36,29 @@ class UserUpdate(BaseModel):
     fcm_token: str | None = None
 
 
+class NotificationSettings(BaseModel):
+    """알림 수신 동의 — `MAIN_SETTING_01` ❷ · `MLCM_400` 5단계.
+
+    ⚠ **안전 알림과 콘텐츠 알림을 나눕니다.** 하나로 묶으면 콘텐츠 알림이
+      귀찮아 끈 사람이 선제 접촉(`MLCM_220`)까지 끕니다. 알림을 끄는
+      사람일수록 앱을 안 여는 사람, 즉 놓치면 안 되는 쪽입니다.
+
+    `fcm_token` 을 함께 받습니다. 토글만 저장하고 토큰이 없으면 보낼 곳이
+    없어서 「켰는데 안 온다」가 됩니다.
+    """
+
+    care_alert_agreed: bool | None = None
+    content_alert_agreed: bool | None = None
+    fcm_token: str | None = None
+
+
+class NotificationSettingsOut(BaseModel):
+    care_alert_agreed: bool
+    content_alert_agreed: bool
+    # ⚠ 토큰 자체는 돌려주지 않습니다. 등록 여부만 알려줍니다.
+    fcm_token_registered: bool
+
+
 class PasswordChange(BaseModel):
     current_password: str
     new_password: NewPassword

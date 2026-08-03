@@ -26,6 +26,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   UserProfile? profile;
   List<DeviceConnection> connections = const [];
+  NotificationSettings? alerts;
   bool loading = true;
   bool loggingOut = false;
   bool busy = false;
@@ -47,11 +48,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final results = await Future.wait([
         _service.profile(),
         _service.connections(),
+        _service.notifications(),
       ]);
       if (!mounted) return;
       setState(() {
         profile = results[0] as UserProfile;
         connections = results[1] as List<DeviceConnection>;
+        alerts = results[2] as NotificationSettings;
         loading = false;
       });
     } catch (e) {
@@ -291,26 +294,71 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return '${on.isEmpty ? '수집 항목 없음' : on.join(' · ')}  ·  $synced';
   }
 
-  /// ⚠ 알림은 **아직 서버에 저장되지 않습니다.** 켜지는 것처럼 보이게 두면
-  ///   시연에서 껐다 켜도 아무 일이 없어 그대로 드러납니다.
-  ///   FCM 토큰 필드는 있지만 알림 설정 저장 API 가 없습니다.
+  /// 알림 수신 동의 — `MAIN_SETTING_01` ❷ · `MLCM_400` 5단계
+  ///
+  /// ⚠ **토글이 둘인 이유가 있습니다.** 하나로 묶으면 콘텐츠 알림이 귀찮아
+  ///   끈 사람이 선제 접촉(`MLCM_220`)까지 끕니다. 알림을 끄는 사람일수록
+  ///   앱을 안 여는 사람, 즉 우리가 놓치면 안 되는 쪽입니다.
   Widget _notificationsCard() {
+    final a = alerts;
+    if (a == null) return const AppCard(child: SizedBox(height: 44));
+
     return AppCard(
         child: Column(children: [
-      for (final label in const ['감정 알림', '추천 콘텐츠 알림', '리포트 알림'])
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Text(label,
-              style: const TextStyle(fontSize: 12, color: AppColors.muted)),
-          value: false,
-          onChanged: null,
-        ),
-      const Align(
-        alignment: Alignment.centerLeft,
-        child: Text('알림 기능은 준비 중이에요.',
-            style: TextStyle(fontSize: 9, color: AppColors.muted)),
+      _alertToggle(
+        '케어 알림',
+        '평소와 달라진 점을 먼저 알려드려요',
+        a.careAlert,
+        (v) => _saveAlerts(careAlert: v),
+      ),
+      _alertToggle(
+        '콘텐츠·리포트 알림',
+        '추천 콘텐츠와 주간 리포트',
+        a.contentAlert,
+        (v) => _saveAlerts(contentAlert: v),
       ),
     ]));
+  }
+
+  Widget _alertToggle(
+    String label,
+    String hint,
+    bool value,
+    ValueChanged<bool> onChanged,
+  ) =>
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        title: Text(label,
+            style: const TextStyle(fontSize: 12, color: AppColors.navy)),
+        subtitle: Text(hint,
+            style: const TextStyle(fontSize: 9, color: AppColors.muted)),
+        value: value,
+        onChanged: busy ? null : onChanged,
+      );
+
+  /// ⚠ **보낸 것만 바뀝니다.** 둘을 함께 보내면 한쪽을 끌 때 다른 쪽이
+  ///   화면의 옛 값으로 덮어써집니다.
+  Future<void> _saveAlerts({bool? careAlert, bool? contentAlert}) async {
+    setState(() => busy = true);
+    try {
+      final next = await _service.updateNotifications(
+        careAlert: careAlert,
+        contentAlert: contentAlert,
+      );
+      if (!mounted) return;
+      setState(() {
+        alerts = next;
+        busy = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      // 실패하면 **화면을 되돌립니다.** 켜진 것처럼 두면 안 오는 알림을
+      // 기다리게 됩니다.
+      setState(() => busy = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(e is ApiException ? e.message : '알림 설정을 저장하지 못했습니다.'),
+      ));
+    }
   }
 }
 

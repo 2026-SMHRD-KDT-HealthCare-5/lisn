@@ -89,6 +89,33 @@ class SettingsService {
   /// 비밀번호 변경 — `MAIN_SETTING_02` ❷ · `MLCM_101`
   ///
   /// 서버가 현재 비밀번호를 검증합니다. 틀리면 `ApiException` 이 납니다.
+  /// 알림 수신 동의 조회 — `MAIN_SETTING_01` ❷
+  Future<NotificationSettings> notifications() async {
+    final json = await _apiClient.get('/users/me/notifications',
+        authenticated: true);
+    return NotificationSettings.fromJson(json);
+  }
+
+  /// 알림 수신 동의 저장. **보낸 것만 바뀝니다.**
+  ///
+  /// ⚠ 토큰을 지우려면 빈 문자열을 넘기세요. null 은 「안 바꿈」입니다.
+  Future<NotificationSettings> updateNotifications({
+    bool? careAlert,
+    bool? contentAlert,
+    String? fcmToken,
+  }) async {
+    final json = await _apiClient.patch(
+      '/users/me/notifications',
+      body: {
+        if (careAlert != null) 'care_alert_agreed': careAlert,
+        if (contentAlert != null) 'content_alert_agreed': contentAlert,
+        if (fcmToken != null) 'fcm_token': fcmToken,
+      },
+      authenticated: true,
+    );
+    return NotificationSettings.fromJson(json);
+  }
+
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,

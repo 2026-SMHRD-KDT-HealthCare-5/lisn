@@ -14,6 +14,8 @@ from app.core.database import get_db
 from app.core.security import CurrentUser, hash_password, verify_password
 from app.schemas.user import (
     AccountDelete,
+    NotificationSettings,
+    NotificationSettingsOut,
     PasswordChange,
     UserProfile,
     UserUpdate,
@@ -95,3 +97,44 @@ async def delete_me(body: AccountDelete, user: CurrentUser, db: DbSession):
     await db.delete(user)
     await db.commit()
     return None
+
+
+@router.get("/me/notifications", response_model=NotificationSettingsOut)
+async def get_notifications(user: CurrentUser):
+    """알림 설정 조회 — `MAIN_SETTING_01` ❷"""
+    return NotificationSettingsOut(
+        care_alert_agreed=user.care_alert_agreed,
+        content_alert_agreed=user.content_alert_agreed,
+        fcm_token_registered=bool(user.fcm_token),
+    )
+
+
+@router.patch("/me/notifications", response_model=NotificationSettingsOut)
+async def update_notifications(
+    body: NotificationSettings, user: CurrentUser, db: DbSession
+):
+    """알림 설정 저장 — `MAIN_SETTING_01` ❷ · `MLCM_400` 5단계
+
+    보낸 필드만 반영한다. 토글 하나를 껐다고 다른 하나까지 건드리면 안 된다.
+
+    ⚠ **`MLCM_400` 5단계가 "알림 수신 동의 상태인 경우"를 전제**하는데
+      그 상태를 담을 곳이 없었다. 화면은 토글을 그려놓고 「알림 기능은
+      준비 중이에요」를 띄우고 있었다(구현 갭 2).
+
+    ⚠ **토큰을 지우려면 빈 문자열을 보낸다.** null 은 「안 바꿈」이라
+      로그아웃 시 토큰을 비울 방법이 없어진다.
+    """
+    if body.care_alert_agreed is not None:
+        user.care_alert_agreed = body.care_alert_agreed
+    if body.content_alert_agreed is not None:
+        user.content_alert_agreed = body.content_alert_agreed
+    if body.fcm_token is not None:
+        user.fcm_token = body.fcm_token or None
+
+    await db.commit()
+    await db.refresh(user)
+    return NotificationSettingsOut(
+        care_alert_agreed=user.care_alert_agreed,
+        content_alert_agreed=user.content_alert_agreed,
+        fcm_token_registered=bool(user.fcm_token),
+    )

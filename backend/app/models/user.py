@@ -37,6 +37,17 @@ class User(Base):
     birth_date: Mapped[date | None] = mapped_column(Date)
     gender: Mapped[str | None] = mapped_column(String(10))
     fcm_token: Mapped[str | None] = mapped_column(Text)
+
+    # 알림 수신 동의 — [05-N]. 안전 알림과 콘텐츠 알림을 나눈다.
+    #
+    # ⚠ 하나로 묶으면 콘텐츠 알림이 귀찮아 끈 사람이 선제 접촉(MLCM_220)까지
+    #   끈다. 알림을 끄는 사람일수록 앱을 안 여는 사람이다.
+    care_alert_agreed: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("TRUE")
+    )
+    content_alert_agreed: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("TRUE")
+    )
     height_cm: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
 
     # [05-C] DEFAULT 가 없으면 회원가입 INSERT 가 실패한다.
