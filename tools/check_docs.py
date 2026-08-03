@@ -44,12 +44,26 @@ import sys
 import unicodedata
 from pathlib import Path
 
+# ⚠ **출력을 UTF-8 로 고정합니다.** Windows 콘솔 기본 코드페이지가 cp949 라
+#   결과를 파이프로 넘기면 ✓·✗ 에서 UnicodeEncodeError 로 죽습니다. 검사
+#   결과를 파일로 남기거나 grep 에 넘길 때 실제로 터졌습니다.
+for _s in (sys.stdout, sys.stderr):
+    try:
+        _s.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
+
 ROOT = Path(__file__).resolve().parent.parent
 DOCS = ROOT / 'docs'
 EXTRACTED = DOCS / 'extracted'
 
-# 03 은 근거 문서라 예외입니다.
-EXEMPT = ('03_',)
+# 03 빅데이터분석정의서만 예외입니다.
+#
+# ⚠ **접두사로 판정하지 않습니다.** 예전에는 `03_` 으로 걸렀는데,
+#   2026.08.03 에 원본 파일명에서 번호 접두사가 빠지면서 추출본 이름도
+#   바뀌었습니다. 접두사로만 보면 **예외가 조용히 풀려** 03 의 모델명까지
+#   실패로 잡힙니다. 파일명 조각으로 봅니다.
+EXEMPT = ('빅데이터분석정의서',)
 
 FAILED = []
 
@@ -70,7 +84,7 @@ def report(name, problems, detail=''):
 
 def extracted_files():
     return [p for p in EXTRACTED.glob('*.txt')
-            if not p.name.startswith(EXEMPT)]
+            if not any(k in p.name for k in EXEMPT)]
 
 
 # ---------------------------------------------------------------------------
