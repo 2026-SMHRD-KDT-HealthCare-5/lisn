@@ -571,11 +571,24 @@ I/flutter: [동기화] SyncResult(SyncOutcome.permissionDenied, sent=0, queued=0
 
 ### 13-1. 잘 떴는지는 `/health/db` 로 확인하세요
 
-```
-http://127.0.0.1:8000/health/db
-```
+**브라우저 주소창**에 아래를 넣으세요.
+
+<pre>http://127.0.0.1:8000/health/db</pre>
 
 `{"status":"ok","database":"connected"}` 가 나와야 합니다.
+
+> ### ⚠ 주소를 PowerShell 창에 붙여넣지 마세요
+> 「`http://127.0.0.1:8000/health/db` 용어가 cmdlet, 함수, 스크립트 파일 또는
+> 실행할 수 있는 프로그램 이름으로 인식되지 않습니다」가 납니다. **고장이 아니라
+> 주소는 명령이 아니기 때문입니다.** 이 문서의 주소는 전부 브라우저용입니다.
+>
+> 터미널에서 확인하고 싶으면 이렇게 씁니다.
+>
+> ```powershell
+> (Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8000/health/db).Content
+> ```
+>
+> 브라우저를 띄우려면 `start http://127.0.0.1:8000/health/db`
 
 > ### ⚠ `/docs` 로 확인하면 안 됩니다
 > Swagger 는 **DB 가 안 붙어도 열립니다.** 그래서 `/docs` 가 떴다고 넘어가면,
@@ -702,6 +715,7 @@ login  reset  join  home  chat  lifelog  setting  report  emergency
 |---|---|
 | `No pubspec.yaml file found` | `flutter run` 은 **`frontend\app`** 에서 실행해야 합니다 |
 | `.\tools\... 를 인식할 수 없습니다` | 저장소 루트(`C:\LISN`)가 아닌 곳에서 치신 겁니다. 절대 경로를 쓰세요 |
+| `http://... 를 인식할 수 없습니다` | **주소는 명령이 아닙니다.** 브라우저 주소창에 넣으세요 (13-1) |
 | `ModuleNotFoundError` | 전역 파이썬으로 실행하신 겁니다. **`.\.venv\Scripts\python.exe`** 를 쓰세요 |
 | `emulator exited with code 1` | 이미 켜져 있는 것입니다. `flutter devices` 로 확인 |
 | 관리자 웹에서 요청이 전부 실패 | 포트가 **5174** 로 떴을 수 있습니다. 남은 창을 닫고 다시 실행 |

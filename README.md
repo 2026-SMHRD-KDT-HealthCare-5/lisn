@@ -86,11 +86,22 @@ Copy-Item backend\.env.example backend\.env
 
 #### 4. 성공 확인은 `/health/db` 로
 
-```
-http://127.0.0.1:8000/health/db
+**브라우저 주소창**에 아래를 넣으세요.
+
+<pre>http://127.0.0.1:8000/health/db</pre>
+
+터미널에서 바로 보려면 이 명령을 쓰세요.
+
+```powershell
+(Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8000/health/db).Content
 ```
 
 `{"status":"ok","database":"connected"}` 가 나와야 합니다.
+
+> ⚠ **주소를 PowerShell 에 그냥 붙여넣으면 안 됩니다.** 「`http://...` 용어가
+> cmdlet … 으로 인식되지 않습니다」가 납니다. 주소는 명령이 아닙니다.
+> 창을 새로 열기 귀찮으면 `start http://127.0.0.1:8000/health/db` 로 브라우저를
+> 띄울 수 있습니다.
 
 > ⚠ **`/docs` 로 확인하지 마세요.** Swagger 는 DB 가 안 붙어도 열립니다. DB 를
 > 못 붙은 상태로 앱에서 로그인하면 응답이 10초를 넘겨 **「서버 응답이 지연되고
