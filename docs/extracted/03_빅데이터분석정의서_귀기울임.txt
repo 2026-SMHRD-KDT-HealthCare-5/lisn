@@ -147,54 +147,65 @@ CRISIS(위기) 감정은 즉시 CRITICAL 확정 및 system_action(비상
 "evaluated_at": "2026-07-26T21:30:00Z"
 }
 4. 모델 생성 및 학습
-다변량 시계열 라이프로그의 비정상 패턴 조기 탐지 및 9개 감정
-모델링 목표
-/3단계 위험도 다중 클래스 분류 정확도 확보
-- LSTM Autoencoder (비지도 시계열 이상 감지) + LightGBM
+다변량 시계열 라이프로그의 비정상 패턴 조기 탐지 및 3단계 위
+모델링 목표 험도 판정. 감정 코드는 확보 가능한 데이터에 라벨이 없어 규칙
+기반으로 산출한다.
+- 목표 구조: LSTM Autoencoder(비지도 이상 감지) + LightGBM
+Classifier(지도 위험도 분류)
 학습 모델
-Classifier (지도 정서 위험도 분류)
-- PMData 의 정상 패턴 시퀀스로 LSTM Autoencoder 를 학습시
-켜 재구성 오차 기반 anomaly_score 를 추출한 뒤, 이를
-GLOBEM 의 14일 집계 라이프로그 피처 및 BDI-II 우울 척도
-라벨과 결합하여 LightGBM 2단계(Two-Stage) Ensemble 지도학
-습을 수행
-학습 방법 - EMOTIONS 9개 클래스 중 CRISIS/DESPAIR 등 고위험 클래스는
-발생 빈도가 낮아 SMOTE(Synthetic Minority Over-sampling) 또
-는 class_weight 조정을 통해 소수 클래스 학습 편향을 보정함
-- 동일 사용자의 시계열 데이터가 Train/Test에 동시 포함되지 않
-도록 사용자(user_id) 단위 Group K-Fold Cross-Validation을 적
-용함
-입력 피처 수집 후 추론을 거쳐 감정 코드(emotion_id), 감정
-모델 예측 결과 점수(emotion_score), 위험도(risk_level), 위험 점수(risk_score),
-Action 플래그(system_action) 동시 산출
-5. 검증
-1. Cross-Validation(K-Fold) 기반 정밀도(Precision), 재현율(Recall),
-분석 검증 방안 F1-Score 산출
-2. 실제 생체 이상 파형 데이터 주입을 통한 고위험군 알림 트리
+- 현재 적용: 개인별 기준값 대비 편차 규칙 판정(model_version
+= rule-placeholder-v0)
+- 사용자(user_id) 단위 Group K-Fold Cross-Validation 으로 학습
+타당성을 사전 검증한 결과, 확보 가능한 공개 데이터로는 목표
+성능에 도달하지 못하여 본 과제에서는 모델 학습을 수행하지
+않고 규칙 기반 판정을 적용한다.
+- GLOBEM 공개 샘플(참가자 40명)의 우울 이진 라벨 기준
+ROC-AUC 0.528, 95% 신뢰구간 0.476~0.579 로 무작위 분류와
+구분되지 않았다.
+학습 방법 - LifeSnaps(참가자 63명, 감정 라벨 7종)로 재검증한 결과도
+ROC-AUC 0.479~0.540 로 동일하였으며, 특히
+SAD(0.485)·TENSE/ANXIOUS(0.497)는 0.5 미만이었다. 참가자 수
+와 피처 수를 늘려도 결과가 변하지 않아 표본 부족이 아닌 신
+호 자체의 한계로 판단한다.
+- 무작위 분할 시 동일 참가자가 학습·평가에 함께 포함되어
+ROC-AUC가 0.9 이상으로 과대평가되므로, 참가자 단위 분할을
+반드시 유지한다.
 --- table (page 5) ---
  | 위험도(NORMAL / CAUTION / CRITICAL)를 판정함. ANGER(분 노) 감정은 스코어 70 이상 시 CRITICAL 단계로 동적 분기하며, CRISIS(위기) 감정은 즉시 CRITICAL 확정 및 system_action(비상 전화 연결 UI 노출)을 트리거함.
 데이터 분석 결과 | { "score_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", "user_id": "c39a12e0-5712-42ba-822d-60603126f000", "emotion_id": "ANXIETY", "emotion_score": 82.0, "risk_level": "CAUTION", "risk_score": 68.5, "system_action": "CONTENT", "model_version": "v1.2.0", "evaluated_at": "2026-07-26T21:30:00Z" }
 4. 모델 생성 및 학습 | 
-모델링 목표 | 다변량 시계열 라이프로그의 비정상 패턴 조기 탐지 및 9개 감정 /3단계 위험도 다중 클래스 분류 정확도 확보
-학습 모델 | - LSTM Autoencoder (비지도 시계열 이상 감지) + LightGBM Classifier (지도 정서 위험도 분류)
-학습 방법 | - PMData 의 정상 패턴 시퀀스로 LSTM Autoencoder 를 학습시 켜 재구성 오차 기반 anomaly_score 를 추출한 뒤, 이를 GLOBEM 의 14일 집계 라이프로그 피처 및 BDI-II 우울 척도 라벨과 결합하여 LightGBM 2단계(Two-Stage) Ensemble 지도학 습을 수행 - EMOTIONS 9개 클래스 중 CRISIS/DESPAIR 등 고위험 클래스는 발생 빈도가 낮아 SMOTE(Synthetic Minority Over-sampling) 또 는 class_weight 조정을 통해 소수 클래스 학습 편향을 보정함 - 동일 사용자의 시계열 데이터가 Train/Test에 동시 포함되지 않 도록 사용자(user_id) 단위 Group K-Fold Cross-Validation을 적 용함
-모델 예측 결과 | 입력 피처 수집 후 추론을 거쳐 감정 코드(emotion_id), 감정 점수(emotion_score), 위험도(risk_level), 위험 점수(risk_score), Action 플래그(system_action) 동시 산출
-5. 검증 | 
-분석 검증 방안 | 1. Cross-Validation(K-Fold) 기반 정밀도(Precision), 재현율(Recall), F1-Score 산출 2. 실제 생체 이상 파형 데이터 주입을 통한 고위험군 알림 트리
+모델링 목표 | 다변량 시계열 라이프로그의 비정상 패턴 조기 탐지 및 3단계 위 험도 판정. 감정 코드는 확보 가능한 데이터에 라벨이 없어 규칙 기반으로 산출한다.
+학습 모델 | - 목표 구조: LSTM Autoencoder(비지도 이상 감지) + LightGBM Classifier(지도 위험도 분류) - 현재 적용: 개인별 기준값 대비 편차 규칙 판정(model_version = rule-placeholder-v0)
+학습 방법 | - 사용자(user_id) 단위 Group K-Fold Cross-Validation 으로 학습 타당성을 사전 검증한 결과, 확보 가능한 공개 데이터로는 목표 성능에 도달하지 못하여 본 과제에서는 모델 학습을 수행하지 않고 규칙 기반 판정을 적용한다. - GLOBEM 공개 샘플(참가자 40명)의 우울 이진 라벨 기준 ROC-AUC 0.528, 95% 신뢰구간 0.476~0.579 로 무작위 분류와 구분되지 않았다. - LifeSnaps(참가자 63명, 감정 라벨 7종)로 재검증한 결과도 ROC-AUC 0.479~0.540 로 동일하였으며, 특히 SAD(0.485)·TENSE/ANXIOUS(0.497)는 0.5 미만이었다. 참가자 수 와 피처 수를 늘려도 결과가 변하지 않아 표본 부족이 아닌 신 호 자체의 한계로 판단한다. - 무작위 분할 시 동일 참가자가 학습·평가에 함께 포함되어 ROC-AUC가 0.9 이상으로 과대평가되므로, 참가자 단위 분할을 반드시 유지한다.
 
 ===== [page 6] =====
 빅데이터 분석 정의서
+- 모델 교체 시 추론 서버의 반환 6필드 계약은 그대로 유지하며,
+model_version 값으로 규칙 판정 여부를 구분한다.
+입력 피처 수집 후 추론을 거쳐 감정 코드(emotion_id), 감정
+모델 예측 결과 점수(emotion_score), 위험도(risk_level), 위험 점수(risk_score),
+Action 플래그(system_action) 동시 산출
+5. 검증
+1. 사용자(user_id) 단위 Group K-Fold Cross-Validation 으로
+GLOBEM·LifeSnaps 공개 데이터셋의 학습 타당성을 사전 검증
+함(근거는 위 「학습 방법」 참조)
+2. 규칙 기반 판정 임계치가 정상·이상 시나리오에서 의도한 대로
+분석 검증 방안
+NORMAL/CAUTION/CRITICAL 을 분기하는지 단위 테스트로 검
+증
+3. 실제 생체 이상 파형 데이터 주입을 통한 고위험군 알림 트리
 거 응답 속도 및 임계치 성능 검증
-사용자 단위 Group K-Fold 기반 검증으로 개인별 패턴 과적합
-(Data Leakage) 여부 점검
-- 이상 감지 및 정서 위험도 분류 정확도(Accuracy≥85%
-- F1-Score≥0.80 달성
-분석 평가 결과
-- 고위험 상태 감지 시 비상 액션 트리거 지연 시간 3초 이내 검
-증 완수
+- 공개 데이터셋 기반 지도학습 모델은 목표 성능(Accuracy 85%
+↑, F1-Score 0.80↑)에 도달하지 못해 채택하지 않음(근거는 위
+분석 평가 결과 「학습 방법」 참조)
+- 규칙 기반 판정으로 대체 적용하며, 고위험 상태 감지 시 비상
+액션 트리거 지연 시간 3초 이내 검증 완수
 --- table (page 6) ---
- | 거 응답 속도 및 임계치 성능 검증 사용자 단위 Group K-Fold 기반 검증으로 개인별 패턴 과적합 (Data Leakage) 여부 점검
-분석 평가 결과 | - 이상 감지 및 정서 위험도 분류 정확도(Accuracy≥85% - F1-Score≥0.80 달성 - 고위험 상태 감지 시 비상 액션 트리거 지연 시간 3초 이내 검 증 완수
+ | - 모델 교체 시 추론 서버의 반환 6필드 계약은 그대로 유지하며, model_version 값으로 규칙 판정 여부를 구분한다.
+모델 예측 결과 | 입력 피처 수집 후 추론을 거쳐 감정 코드(emotion_id), 감정 점수(emotion_score), 위험도(risk_level), 위험 점수(risk_score), Action 플래그(system_action) 동시 산출
+5. 검증 | 
+분석 검증 방안 | 1. 사용자(user_id) 단위 Group K-Fold Cross-Validation 으로 GLOBEM·LifeSnaps 공개 데이터셋의 학습 타당성을 사전 검증 함(근거는 위 「학습 방법」 참조) 2. 규칙 기반 판정 임계치가 정상·이상 시나리오에서 의도한 대로 NORMAL/CAUTION/CRITICAL 을 분기하는지 단위 테스트로 검 증 3. 실제 생체 이상 파형 데이터 주입을 통한 고위험군 알림 트리 거 응답 속도 및 임계치 성능 검증
+분석 평가 결과 | - 공개 데이터셋 기반 지도학습 모델은 목표 성능(Accuracy 85% ↑, F1-Score 0.80↑)에 도달하지 못해 채택하지 않음(근거는 위 「학습 방법」 참조) - 규칙 기반 판정으로 대체 적용하며, 고위험 상태 감지 시 비상 액션 트리거 지연 시간 3초 이내 검증 완수
 
 ===== [page 7] =====
 빅데이터 분석 정의서
