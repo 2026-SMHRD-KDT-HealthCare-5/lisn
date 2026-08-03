@@ -137,19 +137,65 @@ class CrisisVerdict(BaseModel):
 
 CRISIS_SYSTEM = """너는 한국어 대화에서 위기 신호를 판정하는 분류기다.
 
-다음 중 하나라도 해당하면 is_crisis=true, severity=HIGH 로 판정한다.
+판정은 두 축이다. is_crisis 는 **위기 신호가 있는가**이고,
+severity 는 **얼마나 임박했는가**다. 둘을 섞지 않는다.
+
+is_crisis=true, severity=HIGH — 의도가 드러나거나 이미 벌어진 경우
 - 자살 또는 자해에 대한 의도, 계획, 준비를 드러냄
 - 구체적인 방법이나 시점을 언급함
 - 작별 인사, 신변 정리를 암시함
+- 자해를 이미 했거나 하는 중임을 말함. 아물지 않은 상처·자국·출혈 등
+  현재 남아 있는 신체 손상을 언급하는 경우를 포함한다
+- 지금 도움이 필요한 상태임을 드러냄
 
-다음은 is_crisis=false 로 두되 severity 를 MEDIUM 이하로 표시한다.
-- 일반적인 우울감, 무기력, 피로감 표현
+is_crisis=true, severity=MEDIUM — 위기 신호는 있으나 의도가 불명확한 경우
+- 삶의 의미나 목적이 사라졌다는 표현 ("뭘 해도 의미가 없어요",
+  "왜 사는지 모르겠어요", "내가 여기 왜 있는지 모르겠어요")
+- 자신의 존재가 부담이라는 인식
+- 죽음을 소망하지만 실행 의도는 드러나지 않는 표현
+- 예전에 좋아하던 것에 흥미를 완전히 잃었다는 서술
+- 미래에 대한 기대가 없다는 표현
+- 사회적 단절과 고립 — 연락할 사람이 없다, 며칠째 아무와도 말하지 않았다,
+  사람들 속에 있어도 혼자라고 느낀다, 아무도 찾지 않는다
+  ※ 이 서비스의 대상은 1인가구이고 고립은 흔한 상태이지만,
+    흔하다는 것이 안전하다는 뜻은 아니다. 놓치지 않는다.
+- 농담이나 웃음으로 감싼 부정적 서술 ("아무리 해도 제자리예요 ㅋㅋ").
+  웃음 표시가 붙었다고 신호를 낮추지 않는다. 다만 "배고파 죽겠다"처럼
+  관용구 자체가 과장인 경우는 아래 is_crisis=false 로 둔다.
+
+is_crisis=false — 위기 신호로 보지 않는다
+- 특정 상황에 한정된 피로감·스트레스 ("이 일 그만두고 싶어요")
 - "죽겠다" 같은 관용적 과장 표현
-- 과거의 힘들었던 경험을 회상하는 서술
+- 과거의 힘들었던 경험을 회상하되, 지금은 지나갔거나 회복되었음이
+  함께 드러나는 서술
+- 말하는 사람 본인이 아니라 제3자(친구·가족 등)의 상태를 걱정하거나
+  도울 방법을 묻는 경우
+- 창작·보도·학습 등 본인의 상태가 아닌 맥락에서 소재로 다루는 경우
 
 판단이 애매하면 안전한 쪽으로 기운다. 위기를 놓치는 비용이
 불필요한 안내를 노출하는 비용보다 크다.
+특히 **시제로 위기를 낮추지 않는다.** 이미 벌어진 일이라고 해서
+지나간 일인 것은 아니다.
+무기력과 무의미감을 "흔한 감정"이라는 이유로 낮추지 않는다.
+의도가 안 보이는 것과 위기가 아닌 것은 다르다.
 """
+
+
+def crisis_user_message(utterance: str, recent_turns: list[dict]) -> str:
+    """위기 판정에 넣을 user 메시지.
+
+    ⚠ **평가 스크립트(`tools/eval_crisis.py`)가 이 함수를 그대로 씁니다.**
+      전에는 운영이 `[최근 대화]…[판정 대상 발화]…` 로 감싸고 평가는 발화
+      원문만 보냈습니다. 스크립트 주석은 "프롬프트와 스키마는 똑같이 쓴다 —
+      다르면 평가 결과가 운영과 무관해진다"고 적어뒀는데, 정작 **메시지
+      형식이 달라 다른 것을 재고 있었습니다**
+      (→ `docs/검증/구현_갭_20260803.md`).
+
+      프롬프트만 공유하는 것으로는 부족합니다. **넣는 문자열을 만드는
+      코드까지 공유해야** 같은 것을 재는 게 보장됩니다.
+    """
+    context = "\n".join(f"{t['role']}: {t['content']}" for t in recent_turns[-6:])
+    return f"[최근 대화]\n{context}\n\n[판정 대상 발화]\n{utterance}"
 
 
 async def detect_crisis(utterance: str, recent_turns: list[dict]) -> CrisisVerdict:
@@ -158,14 +204,13 @@ async def detect_crisis(utterance: str, recent_turns: list[dict]) -> CrisisVerdi
     호출 전에 PII 를 마스킹한 텍스트를 넣어야 한다.
     실패는 호출자가 처리한다 — 여기서 삼키면 키워드 fallback 이 동작하지 않는다.
     """
-    context = "\n".join(f"{t['role']}: {t['content']}" for t in recent_turns[-6:])
     resp = await client().beta.chat.completions.parse(
         model=model_for("crisis"),
         messages=[
             {"role": "system", "content": CRISIS_SYSTEM},
             {
                 "role": "user",
-                "content": f"[최근 대화]\n{context}\n\n[판정 대상 발화]\n{utterance}",
+                "content": crisis_user_message(utterance, recent_turns),
             },
         ],
         response_format=CrisisVerdict,

@@ -54,14 +54,26 @@ POSITIVE = {'severe', 'moderate'}
 LABELS = {'no', 'low', 'moderate', 'severe'}
 
 
+_BACKEND = None
+
+
 def load_backend():
-    """backend 모듈을 쓰려면 CWD 를 옮겨야 합니다(.env 를 CWD 기준으로 찾음)."""
+    """backend 모듈을 쓰려면 CWD 를 옮겨야 합니다(.env 를 CWD 기준으로 찾음).
+
+    ⚠ **결과를 캐시합니다.** `cache_key()` 가 행마다 부르는데, 매번
+      `sys.path.insert` 를 하면 경로가 수백 개까지 늘어납니다.
+    """
+    global _BACKEND
+    if _BACKEND is not None:
+        return _BACKEND
+
     cwd = os.getcwd()
     os.chdir(ROOT / 'backend')
     sys.path.insert(0, os.getcwd())
     try:
         from app.services import llm, safety
-        return safety, llm
+        _BACKEND = (safety, llm)
+        return _BACKEND
     finally:
         os.chdir(cwd)
 
@@ -181,7 +193,17 @@ async def judge(llm, text, model, timeout):
     r = await llm.client().beta.chat.completions.parse(
         model=model,
         messages=[{'role': 'system', 'content': llm.CRISIS_SYSTEM},
-                  {'role': 'user', 'content': text}],
+                  # ⚠ 운영과 **같은 함수**로 조립합니다. 전에는 여기서 발화
+                  #   원문만 보내 운영(`[최근 대화]…[판정 대상 발화]…`)과
+                  #   다른 것을 재고 있었습니다.
+                  #
+                  #   평가셋에 문맥 컬럼이 없어 recent_turns 는 빈 리스트입니다.
+                  #   **이건 운영의 「세션 첫 발화」와 같은 상태**라 유효한
+                  #   시나리오이지만, 문맥이 있어야 풀리는 발화(「집 열쇠를
+                  #   미리 맡겨뒀어요」)는 원리상 못 맞힙니다. 평가셋의 한계로
+                  #   기록해 두고 성능을 이 값으로만 말하지 마세요.
+                  {'role': 'user',
+                   'content': llm.crisis_user_message(text, [])}],
         response_format=llm.CrisisVerdict,
         **kw,
     )
@@ -192,9 +214,15 @@ async def judge(llm, text, model, timeout):
 
 
 def cache_key(text, prompt, model):
-    """프롬프트를 고치면 캐시가 저절로 무효가 됩니다."""
+    """판정에 영향을 주는 것이 하나라도 바뀌면 캐시가 저절로 무효가 됩니다.
+
+    ⚠ **모델에 실제로 들어가는 문자열을 키에 넣습니다.** 전에는 발화 원문만
+      넣어서, 메시지 조립 방식을 바꿔도 옛 판정이 그대로 재사용됐습니다.
+      프롬프트·모델·발화가 같아도 **감싸는 형식이 다르면 다른 입력**입니다.
+    """
     h = hashlib.sha256()
-    for part in (text, prompt, model):
+    _, llm = load_backend()
+    for part in (llm.crisis_user_message(text, []), prompt, model):
         h.update(part.encode())
     return h.hexdigest()[:32]
 

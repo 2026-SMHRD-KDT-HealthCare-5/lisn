@@ -172,5 +172,4805 @@
     "severity": "HIGH",
     "text": "내가 없으면 다들 편할 텐데.",
     "model": "gemini-3.1-flash-lite"
+  },
+  "e9477be5d03797b58675fdaf5c8fa2d3": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "배고파 죽겠다",
+    "model": "gpt-5.6"
+  },
+  "70da7071c8e255608d186a5148e229fd": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "아 웃겨 죽겠네",
+    "model": "gpt-5.6"
+  },
+  "e7943796b913284e50849ff8e5923c7a": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "더워 죽겠어요",
+    "model": "gpt-5.6"
+  },
+  "548123aac9aa8760d88eeac8774dab9b": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "이 일 그만두고 싶어요",
+    "model": "gpt-5.6"
+  },
+  "1c16b10ef8d73b1592ef49800ef43827": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "회사를 그만두고 싶다는 생각이 자주 들어요",
+    "model": "gpt-5.6"
+  },
+  "2d119f6cc88fc66c9112e316ca95a9ca": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "자퇴하고 싶다는 생각을 했어요",
+    "model": "gpt-5.6"
+  },
+  "2741b2d7283ad263d82198b608c6d2b5": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "예전에 많이 힘들었는데 지금은 괜찮아요",
+    "model": "gpt-5.6"
+  },
+  "a77852eb26c9ac30797e6f1d068095cb": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "작년에는 정말 지쳤었죠",
+    "model": "gpt-5.6"
+  },
+  "8ad4a43241e587adf99cb6ae10e62cb4": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "친구가 힘들어해서 걱정이에요",
+    "model": "gpt-5.6"
+  },
+  "261a5cb1f7539d229abadd48d6751f12": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "동생이 요즘 우울해 보여요",
+    "model": "gpt-5.6"
+  },
+  "cf15d9ff808e9b61f7423568def7c8e6": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "드라마에서 주인공이 죽는 장면이 슬펐어요",
+    "model": "gpt-5.6"
+  },
+  "b3cdaeda61693f9af404e20c64fe3227": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "소설 쓰는데 우울한 인물을 표현하고 싶어요",
+    "model": "gpt-5.6"
+  },
+  "610a7d6a43850ea0c22237f44241b667": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "오늘 좀 우울해요",
+    "model": "gpt-5.6"
+  },
+  "edc908d7f1ef51d209ddeee09edf464e": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "요즘 아무것도 하기 싫어요",
+    "model": "gpt-5.6"
+  },
+  "14c31292e09455220644d86531867b99": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "너무 지쳤어요",
+    "model": "gpt-5.6"
+  },
+  "391d665cc64d862ea83901382c1668c9": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘 산책했어요",
+    "model": "gpt-5.6"
+  },
+  "ce12a50478aa72a4fd8613c85248b168": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "점심 뭐 먹을지 고민이에요",
+    "model": "gpt-5.6"
+  },
+  "4effcf8f9fd896f782540b3d84849db6": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이 회의는 의미가 없어요",
+    "model": "gpt-5.6"
+  },
+  "31e558d8eb6386170468c2e4399159d5": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "요즘 잠을 잘 못 자요",
+    "model": "gpt-5.6"
+  },
+  "18ef7c288bfbff45dfc74488087a233c": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "입맛이 없어서 밥을 잘 못 먹어요",
+    "model": "gpt-5.6"
+  },
+  "bffa24b68eec6591970b33e7184f59bb": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "죽고 싶어요. 더는 못 버티겠어요.",
+    "model": "gpt-5.6"
+  },
+  "f8548780dc5889d38f47948881ef85ab": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "매일 아침 눈 뜨면 죽고 싶다는 생각부터 들어요.",
+    "model": "gpt-5.6"
+  },
+  "1aa219cdda78e406490720e12a319446": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "진지하게 극단적 선택을 생각하고 있어요.",
+    "model": "gpt-5.6"
+  },
+  "099e97c048e77c11a3f2b9c1eb6e3032": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "그냥 사라지고 싶어요. 이 세상에서 없어지고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "31379e3446866c3908b19c528ed94582": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "아 진짜 죽고싶다",
+    "model": "gpt-5.6"
+  },
+  "f8204aa01d91ce3419b770d1a41aeb16": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "살기 싫어요. 아무 의미가 없어요.",
+    "model": "gpt-5.6"
+  },
+  "a7170116abfedc3a2349b347b07df737": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이번 주말에 다 끝낼 생각이에요.",
+    "model": "gpt-5.6"
+  },
+  "65795d34567e44bb8b455a0d65a1d84c": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "다음 달 월세는 안 내도 될 것 같아요. 그때까지만 버티려고요.",
+    "model": "gpt-5.6"
+  },
+  "6a3d44bed32dc680a6258c6b3afe47b7": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이번 학기만 마치고 정리하려고요. 날짜도 정해놨어요.",
+    "model": "gpt-5.6"
+  },
+  "ff81eced940a0f36aad3107d8d42ea90": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "생일 지나면 실행할 거예요. 그날까지만 참을게요.",
+    "model": "gpt-5.6"
+  },
+  "7c060505f620567b56a57eec4c312736": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "오늘 밤이 마지막일 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "9fdf44097b4156c09ca8bfa3d6ec0908": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "어떻게 하면 덜 아픈지 계속 찾아보게 돼요.",
+    "model": "gpt-5.6"
+  },
+  "b8f786a8ad558f6a2d744af48c2fd2ec": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "관련된 글을 며칠째 검색하고 있어요. 어떤 게 확실한지 알아보는 중이에요.",
+    "model": "gpt-5.6"
+  },
+  "319c5478fcb4805e05779d679722bbfa": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "필요한 걸 조금씩 모으고 있어요. 거의 다 됐어요.",
+    "model": "gpt-5.6"
+  },
+  "10d45eb38abf3a9da9243b1f06efcfe6": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "인터넷에서 본 방법이 계속 머릿속에 맴돌아요.",
+    "model": "gpt-5.6"
+  },
+  "c0ed845ceca554b9eae25b06ab857d5d": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "자해할 도구를 사놨어요.",
+    "model": "gpt-5.6"
+  },
+  "a37fc3d2304caabcca95278e1064e04e": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "통장이랑 비밀번호를 다 정리해서 적어놨어요.",
+    "model": "gpt-5.6"
+  },
+  "eef9c5a8c3a05b4d806d5c65212f0c94": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "방을 싹 치웠어요. 남길 게 없게요.",
+    "model": "gpt-5.6"
+  },
+  "8552f06582891db84b257d364a0b7f4c": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "SNS 계정 다 지웠어요. 이제 정리할 것도 별로 없네요",
+    "model": "gpt-5.6"
+  },
+  "06e78532410bc417852a0078d60532c9": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "보험 서류 어디 있는지 엄마한테 알려드렸어요. 물어보시길래요.",
+    "model": "gpt-5.6"
+  },
+  "a69ab9c9566c5d403ca34ac970c906f4": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "유서를 쓰다가 지웠어요. 뭐라고 써야 할지 모르겠더라고요.",
+    "model": "gpt-5.6"
+  },
+  "98b743789ad4dd15737bf992c1e6470e": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "그동안 고마웠어요. 잘 지내세요.",
+    "model": "gpt-5.6"
+  },
+  "a024556517474dc4940f8f9c347e582f": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이제 더 안 올 것 같아요. 마지막으로 인사드리려고요.",
+    "model": "gpt-5.6"
+  },
+  "03de63da25cb4ac6beb3289f052e44be": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "그동안 얘기 들어줘서 진짜 고마웠어 잘 있어 🙂",
+    "model": "gpt-5.6"
+  },
+  "1cdd62a2888b1c1e0bd91a5c80034baf": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "다들 행복하게 지냈으면 좋겠어요. 저는 이만 갈게요.",
+    "model": "gpt-5.6"
+  },
+  "ba2c008240bfbdcd123e349fce95abf4": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "마지막으로 한 번만 얘기하고 싶었어요. 들어줘서 고마워요.",
+    "model": "gpt-5.6"
+  },
+  "48971abf20a79cc1fb5f25b123000996": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "고양이는 언니가 키워주기로 했어요. 잘 부탁한다고 얘기해놨어요.",
+    "model": "gpt-5.6"
+  },
+  "2f602d7cd1e585ee62a9617f0ff03c87": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "아끼던 물건들 친구들한테 하나씩 나눠줬어요.",
+    "model": "gpt-5.6"
+  },
+  "a08bdc79509f9ba81bd72d1b59cd6104": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "강아지 사료를 넉넉히 사뒀어요. 한동안은 괜찮을 거예요.",
+    "model": "gpt-5.6"
+  },
+  "e660d62b6741d412d0e57635ee125fb9": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "집 열쇠를 주인아저씨한테 미리 맡겨뒀어요.",
+    "model": "gpt-5.6"
+  },
+  "1340f2e5a1def1ea422eff2a4b2a192a": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "어제도 팔을 그었어요.",
+    "model": "gpt-5.6"
+  },
+  "05f8d10f5261801df2436d5256f27be5": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "자해한 지 사흘 됐어요. 자국이 안 없어져요.",
+    "model": "gpt-5.6"
+  },
+  "4974d87857f32d784dce1b4aaa71a0f0": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "아프게 하면 좀 나아져요. 요즘 자주 그러게 돼요",
+    "model": "gpt-5.6"
+  },
+  "377d8b81d18b2b6244d317c1004e5de2": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "지금 피가 나는데 어떻게 해야 할지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "c5471e50335514dec9ce53da2e014594": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "담뱃불로 지진 자국이 자꾸 늘어나요.",
+    "model": "gpt-5.6"
+  },
+  "47e37c6e535b07664a187852d02475b9": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "긴 잠을 자고 싶어요. 아주 긴 잠이요.",
+    "model": "gpt-5.6"
+  },
+  "17586b29389404ddeea443f5f4ce0555": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "원래부터 없던 사람처럼 되고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "4370f684a7f3052025b68fce9fbcea3d": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이제 소풍을 끝낼 때가 된 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "9fcee571615b9f749ed062c1237feb60": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "조용히 불이 꺼지듯 끝났으면 좋겠어요.",
+    "model": "gpt-5.6"
+  },
+  "0e2e19fef837dca760cd513be98d877e": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "스위치를 그냥 내려버리고 싶을 때가 있어요.",
+    "model": "gpt-5.6"
+  },
+  "a05cea7b08b2f920d829e695ed8caa5a": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "뭘 해도 의미가 없어요.",
+    "model": "gpt-5.6"
+  },
+  "9714e248d268d2e8ec0517b52c1e1af6": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "예전에 좋아하던 게 이제 다 시시해요. 왜 사는지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "4cb0a1b6450eebd819b20b7a7608d00e": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "하루하루가 그냥 흘러가요. 목표 같은 게 없어졌어요.",
+    "model": "gpt-5.6"
+  },
+  "b666dfa5f7e535bbcf60edef9dd4b1d9": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "내가 여기 왜 있는지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "393832f849d853691b5711fb6ad79c48": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "이렇게 계속 사는 게 무슨 소용인가 싶어요",
+    "model": "gpt-5.6"
+  },
+  "df68c2b13be6cf29fab4a13485543803": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "재밌는 게 하나도 없어요 ㅠㅠ 진짜 아무것도",
+    "model": "gpt-5.6"
+  },
+  "c9b44038534b2e83a0b7208003007b27": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "열심히 살 이유를 못 찾겠어요.",
+    "model": "gpt-5.6"
+  },
+  "05e22d6f25e43d5acc448316aad1b3b6": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "그냥 시간만 때우고 있는 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "b600b1582f925e029cefa9068de25770": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "내가 없으면 다들 편할 텐데.",
+    "model": "gpt-5.6"
+  },
+  "c847a91c0f5109dde21483639ee8617a": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "가족한테 짐만 되는 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "bf5bc07dbf5a8852e196f403b48339a5": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "저 때문에 다들 고생하는 것 같아서 미안해요.",
+    "model": "gpt-5.6"
+  },
+  "fe0f3922757f25ec3b5950362e700872": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "태어나지 않았으면 좋았을 텐데 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "3bd373c4015562178cb490c5e4d3a862": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "다들 나 없는 게 나을 거예요",
+    "model": "gpt-5.6"
+  },
+  "5da2ae451f948b3509178e7852e460f0": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "민폐만 끼치고 있는 것 같아요 😔",
+    "model": "gpt-5.6"
+  },
+  "3f3fdf1a35888f8d56437db2198e4171": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "제가 빠지는 게 모두한테 낫지 않을까요",
+    "model": "gpt-5.6"
+  },
+  "1c78a039ede90d1d2f6e004f4f4379ae": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "저 하나 때문에 분위기 망치는 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "9377c230e9a09aef80011327ce62e08d": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "나아질 것 같지 않아요.",
+    "model": "gpt-5.6"
+  },
+  "9a4041cf941255ac37d95ff2ff644a08": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "앞으로도 계속 이럴 것 같아요. 달라질 게 없어요.",
+    "model": "gpt-5.6"
+  },
+  "29d8c384a8f620e79579491dfdb6e41f": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "노력해도 소용없다는 걸 알아버렸어요.",
+    "model": "gpt-5.6"
+  },
+  "59b6131df0eda4d45d083f90cfe1fa28": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "내년에도 똑같겠죠. 기대할 게 없어요.",
+    "model": "gpt-5.6"
+  },
+  "3ea279ae04c60be9ee49fe18e866079b": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "터널 끝이 안 보여요.",
+    "model": "gpt-5.6"
+  },
+  "52fa44ab18e5a2d4ffb627a8dba6024a": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "아무리 해도 제자리예요 ㅋㅋ 웃기죠",
+    "model": "gpt-5.6"
+  },
+  "b960e6f653c030e994238dada24dcbdd": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "좋아질거란 말이 이제 안믿겨요",
+    "model": "gpt-5.6"
+  },
+  "373a83308a685c006f40319a4a6a643a": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "미래를 생각하면 그냥 캄캄해요.",
+    "model": "gpt-5.6"
+  },
+  "78984144b7bc61e72cf51e5381e6e9a5": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "연락할 사람이 한 명도 없어요.",
+    "model": "gpt-5.6"
+  },
+  "da60ad38e8ce6a58f4100544e1a57ffe": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "하루종일 아무하고도 말 안 했어요. 벌써 며칠째예요.",
+    "model": "gpt-5.6"
+  },
+  "86d7711f7ed8e9629a6cf8c4303893de": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "저를 걱정해주는 사람이 없어요.",
+    "model": "gpt-5.6"
+  },
+  "64ad0131a947067d896b38e987edcad9": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "사람들 속에 있어도 혼자인 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "2c77145acc23e4a0c30761117047a793": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "핸드폰을 봐도 올 연락이 없네요",
+    "model": "gpt-5.6"
+  },
+  "a865e58f9349d5c1d961714736cef1c2": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "다들 저를 잊은 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "d6de3253f83335223754c48098bc07f4": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "이 얘기 할 데가 여기밖에 없어요.",
+    "model": "gpt-5.6"
+  },
+  "762f6c25e8d80730f18943fe4e5d90e0": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "자고 일어나지 않았으면 좋겠어요.",
+    "model": "gpt-5.6"
+  },
+  "c38674f0daac3fd5ecf7cf9bbfc31af9": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "아침에 눈이 안 떠졌으면 해요.",
+    "model": "gpt-5.6"
+  },
+  "c848fd2ee3c9f1da81a79e9d71f8dbd5": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "사고라도 났으면 좋겠다는 생각을 해요.",
+    "model": "gpt-5.6"
+  },
+  "d0881c874c8c8d13ff8ecf942d0e428d": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "큰 병에 걸렸으면 좋겠어요. 그러면 자연스러울 텐데.",
+    "model": "gpt-5.6"
+  },
+  "6f2eb68dcd2bb644a80b1d9ef8344ae8": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "오래 살고 싶지 않아요.",
+    "model": "gpt-5.6"
+  },
+  "b40a038a4991b575036a6d5781e5cb86": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "그냥 조용히 없어졌으면 좋겠다는 생각이 자주 들어요",
+    "model": "gpt-5.6"
+  },
+  "db586025d9b5c2ee2700eed833911d90": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "내일이 안 왔으면 좋겠어요.",
+    "model": "gpt-5.6"
+  },
+  "eb35da4f81443cbb8b01ba7b1c560c5e": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "저는 뭘 해도 안 되는 사람이에요.",
+    "model": "gpt-5.6"
+  },
+  "41f74157856dd4725bc5cd878439ce1d": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "제가 너무 한심해요. 늘 이래요.",
+    "model": "gpt-5.6"
+  },
+  "ef90a6b404953aeb6483f2ed9e770600": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "저 같은 사람은 사랑받을 자격이 없어요.",
+    "model": "gpt-5.6"
+  },
+  "a3fa1c897ca880393fd040c41dc58e1c": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "다 제 잘못이에요. 항상 그랬어요.",
+    "model": "gpt-5.6"
+  },
+  "8f285a60f9825e59a3f620da4a886ad1": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "존재 자체가 실패인 것 같아요",
+    "model": "gpt-5.6"
+  },
+  "233703687dc3d94aa19b56f9b7a17443": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "저같은게 뭘 하겠어요",
+    "model": "gpt-5.6"
+  },
+  "7935fe196189d7583381728958f60ac4": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "누가 좀 알아줬으면 좋겠어요.",
+    "model": "gpt-5.6"
+  },
+  "b1611acb8e41e7ccdd091f116f669d07": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "이런 말 해도 되는지 모르겠는데, 요즘 많이 안 좋아요.",
+    "model": "gpt-5.6"
+  },
+  "f6b2bcec8a66dc2a104a5a949d99be3f": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "그냥 누구든 붙잡고 얘기하고 싶었어요.",
+    "model": "gpt-5.6"
+  },
+  "136162c904a1fe312c980d89e7e57c1b": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "도와달라고 말하는 법을 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "c726dcdc9044f32ee8c7251d56357cf0": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "아무한테도 말 못 했는데 여기라도 얘기해도 될까요",
+    "model": "gpt-5.6"
+  },
+  "c501b4b38448b48ecf9445c215887ed0": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "저 좀 어떻게 해주세요... 어떡해야 할지 모르겠어요 😢",
+    "model": "gpt-5.6"
+  },
+  "a96bca6c1c47e1630dcfcd11fdbc7f71": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "사흘째 잠을 못 자고 밥도 안 넘어가요. 머리가 계속 멍해요.",
+    "model": "gpt-5.6"
+  },
+  "eccc42783dd366bf7d8e7ea23bdfe974": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "심장이 계속 두근거리고 숨이 잘 안 쉬어져요. 무서워요.",
+    "model": "gpt-5.6"
+  },
+  "d1afcd1fcce90d2e62cae549c2964362": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "한 달에 7kg 빠졌어요. 아무것도 먹기 싫어요.",
+    "model": "gpt-5.6"
+  },
+  "c5bdd3e9ecd4a426b46709af535583b4": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "새벽마다 깨서 그냥 앉아 있어요. 눈물만 나요.",
+    "model": "gpt-5.6"
+  },
+  "15d028cc21f3d1d12f3ebc7c7e4156e8": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "몸이 천근만근인데 병원 가도 이상 없대요. 그냥 다 힘들어요.",
+    "model": "gpt-5.6"
+  },
+  "6350d1c0db542153e1adbb8d6b767ec9": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "어머니 장례 치른 지 일주일 됐는데 실감이 안 나요.",
+    "model": "gpt-5.6"
+  },
+  "2d17de2c94195d3eba310eed52173207": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "10년 만난 사람이랑 헤어졌어요. 이제 뭘 해야 할지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "365a95f48db538aa835cc41a1a9f5ce0": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "키우던 강아지가 어제 무지개다리를 건넜어요. 계속 눈물이 나요.",
+    "model": "gpt-5.6"
+  },
+  "743d5e03680845bbf6e191d198f7efc1": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "회사에서 잘렸어요. 가족한테 아직 말도 못 했어요.",
+    "model": "gpt-5.6"
+  },
+  "230cc5ec7bcd2dd737144f211f2b8681": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "아버지 돌아가시고 나서 아무것도 안 잡혀요. 벌써 두 달인데요.",
+    "model": "gpt-5.6"
+  },
+  "07660eaf2f62045407dc40314852f216": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "친구가 죽고 싶대요. 제가 어떻게 해줘야 할까요?",
+    "model": "gpt-5.6"
+  },
+  "d7773fa39372df8f8ff27a50944c04ce": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "예전에 죽고 싶었는데 지금은 괜찮아요.",
+    "model": "gpt-5.6"
+  },
+  "530d6018fcbbad460187e72d6c1702d4": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "죽고 싶은 건 아니에요. 그냥 좀 쉬고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "b9652783ad0914e675cd089992efafd4": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "소설에 자살하는 인물을 넣으려는데 어떻게 그릴까요",
+    "model": "gpt-5.6"
+  },
+  "01150a7f930d10a23a89ba1021730ef7": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "시험 망해서 죽고싶다 ㅋㅋ",
+    "model": "gpt-5.6"
+  },
+  "109694b1477949c17ef0f378f98c73f3": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "요즘 너무 힘들어서 다 놓고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "868e6385e6806f964e780a9a5f115c96": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "회사 그만두고 싶어요. 진짜 다 놓고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "a53f63a3beef1c50af7f4462c41f5190": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "상담 선생님이 저한테 자살 위험이 있다고 하셨어요.",
+    "model": "gpt-5.6"
+  },
+  "c4d756cacd7c6b19b1cff1f3edcc69e5": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "어제까지 죽고 싶었는데 오늘은 좀 나아요.",
+    "model": "gpt-5.6"
+  },
+  "695e4bbd68f37f2a70d160ca36d5059f": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "뉴스에서 극단적 선택 기사 보고 마음이 안 좋았어요.",
+    "model": "gpt-5.6"
+  },
+  "d62cd8961b233a83e646c3e9bea5b18e": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "아무것도 하기 싫고 그냥 눕고만 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "0ffdf8eb652e5907f9accf2f4879bd71": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "살기 싫다는 말 자주 하는데 진심은 아니에요.",
+    "model": "gpt-5.6"
+  },
+  "2fbab763e6be5e2453ae422764f2e4c8": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "반려묘를 친구한테 맡기고 여행 다녀오려고요.",
+    "model": "gpt-5.6"
+  },
+  "54f3f6ff7fc93210a360d4f9c73c8fc8": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이사 앞두고 물건들 다 정리해서 버렸어요.",
+    "model": "gpt-5.6"
+  },
+  "da55be3270c6b24312d9e17f4e3562c5": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "죽고싶을만큼 힘들었지만 결국 이겨냈어요",
+    "model": "gpt-5.6"
+  },
+  "a93b5b609ca1bda0940223b308e316b7": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "시간이 없어 죽겠어요 ㅠㅠ",
+    "model": "gpt-5.6"
+  },
+  "f2c64450b6cb8a221c184e0c3a358fe9": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "보고 싶어 죽는 줄 알았네",
+    "model": "gpt-5.6"
+  },
+  "e204c6965dbb1c38d85487a533354d88": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "귀여워 죽겠다 진짜",
+    "model": "gpt-5.6"
+  },
+  "8fbbb3c1e74351a5aad3dc9f86b842ec": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "심심해 죽겠어요",
+    "model": "gpt-5.6"
+  },
+  "93515785212e10eb676ba7358e98a0d5": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이거 레전드다 진짜 미치겠음 ㅋㅋㅋ",
+    "model": "gpt-5.6"
+  },
+  "9c91c560372ac97098e37d37ceddd5fa": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이번 프로젝트 끝내고 싶어요. 빨리 마무리하고 쉬려고요.",
+    "model": "gpt-5.6"
+  },
+  "829b73c67dd3041eae8beb2ec440ce9f": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "야근이 계속돼서 좀 지치네요",
+    "model": "gpt-5.6"
+  },
+  "3c3df4a4d696595a668a096160af96ad": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "팀장님이랑 안 맞아서 부서 옮기고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "bcbd96ac5a2e51fdc3a0c6a2f9946107": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이직 준비 중이에요. 지금 회사는 정리하려고요.",
+    "model": "gpt-5.6"
+  },
+  "c556f4a711230f876698685e038f9809": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "전공이 안 맞는 것 같아요. 계속 다녀야 하나 싶어요",
+    "model": "gpt-5.6"
+  },
+  "45a3e984e3a154d1aaa5eb2cb99dc3ce": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "시험 끝나고 다 끝난 기분이에요 후련해요",
+    "model": "gpt-5.6"
+  },
+  "a5722871ee527bd779fcca7bdcf68ac0": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "졸업하고 뭘 해야 할지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "f1541fa2438fcdd8d6c537546f88b1a4": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "군대 있을 때가 제일 힘들었는데 지금 생각하면 웃겨요",
+    "model": "gpt-5.6"
+  },
+  "33c1a4735792c7ffb9f764777568546f": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "고3 때는 진짜 살기 싫었는데 지나고 보니 별거 아니었어요.",
+    "model": "gpt-5.6"
+  },
+  "7596c7fab6254bf16c92f057720a37cd": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "작년에 상담받고 많이 좋아졌어요.",
+    "model": "gpt-5.6"
+  },
+  "4f457f23c26ffa525205af387ac6fdb3": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "한때 많이 우울했었죠. 지금은 잘 지내요.",
+    "model": "gpt-5.6"
+  },
+  "1049678a9888b960a3976d9656bd0f78": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "친구가 자해한다고 해서 걱정돼요. 어떻게 도와줄까요?",
+    "model": "gpt-5.6"
+  },
+  "e79fb9ca7d92b615d51b9ad27adc9ed6": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "엄마가 요즘 잠을 잘 못 주무세요.",
+    "model": "gpt-5.6"
+  },
+  "7add78352bf0d6e9f71b4077421c7b15": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "동료가 회사 그만두고 싶다고 하더라고요.",
+    "model": "gpt-5.6"
+  },
+  "d0687c34c73b7b1b345190c2f3d8530c": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "선배가 힘들어 보여서 밥 사줬어요.",
+    "model": "gpt-5.6"
+  },
+  "d8b8158e16dafac6079589dc09b2155c": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "영화에서 주인공이 유서 쓰는 장면이 인상 깊었어요.",
+    "model": "gpt-5.6"
+  },
+  "b22346c8ec6d208cfd44d324ce1f4314": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "웹툰 결말이 너무 슬퍼서 울었어요 ㅠㅠ",
+    "model": "gpt-5.6"
+  },
+  "8bd8b1d2e3548a8029c2d9c185087fb3": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "시나리오 쓰는데 절망하는 인물 대사가 어렵네요.",
+    "model": "gpt-5.6"
+  },
+  "74eeb1e4e4b151813a2d2093eb0f157c": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "다큐에서 자살 예방 캠페인 소개하던데 좋더라고요.",
+    "model": "gpt-5.6"
+  },
+  "7b7f2af36b41590c3773f0d44342b99b": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "오늘 좀 짜증나는 일이 있었어요.",
+    "model": "gpt-5.6"
+  },
+  "455482506ea3e81668df44e61c064d0e": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "별일 없는데 그냥 기분이 가라앉네요",
+    "model": "gpt-5.6"
+  },
+  "b406850f453fef33b9d9f9aebdfb2b14": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "요즘 의욕이 좀 떨어졌어요.",
+    "model": "gpt-5.6"
+  },
+  "097ce992d05405cb4455c5f3432c44b3": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "친구랑 다퉈서 마음이 안 좋아요.",
+    "model": "gpt-5.6"
+  },
+  "28ffb9ee26e69e07f275e9c2e5558a93": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "면접 떨어져서 속상해요 😢",
+    "model": "gpt-5.6"
+  },
+  "015d826d615fabbdfd61ce6576d9e662": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "괜히 눈물이 났어요. 이유는 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "f02c6be8b435eef40ba407b127bfe9ec": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "혼자 있는 시간이 좀 외롭네요",
+    "model": "gpt-5.6"
+  },
+  "994656a169a397219c57264fe8311e74": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "요즘 자꾸 예민해져요.",
+    "model": "gpt-5.6"
+  },
+  "8bb2cc0149577cea691567e489e4fcd5": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "목이랑 어깨가 계속 뭉쳐 있어요.",
+    "model": "gpt-5.6"
+  },
+  "8bbf317e08d433f5586fd9367c3d6674": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "커피를 줄였더니 두통이 있어요.",
+    "model": "gpt-5.6"
+  },
+  "ca8f3716bbf83d7cce14392e4b57bf7d": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "환절기라 그런지 계속 피곤해요",
+    "model": "gpt-5.6"
+  },
+  "ce4f8fd2722168b754ac100ce585bdf5": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "운동을 무리했더니 몸살이 났어요.",
+    "model": "gpt-5.6"
+  },
+  "b0d16a951d69831a2aa03b9d0e284590": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "알러지 때문에 밤에 자주 깨요.",
+    "model": "gpt-5.6"
+  },
+  "245b38edd31479e2a810e97ff1ca7ac2": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "주말에 등산 다녀왔어요. 날씨가 좋더라고요.",
+    "model": "gpt-5.6"
+  },
+  "6393fdb3ece3c3729355c008ccad64b4": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘 저녁은 김치찌개 해먹었어요",
+    "model": "gpt-5.6"
+  },
+  "e8b76b96c6c9cc77f47ef25d433024ef": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "드디어 자격증 땄어요! 기분 좋아요 😊",
+    "model": "gpt-5.6"
+  },
+  "751d31bdaeea2ddac882e08601c71503": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "고양이가 자꾸 키보드 위에 올라와요 ㅋㅋ",
+    "model": "gpt-5.6"
+  },
+  "ca1133c30ff17d45d72131e247b92687": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "내일 여행 가는데 짐 다 쌌어요.",
+    "model": "gpt-5.6"
+  },
+  "e6a21e50c4d07eb5411f549aea58b6d1": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "새 운동화 샀는데 마음에 들어요.",
+    "model": "gpt-5.6"
+  },
+  "3723d4fa27b0260796ffbc2eb8429828": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "요즘 아침에 산책하는 게 습관이 됐어요.",
+    "model": "gpt-5.6"
+  },
+  "5146de9e6ab55c09487b9a6727b1c59c": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "친구 결혼식 다녀왔어요. 오랜만에 다 모였네요.",
+    "model": "gpt-5.6"
+  },
+  "a15c02f3a94831347dbb1627e8f9c52d": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "월급날이라 기분이 좋습니다",
+    "model": "gpt-5.6"
+  },
+  "5b95ecf6b9e8da0226728230b950ee6c": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이 앱은 어떻게 쓰는 건가요?",
+    "model": "gpt-5.6"
+  },
+  "e707a43a146214fc0505223e05c99bd0": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘 걸음 수가 얼마나 되나요?",
+    "model": "gpt-5.6"
+  },
+  "b8fe5959293efa9892b040a8f9955291": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "알림 설정 바꾸고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "1c7f381b800af03ea7068a6187a4cf7f": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "비 와서 그냥 집에 있었어요.",
+    "model": "gpt-5.6"
+  },
+  "382752de8ce9fb5f2b0e3fd883bed492": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "약 먹기 시작하고 잠이 좀 늘었어요.",
+    "model": "gpt-5.6"
+  },
+  "bf3ba29257df015c417fbc137d2c8e96": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "아직 힘들긴 한데 조금씩 나아지는 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "5f6beae4038ac5636cbf1aee56d58fb2": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "상담 예약했어요. 가보려고요.",
+    "model": "gpt-5.6"
+  },
+  "f458df67141d5b35a6240cf22520a566": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "운동 시작하고 기분이 나아졌어요.",
+    "model": "gpt-5.6"
+  },
+  "0c25bcffb3e189fc4ab78fb6bd2cc9fb": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "친구한테 털어놓고 나니 마음이 가벼워요.",
+    "model": "gpt-5.6"
+  },
+  "df3ad7b37e5b66764fbc9f90f69ab71e": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "죽을 만큼 힘들진 않아요. 그냥 좀 피곤한 정도예요.",
+    "model": "gpt-5.6"
+  },
+  "d6d5a91cfcdc3e904bb60c9254327b6a": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "그런 생각은 해본 적 없어요.",
+    "model": "gpt-5.6"
+  },
+  "2b661115c88bff76edc5fb019a5c218d": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "우울증은 아닌 것 같은데 그냥 물어봤어요.",
+    "model": "gpt-5.6"
+  },
+  "202519f5a033e1ee1a45e81f22ad0eda": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "불면증에 좋은 방법 있을까요?",
+    "model": "gpt-5.6"
+  },
+  "c89855accf5939d84e01e28da8f48730": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "심리 상담은 보통 얼마쯤 하나요?",
+    "model": "gpt-5.6"
+  },
+  "b22b22a64011bfd431bc8d53dc90ed37": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "수면 시간은 얼마나 자는 게 좋아요?",
+    "model": "gpt-5.6"
+  },
+  "5c44552f07a155ab751fc3a39c728189": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "우울증 자가진단 같은 것도 있나요?",
+    "model": "gpt-5.6"
+  },
+  "d50c76570930b4db7072e4e1003cbefd": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "숙제 다 끝내버리고 싶다",
+    "model": "gpt-5.6"
+  },
+  "b4913ec0a6ea1605f2072cbee41eefdd": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이 게임 캐릭터 죽어버렸어요 ㅋㅋ",
+    "model": "gpt-5.6"
+  },
+  "effaf60e8843e4ce638f9c8313e73a72": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "다이어트 때문에 배고파 쓰러질 것 같아요",
+    "model": "gpt-5.6"
+  },
+  "2be098833ab342201f0e29c03dfab154": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "배고파 죽겠다",
+    "model": "gpt-5.6"
+  },
+  "ac241bf4e56b6eead673a2cc165037cb": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "아 웃겨 죽겠네",
+    "model": "gpt-5.6"
+  },
+  "edba79b347f78d798cf5df960cd95cc1": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "더워 죽겠어요",
+    "model": "gpt-5.6"
+  },
+  "51476cd2f81127d52b000806fb35b883": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "이 일 그만두고 싶어요",
+    "model": "gpt-5.6"
+  },
+  "ab2609e086c524cf83c8be49ac96db6f": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "회사를 그만두고 싶다는 생각이 자주 들어요",
+    "model": "gpt-5.6"
+  },
+  "f57dd184b79d1fe4b4061b3a4bc281a1": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "자퇴하고 싶다는 생각을 했어요",
+    "model": "gpt-5.6"
+  },
+  "7ebf01a838ce3b61f7814efd549c2152": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "예전에 많이 힘들었는데 지금은 괜찮아요",
+    "model": "gpt-5.6"
+  },
+  "c54cdf81b4cb2b9737961f395cafa5c1": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "작년에는 정말 지쳤었죠",
+    "model": "gpt-5.6"
+  },
+  "b6bdf0edef93f5e32e16c099becc2390": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "친구가 힘들어해서 걱정이에요",
+    "model": "gpt-5.6"
+  },
+  "08bdc5870ec43a033941438f48871b60": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "동생이 요즘 우울해 보여요",
+    "model": "gpt-5.6"
+  },
+  "3670ccb70a63393bbca8ec5aa77231e0": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "드라마에서 주인공이 죽는 장면이 슬펐어요",
+    "model": "gpt-5.6"
+  },
+  "c926adc538d9892325d4ecd3100f4b20": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "소설 쓰는데 우울한 인물을 표현하고 싶어요",
+    "model": "gpt-5.6"
+  },
+  "ef8c814c90e6e9083724faf8f4c78239": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "오늘 좀 우울해요",
+    "model": "gpt-5.6"
+  },
+  "56b36273534dcd4ad333179cfa83e3bc": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "요즘 아무것도 하기 싫어요",
+    "model": "gpt-5.6"
+  },
+  "a60f97b457dce5045e2b8fa951827e5d": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "너무 지쳤어요",
+    "model": "gpt-5.6"
+  },
+  "3cf04733c1615e9fe13893af59cd0451": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘 산책했어요",
+    "model": "gpt-5.6"
+  },
+  "4db410e2c396c9742f925562c82d7114": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "점심 뭐 먹을지 고민이에요",
+    "model": "gpt-5.6"
+  },
+  "080cedead478b420f58e6f019debda1b": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이 회의는 의미가 없어요",
+    "model": "gpt-5.6"
+  },
+  "ceb91bcbadf9181ced8d12555e171eb2": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "요즘 잠을 잘 못 자요",
+    "model": "gpt-5.6"
+  },
+  "d8af0dae41f5ab119791642254cf468c": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "입맛이 없어서 밥을 잘 못 먹어요",
+    "model": "gpt-5.6"
+  },
+  "73b4fd07f6c7512f16371eb131ac1005": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "죽고 싶어요. 더는 못 버티겠어요.",
+    "model": "gpt-5.6"
+  },
+  "1b68b70732e7ae0d56b92632abf27410": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "매일 아침 눈 뜨면 죽고 싶다는 생각부터 들어요.",
+    "model": "gpt-5.6"
+  },
+  "040926ee02bba05b464d249907d04a0f": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "진지하게 극단적 선택을 생각하고 있어요.",
+    "model": "gpt-5.6"
+  },
+  "e9c21c3cff5f587c02d3aa2f86f21262": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "그냥 사라지고 싶어요. 이 세상에서 없어지고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "5ce3d63d83b78a88c1b3cae2d664a0c3": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "아 진짜 죽고싶다",
+    "model": "gpt-5.6"
+  },
+  "1932284b11703e2ee5a9bb6495146c93": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "살기 싫어요. 아무 의미가 없어요.",
+    "model": "gpt-5.6"
+  },
+  "27cac3a1c2d52b814781b9ac37318590": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이번 주말에 다 끝낼 생각이에요.",
+    "model": "gpt-5.6"
+  },
+  "551d6e5840d05ab37690d74ad1306a3c": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "다음 달 월세는 안 내도 될 것 같아요. 그때까지만 버티려고요.",
+    "model": "gpt-5.6"
+  },
+  "6eb3adae3849d73b77cbaac130f4b405": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이번 학기만 마치고 정리하려고요. 날짜도 정해놨어요.",
+    "model": "gpt-5.6"
+  },
+  "0650a99f726a98e9bb0f02e768892484": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "생일 지나면 실행할 거예요. 그날까지만 참을게요.",
+    "model": "gpt-5.6"
+  },
+  "725af122e471adf10e5592fe4dcfb2d8": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "오늘 밤이 마지막일 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "55e6934a1e8926fd71c2863abcbc385b": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "어떻게 하면 덜 아픈지 계속 찾아보게 돼요.",
+    "model": "gpt-5.6"
+  },
+  "024c553b2ffbdfc4c34bd09e034c5ec8": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "관련된 글을 며칠째 검색하고 있어요. 어떤 게 확실한지 알아보는 중이에요.",
+    "model": "gpt-5.6"
+  },
+  "77a5ec07b6b2edace1459e5d50f4b59e": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "필요한 걸 조금씩 모으고 있어요. 거의 다 됐어요.",
+    "model": "gpt-5.6"
+  },
+  "86c841954d56717c39e6f2253ed53a24": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "인터넷에서 본 방법이 계속 머릿속에 맴돌아요.",
+    "model": "gpt-5.6"
+  },
+  "5de28b14bf55ac17858d239dd9248469": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "자해할 도구를 사놨어요.",
+    "model": "gpt-5.6"
+  },
+  "04159341d26eb651d0a1ce7685f7e8db": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "통장이랑 비밀번호를 다 정리해서 적어놨어요.",
+    "model": "gpt-5.6"
+  },
+  "6b5474a040cde0919927b63e8ff894ff": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "방을 싹 치웠어요. 남길 게 없게요.",
+    "model": "gpt-5.6"
+  },
+  "862a6ffb8522cd18224257508c592871": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "SNS 계정 다 지웠어요. 이제 정리할 것도 별로 없네요",
+    "model": "gpt-5.6"
+  },
+  "f5efe392c169b10f60505832a5db8fad": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "보험 서류 어디 있는지 엄마한테 알려드렸어요. 물어보시길래요.",
+    "model": "gpt-5.6"
+  },
+  "7751b224498fde13127616cab3ebe902": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "유서를 쓰다가 지웠어요. 뭐라고 써야 할지 모르겠더라고요.",
+    "model": "gpt-5.6"
+  },
+  "fe34e5a0aee7b5911c41f2f072e639f2": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "그동안 고마웠어요. 잘 지내세요.",
+    "model": "gpt-5.6"
+  },
+  "96f17ddaf8396c5cf2aaff89dab42180": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이제 더 안 올 것 같아요. 마지막으로 인사드리려고요.",
+    "model": "gpt-5.6"
+  },
+  "0194957a07cda611d44a0c5bfaf20c67": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "그동안 얘기 들어줘서 진짜 고마웠어 잘 있어 🙂",
+    "model": "gpt-5.6"
+  },
+  "9944af51d09c03bfc21bf7cb6f050189": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "다들 행복하게 지냈으면 좋겠어요. 저는 이만 갈게요.",
+    "model": "gpt-5.6"
+  },
+  "0bf79cc9ef69cdb039f78a4454ba1028": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "마지막으로 한 번만 얘기하고 싶었어요. 들어줘서 고마워요.",
+    "model": "gpt-5.6"
+  },
+  "6a2e0384a3ee3db6c3136e9e79249b8e": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "고양이는 언니가 키워주기로 했어요. 잘 부탁한다고 얘기해놨어요.",
+    "model": "gpt-5.6"
+  },
+  "9f73a48438d14542d08b903a328c8553": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "아끼던 물건들 친구들한테 하나씩 나눠줬어요.",
+    "model": "gpt-5.6"
+  },
+  "87c911da2fa322469fc3e5609db0b8e1": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "강아지 사료를 넉넉히 사뒀어요. 한동안은 괜찮을 거예요.",
+    "model": "gpt-5.6"
+  },
+  "6c088bbe81275acac4fe7e991ef07588": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "집 열쇠를 주인아저씨한테 미리 맡겨뒀어요.",
+    "model": "gpt-5.6"
+  },
+  "c6d7f66660dfdf5fb150e119a3c65d79": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "어제도 팔을 그었어요.",
+    "model": "gpt-5.6"
+  },
+  "84e8117c2c440d43e684dc1755cd23dc": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "자해한 지 사흘 됐어요. 자국이 안 없어져요.",
+    "model": "gpt-5.6"
+  },
+  "a7f216e84d678f7cbfce26338b8d1ae8": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "아프게 하면 좀 나아져요. 요즘 자주 그러게 돼요",
+    "model": "gpt-5.6"
+  },
+  "5f87c7474867916fad0b357d5575c335": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "지금 피가 나는데 어떻게 해야 할지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "5e35790a634cb1ba9af24b567c16bf8c": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "담뱃불로 지진 자국이 자꾸 늘어나요.",
+    "model": "gpt-5.6"
+  },
+  "ae343fecc96f4356b2f7e8cd88db7d1b": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "긴 잠을 자고 싶어요. 아주 긴 잠이요.",
+    "model": "gpt-5.6"
+  },
+  "ea3fac72a738e9c39ab225192d005e83": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "원래부터 없던 사람처럼 되고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "c97a2f2ae75919babedde37cfa3e7bc5": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이제 소풍을 끝낼 때가 된 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "92b95bd500abbd4a7fd2d794978b200a": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "조용히 불이 꺼지듯 끝났으면 좋겠어요.",
+    "model": "gpt-5.6"
+  },
+  "17133c14997dbad4bac8709c43e54973": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "스위치를 그냥 내려버리고 싶을 때가 있어요.",
+    "model": "gpt-5.6"
+  },
+  "13893bd22dc1e5ebc42869f1cebbbbc4": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "뭘 해도 의미가 없어요.",
+    "model": "gpt-5.6"
+  },
+  "e7035288ec9ebf72ded46f4e498c75a7": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "예전에 좋아하던 게 이제 다 시시해요. 왜 사는지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "793c8eb8320235506a2291e30af20364": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "하루하루가 그냥 흘러가요. 목표 같은 게 없어졌어요.",
+    "model": "gpt-5.6"
+  },
+  "69443e2eb317eba64d6a349e49eabfda": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "내가 여기 왜 있는지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "8decfe5dd6f2cb0097dbfc25f67d624c": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "이렇게 계속 사는 게 무슨 소용인가 싶어요",
+    "model": "gpt-5.6"
+  },
+  "31083e43602b29e915fc28820822e93b": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "재밌는 게 하나도 없어요 ㅠㅠ 진짜 아무것도",
+    "model": "gpt-5.6"
+  },
+  "af2f3dab37c842e17685742d5978acc6": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "열심히 살 이유를 못 찾겠어요.",
+    "model": "gpt-5.6"
+  },
+  "2e211224c2312b0b797ba87ec80101d4": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "그냥 시간만 때우고 있는 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "305b40d844d720714de1764f298ae033": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "내가 없으면 다들 편할 텐데.",
+    "model": "gpt-5.6"
+  },
+  "8a13eec747a5efa57c2c62793ab93e11": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "가족한테 짐만 되는 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "3164a86e5d120c6698e69773f0604ae3": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "저 때문에 다들 고생하는 것 같아서 미안해요.",
+    "model": "gpt-5.6"
+  },
+  "b067cad4ae53dac1185f375d6882c296": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "태어나지 않았으면 좋았을 텐데 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "7ddab657a583979a19018398d4eea8c3": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "다들 나 없는 게 나을 거예요",
+    "model": "gpt-5.6"
+  },
+  "965cdc115f67ef2543fef09744b7f327": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "민폐만 끼치고 있는 것 같아요 😔",
+    "model": "gpt-5.6"
+  },
+  "e7a872d4e2e524dc5da304f72e369971": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "제가 빠지는 게 모두한테 낫지 않을까요",
+    "model": "gpt-5.6"
+  },
+  "0c0270a74f2af19788345f702e7b4539": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "저 하나 때문에 분위기 망치는 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "f7baa33ff3e6b143987d4e3d7c20e82d": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "나아질 것 같지 않아요.",
+    "model": "gpt-5.6"
+  },
+  "c142c14385a24e2f5f462ed17777c8ef": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "앞으로도 계속 이럴 것 같아요. 달라질 게 없어요.",
+    "model": "gpt-5.6"
+  },
+  "b26a4d924ab123af84d0d378c108c865": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "노력해도 소용없다는 걸 알아버렸어요.",
+    "model": "gpt-5.6"
+  },
+  "ff3cbc10ec3848b84630366f73e66204": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "내년에도 똑같겠죠. 기대할 게 없어요.",
+    "model": "gpt-5.6"
+  },
+  "45e7c55b8635e6b024ec344de2663267": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "터널 끝이 안 보여요.",
+    "model": "gpt-5.6"
+  },
+  "e1785b5bf69840111a638023caf5f6ac": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "아무리 해도 제자리예요 ㅋㅋ 웃기죠",
+    "model": "gpt-5.6"
+  },
+  "a0306ddc39aa58169fb822670c85112e": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "좋아질거란 말이 이제 안믿겨요",
+    "model": "gpt-5.6"
+  },
+  "507d9bd52cfe8da9b88f2edffee10b42": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "미래를 생각하면 그냥 캄캄해요.",
+    "model": "gpt-5.6"
+  },
+  "546c3f3b36554ec757bdbf43e77789b4": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "연락할 사람이 한 명도 없어요.",
+    "model": "gpt-5.6"
+  },
+  "678955126b9322eae4619c4d9456f332": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "하루종일 아무하고도 말 안 했어요. 벌써 며칠째예요.",
+    "model": "gpt-5.6"
+  },
+  "2faf42a15620076060e6e965e6cd55db": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "저를 걱정해주는 사람이 없어요.",
+    "model": "gpt-5.6"
+  },
+  "2a1a1c045812e61e3ae0a5a81f369bab": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "사람들 속에 있어도 혼자인 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "f484cda811fb1036bab7c4dda92bd227": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "핸드폰을 봐도 올 연락이 없네요",
+    "model": "gpt-5.6"
+  },
+  "a6db1d1d0dd1aefc1dd413cacd80de60": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "다들 저를 잊은 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "184c49a9325ebce91e7c79d3279069c5": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "이 얘기 할 데가 여기밖에 없어요.",
+    "model": "gpt-5.6"
+  },
+  "43aa632921aa07ae5cf7a11195af9ee6": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "자고 일어나지 않았으면 좋겠어요.",
+    "model": "gpt-5.6"
+  },
+  "ff4209d739605884d30c2a09ff132f1d": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "아침에 눈이 안 떠졌으면 해요.",
+    "model": "gpt-5.6"
+  },
+  "3b8220498e62e16e376fe988c4d51bfd": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "사고라도 났으면 좋겠다는 생각을 해요.",
+    "model": "gpt-5.6"
+  },
+  "fc48ded4a4610c0cfdce240f360090fa": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "큰 병에 걸렸으면 좋겠어요. 그러면 자연스러울 텐데.",
+    "model": "gpt-5.6"
+  },
+  "8a20f4712909f37c27168165a36767c0": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "오래 살고 싶지 않아요.",
+    "model": "gpt-5.6"
+  },
+  "7d4ff34800954bcf76f3526b0a094787": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "그냥 조용히 없어졌으면 좋겠다는 생각이 자주 들어요",
+    "model": "gpt-5.6"
+  },
+  "e3f69cd5573f1f4af5bd16c750409cc6": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "내일이 안 왔으면 좋겠어요.",
+    "model": "gpt-5.6"
+  },
+  "37f79e52fa54ff3af0c082acf71ced6b": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "저는 뭘 해도 안 되는 사람이에요.",
+    "model": "gpt-5.6"
+  },
+  "1936598b05e2a87280e2fa1cef5fd55a": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "제가 너무 한심해요. 늘 이래요.",
+    "model": "gpt-5.6"
+  },
+  "a97bccfb4e2ed83373b4ed0e798c205f": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "저 같은 사람은 사랑받을 자격이 없어요.",
+    "model": "gpt-5.6"
+  },
+  "28c770abbf3840330192decb227e097d": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "다 제 잘못이에요. 항상 그랬어요.",
+    "model": "gpt-5.6"
+  },
+  "bc2e48fe570914ce47b15fe396d04ed6": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "존재 자체가 실패인 것 같아요",
+    "model": "gpt-5.6"
+  },
+  "ace4c3efc86536748312fa2e9bcef4a2": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "저같은게 뭘 하겠어요",
+    "model": "gpt-5.6"
+  },
+  "b1b0130ca3cd32684d507d3840d1aa42": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "누가 좀 알아줬으면 좋겠어요.",
+    "model": "gpt-5.6"
+  },
+  "1ae6eb7ada1e254f23949aeaab004db1": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "이런 말 해도 되는지 모르겠는데, 요즘 많이 안 좋아요.",
+    "model": "gpt-5.6"
+  },
+  "c2a57f00e372a2ee43b04a1b1107a544": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "그냥 누구든 붙잡고 얘기하고 싶었어요.",
+    "model": "gpt-5.6"
+  },
+  "c306bfcf3d7f8281d2a1a02b7046a730": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "도와달라고 말하는 법을 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "e76d105a419a3b1deb8c7c6c5b06e325": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "아무한테도 말 못 했는데 여기라도 얘기해도 될까요",
+    "model": "gpt-5.6"
+  },
+  "15718806f5e9c676f7a1b0f50048b255": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "저 좀 어떻게 해주세요... 어떡해야 할지 모르겠어요 😢",
+    "model": "gpt-5.6"
+  },
+  "9e3ff6d915725277f83140c76e7d9db4": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "사흘째 잠을 못 자고 밥도 안 넘어가요. 머리가 계속 멍해요.",
+    "model": "gpt-5.6"
+  },
+  "37f581c90c7ba60bbf174da14c2b257d": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "심장이 계속 두근거리고 숨이 잘 안 쉬어져요. 무서워요.",
+    "model": "gpt-5.6"
+  },
+  "044c2c84b66c92a304da33dcc1b520fe": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "한 달에 7kg 빠졌어요. 아무것도 먹기 싫어요.",
+    "model": "gpt-5.6"
+  },
+  "0fa744fd97ce840283053323cb801dfd": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "새벽마다 깨서 그냥 앉아 있어요. 눈물만 나요.",
+    "model": "gpt-5.6"
+  },
+  "d59582b2288982360807f9f0150bf865": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "몸이 천근만근인데 병원 가도 이상 없대요. 그냥 다 힘들어요.",
+    "model": "gpt-5.6"
+  },
+  "cf70aa4cb0d14ad60495eebf7f74e4dc": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "어머니 장례 치른 지 일주일 됐는데 실감이 안 나요.",
+    "model": "gpt-5.6"
+  },
+  "514c4b52288bdf0ba78d5d5c16360322": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "10년 만난 사람이랑 헤어졌어요. 이제 뭘 해야 할지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "c634b44005defd13f7d3abd3e54731c1": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "키우던 강아지가 어제 무지개다리를 건넜어요. 계속 눈물이 나요.",
+    "model": "gpt-5.6"
+  },
+  "282eafce41122bcfa18c469ca8263277": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "회사에서 잘렸어요. 가족한테 아직 말도 못 했어요.",
+    "model": "gpt-5.6"
+  },
+  "0f7b5df47199f5bdf18a86c1dfef948e": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "아버지 돌아가시고 나서 아무것도 안 잡혀요. 벌써 두 달인데요.",
+    "model": "gpt-5.6"
+  },
+  "c0b164397d1aec56f5eacd9d85a2be26": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "친구가 죽고 싶대요. 제가 어떻게 해줘야 할까요?",
+    "model": "gpt-5.6"
+  },
+  "dfc8643408afbd736c949f6ed1101cb0": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "예전에 죽고 싶었는데 지금은 괜찮아요.",
+    "model": "gpt-5.6"
+  },
+  "4db4d6dcdb7eda8e01268a060b2447e7": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "죽고 싶은 건 아니에요. 그냥 좀 쉬고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "0a7c561513a01e57ca05c43540269c53": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "소설에 자살하는 인물을 넣으려는데 어떻게 그릴까요",
+    "model": "gpt-5.6"
+  },
+  "a1f0945b659c169f8ad13467b316813f": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "시험 망해서 죽고싶다 ㅋㅋ",
+    "model": "gpt-5.6"
+  },
+  "9bc5d778e892d0d62ba7554e940ebe51": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "요즘 너무 힘들어서 다 놓고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "eadbb30fde4b3d78dc291640d0a7a142": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "회사 그만두고 싶어요. 진짜 다 놓고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "5649b32cbdece987b367b5dc87e88c71": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "상담 선생님이 저한테 자살 위험이 있다고 하셨어요.",
+    "model": "gpt-5.6"
+  },
+  "51e146b8e5688548a35bcc49ea7f7f17": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "어제까지 죽고 싶었는데 오늘은 좀 나아요.",
+    "model": "gpt-5.6"
+  },
+  "73e208b978cb829465ec5e7120126341": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "뉴스에서 극단적 선택 기사 보고 마음이 안 좋았어요.",
+    "model": "gpt-5.6"
+  },
+  "574dc39cc29af9994bc5d0df0a7d7fbc": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "아무것도 하기 싫고 그냥 눕고만 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "aff6bbc2e606c21dc14e32f43aa69d76": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "살기 싫다는 말 자주 하는데 진심은 아니에요.",
+    "model": "gpt-5.6"
+  },
+  "0bf36ee5aca60591b83616f1989a0363": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "반려묘를 친구한테 맡기고 여행 다녀오려고요.",
+    "model": "gpt-5.6"
+  },
+  "fc504698a38a761b61cd5d437620bfa8": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이사 앞두고 물건들 다 정리해서 버렸어요.",
+    "model": "gpt-5.6"
+  },
+  "37ad7bdea0edad793e910d42bc4d9a78": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "죽고싶을만큼 힘들었지만 결국 이겨냈어요",
+    "model": "gpt-5.6"
+  },
+  "b6170822bbc0fee2955025995bb570f2": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "시간이 없어 죽겠어요 ㅠㅠ",
+    "model": "gpt-5.6"
+  },
+  "940f1dfdb62ac93bffb7cb4405d85c4a": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "보고 싶어 죽는 줄 알았네",
+    "model": "gpt-5.6"
+  },
+  "00d94a0f3ebaefb33d80e9ae1ade0cba": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "귀여워 죽겠다 진짜",
+    "model": "gpt-5.6"
+  },
+  "97ee843c880f72f2067ad2c640c35074": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "심심해 죽겠어요",
+    "model": "gpt-5.6"
+  },
+  "d64e72d6c5303f708e4a11b9a20456ce": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이거 레전드다 진짜 미치겠음 ㅋㅋㅋ",
+    "model": "gpt-5.6"
+  },
+  "c555e8bb4f0b27d95b6cf6625e1f99a5": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이번 프로젝트 끝내고 싶어요. 빨리 마무리하고 쉬려고요.",
+    "model": "gpt-5.6"
+  },
+  "d239acff762c2d00b679db47e89faece": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "야근이 계속돼서 좀 지치네요",
+    "model": "gpt-5.6"
+  },
+  "cab4b81605b5d972ee544fd4af3a74ec": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "팀장님이랑 안 맞아서 부서 옮기고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "fafaa4b8ebe618276e32951099ec70af": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이직 준비 중이에요. 지금 회사는 정리하려고요.",
+    "model": "gpt-5.6"
+  },
+  "d1da1fafb6df33a5fed8dfc51c64b71b": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "전공이 안 맞는 것 같아요. 계속 다녀야 하나 싶어요",
+    "model": "gpt-5.6"
+  },
+  "88f817b0f67490ec055e3c4e307adcf8": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "시험 끝나고 다 끝난 기분이에요 후련해요",
+    "model": "gpt-5.6"
+  },
+  "cd84d2c9eb17b66fd4c6d81bbb2e79f1": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "졸업하고 뭘 해야 할지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "fe64b8ea982d2fd1d7339f3990d583cb": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "군대 있을 때가 제일 힘들었는데 지금 생각하면 웃겨요",
+    "model": "gpt-5.6"
+  },
+  "7e02abcb77edd974550d4740d948d50b": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "고3 때는 진짜 살기 싫었는데 지나고 보니 별거 아니었어요.",
+    "model": "gpt-5.6"
+  },
+  "b9c9a73c8cff368da0ac7f58d1bae391": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "작년에 상담받고 많이 좋아졌어요.",
+    "model": "gpt-5.6"
+  },
+  "582cd60cdff6a2dfa865869ce3f79fdc": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "한때 많이 우울했었죠. 지금은 잘 지내요.",
+    "model": "gpt-5.6"
+  },
+  "d255b06c2d86255f0ab9ce9c60800e52": {
+    "is_crisis": false,
+    "severity": "MEDIUM",
+    "text": "친구가 자해한다고 해서 걱정돼요. 어떻게 도와줄까요?",
+    "model": "gpt-5.6"
+  },
+  "95108fdec8fa086ca3a6d8606e3b2bb4": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "엄마가 요즘 잠을 잘 못 주무세요.",
+    "model": "gpt-5.6"
+  },
+  "d61ed11196e30e2e75d4c7c5343029e4": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "동료가 회사 그만두고 싶다고 하더라고요.",
+    "model": "gpt-5.6"
+  },
+  "7e7048e9b4487d00f2e49d3b3bc0f6c3": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "선배가 힘들어 보여서 밥 사줬어요.",
+    "model": "gpt-5.6"
+  },
+  "5010d188d442be840e64126f71f890f6": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "영화에서 주인공이 유서 쓰는 장면이 인상 깊었어요.",
+    "model": "gpt-5.6"
+  },
+  "e24226625b9106899b1e8dc71d516a72": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "웹툰 결말이 너무 슬퍼서 울었어요 ㅠㅠ",
+    "model": "gpt-5.6"
+  },
+  "f4e36894a2c2c3a7cd52a853b47bc3cb": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "시나리오 쓰는데 절망하는 인물 대사가 어렵네요.",
+    "model": "gpt-5.6"
+  },
+  "c1680a19be89c116095b7d2143f49299": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "다큐에서 자살 예방 캠페인 소개하던데 좋더라고요.",
+    "model": "gpt-5.6"
+  },
+  "95ac1f4e85877279f50eafc1bbb98a03": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "오늘 좀 짜증나는 일이 있었어요.",
+    "model": "gpt-5.6"
+  },
+  "624c864072c9b6654aa8637f1603fd56": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "별일 없는데 그냥 기분이 가라앉네요",
+    "model": "gpt-5.6"
+  },
+  "2fd1b6f03a1d61c5619a12b7cc8a7609": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "요즘 의욕이 좀 떨어졌어요.",
+    "model": "gpt-5.6"
+  },
+  "8482723fb3d68e1bd0ecd7d039e235bc": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "친구랑 다퉈서 마음이 안 좋아요.",
+    "model": "gpt-5.6"
+  },
+  "42c8ca7c0fba3e484ddd74471bf21c2b": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "면접 떨어져서 속상해요 😢",
+    "model": "gpt-5.6"
+  },
+  "d08a5af1da07d3f8dd00c0780f9b24bf": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "괜히 눈물이 났어요. 이유는 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "976392219ce831f190d242c5dee9c562": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "혼자 있는 시간이 좀 외롭네요",
+    "model": "gpt-5.6"
+  },
+  "3f8c3e13d2f663fbe6979f4f4b034d6f": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "요즘 자꾸 예민해져요.",
+    "model": "gpt-5.6"
+  },
+  "635bcd23aecad5c75b6ee7ae63517932": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "목이랑 어깨가 계속 뭉쳐 있어요.",
+    "model": "gpt-5.6"
+  },
+  "affcdb8074ccdd98eba397b79e8d1d74": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "커피를 줄였더니 두통이 있어요.",
+    "model": "gpt-5.6"
+  },
+  "6d551576f682a6925cf2622a21314ce0": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "환절기라 그런지 계속 피곤해요",
+    "model": "gpt-5.6"
+  },
+  "955d990fc6a3dcc0ead661dd6bd215bd": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "운동을 무리했더니 몸살이 났어요.",
+    "model": "gpt-5.6"
+  },
+  "8989101cce0f9244d88a80d271ca9517": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "알러지 때문에 밤에 자주 깨요.",
+    "model": "gpt-5.6"
+  },
+  "fb26595a5bfd2f3723c3bb2ab35cd3ab": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "주말에 등산 다녀왔어요. 날씨가 좋더라고요.",
+    "model": "gpt-5.6"
+  },
+  "c712b5d59cfd261b6da4133de59edfda": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘 저녁은 김치찌개 해먹었어요",
+    "model": "gpt-5.6"
+  },
+  "752d97917c9dab12c71dd0dfd3643d3a": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "드디어 자격증 땄어요! 기분 좋아요 😊",
+    "model": "gpt-5.6"
+  },
+  "417491e51335af1f64dab3ddcba225ce": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "고양이가 자꾸 키보드 위에 올라와요 ㅋㅋ",
+    "model": "gpt-5.6"
+  },
+  "09f8d975d1d4de3912cc996a378ccd8f": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "내일 여행 가는데 짐 다 쌌어요.",
+    "model": "gpt-5.6"
+  },
+  "5d2c3b9873524f5796fb155df7f4bdbe": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "새 운동화 샀는데 마음에 들어요.",
+    "model": "gpt-5.6"
+  },
+  "90b884b5ffb2036ea02746f395e573fd": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "요즘 아침에 산책하는 게 습관이 됐어요.",
+    "model": "gpt-5.6"
+  },
+  "665c699cb414b526bd1d209dd60fe340": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "친구 결혼식 다녀왔어요. 오랜만에 다 모였네요.",
+    "model": "gpt-5.6"
+  },
+  "a85194af82b7f28e6208eda04264331a": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "월급날이라 기분이 좋습니다",
+    "model": "gpt-5.6"
+  },
+  "b82c6a759293547298269591509608b2": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이 앱은 어떻게 쓰는 건가요?",
+    "model": "gpt-5.6"
+  },
+  "a71f2fcebaacd132f051a820a8157628": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘 걸음 수가 얼마나 되나요?",
+    "model": "gpt-5.6"
+  },
+  "72b5a2ef5d23acd706f8c33587c137bf": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "알림 설정 바꾸고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "a891e0e23eda3c558a6958383182287f": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "비 와서 그냥 집에 있었어요.",
+    "model": "gpt-5.6"
+  },
+  "7106a97f0481aea8638c37f4418fa856": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "약 먹기 시작하고 잠이 좀 늘었어요.",
+    "model": "gpt-5.6"
+  },
+  "20dcb685238774a6c04c893bf8cafaee": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "아직 힘들긴 한데 조금씩 나아지는 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "fb55357a32ac17f92d0c05510e90422f": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "상담 예약했어요. 가보려고요.",
+    "model": "gpt-5.6"
+  },
+  "5df6e2f30ef0c2b472fc744f5372f651": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "운동 시작하고 기분이 나아졌어요.",
+    "model": "gpt-5.6"
+  },
+  "578245a9e5a79818325859c70e09f21c": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "친구한테 털어놓고 나니 마음이 가벼워요.",
+    "model": "gpt-5.6"
+  },
+  "98966b12cf9d368ad81a496e689ba3b0": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "죽을 만큼 힘들진 않아요. 그냥 좀 피곤한 정도예요.",
+    "model": "gpt-5.6"
+  },
+  "f6083f2f761d075688c21bc72261be90": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "그런 생각은 해본 적 없어요.",
+    "model": "gpt-5.6"
+  },
+  "2a1e9ee7f994e2493089a8fd172dc10b": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "우울증은 아닌 것 같은데 그냥 물어봤어요.",
+    "model": "gpt-5.6"
+  },
+  "71e1477be5b32acd255a6eea9fffd6f8": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "불면증에 좋은 방법 있을까요?",
+    "model": "gpt-5.6"
+  },
+  "2c225e314f54450cbfdf56749634d3bb": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "심리 상담은 보통 얼마쯤 하나요?",
+    "model": "gpt-5.6"
+  },
+  "e03de6226ce8002e99335f136f965484": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "수면 시간은 얼마나 자는 게 좋아요?",
+    "model": "gpt-5.6"
+  },
+  "92dd16ff3ad56caa212446da6ac6877b": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "우울증 자가진단 같은 것도 있나요?",
+    "model": "gpt-5.6"
+  },
+  "3dc42e444de3222fa87f616a1220ac2b": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "숙제 다 끝내버리고 싶다",
+    "model": "gpt-5.6"
+  },
+  "d0e109c1101c47e5a9aff5d471df6ea0": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이 게임 캐릭터 죽어버렸어요 ㅋㅋ",
+    "model": "gpt-5.6"
+  },
+  "c8348a8beab5a24a1d31dfb6f3e1b9f3": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "다이어트 때문에 배고파 쓰러질 것 같아요",
+    "model": "gpt-5.6"
+  },
+  "e152fb80beb73f51313e1d9d43a0a68a": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "배고파 죽겠다",
+    "model": "gpt-5.6"
+  },
+  "345706914fd8608b3d218f88f1f23729": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "아 웃겨 죽겠네",
+    "model": "gpt-5.6"
+  },
+  "f6f922319d5e9edd525a25e1441a7139": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "더워 죽겠어요",
+    "model": "gpt-5.6"
+  },
+  "1dccf6784dab8621ed65ba68bd257827": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이 일 그만두고 싶어요",
+    "model": "gpt-5.6"
+  },
+  "6015d9fbf22bbeb3370d7cc2ffd12627": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "회사를 그만두고 싶다는 생각이 자주 들어요",
+    "model": "gpt-5.6"
+  },
+  "8a52697770cc93998a40be7db8e1817b": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "자퇴하고 싶다는 생각을 했어요",
+    "model": "gpt-5.6"
+  },
+  "f7b01ff2725db7cbcdcb4406ca625922": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "예전에 많이 힘들었는데 지금은 괜찮아요",
+    "model": "gpt-5.6"
+  },
+  "6e3f9e0582410152e2f8a61fa5ad03a7": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "작년에는 정말 지쳤었죠",
+    "model": "gpt-5.6"
+  },
+  "450265d5a10e0fbddfd0acf0dd5df65e": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "친구가 힘들어해서 걱정이에요",
+    "model": "gpt-5.6"
+  },
+  "16cfee073f8674d6c775f6d3f0fdc0c2": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "동생이 요즘 우울해 보여요",
+    "model": "gpt-5.6"
+  },
+  "240b0d583e8b165a5804bc0b8b30cc1d": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "드라마에서 주인공이 죽는 장면이 슬펐어요",
+    "model": "gpt-5.6"
+  },
+  "f1bebe3e59efa35b74264293f064801d": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "소설 쓰는데 우울한 인물을 표현하고 싶어요",
+    "model": "gpt-5.6"
+  },
+  "1e98d7eb2544e70cfa70ec2e501ba69c": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘 좀 우울해요",
+    "model": "gpt-5.6"
+  },
+  "c31578a3785c7b459bb9d755003e3739": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "요즘 아무것도 하기 싫어요",
+    "model": "gpt-5.6"
+  },
+  "7754f07656010472d8068204aacc4b33": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "너무 지쳤어요",
+    "model": "gpt-5.6"
+  },
+  "c0e5e343280a3493448045435d97686e": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘 산책했어요",
+    "model": "gpt-5.6"
+  },
+  "bf7d4d7989f772c9c7cad0a982286ad4": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "점심 뭐 먹을지 고민이에요",
+    "model": "gpt-5.6"
+  },
+  "7b1faf8bd7e444633cafa9a511303036": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이 회의는 의미가 없어요",
+    "model": "gpt-5.6"
+  },
+  "5173f17f8b7e4e9eea7d0be2dd17153b": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "요즘 잠을 잘 못 자요",
+    "model": "gpt-5.6"
+  },
+  "d7fc74cea2be6463db0ba67f1e9ef160": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "입맛이 없어서 밥을 잘 못 먹어요",
+    "model": "gpt-5.6"
+  },
+  "d48d42abdaa74164aae110fc439d3d88": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "죽고 싶어요. 더는 못 버티겠어요.",
+    "model": "gpt-5.6"
+  },
+  "7470ff66b1a64c719cc84e6b711e3b83": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "매일 아침 눈 뜨면 죽고 싶다는 생각부터 들어요.",
+    "model": "gpt-5.6"
+  },
+  "0ec829000737ae4f2d9bf5fc8baa9768": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "진지하게 극단적 선택을 생각하고 있어요.",
+    "model": "gpt-5.6"
+  },
+  "66805c0495f158f85db9b323a6c7b03f": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "그냥 사라지고 싶어요. 이 세상에서 없어지고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "cdf4d267847dd7b8ea866e59fa209531": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "아 진짜 죽고싶다",
+    "model": "gpt-5.6"
+  },
+  "253851b3f3db145aab831ca1dc93d57d": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "살기 싫어요. 아무 의미가 없어요.",
+    "model": "gpt-5.6"
+  },
+  "39b8124616f78f0d758fe96f4c37c4f3": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이번 주말에 다 끝낼 생각이에요.",
+    "model": "gpt-5.6"
+  },
+  "39596230b669a6f2a9790537db6e663e": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "다음 달 월세는 안 내도 될 것 같아요. 그때까지만 버티려고요.",
+    "model": "gpt-5.6"
+  },
+  "ba43f44a098035ddaf1abd5822397bb8": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이번 학기만 마치고 정리하려고요. 날짜도 정해놨어요.",
+    "model": "gpt-5.6"
+  },
+  "3f2866dfd131838d504f1ae867c9aa82": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "생일 지나면 실행할 거예요. 그날까지만 참을게요.",
+    "model": "gpt-5.6"
+  },
+  "0642f0e89d0dfd2b027bd1940e0ba417": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "오늘 밤이 마지막일 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "17248a2c130f2a3f03fe10d48edd1f32": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "어떻게 하면 덜 아픈지 계속 찾아보게 돼요.",
+    "model": "gpt-5.6"
+  },
+  "dc92ffbab7cc3edb98c86f4d49f3f29d": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "관련된 글을 며칠째 검색하고 있어요. 어떤 게 확실한지 알아보는 중이에요.",
+    "model": "gpt-5.6"
+  },
+  "6718f3cf3503b204de45125064802bea": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "필요한 걸 조금씩 모으고 있어요. 거의 다 됐어요.",
+    "model": "gpt-5.6"
+  },
+  "5999e5f07a717752f4feffea7eb6c087": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "인터넷에서 본 방법이 계속 머릿속에 맴돌아요.",
+    "model": "gpt-5.6"
+  },
+  "5df6d1200cc8c4c6548d3aa7512a6d17": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "자해할 도구를 사놨어요.",
+    "model": "gpt-5.6"
+  },
+  "88d28c3458fc2f71ea12353104098c8f": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "통장이랑 비밀번호를 다 정리해서 적어놨어요.",
+    "model": "gpt-5.6"
+  },
+  "ccd87d6caed06fada161f2e8de6ce4ec": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "방을 싹 치웠어요. 남길 게 없게요.",
+    "model": "gpt-5.6"
+  },
+  "3030cfd665c2c36e8b7fc6787de2ddd1": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "SNS 계정 다 지웠어요. 이제 정리할 것도 별로 없네요",
+    "model": "gpt-5.6"
+  },
+  "d0a13c69190220cc946bb8200d735fcf": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "보험 서류 어디 있는지 엄마한테 알려드렸어요. 물어보시길래요.",
+    "model": "gpt-5.6"
+  },
+  "463e89f4c13d444af65ee2c47e9fe4e2": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "유서를 쓰다가 지웠어요. 뭐라고 써야 할지 모르겠더라고요.",
+    "model": "gpt-5.6"
+  },
+  "8d6a2ea835c274b00f5d20ced9093e82": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "그동안 고마웠어요. 잘 지내세요.",
+    "model": "gpt-5.6"
+  },
+  "7baac48082969e07a3ebd41a832dc8e9": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이제 더 안 올 것 같아요. 마지막으로 인사드리려고요.",
+    "model": "gpt-5.6"
+  },
+  "e5ddcc9d68be6895733eb938516cb86d": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "그동안 얘기 들어줘서 진짜 고마웠어 잘 있어 🙂",
+    "model": "gpt-5.6"
+  },
+  "d31be82f391dc9b8135becb9a4931afd": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "다들 행복하게 지냈으면 좋겠어요. 저는 이만 갈게요.",
+    "model": "gpt-5.6"
+  },
+  "a06b45891fa2f4101ab88a654c224839": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "마지막으로 한 번만 얘기하고 싶었어요. 들어줘서 고마워요.",
+    "model": "gpt-5.6"
+  },
+  "9b41677ccb821fd9b17b65cb51006f70": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "고양이는 언니가 키워주기로 했어요. 잘 부탁한다고 얘기해놨어요.",
+    "model": "gpt-5.6"
+  },
+  "2d351420a4406242f24dd99a996ab61b": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "아끼던 물건들 친구들한테 하나씩 나눠줬어요.",
+    "model": "gpt-5.6"
+  },
+  "79b5cddf6dcd07b2db46529b32fc5353": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "강아지 사료를 넉넉히 사뒀어요. 한동안은 괜찮을 거예요.",
+    "model": "gpt-5.6"
+  },
+  "cfbf5f6de19085bce5f1897d9fc0812a": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "집 열쇠를 주인아저씨한테 미리 맡겨뒀어요.",
+    "model": "gpt-5.6"
+  },
+  "f692fc40516bbf61f5a5ea6feaa1e34c": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "어제도 팔을 그었어요.",
+    "model": "gpt-5.6"
+  },
+  "6c268d4a61f8931b1954488696dd5980": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "자해한 지 사흘 됐어요. 자국이 안 없어져요.",
+    "model": "gpt-5.6"
+  },
+  "5bf1a72730ae12098b334bead6a7dfcc": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "아프게 하면 좀 나아져요. 요즘 자주 그러게 돼요",
+    "model": "gpt-5.6"
+  },
+  "5780d5b581d2a83240d085e4fb6c8fd1": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "지금 피가 나는데 어떻게 해야 할지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "3b5096dd45041a629e35fe3d92454aca": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "담뱃불로 지진 자국이 자꾸 늘어나요.",
+    "model": "gpt-5.6"
+  },
+  "56591c81781945b4d880e395c47db122": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "긴 잠을 자고 싶어요. 아주 긴 잠이요.",
+    "model": "gpt-5.6"
+  },
+  "445ac87a9ecfaddb8e4c785b9172bf61": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "원래부터 없던 사람처럼 되고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "09dded3dcfe0e4a7ee0d651656192e70": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이제 소풍을 끝낼 때가 된 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "2fdffa127178827bd6df575a61600350": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "조용히 불이 꺼지듯 끝났으면 좋겠어요.",
+    "model": "gpt-5.6"
+  },
+  "4b5b2a44c459f223680ab5ab43871200": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "스위치를 그냥 내려버리고 싶을 때가 있어요.",
+    "model": "gpt-5.6"
+  },
+  "ddd326c37b41fc78b67306a7cdc6d0a7": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "뭘 해도 의미가 없어요.",
+    "model": "gpt-5.6"
+  },
+  "523a52b085269342388f46a16e936f2f": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "예전에 좋아하던 게 이제 다 시시해요. 왜 사는지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "c4649950b3d2cc26af1a0d962007b64a": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "하루하루가 그냥 흘러가요. 목표 같은 게 없어졌어요.",
+    "model": "gpt-5.6"
+  },
+  "d6676842cb8cfcad0dfa2b0e90df5d42": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "내가 여기 왜 있는지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "9c4fdae88c0974f6ffae5e8597203d79": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "이렇게 계속 사는 게 무슨 소용인가 싶어요",
+    "model": "gpt-5.6"
+  },
+  "d0c483685f79e4afb981154f20601291": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "재밌는 게 하나도 없어요 ㅠㅠ 진짜 아무것도",
+    "model": "gpt-5.6"
+  },
+  "037ce4974e2b4033280b009fdb74cdb5": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "열심히 살 이유를 못 찾겠어요.",
+    "model": "gpt-5.6"
+  },
+  "8c0e83613b161cdd862cdc6cbd71a655": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "그냥 시간만 때우고 있는 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "23ec631add8c996e4dd56d42822e92e5": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "내가 없으면 다들 편할 텐데.",
+    "model": "gpt-5.6"
+  },
+  "e1b4b861d26eebcc6642f2a139d7824b": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "가족한테 짐만 되는 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "05a1ba2a5e6d3162d0930e0723e1eb04": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "저 때문에 다들 고생하는 것 같아서 미안해요.",
+    "model": "gpt-5.6"
+  },
+  "11c25ebaf544b5b4b8d6f34697fe615f": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "태어나지 않았으면 좋았을 텐데 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "50fedeb0a28485f65b8324d2ae31153c": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "다들 나 없는 게 나을 거예요",
+    "model": "gpt-5.6"
+  },
+  "2048cbd3509ca2ce5cc6969ff9a619ad": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "민폐만 끼치고 있는 것 같아요 😔",
+    "model": "gpt-5.6"
+  },
+  "d81ded189a721335aec5ecfa987945d0": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "제가 빠지는 게 모두한테 낫지 않을까요",
+    "model": "gpt-5.6"
+  },
+  "f4e3e0bc4cc1363faf78b00df0e99a33": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "저 하나 때문에 분위기 망치는 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "8f14d6093fa0fa38c9f8531dc9f18e19": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "나아질 것 같지 않아요.",
+    "model": "gpt-5.6"
+  },
+  "4d299203e324d5b98746dcf07286f3ac": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "앞으로도 계속 이럴 것 같아요. 달라질 게 없어요.",
+    "model": "gpt-5.6"
+  },
+  "24789f35d33f8a2e0ca42eca20e1076d": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "노력해도 소용없다는 걸 알아버렸어요.",
+    "model": "gpt-5.6"
+  },
+  "f549c6a76d0af47a3b944ae754dd09f4": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "내년에도 똑같겠죠. 기대할 게 없어요.",
+    "model": "gpt-5.6"
+  },
+  "537aa810101936649ec59c9fba473181": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "터널 끝이 안 보여요.",
+    "model": "gpt-5.6"
+  },
+  "b921189d896f3159078342f9316c430c": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "아무리 해도 제자리예요 ㅋㅋ 웃기죠",
+    "model": "gpt-5.6"
+  },
+  "c23084ac492afb0513600d43fd5355be": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "좋아질거란 말이 이제 안믿겨요",
+    "model": "gpt-5.6"
+  },
+  "d902cf1e5fef606592e2d647d766f695": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "미래를 생각하면 그냥 캄캄해요.",
+    "model": "gpt-5.6"
+  },
+  "d3da793f2d57a984ff300b3801982e8b": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "연락할 사람이 한 명도 없어요.",
+    "model": "gpt-5.6"
+  },
+  "87081b9799a008d158ce38ebffe4c8a7": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "하루종일 아무하고도 말 안 했어요. 벌써 며칠째예요.",
+    "model": "gpt-5.6"
+  },
+  "77e471f68dbb1eec8a87dfe7d5967fcd": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "저를 걱정해주는 사람이 없어요.",
+    "model": "gpt-5.6"
+  },
+  "c78c48373206a249109e5dfb6e02a816": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "사람들 속에 있어도 혼자인 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "ce4867678448abf3f45cf4fb6d595d41": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "핸드폰을 봐도 올 연락이 없네요",
+    "model": "gpt-5.6"
+  },
+  "36d0f0f8627b7452e474c2874eb93000": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "다들 저를 잊은 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "a616f246b0c02becc21849cab5054e3c": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이 얘기 할 데가 여기밖에 없어요.",
+    "model": "gpt-5.6"
+  },
+  "de7847f4889dc01a2ae4dc5fe63c6168": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "자고 일어나지 않았으면 좋겠어요.",
+    "model": "gpt-5.6"
+  },
+  "91bbb4c480a6d1442fcfded32f5d2b82": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "아침에 눈이 안 떠졌으면 해요.",
+    "model": "gpt-5.6"
+  },
+  "fb71bae84ab1997d92c87523b63cf9e2": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "사고라도 났으면 좋겠다는 생각을 해요.",
+    "model": "gpt-5.6"
+  },
+  "7c0f3bc38f090d7d5821b812c4583a3f": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "큰 병에 걸렸으면 좋겠어요. 그러면 자연스러울 텐데.",
+    "model": "gpt-5.6"
+  },
+  "281b17a93ca005cb88f6eb04ad1ca4ef": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "오래 살고 싶지 않아요.",
+    "model": "gpt-5.6"
+  },
+  "f6e72f052d2476141a76d00991de20ee": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "그냥 조용히 없어졌으면 좋겠다는 생각이 자주 들어요",
+    "model": "gpt-5.6"
+  },
+  "d174503aa71b338c8227a1156a23435c": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "내일이 안 왔으면 좋겠어요.",
+    "model": "gpt-5.6"
+  },
+  "15e6011aad00ab751d623ad11068763e": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "저는 뭘 해도 안 되는 사람이에요.",
+    "model": "gpt-5.6"
+  },
+  "e11174e8c89b48b839a4e1f1208662f9": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "제가 너무 한심해요. 늘 이래요.",
+    "model": "gpt-5.6"
+  },
+  "513cd1b6bab9365b6c73c2b7dd4c3755": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "저 같은 사람은 사랑받을 자격이 없어요.",
+    "model": "gpt-5.6"
+  },
+  "02853f3672f889ae91fca2c4f0b6a801": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "다 제 잘못이에요. 항상 그랬어요.",
+    "model": "gpt-5.6"
+  },
+  "d667fac8ab85c7a3ea57991f557d94cb": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "존재 자체가 실패인 것 같아요",
+    "model": "gpt-5.6"
+  },
+  "ad0fc0154e62f6b1d89456f82920a23c": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "저같은게 뭘 하겠어요",
+    "model": "gpt-5.6"
+  },
+  "b6725877be9a592c9c6bc56171c0cd0b": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "누가 좀 알아줬으면 좋겠어요.",
+    "model": "gpt-5.6"
+  },
+  "7d3bcc776bce107e3c986848b925e3e1": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "이런 말 해도 되는지 모르겠는데, 요즘 많이 안 좋아요.",
+    "model": "gpt-5.6"
+  },
+  "bcebb650dcc7d15db6462d2b1d873f22": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "그냥 누구든 붙잡고 얘기하고 싶었어요.",
+    "model": "gpt-5.6"
+  },
+  "d8dce72823228573b4f60547df9a9dd8": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "도와달라고 말하는 법을 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "145a12e54243d442e00090b5c1270178": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "아무한테도 말 못 했는데 여기라도 얘기해도 될까요",
+    "model": "gpt-5.6"
+  },
+  "43222205f0145aa9093f64f7273f5fe8": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "저 좀 어떻게 해주세요... 어떡해야 할지 모르겠어요 😢",
+    "model": "gpt-5.6"
+  },
+  "7b79e760cdd78e648fc08cb3727ef566": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "사흘째 잠을 못 자고 밥도 안 넘어가요. 머리가 계속 멍해요.",
+    "model": "gpt-5.6"
+  },
+  "ab0a2a873373cbfa279078a4a0692ad0": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "심장이 계속 두근거리고 숨이 잘 안 쉬어져요. 무서워요.",
+    "model": "gpt-5.6"
+  },
+  "16b2ba89b11565e750d47ae38d6ebf60": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "한 달에 7kg 빠졌어요. 아무것도 먹기 싫어요.",
+    "model": "gpt-5.6"
+  },
+  "a7a0441a95d83ac6ffa2403f6bf7c1ed": {
+    "is_crisis": false,
+    "severity": "LOW",
+    "text": "새벽마다 깨서 그냥 앉아 있어요. 눈물만 나요.",
+    "model": "gpt-5.6"
+  },
+  "854025b3c1296ae66f03dd03acd0e047": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "몸이 천근만근인데 병원 가도 이상 없대요. 그냥 다 힘들어요.",
+    "model": "gpt-5.6"
+  },
+  "96bc26b725737efadad0bb9a1ea1dff5": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "어머니 장례 치른 지 일주일 됐는데 실감이 안 나요.",
+    "model": "gpt-5.6"
+  },
+  "07d6a06bcd6a1e6e8a504cabffd20156": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "10년 만난 사람이랑 헤어졌어요. 이제 뭘 해야 할지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "d0ca59b47d60c58584b19c8b48c7dc0b": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "키우던 강아지가 어제 무지개다리를 건넜어요. 계속 눈물이 나요.",
+    "model": "gpt-5.6"
+  },
+  "8d5c904e21896c508cea77736786c96b": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "회사에서 잘렸어요. 가족한테 아직 말도 못 했어요.",
+    "model": "gpt-5.6"
+  },
+  "cf8ec15533025b9cb8849ec44aca7e92": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "아버지 돌아가시고 나서 아무것도 안 잡혀요. 벌써 두 달인데요.",
+    "model": "gpt-5.6"
+  },
+  "18afbf2120317752cd98aa6c8406e69b": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "친구가 죽고 싶대요. 제가 어떻게 해줘야 할까요?",
+    "model": "gpt-5.6"
+  },
+  "d19f5a0e033af0b165085c8acb88ac32": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "예전에 죽고 싶었는데 지금은 괜찮아요.",
+    "model": "gpt-5.6"
+  },
+  "d07e6814fefa6c428108a73a413154d5": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "죽고 싶은 건 아니에요. 그냥 좀 쉬고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "58f02ae74a2425b105b0ba0aba4bbffe": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "소설에 자살하는 인물을 넣으려는데 어떻게 그릴까요",
+    "model": "gpt-5.6"
+  },
+  "27a5641f18556e8663cc726c74da0172": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "시험 망해서 죽고싶다 ㅋㅋ",
+    "model": "gpt-5.6"
+  },
+  "37b23812be9ddcf06192b7ff96483467": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "요즘 너무 힘들어서 다 놓고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "e2c2128742cd5ecef7f774f11beb70a5": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "회사 그만두고 싶어요. 진짜 다 놓고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "7621bc314ec25bfcd4f42917fb00e1fc": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "상담 선생님이 저한테 자살 위험이 있다고 하셨어요.",
+    "model": "gpt-5.6"
+  },
+  "4f339cb20bac39f6fa097faf7a6dfc1a": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "어제까지 죽고 싶었는데 오늘은 좀 나아요.",
+    "model": "gpt-5.6"
+  },
+  "9c1be4cecd26ade31fda2d4a89b5567c": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "뉴스에서 극단적 선택 기사 보고 마음이 안 좋았어요.",
+    "model": "gpt-5.6"
+  },
+  "e82c1a4224d37384f067c8b9d66b91da": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "아무것도 하기 싫고 그냥 눕고만 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "7150e0ca5a00a87d715b7e1ad3631eb6": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "살기 싫다는 말 자주 하는데 진심은 아니에요.",
+    "model": "gpt-5.6"
+  },
+  "f014c6533a33f6b12b8527cdd5f0c62f": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "반려묘를 친구한테 맡기고 여행 다녀오려고요.",
+    "model": "gpt-5.6"
+  },
+  "681ca39767944009d7247a19dabb7ed2": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이사 앞두고 물건들 다 정리해서 버렸어요.",
+    "model": "gpt-5.6"
+  },
+  "ef3f99b0beb05b6072687f0f7d9a6ffe": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "죽고싶을만큼 힘들었지만 결국 이겨냈어요",
+    "model": "gpt-5.6"
+  },
+  "3d2da43787a88c11d6030efdb0ef0cca": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "시간이 없어 죽겠어요 ㅠㅠ",
+    "model": "gpt-5.6"
+  },
+  "bf4b30e2186208f8636424156aa4ce5d": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "보고 싶어 죽는 줄 알았네",
+    "model": "gpt-5.6"
+  },
+  "61c24fc83d2051e45fc379d359e742c6": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "귀여워 죽겠다 진짜",
+    "model": "gpt-5.6"
+  },
+  "9da010edaea5ca3eb5ec697e276de3f9": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "심심해 죽겠어요",
+    "model": "gpt-5.6"
+  },
+  "3e55c74916b6b67324b17eed9753660c": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이거 레전드다 진짜 미치겠음 ㅋㅋㅋ",
+    "model": "gpt-5.6"
+  },
+  "528b9d70a93f68b0976b5f634e1989ff": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이번 프로젝트 끝내고 싶어요. 빨리 마무리하고 쉬려고요.",
+    "model": "gpt-5.6"
+  },
+  "e45fd7937211957eaf6e77eb04abe048": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "야근이 계속돼서 좀 지치네요",
+    "model": "gpt-5.6"
+  },
+  "2357b8e7c21684d44314bd4b3df5e95d": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "팀장님이랑 안 맞아서 부서 옮기고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "e1ef541dad924c71fb026e8631352256": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이직 준비 중이에요. 지금 회사는 정리하려고요.",
+    "model": "gpt-5.6"
+  },
+  "b18d39c043311aa77588f134c9ad97e4": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "전공이 안 맞는 것 같아요. 계속 다녀야 하나 싶어요",
+    "model": "gpt-5.6"
+  },
+  "aa35d5f49e00598aa08fedfe5489cc72": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "시험 끝나고 다 끝난 기분이에요 후련해요",
+    "model": "gpt-5.6"
+  },
+  "bbdd075a3f279d0d8a222e199d5cec4b": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "졸업하고 뭘 해야 할지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "10506ab3526c1b059786a54e1d402ed5": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "군대 있을 때가 제일 힘들었는데 지금 생각하면 웃겨요",
+    "model": "gpt-5.6"
+  },
+  "f2708a5877f517c00381eece6015bf2c": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "고3 때는 진짜 살기 싫었는데 지나고 보니 별거 아니었어요.",
+    "model": "gpt-5.6"
+  },
+  "0ee206445c5f497ec79798179acf5fb6": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "작년에 상담받고 많이 좋아졌어요.",
+    "model": "gpt-5.6"
+  },
+  "cee71002728f177ab54901e8a13d6ac3": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "한때 많이 우울했었죠. 지금은 잘 지내요.",
+    "model": "gpt-5.6"
+  },
+  "7532bc3007bb72adfd1f286a02876cbe": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "친구가 자해한다고 해서 걱정돼요. 어떻게 도와줄까요?",
+    "model": "gpt-5.6"
+  },
+  "cc12153ff314dc8e38549eae605c4c8f": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "엄마가 요즘 잠을 잘 못 주무세요.",
+    "model": "gpt-5.6"
+  },
+  "755acc0bae1585ac071e803277dd2b00": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "동료가 회사 그만두고 싶다고 하더라고요.",
+    "model": "gpt-5.6"
+  },
+  "4b7a3ce7dfaea2d6b2114c3b733810fa": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "선배가 힘들어 보여서 밥 사줬어요.",
+    "model": "gpt-5.6"
+  },
+  "b59519e14fda04ddb05df4b8a4506133": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "영화에서 주인공이 유서 쓰는 장면이 인상 깊었어요.",
+    "model": "gpt-5.6"
+  },
+  "548b37e54136038fedb6b2ed67d7a3c7": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "웹툰 결말이 너무 슬퍼서 울었어요 ㅠㅠ",
+    "model": "gpt-5.6"
+  },
+  "ddb51b0053ac8abb1e6768e9eac406cf": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "시나리오 쓰는데 절망하는 인물 대사가 어렵네요.",
+    "model": "gpt-5.6"
+  },
+  "0371ebd3102cb3a9414f8868e8083f2b": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "다큐에서 자살 예방 캠페인 소개하던데 좋더라고요.",
+    "model": "gpt-5.6"
+  },
+  "ad85b1815f8cd165a18e8239f4f69824": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘 좀 짜증나는 일이 있었어요.",
+    "model": "gpt-5.6"
+  },
+  "775489a26e85b9c80da113cb5ed41139": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "별일 없는데 그냥 기분이 가라앉네요",
+    "model": "gpt-5.6"
+  },
+  "7c9d5836634be891e7574ab3097bdecd": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "요즘 의욕이 좀 떨어졌어요.",
+    "model": "gpt-5.6"
+  },
+  "619202fcf1b744475c47a139ef4e11b9": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "친구랑 다퉈서 마음이 안 좋아요.",
+    "model": "gpt-5.6"
+  },
+  "64fc6d51586c6cd58fd1db7a3d134307": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "면접 떨어져서 속상해요 😢",
+    "model": "gpt-5.6"
+  },
+  "37331293215a89bb2f7e9a37426d4d50": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "괜히 눈물이 났어요. 이유는 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "7f09e9afc2493a4e7459cfc81c1c8fa8": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "혼자 있는 시간이 좀 외롭네요",
+    "model": "gpt-5.6"
+  },
+  "75ba14725cf5bcaeb0cc832daf4f341d": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "요즘 자꾸 예민해져요.",
+    "model": "gpt-5.6"
+  },
+  "74078143608e13429d8096b1689cc562": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "목이랑 어깨가 계속 뭉쳐 있어요.",
+    "model": "gpt-5.6"
+  },
+  "f1661ec92a190e6fbe9646e90c82ae42": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "커피를 줄였더니 두통이 있어요.",
+    "model": "gpt-5.6"
+  },
+  "cb0b2e0c98dff0bfc8ca36125a6f60d3": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "환절기라 그런지 계속 피곤해요",
+    "model": "gpt-5.6"
+  },
+  "e07b620fa20892a0ed3fc40033c88860": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "운동을 무리했더니 몸살이 났어요.",
+    "model": "gpt-5.6"
+  },
+  "85ca669f2d17655bc7965054512811ec": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "알러지 때문에 밤에 자주 깨요.",
+    "model": "gpt-5.6"
+  },
+  "983fb001f6dcaa1ca761a3d25e08dc17": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "주말에 등산 다녀왔어요. 날씨가 좋더라고요.",
+    "model": "gpt-5.6"
+  },
+  "db920c1780c5ffd48652d3bbe45bc5b5": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘 저녁은 김치찌개 해먹었어요",
+    "model": "gpt-5.6"
+  },
+  "e8db58f8e2324cf95ab463180a65ca71": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "드디어 자격증 땄어요! 기분 좋아요 😊",
+    "model": "gpt-5.6"
+  },
+  "e94caa39a2ad48c8d7f9c0fb2dac8459": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "고양이가 자꾸 키보드 위에 올라와요 ㅋㅋ",
+    "model": "gpt-5.6"
+  },
+  "a5240d4b46caeeecd80ef554f0595ea1": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "내일 여행 가는데 짐 다 쌌어요.",
+    "model": "gpt-5.6"
+  },
+  "1f23252d0a7b46d04ffbae02e20a71b0": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "새 운동화 샀는데 마음에 들어요.",
+    "model": "gpt-5.6"
+  },
+  "e69b688575fd648917f2865394d30eb8": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "요즘 아침에 산책하는 게 습관이 됐어요.",
+    "model": "gpt-5.6"
+  },
+  "ad13b6d15b29a6361172015ad01c8b63": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "친구 결혼식 다녀왔어요. 오랜만에 다 모였네요.",
+    "model": "gpt-5.6"
+  },
+  "abf5498e28c0a4919e63d1cf3cc71158": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "월급날이라 기분이 좋습니다",
+    "model": "gpt-5.6"
+  },
+  "f0b38e83754e597a9782cd7d76209c07": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이 앱은 어떻게 쓰는 건가요?",
+    "model": "gpt-5.6"
+  },
+  "de3c68b9e79fe073bcade59ace4d4ac2": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘 걸음 수가 얼마나 되나요?",
+    "model": "gpt-5.6"
+  },
+  "33c3835fef87d4deda693a429c5537b4": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "알림 설정 바꾸고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "7016e0803573795ed82f59a199125670": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "비 와서 그냥 집에 있었어요.",
+    "model": "gpt-5.6"
+  },
+  "816602a3d1307c4d41f04b483fd4a37a": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "약 먹기 시작하고 잠이 좀 늘었어요.",
+    "model": "gpt-5.6"
+  },
+  "1a05026ede6cf2d5b9e55906f57b81a2": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "아직 힘들긴 한데 조금씩 나아지는 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "c76c2b0de62736427b69f0fe7242ee5d": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "상담 예약했어요. 가보려고요.",
+    "model": "gpt-5.6"
+  },
+  "7d390ad4d491aeb14c9a9c3199e50b06": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "운동 시작하고 기분이 나아졌어요.",
+    "model": "gpt-5.6"
+  },
+  "f75df96c036e50484de1e3a48c0cdf5a": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "친구한테 털어놓고 나니 마음이 가벼워요.",
+    "model": "gpt-5.6"
+  },
+  "45013355ca0517bd6df377076dec4ef5": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "죽을 만큼 힘들진 않아요. 그냥 좀 피곤한 정도예요.",
+    "model": "gpt-5.6"
+  },
+  "e39fa86c9c66a4cc91ce21badeb9de24": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "그런 생각은 해본 적 없어요.",
+    "model": "gpt-5.6"
+  },
+  "65fa1e2b3ca6b5009c5ab197ee2698ec": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "우울증은 아닌 것 같은데 그냥 물어봤어요.",
+    "model": "gpt-5.6"
+  },
+  "4233300498e46d68500d7a2af66ba1c4": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "불면증에 좋은 방법 있을까요?",
+    "model": "gpt-5.6"
+  },
+  "4754a883b9f3f2eeb1743c9871c2e85c": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "심리 상담은 보통 얼마쯤 하나요?",
+    "model": "gpt-5.6"
+  },
+  "bb8eb1778af1edc5fd68589ee62893d6": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "수면 시간은 얼마나 자는 게 좋아요?",
+    "model": "gpt-5.6"
+  },
+  "0b1a29b17a06b3156ca3023d2055a8c7": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "우울증 자가진단 같은 것도 있나요?",
+    "model": "gpt-5.6"
+  },
+  "9ad4653b4bceac08e0ead1da51d7326c": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "숙제 다 끝내버리고 싶다",
+    "model": "gpt-5.6"
+  },
+  "eea05928f0d49e8541b87b78e6e56269": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이 게임 캐릭터 죽어버렸어요 ㅋㅋ",
+    "model": "gpt-5.6"
+  },
+  "119426b4455bc7557a9a28457a7053e8": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "다이어트 때문에 배고파 쓰러질 것 같아요",
+    "model": "gpt-5.6"
+  },
+  "9413b4d1084d0d358ce56fcb42eb1d6a": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "배고파 죽겠다",
+    "model": "gpt-5.6"
+  },
+  "0d68763671611d3ea9001764d3ada100": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "아 웃겨 죽겠네",
+    "model": "gpt-5.6"
+  },
+  "c3a1b69f421496735de96fe94f004c08": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "더워 죽겠어요",
+    "model": "gpt-5.6"
+  },
+  "0c6259cd89155d10324f2181dd5d3f27": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이 일 그만두고 싶어요",
+    "model": "gpt-5.6"
+  },
+  "f6557a04fd1e7b3654405551fe92f871": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "회사를 그만두고 싶다는 생각이 자주 들어요",
+    "model": "gpt-5.6"
+  },
+  "712b4bead59df9f8c659be03915d9677": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "자퇴하고 싶다는 생각을 했어요",
+    "model": "gpt-5.6"
+  },
+  "88d0a1d1d357a98c952c921e5b2a6ca2": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "예전에 많이 힘들었는데 지금은 괜찮아요",
+    "model": "gpt-5.6"
+  },
+  "992e19391a80d6dd0491fda8a348f0f6": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "작년에는 정말 지쳤었죠",
+    "model": "gpt-5.6"
+  },
+  "6108f0c40b428de5d12bcf83b8b4bf7a": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "친구가 힘들어해서 걱정이에요",
+    "model": "gpt-5.6"
+  },
+  "e5f950c11a708c25801f87e5df9221aa": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "동생이 요즘 우울해 보여요",
+    "model": "gpt-5.6"
+  },
+  "a24da71000f68d9e6cf7b3a25f29594e": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "드라마에서 주인공이 죽는 장면이 슬펐어요",
+    "model": "gpt-5.6"
+  },
+  "642b0aaf4e2cfb5574547917b1dbae7a": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "소설 쓰는데 우울한 인물을 표현하고 싶어요",
+    "model": "gpt-5.6"
+  },
+  "0122368e0ffbf4278353ddd840fc6aef": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘 좀 우울해요",
+    "model": "gpt-5.6"
+  },
+  "95e22977b754e1fa5c3503e2a8757c3a": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "요즘 아무것도 하기 싫어요",
+    "model": "gpt-5.6"
+  },
+  "68f892ebaff4582bb71daf2aa742d56b": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "너무 지쳤어요",
+    "model": "gpt-5.6"
+  },
+  "e2c36aa083a55495b84f1df659315524": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘 산책했어요",
+    "model": "gpt-5.6"
+  },
+  "1378961cc8f6410c8262e5c108fcee3a": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "점심 뭐 먹을지 고민이에요",
+    "model": "gpt-5.6"
+  },
+  "43bc3a2b9cd335db20c0ebecfbc09556": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이 회의는 의미가 없어요",
+    "model": "gpt-5.6"
+  },
+  "ca987a73181eec7cbd09d58a69f0ce55": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "요즘 잠을 잘 못 자요",
+    "model": "gpt-5.6"
+  },
+  "ec7e9ccf275740bdb871f6ad89d2d10d": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "입맛이 없어서 밥을 잘 못 먹어요",
+    "model": "gpt-5.6"
+  },
+  "7480a8e5bcc84f2731bdbb123af0b4f0": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "죽고 싶어요. 더는 못 버티겠어요.",
+    "model": "gpt-5.6"
+  },
+  "660f9db6f9328275dab22b2e61f4829a": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "매일 아침 눈 뜨면 죽고 싶다는 생각부터 들어요.",
+    "model": "gpt-5.6"
+  },
+  "0a9d89d0574f43e8ea99e92af95cdb58": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "진지하게 극단적 선택을 생각하고 있어요.",
+    "model": "gpt-5.6"
+  },
+  "f32d127dd2c64087fe63c7f647a3124b": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "그냥 사라지고 싶어요. 이 세상에서 없어지고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "76a7e9b25bf8445915cc89be4cea73c0": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "아 진짜 죽고싶다",
+    "model": "gpt-5.6"
+  },
+  "9365d026b1b869d89d8f0e8d544e792c": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "살기 싫어요. 아무 의미가 없어요.",
+    "model": "gpt-5.6"
+  },
+  "267d6792c094f362017258b8fe720481": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이번 주말에 다 끝낼 생각이에요.",
+    "model": "gpt-5.6"
+  },
+  "d064c3f61602188cef5af3e309b99cc2": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "다음 달 월세는 안 내도 될 것 같아요. 그때까지만 버티려고요.",
+    "model": "gpt-5.6"
+  },
+  "5aa43dd617b37218dabd4adef12998fe": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이번 학기만 마치고 정리하려고요. 날짜도 정해놨어요.",
+    "model": "gpt-5.6"
+  },
+  "7c2fe2e2031361e42906356d610ac2ea": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "생일 지나면 실행할 거예요. 그날까지만 참을게요.",
+    "model": "gpt-5.6"
+  },
+  "e42e3f495b6e9d4908e1a0169abe99d2": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "오늘 밤이 마지막일 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "fcdb492e37c7f6fdec18dc836b29a9f9": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "어떻게 하면 덜 아픈지 계속 찾아보게 돼요.",
+    "model": "gpt-5.6"
+  },
+  "1db82cf7c63b4872fbe2214d516bab83": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "관련된 글을 며칠째 검색하고 있어요. 어떤 게 확실한지 알아보는 중이에요.",
+    "model": "gpt-5.6"
+  },
+  "c30d5be7c82adfe30ff3e755c6b9e594": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "필요한 걸 조금씩 모으고 있어요. 거의 다 됐어요.",
+    "model": "gpt-5.6"
+  },
+  "69b00ca31d73c8b30c7b723758e1cd69": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "인터넷에서 본 방법이 계속 머릿속에 맴돌아요.",
+    "model": "gpt-5.6"
+  },
+  "8a16eda34d0941988f38e9fbd294aad6": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "자해할 도구를 사놨어요.",
+    "model": "gpt-5.6"
+  },
+  "0dba53fcf9219ff62dfd9c4567672cc9": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "통장이랑 비밀번호를 다 정리해서 적어놨어요.",
+    "model": "gpt-5.6"
+  },
+  "849e02e250cf96c0b863aa4c3f9e6d1d": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "방을 싹 치웠어요. 남길 게 없게요.",
+    "model": "gpt-5.6"
+  },
+  "150276355843163ccd1d9666de2c363a": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "SNS 계정 다 지웠어요. 이제 정리할 것도 별로 없네요",
+    "model": "gpt-5.6"
+  },
+  "8d5dc12cd3a4560ef142b8255660ebd4": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "보험 서류 어디 있는지 엄마한테 알려드렸어요. 물어보시길래요.",
+    "model": "gpt-5.6"
+  },
+  "4cff512dc84833a5e51a92f0c052ca8a": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "유서를 쓰다가 지웠어요. 뭐라고 써야 할지 모르겠더라고요.",
+    "model": "gpt-5.6"
+  },
+  "32d4135eeb6773f148f864475c8ef124": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "그동안 고마웠어요. 잘 지내세요.",
+    "model": "gpt-5.6"
+  },
+  "9abf5d12763694c7ef4ad803b4d76436": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이제 더 안 올 것 같아요. 마지막으로 인사드리려고요.",
+    "model": "gpt-5.6"
+  },
+  "419ec5b074b4842f0f31ff23d96d93ce": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "그동안 얘기 들어줘서 진짜 고마웠어 잘 있어 🙂",
+    "model": "gpt-5.6"
+  },
+  "0bf98ec50586b83030ed6f7424dfd6e3": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "다들 행복하게 지냈으면 좋겠어요. 저는 이만 갈게요.",
+    "model": "gpt-5.6"
+  },
+  "d022971dbab8209d450b84ce27819e5f": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "마지막으로 한 번만 얘기하고 싶었어요. 들어줘서 고마워요.",
+    "model": "gpt-5.6"
+  },
+  "7458b5577ab9a94b1839294148f70a17": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "고양이는 언니가 키워주기로 했어요. 잘 부탁한다고 얘기해놨어요.",
+    "model": "gpt-5.6"
+  },
+  "b7a8c1401718b07eed774a770a11a3c4": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "아끼던 물건들 친구들한테 하나씩 나눠줬어요.",
+    "model": "gpt-5.6"
+  },
+  "efe2673f76fffd441322fbc43a4dcbf7": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "강아지 사료를 넉넉히 사뒀어요. 한동안은 괜찮을 거예요.",
+    "model": "gpt-5.6"
+  },
+  "42569d23c40b3040ecb2240d9ba1290b": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "집 열쇠를 주인아저씨한테 미리 맡겨뒀어요.",
+    "model": "gpt-5.6"
+  },
+  "d3e52631db076fd2f82786d9c7a72a30": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "어제도 팔을 그었어요.",
+    "model": "gpt-5.6"
+  },
+  "6481bfe0e54749ed8cc280bb0bd6e960": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "자해한 지 사흘 됐어요. 자국이 안 없어져요.",
+    "model": "gpt-5.6"
+  },
+  "3e4e4041f55b4ec7b1449d8e79c21b8d": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "아프게 하면 좀 나아져요. 요즘 자주 그러게 돼요",
+    "model": "gpt-5.6"
+  },
+  "d55752e4cb36139962d875675c274149": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "지금 피가 나는데 어떻게 해야 할지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "78f83369dffeca0e0c14873e555f1fe3": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "담뱃불로 지진 자국이 자꾸 늘어나요.",
+    "model": "gpt-5.6"
+  },
+  "d40da3455af1e2b9a57cc2ac907ee267": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "긴 잠을 자고 싶어요. 아주 긴 잠이요.",
+    "model": "gpt-5.6"
+  },
+  "748d2768ebed401652ab4914292c9005": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "원래부터 없던 사람처럼 되고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "4c3df6e0a9b6c9aba0744ffa42b7f5d6": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이제 소풍을 끝낼 때가 된 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "4d727f074fc1e49daa0ad8d49406c9d1": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "조용히 불이 꺼지듯 끝났으면 좋겠어요.",
+    "model": "gpt-5.6"
+  },
+  "6fe66f9379e9f5819e70aa226ebfc338": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "스위치를 그냥 내려버리고 싶을 때가 있어요.",
+    "model": "gpt-5.6"
+  },
+  "4890f96fc0a59b4d06c88ff55410b1dc": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "뭘 해도 의미가 없어요.",
+    "model": "gpt-5.6"
+  },
+  "c56240e71de5711e918c31087938a263": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "예전에 좋아하던 게 이제 다 시시해요. 왜 사는지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "2f767357387325ebdcadad8dbfaa7d0f": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "하루하루가 그냥 흘러가요. 목표 같은 게 없어졌어요.",
+    "model": "gpt-5.6"
+  },
+  "8ed1d8790e4cbe7ab920e89382b6cfaa": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "내가 여기 왜 있는지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "0eb8bc199a6b379f911b22b9a06cda3f": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "이렇게 계속 사는 게 무슨 소용인가 싶어요",
+    "model": "gpt-5.6"
+  },
+  "cef6805cef0a9842dcc128566de92575": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "재밌는 게 하나도 없어요 ㅠㅠ 진짜 아무것도",
+    "model": "gpt-5.6"
+  },
+  "97fa10ef0d1a40d9ea78fec8a98b7b52": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "열심히 살 이유를 못 찾겠어요.",
+    "model": "gpt-5.6"
+  },
+  "691f3a7641720abd51064b36d780353d": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "그냥 시간만 때우고 있는 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "caa8b66c9527fb2e7b024a177addc056": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "내가 없으면 다들 편할 텐데.",
+    "model": "gpt-5.6"
+  },
+  "cd6af54661207dce6f9bea8ff130d968": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "가족한테 짐만 되는 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "14a1870176e24a19d6ccc04d1aecc619": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "저 때문에 다들 고생하는 것 같아서 미안해요.",
+    "model": "gpt-5.6"
+  },
+  "04c1ecbe45a381a7083c27db249c4c4e": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "태어나지 않았으면 좋았을 텐데 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "3df3d625e2f0b0f81575c55b35d23e00": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "다들 나 없는 게 나을 거예요",
+    "model": "gpt-5.6"
+  },
+  "89583b6277dd26118dfd01410fc690f1": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "민폐만 끼치고 있는 것 같아요 😔",
+    "model": "gpt-5.6"
+  },
+  "f4a35051021b8c9d94a6a42acd407fec": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "제가 빠지는 게 모두한테 낫지 않을까요",
+    "model": "gpt-5.6"
+  },
+  "0c50797060a3880d536ee08a5d988341": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "저 하나 때문에 분위기 망치는 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "7361720f52dc05c06f92f3a953fef29c": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "나아질 것 같지 않아요.",
+    "model": "gpt-5.6"
+  },
+  "0b3551db9777ea74cdbb09b4d6b6f2e5": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "앞으로도 계속 이럴 것 같아요. 달라질 게 없어요.",
+    "model": "gpt-5.6"
+  },
+  "7cc0f1829d02693410d26b68390a337e": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "노력해도 소용없다는 걸 알아버렸어요.",
+    "model": "gpt-5.6"
+  },
+  "a6b67034479c43d15d2cc5e9f29a8a77": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "내년에도 똑같겠죠. 기대할 게 없어요.",
+    "model": "gpt-5.6"
+  },
+  "83796bb5d283474eddda80e37e8c6f4c": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "터널 끝이 안 보여요.",
+    "model": "gpt-5.6"
+  },
+  "4f76bf8c1b83adf2bb95ceb0110c22f0": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "아무리 해도 제자리예요 ㅋㅋ 웃기죠",
+    "model": "gpt-5.6"
+  },
+  "ee83e1cc713a0c44f234f23f5ff64abf": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "좋아질거란 말이 이제 안믿겨요",
+    "model": "gpt-5.6"
+  },
+  "772ecd4e121d992d35b27c5555c76b25": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "미래를 생각하면 그냥 캄캄해요.",
+    "model": "gpt-5.6"
+  },
+  "d68474904e26ee850490d71d7973110d": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "연락할 사람이 한 명도 없어요.",
+    "model": "gpt-5.6"
+  },
+  "6d82d67f530dbf668cf0542da4d26068": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "하루종일 아무하고도 말 안 했어요. 벌써 며칠째예요.",
+    "model": "gpt-5.6"
+  },
+  "f0c7bd460e75c152dcf8c34898164bfe": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "저를 걱정해주는 사람이 없어요.",
+    "model": "gpt-5.6"
+  },
+  "aec036b3ca3856b9ab1e59cb32c73a72": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "사람들 속에 있어도 혼자인 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "067300eef3bc076ba6fe0333423239a8": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "핸드폰을 봐도 올 연락이 없네요",
+    "model": "gpt-5.6"
+  },
+  "150b49fe95f8563c3411a4ab6619a839": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "다들 저를 잊은 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "e1358f0d6f2136b98eb02bf57e4564b5": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "이 얘기 할 데가 여기밖에 없어요.",
+    "model": "gpt-5.6"
+  },
+  "a3b9894f74696239292c1bd012a3fe9a": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "자고 일어나지 않았으면 좋겠어요.",
+    "model": "gpt-5.6"
+  },
+  "a0a29598db0ebe704e23c1bbe41ce4f3": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "아침에 눈이 안 떠졌으면 해요.",
+    "model": "gpt-5.6"
+  },
+  "aee78e95ec119e86225223a78193de4b": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "사고라도 났으면 좋겠다는 생각을 해요.",
+    "model": "gpt-5.6"
+  },
+  "718ac81533d707fe3a33e1cede9eed83": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "큰 병에 걸렸으면 좋겠어요. 그러면 자연스러울 텐데.",
+    "model": "gpt-5.6"
+  },
+  "0f87aaab8e29bda0156f807d1d5c2103": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "오래 살고 싶지 않아요.",
+    "model": "gpt-5.6"
+  },
+  "7ed5c696852c05b3471c10d9784c281b": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "그냥 조용히 없어졌으면 좋겠다는 생각이 자주 들어요",
+    "model": "gpt-5.6"
+  },
+  "d18b288b8dd6c53b90d4542f67d8d0ea": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "내일이 안 왔으면 좋겠어요.",
+    "model": "gpt-5.6"
+  },
+  "2c5004c63c1ff33ee4e9270e6883a5ef": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "저는 뭘 해도 안 되는 사람이에요.",
+    "model": "gpt-5.6"
+  },
+  "26a931e560d862f603868b1f02391dfb": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "제가 너무 한심해요. 늘 이래요.",
+    "model": "gpt-5.6"
+  },
+  "bacae8606ae25152ac55edf2db33200a": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "저 같은 사람은 사랑받을 자격이 없어요.",
+    "model": "gpt-5.6"
+  },
+  "0c2c586e0ef4aa6b1e7c81598d8fe839": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "다 제 잘못이에요. 항상 그랬어요.",
+    "model": "gpt-5.6"
+  },
+  "5154d137d42fb3e9251ecc921ca0969e": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "존재 자체가 실패인 것 같아요",
+    "model": "gpt-5.6"
+  },
+  "6956d588902c29dde30d33b838e179c2": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "저같은게 뭘 하겠어요",
+    "model": "gpt-5.6"
+  },
+  "0e997e85f66dc85d0917304478399641": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "누가 좀 알아줬으면 좋겠어요.",
+    "model": "gpt-5.6"
+  },
+  "b3d0b65988ce4e223365c16da043647c": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "이런 말 해도 되는지 모르겠는데, 요즘 많이 안 좋아요.",
+    "model": "gpt-5.6"
+  },
+  "797c2dea5fbb2708065fc7f3f5420f39": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "그냥 누구든 붙잡고 얘기하고 싶었어요.",
+    "model": "gpt-5.6"
+  },
+  "04857bf960532344bf047bc87b1a12a5": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "도와달라고 말하는 법을 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "2f16ee21332e01a8678c5ce64d450e81": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "아무한테도 말 못 했는데 여기라도 얘기해도 될까요",
+    "model": "gpt-5.6"
+  },
+  "fdf5771ff3061a9d6c7eecee71fc841b": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "저 좀 어떻게 해주세요... 어떡해야 할지 모르겠어요 😢",
+    "model": "gpt-5.6"
+  },
+  "39d7ddebb8c6d03713482f399bf2442a": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "사흘째 잠을 못 자고 밥도 안 넘어가요. 머리가 계속 멍해요.",
+    "model": "gpt-5.6"
+  },
+  "d9e63412b01da0b8c366eba134346dc4": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "심장이 계속 두근거리고 숨이 잘 안 쉬어져요. 무서워요.",
+    "model": "gpt-5.6"
+  },
+  "6bd4c995482228bc106828d99de46681": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "한 달에 7kg 빠졌어요. 아무것도 먹기 싫어요.",
+    "model": "gpt-5.6"
+  },
+  "ed09d83ecbdd463eacd1ea9125872978": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "새벽마다 깨서 그냥 앉아 있어요. 눈물만 나요.",
+    "model": "gpt-5.6"
+  },
+  "e9cd9b9f95f8d25716f0ba8768fa7b02": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "몸이 천근만근인데 병원 가도 이상 없대요. 그냥 다 힘들어요.",
+    "model": "gpt-5.6"
+  },
+  "09d461b03bb0bc047a669fea3af5a757": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "어머니 장례 치른 지 일주일 됐는데 실감이 안 나요.",
+    "model": "gpt-5.6"
+  },
+  "53c4c64585e21138063eaa875f8df39e": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "10년 만난 사람이랑 헤어졌어요. 이제 뭘 해야 할지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "96573ce7fa9cf454c4fd6dcaf93e8f0b": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "키우던 강아지가 어제 무지개다리를 건넜어요. 계속 눈물이 나요.",
+    "model": "gpt-5.6"
+  },
+  "0c3a6cf87addf8379b86743a2376c971": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "회사에서 잘렸어요. 가족한테 아직 말도 못 했어요.",
+    "model": "gpt-5.6"
+  },
+  "4ed7ddd31fa0e2064ec5806ea81d9c88": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "아버지 돌아가시고 나서 아무것도 안 잡혀요. 벌써 두 달인데요.",
+    "model": "gpt-5.6"
+  },
+  "8bd57936c5dfef19f43670b934b92583": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "친구가 죽고 싶대요. 제가 어떻게 해줘야 할까요?",
+    "model": "gpt-5.6"
+  },
+  "8860ffb700e551e0404f0fce3aba11cd": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "예전에 죽고 싶었는데 지금은 괜찮아요.",
+    "model": "gpt-5.6"
+  },
+  "1dd0115648f12d997055aa2498628286": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "죽고 싶은 건 아니에요. 그냥 좀 쉬고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "fb3112f61e146df474039bc5d4c94f53": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "소설에 자살하는 인물을 넣으려는데 어떻게 그릴까요",
+    "model": "gpt-5.6"
+  },
+  "fefafd0284c629b9054713837af7273f": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "시험 망해서 죽고싶다 ㅋㅋ",
+    "model": "gpt-5.6"
+  },
+  "75461b2223297d711aca45505bac55f0": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "요즘 너무 힘들어서 다 놓고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "d326afe0e2366f5046f7b19f7229a488": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "회사 그만두고 싶어요. 진짜 다 놓고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "921b27d67bf4723992dd8c9800bda7e3": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "상담 선생님이 저한테 자살 위험이 있다고 하셨어요.",
+    "model": "gpt-5.6"
+  },
+  "c07434310a90dcc9c46c55cdea3c571e": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "어제까지 죽고 싶었는데 오늘은 좀 나아요.",
+    "model": "gpt-5.6"
+  },
+  "d1f706e86f266d13f1bafe5d55d2d5b4": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "뉴스에서 극단적 선택 기사 보고 마음이 안 좋았어요.",
+    "model": "gpt-5.6"
+  },
+  "232be8d22ffd3de9fcbbdb178eb8158e": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "아무것도 하기 싫고 그냥 눕고만 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "873cc356f804781c0f2d79f79191b9b0": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "살기 싫다는 말 자주 하는데 진심은 아니에요.",
+    "model": "gpt-5.6"
+  },
+  "35ff0889da9edd283c0b876546959661": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "반려묘를 친구한테 맡기고 여행 다녀오려고요.",
+    "model": "gpt-5.6"
+  },
+  "2320e1c3683c43088be56a82a1a794e7": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이사 앞두고 물건들 다 정리해서 버렸어요.",
+    "model": "gpt-5.6"
+  },
+  "93cec78d2745a45713ba60c4b455c0a9": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "죽고싶을만큼 힘들었지만 결국 이겨냈어요",
+    "model": "gpt-5.6"
+  },
+  "58ad3d80019f15458311745f410e9f0f": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "시간이 없어 죽겠어요 ㅠㅠ",
+    "model": "gpt-5.6"
+  },
+  "da76a65fe789deca86a9d92d5c08ce75": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "보고 싶어 죽는 줄 알았네",
+    "model": "gpt-5.6"
+  },
+  "6940822a9042f1f8f197227f760cd996": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "귀여워 죽겠다 진짜",
+    "model": "gpt-5.6"
+  },
+  "915fb1dd3fa9170cf70f1a4cca0dfae1": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "심심해 죽겠어요",
+    "model": "gpt-5.6"
+  },
+  "5a147c3acfd35cb3366bba16d129d4c6": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이거 레전드다 진짜 미치겠음 ㅋㅋㅋ",
+    "model": "gpt-5.6"
+  },
+  "5f2cd8c457bcdfa748ea1adb699f2df0": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이번 프로젝트 끝내고 싶어요. 빨리 마무리하고 쉬려고요.",
+    "model": "gpt-5.6"
+  },
+  "ff01c1bbee379092544c2340e0440908": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "야근이 계속돼서 좀 지치네요",
+    "model": "gpt-5.6"
+  },
+  "43655ed06b03476534958b149c6421fc": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "팀장님이랑 안 맞아서 부서 옮기고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "a363e648deea84a7c14e537a727e885c": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이직 준비 중이에요. 지금 회사는 정리하려고요.",
+    "model": "gpt-5.6"
+  },
+  "52c22348c09ab18203879eca3cdd3b6d": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "전공이 안 맞는 것 같아요. 계속 다녀야 하나 싶어요",
+    "model": "gpt-5.6"
+  },
+  "6f810b6404e6bca7d97ec3e4f05f6f3c": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "시험 끝나고 다 끝난 기분이에요 후련해요",
+    "model": "gpt-5.6"
+  },
+  "920a7c650dd919ab63c7a158e1452876": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "졸업하고 뭘 해야 할지 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "99b6dd150cbb46e2d9e29dedf91cae44": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "군대 있을 때가 제일 힘들었는데 지금 생각하면 웃겨요",
+    "model": "gpt-5.6"
+  },
+  "c775c6ba73db0a1774a0f6de24362e6c": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "고3 때는 진짜 살기 싫었는데 지나고 보니 별거 아니었어요.",
+    "model": "gpt-5.6"
+  },
+  "b972a268e284e27862620e10cf22cda8": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "작년에 상담받고 많이 좋아졌어요.",
+    "model": "gpt-5.6"
+  },
+  "a2d9383dabd0794eb790e4c94a5e7042": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "한때 많이 우울했었죠. 지금은 잘 지내요.",
+    "model": "gpt-5.6"
+  },
+  "d5195bdc3df5e41de1de591cd90177ff": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "친구가 자해한다고 해서 걱정돼요. 어떻게 도와줄까요?",
+    "model": "gpt-5.6"
+  },
+  "3b40703ca155c789e926935721610667": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "엄마가 요즘 잠을 잘 못 주무세요.",
+    "model": "gpt-5.6"
+  },
+  "2d5f0567e554e24e877476841506c5c8": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "동료가 회사 그만두고 싶다고 하더라고요.",
+    "model": "gpt-5.6"
+  },
+  "8cf8cb5864fc31807efe1f8db421cda2": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "선배가 힘들어 보여서 밥 사줬어요.",
+    "model": "gpt-5.6"
+  },
+  "6523b015b92be3fbf819e443ac104f39": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "영화에서 주인공이 유서 쓰는 장면이 인상 깊었어요.",
+    "model": "gpt-5.6"
+  },
+  "6f5cd1b8cd695e2f9d7999c79fd092b8": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "웹툰 결말이 너무 슬퍼서 울었어요 ㅠㅠ",
+    "model": "gpt-5.6"
+  },
+  "3111e4ee0034857e3ffbab186181dc5c": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "시나리오 쓰는데 절망하는 인물 대사가 어렵네요.",
+    "model": "gpt-5.6"
+  },
+  "bbc45dae7e71c374d04e90ae67ded542": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "다큐에서 자살 예방 캠페인 소개하던데 좋더라고요.",
+    "model": "gpt-5.6"
+  },
+  "c048780bcaae895f52a2c8238e0b4ff9": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘 좀 짜증나는 일이 있었어요.",
+    "model": "gpt-5.6"
+  },
+  "3d38ff775a319802116ead03dc556088": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "별일 없는데 그냥 기분이 가라앉네요",
+    "model": "gpt-5.6"
+  },
+  "ec84982d4b435c3554c635618e8c7122": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "요즘 의욕이 좀 떨어졌어요.",
+    "model": "gpt-5.6"
+  },
+  "24cd8b3ab0ea4c9af833507db820384f": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "친구랑 다퉈서 마음이 안 좋아요.",
+    "model": "gpt-5.6"
+  },
+  "20372012d1f5482963d8967f58fc85e4": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "면접 떨어져서 속상해요 😢",
+    "model": "gpt-5.6"
+  },
+  "479433a1dfff15bd998f5b628bbc6f66": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "괜히 눈물이 났어요. 이유는 모르겠어요.",
+    "model": "gpt-5.6"
+  },
+  "b3e7bb9a8fdcc0c421bfcca026e109e9": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "혼자 있는 시간이 좀 외롭네요",
+    "model": "gpt-5.6"
+  },
+  "edc9c20707120c71fb97c571aee4e4bf": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "요즘 자꾸 예민해져요.",
+    "model": "gpt-5.6"
+  },
+  "b6acd11326e7a95bd94730caee29b125": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "목이랑 어깨가 계속 뭉쳐 있어요.",
+    "model": "gpt-5.6"
+  },
+  "d6944c358cfbab1695a7d4d94c1c8e12": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "커피를 줄였더니 두통이 있어요.",
+    "model": "gpt-5.6"
+  },
+  "7d581ad2009dd5fcf46c8b9aca9a176e": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "환절기라 그런지 계속 피곤해요",
+    "model": "gpt-5.6"
+  },
+  "7d47525b30dbe1617600f83ab01e1d34": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "운동을 무리했더니 몸살이 났어요.",
+    "model": "gpt-5.6"
+  },
+  "707e0876a195ebd690f7a993a0a9b7d8": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "알러지 때문에 밤에 자주 깨요.",
+    "model": "gpt-5.6"
+  },
+  "7d71ddddd8e3c05841a0c7bf7ad6cce0": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "주말에 등산 다녀왔어요. 날씨가 좋더라고요.",
+    "model": "gpt-5.6"
+  },
+  "01fa71dc1b5707e17cdc33688cb2c374": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘 저녁은 김치찌개 해먹었어요",
+    "model": "gpt-5.6"
+  },
+  "83cd42a75f0111efc3f21cff976c5f08": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "드디어 자격증 땄어요! 기분 좋아요 😊",
+    "model": "gpt-5.6"
+  },
+  "2b5b59bc3c9066c54073f9a94d503cec": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "고양이가 자꾸 키보드 위에 올라와요 ㅋㅋ",
+    "model": "gpt-5.6"
+  },
+  "4eab1f29f9cfc1b1a9f17c2e6efcb2a3": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "내일 여행 가는데 짐 다 쌌어요.",
+    "model": "gpt-5.6"
+  },
+  "f49e0562a76b49412448e2c7a9a6f807": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "새 운동화 샀는데 마음에 들어요.",
+    "model": "gpt-5.6"
+  },
+  "8a129c422388dd3652321f06a794fda1": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "요즘 아침에 산책하는 게 습관이 됐어요.",
+    "model": "gpt-5.6"
+  },
+  "fdaf42195e255d15368dc57525f474d8": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "친구 결혼식 다녀왔어요. 오랜만에 다 모였네요.",
+    "model": "gpt-5.6"
+  },
+  "9ef3d634da8fde9b8970dd872b8e26b2": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "월급날이라 기분이 좋습니다",
+    "model": "gpt-5.6"
+  },
+  "a414b512f9e2ac27f1db81fb5c63701d": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이 앱은 어떻게 쓰는 건가요?",
+    "model": "gpt-5.6"
+  },
+  "598177664ce6aad32e3b1cd62cce2ba2": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘 걸음 수가 얼마나 되나요?",
+    "model": "gpt-5.6"
+  },
+  "667b221c11da7861e670052333c7132b": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "알림 설정 바꾸고 싶어요.",
+    "model": "gpt-5.6"
+  },
+  "ce71bdaf39aa7dbfa40b90046c438f16": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "비 와서 그냥 집에 있었어요.",
+    "model": "gpt-5.6"
+  },
+  "d2b916be9e5760eef96db892b1b385db": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "약 먹기 시작하고 잠이 좀 늘었어요.",
+    "model": "gpt-5.6"
+  },
+  "9aa6590f4f13294541f1e2ae103cbbac": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "아직 힘들긴 한데 조금씩 나아지는 것 같아요.",
+    "model": "gpt-5.6"
+  },
+  "b183d2087f911c5d8d86ba2c330237f8": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "상담 예약했어요. 가보려고요.",
+    "model": "gpt-5.6"
+  },
+  "9056e5f8cce52f0fa95f5bc116679d48": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "운동 시작하고 기분이 나아졌어요.",
+    "model": "gpt-5.6"
+  },
+  "19ce59c0c90819ab2d2df9e8a61ac2b3": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "친구한테 털어놓고 나니 마음이 가벼워요.",
+    "model": "gpt-5.6"
+  },
+  "fc6bf9cd09c5fc82c22fbfbf00840dc3": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "죽을 만큼 힘들진 않아요. 그냥 좀 피곤한 정도예요.",
+    "model": "gpt-5.6"
+  },
+  "8831247e38138c59b10cea5845ea6cfc": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "그런 생각은 해본 적 없어요.",
+    "model": "gpt-5.6"
+  },
+  "de34cec5023bf866e1c06d9348f2dfc0": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "우울증은 아닌 것 같은데 그냥 물어봤어요.",
+    "model": "gpt-5.6"
+  },
+  "e8b9d5dbf52f730f416d26aa1c7f1bba": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "불면증에 좋은 방법 있을까요?",
+    "model": "gpt-5.6"
+  },
+  "b6982bab0a13cabb27e28c12eaa91a79": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "심리 상담은 보통 얼마쯤 하나요?",
+    "model": "gpt-5.6"
+  },
+  "3f04bfd3b4f19325db2becdb2d470e0a": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "수면 시간은 얼마나 자는 게 좋아요?",
+    "model": "gpt-5.6"
+  },
+  "68c710582e4e7f8c38dca493b083f926": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "우울증 자가진단 같은 것도 있나요?",
+    "model": "gpt-5.6"
+  },
+  "17e41581938cdb523d55529f77d282c3": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "숙제 다 끝내버리고 싶다",
+    "model": "gpt-5.6"
+  },
+  "b2d93bb16c4f639c0c7e95060b8416e5": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이 게임 캐릭터 죽어버렸어요 ㅋㅋ",
+    "model": "gpt-5.6"
+  },
+  "889b993ceb5f0edb5f373493be5b0922": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "다이어트 때문에 배고파 쓰러질 것 같아요",
+    "model": "gpt-5.6"
   }
 }
