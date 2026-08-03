@@ -194,10 +194,12 @@ function OverviewTab({ token }) {
   if (error) return <NoticePanel text={error} />
   if (!data) return <LoadingPanel />
 
+  // ⚠ 라벨을 여기 적지 않는다. labels.js 의 RISK_LABEL 이 정본이고, 앱
+  //   리포트 화면과 같은 말을 써야 한다(MLCM_501 4단계).
   const cards = [
-    ['안정 대상자', data.distribution.normal, 'mint'],
-    ['주의 대상자', data.distribution.caution, 'blue'],
-    ['심각 대상자', data.distribution.critical, 'peach'],
+    [`${RISK_LABEL.NORMAL} 대상자`, data.distribution.normal, 'mint'],
+    [`${RISK_LABEL.CAUTION} 대상자`, data.distribution.caution, 'blue'],
+    [`${RISK_LABEL.CRITICAL} 대상자`, data.distribution.critical, 'peach'],
   ]
   const notEvaluated = data.total_users - data.evaluated_users
 

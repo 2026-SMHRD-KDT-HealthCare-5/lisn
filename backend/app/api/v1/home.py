@@ -19,15 +19,14 @@ from pydantic import BaseModel
 from app.core.database import get_db
 from app.core.security import CurrentUser
 from app.models import Emotion, EmotionRiskScore, HealingContent, LifelogMetric
-from app.services import llm
+from app.services import llm, risk_policy
 
 router = APIRouter(tags=["home"])
 
 DbSession = Annotated[AsyncSession, Depends(get_db)]
 
-# 위험 단계 -> 시스템 액션. 서버가 확정해 내려준다.
-# 클라이언트에 규칙을 복제하면 반드시 어긋난다(API설계_사전결정 3절).
-_ACTION = {"NORMAL": "CHAT", "CAUTION": "CONTENT", "CRITICAL": "EMERGENCY"}
+# 위험 단계 -> 시스템 액션 매핑은 services/risk_policy.py 한 곳에 있다.
+# 여기에 다시 적으면 chat.py 와 셋이 되어 반드시 어긋난다.
 
 # score_id -> 생성된 요약. 분석이 갱신되면 키가 바뀌어 자연히 무효화된다.
 #
@@ -121,7 +120,7 @@ async def home(user: CurrentUser, db: DbSession):
             evaluated_at=score.evaluated_at,
         )
 
-    action = _ACTION[risk_level]
+    action = risk_policy.action_for(risk_level)
 
     # 최근 24시간 라이프로그 요약. 수면은 합계가 아니라 최근값을 쓴다 —
     # 15분 주기로 같은 수면 구간이 반복 적재되므로 합치면 부풀려진다.
@@ -201,7 +200,13 @@ async def recommendations(
 ):
     """콘텐츠 추천 새로고침 — MLCM_400
 
-    홈에 포함되지만 사용자가 다시 뽑아보고 싶을 때를 위해 분리한다.
+    홈 응답에 이미 포함되므로 **평소 화면 진입에는 쓰이지 않는다.** 다시
+    뽑아보는 동작을 위해 분리해 두었다.
+
+    ⚠ **2026.08.03 현재 이 엔드포인트를 호출하는 클라이언트가 없다.**
+      앱에 새로고침 UI 가 아직 없기 때문이다(→ `docs/검증/구현_갭_20260803.md`
+      갭 7). 없앨 것이 아니라 UI 를 붙일 자리이므로 남겨두되, **여기 있다는
+      이유로 「구현됐다」고 세지 말 것.**
 
     ⚠ **CRITICAL 이면 빈 목록을 돌려준다** — MLCM_510 2단계(콘텐츠 추천 즉시
       중단). `/home` 에만 이 가드를 두면, 이 엔드포인트를 직접 부르는 것만으로
@@ -220,7 +225,7 @@ async def recommendations(
         return []
 
     emotion_id, risk_level = row
-    if _ACTION.get(risk_level) == "EMERGENCY":
+    if risk_policy.is_emergency(risk_level):
         return []
 
     cards = await db.scalars(
