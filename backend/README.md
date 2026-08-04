@@ -83,7 +83,7 @@ app/
 모델은 그 DDL 의 파이썬 매핑일 뿐입니다.
 
 - **`Base.metadata.create_all()` 을 쓰지 않습니다**
-- **alembic 을 쓰지 않습니다.** 정본이 둘이 되면 04·05 문서와 대조할 기준이 파이썬 코드로 옮겨갑니다
+- **alembic 을 쓰지 않습니다.** 정본이 둘이 되면 데이터베이스요구사항분석서·테이블명세서와 대조할 기준이 파이썬 코드로 옮겨갑니다
 - 스키마를 바꿀 때는 `schema.sql` 을 고치고 **DB 를 다시 만듭니다**
 
 > 그 대가로 **둘이 어긋나도 아무것도 알려주지 않습니다.** 한쪽에만 컬럼을 추가하면
@@ -92,7 +92,7 @@ app/
 
 ### 시각 컬럼에는 `TimestampTZ` 를 명시하세요
 
-`Mapped[datetime]` 만 쓰면 SQLAlchemy 가 `timezone=False` 로 추론해 `TIMESTAMP WITHOUT TIME ZONE` 을 만듭니다. 그 상태로 tz-aware 값을 넣으면 asyncpg 가 죽습니다. 04 문서는 전 컬럼 `TIMESTAMPTZ` 를 규정합니다.
+`Mapped[datetime]` 만 쓰면 SQLAlchemy 가 `timezone=False` 로 추론해 `TIMESTAMP WITHOUT TIME ZONE` 을 만듭니다. 그 상태로 tz-aware 값을 넣으면 asyncpg 가 죽습니다. 데이터베이스요구사항분석서는 전 컬럼 `TIMESTAMPTZ` 를 규정합니다.
 
 ### 판단은 서버가 끝냅니다
 

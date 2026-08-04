@@ -32,7 +32,7 @@ DbSession = Annotated[AsyncSession, Depends(get_db)]
 #
 # ⚠ 프로세스 내 캐시라 워커를 여러 개 띄우면 워커마다 한 번씩 생성된다.
 #   데모 규모에서는 문제가 없지만, 확장한다면 요약을 EMOTION_RISK_SCORES 의
-#   컬럼으로 저장하는 편이 맞다. 그때는 04·05 문서 개정이 함께 필요하다.
+#   컬럼으로 저장하는 편이 맞다. 그때는 데이터베이스요구사항분석서·테이블명세서 개정이 함께 필요하다.
 _SUMMARY_CACHE: dict[uuid.UUID, str | None] = {}
 _SUMMARY_CACHE_MAX = 500
 
@@ -150,7 +150,7 @@ async def home(user: CurrentUser, db: DbSession):
     if action == "CONTENT" and emotion_today:
         # MLCM_400 — CAUTION 단계에서만 추천한다.
         # 등록되는 콘텐츠는 사전 안전 검수를 거친 중립적인 것만이므로
-        # 감정 매칭이 빗나가도 사용자에게 해가 되지 않는다(04 문서 7항).
+        # 감정 매칭이 빗나가도 사용자에게 해가 되지 않는다(데이터베이스요구사항분석서 7항).
         cards = await db.scalars(
             select(HealingContent)
             .join(Emotion, Emotion.emotion_id == HealingContent.emotion_id)

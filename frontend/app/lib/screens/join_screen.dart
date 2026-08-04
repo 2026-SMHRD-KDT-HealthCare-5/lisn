@@ -9,7 +9,7 @@ import '../theme/app_theme.dart';
 import '../widgets/common_widgets.dart';
 import 'main_shell.dart';
 
-/// STEP 03 에서 스마트워치를 어떻게 할지 고른 결과.
+/// STEP 빅데이터분석정의서에서 스마트워치를 어떻게 할지 고른 결과.
 /// null 이면 아직 고르지 않은 상태이고, 그때는 시작하기가 눌리지 않습니다.
 enum _Wearable { connect, later }
 
@@ -799,7 +799,7 @@ class _JoinScreenState extends State<JoinScreen> {
               : () => Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (_) => const MainShell()),
                   (_) => false),
-          // STEP 01 과 같은 이유입니다. 이 시점에도 캐릭터를 만난 적이
+          // STEP 기획서와 같은 이유입니다. 이 시점에도 캐릭터를 만난 적이
           // 없습니다. '마음이' 는 홈에 들어간 뒤부터 통합니다.
           child: const Text('시작하기'),
         ),

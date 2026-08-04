@@ -61,7 +61,7 @@ class LifelogMetric(Base):
 
     __table_args__ = (
         UniqueConstraint("user_id", "collected_at", name="uq_lifelog_user_collected"),
-        # 04 문서 5항이 요구하는 복합 인덱스. 컬럼 암호화를 포기한 근거이기도 하다.
+        # 데이터베이스요구사항분석서 5항이 요구하는 복합 인덱스. 컬럼 암호화를 포기한 근거이기도 하다.
         Index("idx_lifelog_user_collected", "user_id", text("collected_at DESC")),
         CheckConstraint("steps >= 0", name="ck_lifelog_steps"),
         CheckConstraint(

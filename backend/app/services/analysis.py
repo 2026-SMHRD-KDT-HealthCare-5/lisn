@@ -62,7 +62,7 @@ async def trigger_lifelog_analysis(user_id: uuid.UUID) -> None:
 async def _persist(user_id: uuid.UUID, result: dict) -> None:
     """AI 서버 판정 결과를 적재한다.
 
-    risk_level 매핑은 **AI 서버가 확정한다**(04 문서 6항). 비즈니스 서버가
+    risk_level 매핑은 **AI 서버가 확정한다**(데이터베이스요구사항분석서 6항). 비즈니스 서버가
     다시 계산하면 규칙이 두 곳에 존재하게 되어 반드시 어긋난다.
     여기서는 값이 규격에 맞는지만 확인한다.
     """

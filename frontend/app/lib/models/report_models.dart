@@ -41,7 +41,7 @@ class RiskPoint {
   final String emotionName;
   final double emotionScore;
 
-  /// NORMAL / CAUTION / CRITICAL — 서버가 확정한 값입니다(04 문서 6항).
+  /// NORMAL / CAUTION / CRITICAL — 서버가 확정한 값입니다(데이터베이스요구사항분석서 6항).
   final String riskLevel;
   final double riskScore;
 

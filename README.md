@@ -545,7 +545,7 @@ lisn/
 
 | 파일 | 넣는 것 |
 |---|---|
-| `db/schema.sql` | 8개 테이블 + `EMOTIONS` 9종. **05 테이블명세서와 맞춘 스키마 정본** |
+| `db/schema.sql` | 8개 테이블 + `EMOTIONS` 9종. **테이블명세서와 맞춘 스키마 정본** |
 | `db/seed_healing_contents.sql` | 힐링 콘텐츠. 없으면 `CAUTION` 액션의 콘텐츠 추천이 빕니다 |
 | `db/seed_demo_persona.sql` | 데모 계정 1명 + 14일치 라이프로그·판정. 없으면 홈·리포트·관제가 전부 빕니다 |
 

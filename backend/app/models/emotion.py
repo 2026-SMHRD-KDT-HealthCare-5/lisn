@@ -22,7 +22,7 @@ from app.models.base import Base, TimestampTZ
 class Emotion(Base):
     """감정 마스터 9종.
 
-    category 가 곧 기본 위험도다(04 문서 6항).
+    category 가 곧 기본 위험도다(데이터베이스요구사항분석서 6항).
     단, ANGER 만 emotion_score 70 을 기준으로 런타임에 동적 재분류되고
     CRISIS 는 점수와 무관하게 즉시 CRITICAL 로 확정된다.
     이 규칙은 AI 추론 서버가 적용하며 클라이언트에 복제하지 않는다.
@@ -87,7 +87,7 @@ class HealingContent(Base):
     """CAUTION 단계 추천 콘텐츠.
 
     사전 안전 검수를 거친 중립적 콘텐츠만 등록한다. 감정 매칭이 틀려도
-    사용자에게 해가 되지 않도록 하는 것이 원칙이다(04 문서 7항).
+    사용자에게 해가 되지 않도록 하는 것이 원칙이다(데이터베이스요구사항분석서 7항).
     """
 
     __tablename__ = "healing_contents"

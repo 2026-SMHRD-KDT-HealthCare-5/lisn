@@ -6,7 +6,7 @@
 > **이 문서는 착수용 초안입니다.** FastAPI가 생성하는 OpenAPI(`/docs`)가
 > 구현 정본이며 산출물 제출 대상이 아닙니다.
 >
-> 도출 근거 — `db/schema.sql`(정본) · 02 유스케이스 14건 · 화면 15개([`결정/화면설계서_개정안.md`](화면설계서_개정안.md))
+> 도출 근거 — `db/schema.sql`(정본) · 요구사항정의서 유스케이스 14건 · 화면 15개([`결정/화면설계서_개정안.md`](화면설계서_개정안.md))
 >
 > ### ✅ 2026.08.01 — 구현과 대조 완료
 >
@@ -347,7 +347,7 @@ Flutter 에 `MAIN_REPORT_01` 화면이 이미 있어 그대로 조판할 수 있
 
 AI 서버가 DB 에서 최근 14일 기준값과 최신 시퀀스를 직접 읽는다. 비즈니스 서버가 페이로드로 실어 보내면 요청이 비대해진다.
 
-**`risk_level` 매핑은 AI 서버가 확정한다.** `EMOTIONS.category` 를 기본값으로 하고 `ANGER` 만 `emotion_score` 70 기준으로 재분류, `CRISIS` 는 무조건 `CRITICAL`(04 문서 6항).
+**`risk_level` 매핑은 AI 서버가 확정한다.** `EMOTIONS.category` 를 기본값으로 하고 `ANGER` 만 `emotion_score` 70 기준으로 재분류, `CRISIS` 는 무조건 `CRITICAL`(데이터베이스요구사항분석서 6항).
 
 ### ~~`POST /internal/analyze/crisis`~~ — 철회 (2026.08.01)
 

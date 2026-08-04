@@ -75,7 +75,7 @@ class MaeumeMascot extends StatelessWidget {
 
   /// 서버가 준 위험 단계로 표정을 정합니다.
   ///
-  /// **앱이 점수로 다시 판정하지 않습니다**(04 문서 6항). `risk_level` 만 봅니다.
+  /// **앱이 점수로 다시 판정하지 않습니다**(데이터베이스요구사항분석서 6항). `risk_level` 만 봅니다.
   static MascotMood moodFor(String? riskLevel) => switch (riskLevel) {
         'CRITICAL' || 'CAUTION' => MascotMood.calm,
         _ => MascotMood.smile,

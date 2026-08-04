@@ -59,7 +59,7 @@ def _secret() -> str:
 # --------------------------------------------------------------------------
 
 def hash_password(plain: str) -> str:
-    """Bcrypt 단방향 해시. 평문은 어디에도 저장하지 않는다(04 문서 3항)."""
+    """Bcrypt 단방향 해시. 평문은 어디에도 저장하지 않는다(데이터베이스요구사항분석서 3항)."""
     return bcrypt.hashpw(plain.encode(), bcrypt.gensalt()).decode()
 
 

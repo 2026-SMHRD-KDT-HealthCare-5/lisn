@@ -17,7 +17,7 @@ class Base(DeclarativeBase):
     pass
 
 
-# 04 문서: 모든 날짜/시간 컬럼은 TIMESTAMPTZ 로 통일한다.
+# 데이터베이스요구사항분석서: 모든 날짜/시간 컬럼은 TIMESTAMPTZ 로 통일한다.
 #
 # ⚠ Mapped[datetime] 만 쓰면 SQLAlchemy 가 timezone=False 로 추론해
 #   TIMESTAMP WITHOUT TIME ZONE 을 생성한다. 그 상태로 tz-aware 값을 넣으면

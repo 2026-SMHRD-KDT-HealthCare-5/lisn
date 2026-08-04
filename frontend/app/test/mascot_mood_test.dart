@@ -41,7 +41,7 @@ void main() {
   });
 
   test('심각·주의는 담담한 표정으로 매핑된다', () {
-    // ⚠ 서버가 준 risk_level 만 봅니다. 점수로 다시 판정하지 않습니다(04 문서 6항).
+    // ⚠ 서버가 준 risk_level 만 봅니다. 점수로 다시 판정하지 않습니다(데이터베이스요구사항분석서 6항).
     expect(MaeumeMascot.moodFor('CRITICAL'), MascotMood.calm);
     expect(MaeumeMascot.moodFor('CAUTION'), MascotMood.calm);
   });

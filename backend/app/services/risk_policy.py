@@ -1,4 +1,4 @@
-"""위험 단계 → 시스템 액션 매핑 — 01 기획서 · 02 `MLCM_210` 6단계
+"""위험 단계 → 시스템 액션 매핑 — 기획서 · 요구사항정의서 `MLCM_210` 6단계
 
     NORMAL   -> CHAT       일상 공감 대화
     CAUTION  -> CONTENT    힐링 콘텐츠 추천 (MLCM_400)
@@ -13,7 +13,7 @@
 (→ `docs/검증/구현_갭_20260803.md` 중복 1).
 
 ⚠ **`risk_level` 자체를 계산하지 않습니다.** 라이프로그 경로의 위험 단계는
-  AI 서버의 `risk_level_of()` 가 확정하고(04 문서 6항), 대화 경로는
+  AI 서버의 `risk_level_of()` 가 확정하고(데이터베이스요구사항분석서 6항), 대화 경로는
   `chat.py` 의 `_decide()` 가 키워드·LLM 판정으로 정합니다. 여기는 **이미
   정해진 단계를 액션으로 옮기기만** 합니다.
 
@@ -26,7 +26,7 @@ from typing import Literal
 RiskLevel = Literal["NORMAL", "CAUTION", "CRITICAL"]
 Action = Literal["CHAT", "CONTENT", "EMERGENCY"]
 
-# 02 `MLCM_210` 6단계가 규정한 매핑 그대로입니다.
+# 요구사항정의서 `MLCM_210` 6단계가 규정한 매핑 그대로입니다.
 RISK_ACTION: dict[str, str] = {
     "NORMAL": "CHAT",
     "CAUTION": "CONTENT",

@@ -52,7 +52,7 @@ DELETE FROM USERS WHERE email = 'demo.crisis@lisn-test.example';
 -- ---------------------------------------------------------------------
 --  1. 페르소나
 --
---  ⚠ phone 은 NULL 입니다. 04 문서(02-F 3항)가 AES-256-GCM 을 요구하는데
+--  ⚠ phone 은 NULL 입니다. 데이터베이스요구사항분석서(02-F 3항)가 AES-256-GCM 을 요구하는데
 --    SQL 로는 암호문을 만들 수 없습니다. 연락처가 필요하면 앱/API 로 넣으세요.
 --
 --  이메일 도메인이 `.example` 인 것은 의도한 것입니다. RFC 2606 예약 도메인이라
@@ -151,7 +151,7 @@ WHERE u.email = 'demo.crisis@lisn-test.example';
 --    환경마다 다릅니다. emotion_code 로 조회해서 넣습니다.
 --
 --  ⚠ risk_level 은 ai/server/main.py 의 risk_level_of() 정책과 **일치해야**
---    합니다(04 문서 6항). 어긋난 데이터를 넣으면 나중에 규칙을 의심하게 됩니다.
+--    합니다(데이터베이스요구사항분석서 6항). 어긋난 데이터를 넣으면 나중에 규칙을 의심하게 됩니다.
 --        JOY·DELIGHT·HAPPINESS        -> NORMAL
 --        SADNESS·ANXIETY·LONELINESS   -> CAUTION
 --        ANGER                        -> CAUTION (단 emotion_score >= 70 이면 CRITICAL)
