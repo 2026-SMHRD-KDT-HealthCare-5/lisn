@@ -5716,5 +5716,41 @@
     "severity": "NONE",
     "text": "자퇴하고 싶다는 생각을 했어요",
     "model": "gemini-3.6-flash"
+  },
+  "be35e3271301db12b41334beadc5072c": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "예전에 많이 힘들었는데 지금은 괜찮아요",
+    "model": "gemini-3.6-flash"
+  },
+  "951495f8d0456d73040206e194495240": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "작년에는 정말 지쳤었죠",
+    "model": "gemini-3.6-flash"
+  },
+  "a3aac802fc240bf017b703ed5b90e77d": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "친구가 힘들어해서 걱정이에요",
+    "model": "gemini-3.6-flash"
+  },
+  "85aadc2e0119099ab918872e7e512a01": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "동생이 요즘 우울해 보여요",
+    "model": "gemini-3.6-flash"
+  },
+  "641be8ffd6d140d2e9b571adce7ff862": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "드라마에서 주인공이 죽는 장면이 슬펐어요",
+    "model": "gemini-3.6-flash"
+  },
+  "fe65d85092d1e931fd44766d2b8c4f6e": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "소설 쓰는데 우울한 인물을 표현하고 싶어요",
+    "model": "gemini-3.6-flash"
   }
 }
