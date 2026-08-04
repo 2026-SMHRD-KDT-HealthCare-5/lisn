@@ -182,6 +182,64 @@ is_crisis=false — 위기 신호로 보지 않는다
 """
 
 
+# --------------------------------------------------------------------------
+# 대화 맥락 상한 — 턴 수가 아니라 글자수로 자릅니다
+# --------------------------------------------------------------------------
+#
+# 전에는 `recent_turns[-10:]` 처럼 **턴 수**로 잘랐습니다. 같은 10턴이라도
+# 한 줄짜리 10턴과 긴 문단 10턴은 분량이 몇 배 차이가 나서, 매 요청의
+# 입력 크기가 들쭉날쭉했습니다. `NFR-DV-001` 3초 예산의 여유가 101ms
+# (2899.1 / 3000ms) 뿐이라 예측 가능한 쪽이 낫습니다.
+#
+# ⚠ **정확히는 토큰이 단위입니다.** OpenAI 문서는 컨텍스트를 토큰으로
+#   규정하고, 글자수는 근사치입니다. 그래도 글자수를 쓰는 이유는
+#   ① 한국어는 대략 1자 ≈ 1토큰 안쪽이라 상한을 보수적으로 잡으면 안전하고
+#   ② tiktoken 을 넣으면 Gemini 경로(다른 토크나이저)와 어긋나기 때문입니다.
+#
+# ⚠ **서버측 compaction 을 쓸 수 없습니다.** `/responses` 의
+#   `context_management`·`/responses/compact` 는 Responses API 전용인데,
+#   Gemini 가 Responses API 를 지원하지 않아 양쪽 다 Chat Completions 로
+#   통일했습니다. 그래서 자르는 일은 우리가 합니다.
+
+REPLY_CONTEXT_CHARS = 2000
+"""응답 생성에 넣을 이전 대화 상한. 실측 발화 중앙값 18자 기준 넉넉합니다."""
+
+CRISIS_CONTEXT_CHARS = 600
+"""위기 판정에 넣을 이전 대화 상한.
+
+**일부러 짧게 둡니다.** 판정 대상은 직전 발화 하나이고 앞 문맥은
+「제3자 이야기인지·과거형인지」를 가리는 용도입니다. 길어지면 옛날 부정
+감정에 끌려가 오탐이 늡니다. 종전 6턴(≈274자)보다 여유 있는 값입니다.
+"""
+
+MAX_MESSAGE_CHARS = 500
+"""한 메시지의 상한. 긴 메시지 하나가 창을 다 먹지 않게 합니다."""
+
+
+def trim_turns(turns: list[dict], budget: int) -> list[dict]:
+    """글자수 예산에 맞춰 **최근 것부터** 담고 오래된 것을 버립니다.
+
+    ⚠ **턴 경계로 자릅니다.** 글자수로 딱 끊으면 문장이 반 토막 나서
+      「친구가 죽고 싶다고 했어요」가 「죽고 싶다고 했어요」로 남을 수
+      있습니다. 위기 판정에서 그 차이는 제3자와 본인을 가릅니다.
+
+    한 메시지 자체가 `MAX_MESSAGE_CHARS` 를 넘으면 **뒤쪽을 남깁니다.**
+    최근 발화일수록 뒤가 결론인 경우가 많습니다.
+    """
+    kept: list[dict] = []
+    used = 0
+    for t in reversed(turns):
+        content = str(t.get("content") or "")
+        if len(content) > MAX_MESSAGE_CHARS:
+            content = content[-MAX_MESSAGE_CHARS:]
+        if used + len(content) > budget:
+            break
+        kept.append({**t, "content": content})
+        used += len(content)
+    kept.reverse()
+    return kept
+
+
 def crisis_user_message(utterance: str, recent_turns: list[dict]) -> str:
     """위기 판정에 넣을 user 메시지.
 
@@ -194,8 +252,13 @@ def crisis_user_message(utterance: str, recent_turns: list[dict]) -> str:
 
       프롬프트만 공유하는 것으로는 부족합니다. **넣는 문자열을 만드는
       코드까지 공유해야** 같은 것을 재는 게 보장됩니다.
+
+      ⚠ **평가는 `recent_turns` 를 빈 리스트로 넘깁니다.** 그래서
+      `CRISIS_CONTEXT_CHARS` 를 바꿔도 평가가 만드는 문자열은 달라지지
+      않고, 캐시 키도 그대로 유지됩니다.
     """
-    context = "\n".join(f"{t['role']}: {t['content']}" for t in recent_turns[-6:])
+    turns = trim_turns(recent_turns, CRISIS_CONTEXT_CHARS)
+    context = "\n".join(f"{t['role']}: {t['content']}" for t in turns)
     return f"[최근 대화]\n{context}\n\n[판정 대상 발화]\n{utterance}"
 
 
@@ -234,7 +297,8 @@ async def generate_reply(
     persona = PERSONA_PROMPTS.get(persona_type, PERSONA_PROMPTS["FRIEND"])
     messages = [{"role": "system", "content": persona + SAFETY_RULES}]
     messages += [
-        {"role": t["role"], "content": t["content"]} for t in recent_turns[-10:]
+        {"role": t["role"], "content": t["content"]}
+        for t in trim_turns(recent_turns, REPLY_CONTEXT_CHARS)
     ]
     messages.append({"role": "user", "content": utterance})
 

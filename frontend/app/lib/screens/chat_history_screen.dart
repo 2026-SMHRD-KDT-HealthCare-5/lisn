@@ -289,20 +289,11 @@ class _SessionDetailScreenState extends State<_SessionDetailScreen> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(17, 18, 17, 26),
       children: [
-        if (detail!.summary.sessionSummary != null) ...[
-          AppCard(
-            color: const Color(0xFFF7F8FC),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SectionTitle('이 대화의 요약'),
-                  const SizedBox(height: 10),
-                  Text(detail!.summary.sessionSummary!,
-                      style: const TextStyle(fontSize: 11, height: 1.75)),
-                ]),
-          ),
-          const SizedBox(height: 16),
-        ],
+        // ⚠ 상세에는 요약을 넣지 않습니다 — 목록에서 이미 보여줍니다(2026.08.04).
+        //   목록은 「어느 대화였는지 고르는」 자리라 요약이 맞고, 상세는
+        //   「그때 무슨 말이 오갔는지 다시 읽는」 자리라 실제 대화가 맞습니다.
+        //   둘 다 넣으면 같은 내용을 두 번 읽게 됩니다.
+        //   요약 자체는 목록·관리자 쪽에서 계속 쓰므로 서버에 그대로 둡니다.
         for (final m in detail!.messages) _bubble(m),
       ],
     );

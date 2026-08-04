@@ -19,6 +19,42 @@ LLM·프롬프트·OpenAI API 관련 작업을 시작할 때 최신 관련 항�
 
 ---
 
+## 2026-08-04 · LLM-008 · 대화 맥락을 턴 수가 아니라 글자수로 자릅니다
+
+- **작업 범위**: `generate_reply`·`crisis_user_message` 가 이전 대화를 자르는
+  기준을 **턴 수 → 글자수**로 변경. 저장·요약 구조는 건드리지 않음
+- **조회한 자료**: `PROMPT_REFERENCE.md`(「대화 상태·요약」 1순위 = OpenAI
+  공식 Conversation state·Compaction 가이드), OpenAI
+  [Conversation state — Managing the context window](https://platform.openai.com/docs/guides/conversation-state),
+  `docs/검증/성능실측_20260803.md`, 평가셋 200건 실측 길이
+- **채택한 방법**: `trim_turns(turns, budget)` — 최근 것부터 담고 **턴 경계로**
+  자릅니다. `reply` **2,000자** · `crisis` **600자** · 메시지 하나 **500자**
+- **채택하지 않은 방법과 이유**
+  - **서버측 compaction**(`/responses` 의 `context_management`·
+    `/responses/compact`) — **Responses API 전용**입니다. Gemini 가 Responses
+    API 를 지원하지 않아 양쪽을 Chat Completions 로 통일했으므로 쓸 수 없습니다
+  - **tiktoken 으로 토큰을 세는 것** — 정확하지만 **Gemini 는 토크나이저가
+    달라** 두 경로의 상한이 어긋납니다. 한국어는 대략 1자 ≈ 1토큰 안쪽이라
+    보수적으로 잡으면 근사로 충분합니다
+  - **글자수로 딱 끊기** — 「친구가 죽고 싶다고 했어요」가 「죽고 싶다고
+    했어요」로 남으면 **위기 판정에서 제3자가 본인이 됩니다**
+- **성공 조건·평가 사례**
+  - 오래된 턴부터 버릴 것 · 턴 중간이 잘리지 않을 것
+  - `crisis` 상한 < `reply` 상한 — 판정 대상은 직전 발화 하나이고, 문맥이
+    길면 옛날 부정 감정에 끌려가 오탐이 늡니다
+  - **평가 경로 문자열이 안 바뀔 것** — `eval_crisis.py` 가 `recent_turns=[]`
+    로 부르므로 상한을 바꿔도 캐시 키가 유지돼야 합니다. 바뀌면 200건 재채점
+- **검증 결과**: 신규 6건 포함 **백엔드 88건 통과** · 앱 141건 통과.
+  평가 경로 문자열 동일함을 테스트로 고정
+- **반영 파일**: `backend/app/services/llm.py`,
+  `backend/tests/test_llm_context.py`
+
+> ⚠ **아직 실측하지 않았습니다.** 상한 값은 실측 발화 길이(중앙값 18자)와
+> `NFR-DV-001` 여유(101ms)에서 역산한 것이고, 이 값으로 지연을 다시 재지
+> 않았습니다. 긴 대화가 쌓인 뒤 `성능실측` 을 한 번 더 돌려야 합니다.
+
+---
+
 ## 2026-08-03 · LLM-007 · OpenAI 전량 채점과 프롬프트 3회 개정 — F1 0.614 → 0.919
 
 - **작업 범위**: OpenAI 활성화로 무료 한도 제약이 풀려 **평가셋 200건 전량**을
