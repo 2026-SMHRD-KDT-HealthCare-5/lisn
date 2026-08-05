@@ -18,7 +18,7 @@ from pydantic import BaseModel
 
 from app.core.database import get_db
 from app.core.security import CurrentUser
-from app.models import Emotion, EmotionRiskScore, HealingContent, LifelogMetric
+from app.models import ChatSession, Emotion, EmotionRiskScore, HealingContent, LifelogMetric, OutreachLog
 from app.services import llm, risk_policy
 
 router = APIRouter(tags=["home"])
@@ -81,12 +81,26 @@ class ContentCard(BaseModel):
     external_url: str
 
 
+class PendingOutreach(BaseModel):
+    """시스템이 먼저 건 대화 중 **아직 답하지 않은 것** — MLCM_220 6단계.
+
+    앱은 자기가 시작한 대화만 알고 있어서, 이 필드가 없으면 선제 접촉이
+    대화 기록 안에 묻힌다. 홈은 앱을 열 때마다 부르므로 호출이 늘지 않는다.
+    """
+
+    session_id: uuid.UUID
+    persona_type: str
+    opener: str
+    started_at: datetime
+
+
 class HomeOut(BaseModel):
     emotion_today: EmotionToday | None
     lifelog_summary: LifelogSummary
     ai_summary: str | None
     recommendations: list[ContentCard]
     action: Literal["CHAT", "CONTENT", "EMERGENCY"]
+    pending_outreach: PendingOutreach | None = None
 
 
 async def _pick_healing_contents(
@@ -197,12 +211,40 @@ async def home(user: CurrentUser, db: DbSession):
             summary.steps,
         )
 
+    # MLCM_220 6단계 — 선제 접촉 세션 중 사용자가 아직 답하지 않은 것.
+    #
+    # ⚠ **사용자가 한 마디라도 했으면 빼야 한다.** 대화를 이어가는 중인데
+    #   홈에 「먼저 말을 걸었어요」가 계속 떠 있으면 안 읽은 알림처럼 보인다.
+    pending = None
+    pending_row = (
+        await db.execute(
+            select(ChatSession)
+            .join(OutreachLog, OutreachLog.session_id == ChatSession.session_id)
+            .where(
+                ChatSession.user_id == user.user_id,
+                ChatSession.ended_at.is_(None),
+            )
+            .order_by(ChatSession.started_at.desc())
+            .limit(1)
+        )
+    ).scalar_one_or_none()
+    if pending_row is not None:
+        msgs = list(pending_row.messages or [])
+        if msgs and not any(m.get("role") == "user" for m in msgs):
+            pending = PendingOutreach(
+                session_id=pending_row.session_id,
+                persona_type=pending_row.persona_type,
+                opener=msgs[0].get("content", ""),
+                started_at=pending_row.started_at,
+            )
+
     return HomeOut(
         emotion_today=emotion_today,
         lifelog_summary=summary,
         ai_summary=ai_summary,
         recommendations=recommendations,
         action=action,
+        pending_outreach=pending,
     )
 
 

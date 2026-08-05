@@ -8,14 +8,15 @@ import uuid
 from datetime import datetime, timezone
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.security import CurrentUser
-from app.models import ChatSession
+from app.models import ChatSession, OutreachLog
 from app.schemas.chat import (
+    ActiveSession,
     MessageIn,
     MessageOut,
     RiskInfo,
@@ -204,6 +205,38 @@ async def list_sessions(
         .offset(offset)
     )
     return [SessionOut.model_validate(r) for r in rows]
+
+
+@router.get("/sessions/active", response_model=ActiveSession | None)
+async def active_session(user: CurrentUser, db: DbSession, response: Response):
+    """열려 있는 대화 하나 — `MLCM_220` 6단계.
+
+    **선제 접촉이 만든 세션을 앱이 발견하는 경로다.** 앱은 자기가 시작한
+    대화만 알고 있어서, 서버가 먼저 만든 세션은 물어보지 않으면 못 찾는다.
+    실제로 대화 기록을 뒤져야 발견되는 상태였다.
+
+    ⚠ **`/sessions/{session_id}` 보다 먼저 선언해야 한다.** 뒤에 두면
+      `active` 가 UUID 로 파싱되어 422 가 난다.
+
+    없으면 204 다. 본문 없는 200 을 주면 클라이언트가 빈 객체와 구분하려고
+    분기를 하나 더 만들게 된다.
+    """
+    s = await db.scalar(
+        select(ChatSession)
+        .where(ChatSession.user_id == user.user_id, ChatSession.ended_at.is_(None))
+        .order_by(ChatSession.started_at.desc())
+        .limit(1)
+    )
+    if s is None:
+        response.status_code = status.HTTP_204_NO_CONTENT
+        return None
+
+    origin = await db.scalar(
+        select(OutreachLog.outreach_id).where(OutreachLog.session_id == s.session_id)
+    )
+    return ActiveSession.model_validate(
+        {**s.__dict__, "origin": "OUTREACH" if origin else "USER"}
+    )
 
 
 @router.get("/sessions/{session_id}", response_model=SessionDetail)

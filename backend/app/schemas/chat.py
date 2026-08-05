@@ -58,3 +58,16 @@ class SessionDetail(SessionOut):
     messages: list
 
     model_config = {"from_attributes": True}
+
+
+class ActiveSession(SessionDetail):
+    """열려 있는 대화 하나 — `MLCM_220` 6단계.
+
+    `origin` 이 `OUTREACH` 면 **시스템이 먼저 건 대화**다. 사용자가 시작한
+    것과 화면에서 구분해야 한다 — 안 그러면 「내가 언제 이런 말을 했지」가
+    된다.
+    """
+
+    origin: Literal["USER", "OUTREACH"]
+
+    model_config = {"from_attributes": True}

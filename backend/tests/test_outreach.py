@@ -164,3 +164,71 @@ async def test_발화_생성이_실패해도_접촉을_취소하지_않는다(cl
     async with AsyncSessionLocal() as db:
         s = await db.get(ChatSession, row.session_id)
     assert s.messages[0]["content"] in llm.FALLBACK_OUTREACH.values()
+
+
+@pytest.mark.asyncio
+async def test_앱이_선제_접촉_세션을_발견할_수_있다(client, user):
+    """서버가 만들어도 앱이 못 보면 의미가 없다 — MLCM_220 6단계.
+
+    앱의 sessionId 는 앱 안에서 대화를 시작했을 때만 채워진다. 이 경로가
+    없으면 선제 접촉이 대화 기록 안에 묻힌다.
+    """
+    uid = await _uid(client, user)
+    row = await _run(uid, _result())
+
+    r = await client.get(f"{BASE}/chat/sessions/active", headers=user["headers"])
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["session_id"] == str(row.session_id)
+    assert body["origin"] == "OUTREACH"        # 사용자가 시작한 것과 구분된다
+    assert body["messages"][0]["role"] == "assistant"
+
+
+@pytest.mark.asyncio
+async def test_열린_대화가_없으면_204(client, user):
+    """본문 없는 200 을 주면 클라이언트가 빈 객체와 구분하려고 분기를 만든다."""
+    r = await client.get(f"{BASE}/chat/sessions/active", headers=user["headers"])
+    assert r.status_code == 204
+
+
+@pytest.mark.asyncio
+async def test_사용자가_연_대화는_origin_이_USER(client, user):
+    r = await client.post(
+        f"{BASE}/chat/sessions", json={"persona_type": "FRIEND"},
+        headers=user["headers"],
+    )
+    assert r.status_code == 201, r.text
+
+    r = await client.get(f"{BASE}/chat/sessions/active", headers=user["headers"])
+    assert r.status_code == 200
+    assert r.json()["origin"] == "USER"
+
+
+@pytest.mark.asyncio
+async def test_홈에_답하지_않은_선제_접촉이_실린다(client, user):
+    uid = await _uid(client, user)
+    row = await _run(uid, _result())
+
+    r = await client.get(f"{BASE}/home", headers=user["headers"])
+    assert r.status_code == 200, r.text
+    p = r.json()["pending_outreach"]
+    assert p is not None
+    assert p["session_id"] == str(row.session_id)
+    assert p["opener"]
+
+
+@pytest.mark.asyncio
+async def test_답을_하면_홈에서_내려간다(client, user):
+    """대화를 이어가는 중인데 계속 떠 있으면 안 읽은 알림처럼 보인다."""
+    uid = await _uid(client, user)
+    row = await _run(uid, _result())
+
+    r = await client.post(
+        f"{BASE}/chat/sessions/{row.session_id}/messages",
+        json={"content": "네 요즘 좀 그랬어요"},
+        headers=user["headers"],
+    )
+    assert r.status_code == 200, r.text
+
+    r = await client.get(f"{BASE}/home", headers=user["headers"])
+    assert r.json()["pending_outreach"] is None
