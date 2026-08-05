@@ -156,3 +156,37 @@ class ChatSessionDetail {
         messages: jsonList(json['messages']).map(ChatBubble.fromJson).toList(),
       );
 }
+
+
+/// 열려 있는 대화 — `MLCM_220` 6단계.
+///
+/// ⚠ `origin` 이 `OUTREACH` 면 **시스템이 먼저 건 대화**입니다. 사용자가
+///   시작한 것과 화면에서 구분해야 합니다 — 안 그러면 「내가 언제 이런
+///   말을 했지」가 됩니다.
+class ActiveSession {
+  const ActiveSession({
+    required this.sessionId,
+    required this.personaType,
+    required this.origin,
+    required this.opener,
+  });
+
+  final String sessionId;
+  final String personaType;
+  final String origin;
+
+  /// 첫 문장. 배너에 그대로 보여줍니다.
+  final String opener;
+
+  bool get fromOutreach => origin == 'OUTREACH';
+
+  factory ActiveSession.fromJson(Map<String, dynamic> json) {
+    final msgs = jsonList(json['messages']).map(ChatBubble.fromJson).toList();
+    return ActiveSession(
+      sessionId: jsonStr(json['session_id']),
+      personaType: jsonStr(json['persona_type'], 'FRIEND'),
+      origin: jsonStr(json['origin'], 'USER'),
+      opener: msgs.isEmpty ? '' : msgs.first.content,
+    );
+  }
+}

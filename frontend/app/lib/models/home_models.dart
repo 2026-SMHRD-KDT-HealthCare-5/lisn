@@ -106,6 +106,35 @@ class ContentCard {
       );
 }
 
+/// 시스템이 먼저 건 대화 중 **아직 답하지 않은 것** — `MLCM_220` 6단계.
+///
+/// ⚠ **이게 없으면 선제 접촉이 대화 기록 안에 묻힙니다.** 앱은 자기가
+///   시작한 대화만 알고 있어서, 서버가 세션을 만들어도 사용자는 목록을
+///   뒤지지 않는 한 못 봅니다. FCM 이 없어도 이 경로만 있으면 도달합니다.
+class PendingOutreach {
+  const PendingOutreach({
+    required this.sessionId,
+    required this.personaType,
+    required this.opener,
+    required this.startedAt,
+  });
+
+  final String sessionId;
+  final String personaType;
+
+  /// 챗봇이 먼저 건넨 첫 문장. 홈 카드에 그대로 보여줍니다.
+  final String opener;
+  final DateTime startedAt;
+
+  factory PendingOutreach.fromJson(Map<String, dynamic> json) =>
+      PendingOutreach(
+        sessionId: jsonStr(json['session_id']),
+        personaType: jsonStr(json['persona_type']),
+        opener: jsonStr(json['opener']),
+        startedAt: jsonAt(json['started_at']) ?? DateTime.now(),
+      );
+}
+
 class HomeSnapshot {
   const HomeSnapshot({
     required this.action,
@@ -113,6 +142,7 @@ class HomeSnapshot {
     required this.recommendations,
     this.emotionToday,
     this.aiSummary,
+    this.pendingOutreach,
   });
 
   final HomeAction action;
@@ -126,6 +156,9 @@ class HomeSnapshot {
   final String? aiSummary;
   final List<ContentCard> recommendations;
 
+  /// null 이면 답하지 않은 선제 접촉이 없습니다.
+  final PendingOutreach? pendingOutreach;
+
   factory HomeSnapshot.fromJson(Map<String, dynamic> json) => HomeSnapshot(
         action: HomeAction.parse(json['action'] as String?),
         emotionToday: json['emotion_today'] == null
@@ -138,5 +171,8 @@ class HomeSnapshot {
         recommendations: jsonList(json['recommendations'])
             .map(ContentCard.fromJson)
             .toList(),
+        pendingOutreach: json['pending_outreach'] == null
+            ? null
+            : PendingOutreach.fromJson(jsonObj(json['pending_outreach'])),
       );
 }

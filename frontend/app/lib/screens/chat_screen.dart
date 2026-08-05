@@ -67,7 +67,19 @@ class ChatMessage {
 ///   돌린 뒤 CRITICAL 이면 생성된 응답을 버리기 때문입니다. 판정 전에 흘린
 ///   글자는 회수할 수 없습니다. 응답이 한 번에 오는 건 의도된 설계입니다.
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key, this.chatService, this.settingsService});
+  const ChatScreen({
+    super.key,
+    this.chatService,
+    this.settingsService,
+    this.resumeSessionId,
+  });
+
+  /// 열자마자 이어받을 세션. **선제 접촉(`MLCM_220`)이 이 통로를 씁니다.**
+  ///
+  /// ⚠ 홈 카드에서 넘어올 때 성격 선택 화면을 거치면, 시스템이 이미 말을
+  ///   걸어놓은 대화를 두고 사용자가 성격부터 고르게 됩니다. 그러면 「먼저
+  ///   말을 건다」가 성립하지 않습니다.
+  final String? resumeSessionId;
 
   /// 테스트에서 가짜 서비스를 넣기 위한 통로. 평소에는 null 이고
   /// AppServices.chat 을 씁니다.
@@ -109,6 +121,10 @@ class _ChatScreenState extends State<ChatScreen> {
   /// 카드에 「최근 대화」 표시를 붙이는 데 씁니다. **기본으로 떠 있는 것만으로는
   /// 그게 저장된 값인지 그냥 첫 카드인지 알 수 없습니다.**
   ChatPersona? lastUsed;
+
+  /// 시스템이 먼저 건 대화. null 이면 없습니다.
+  ActiveSession? outreach;
+
   bool conversation = false;
   List<ChatMessage> messages = [];
 
@@ -129,7 +145,65 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.resumeSessionId != null) {
+      _openExisting(widget.resumeSessionId!);
+      return;
+    }
     _applySavedPersona();
+    _findOutreach();
+  }
+
+  /// 시스템이 먼저 건 대화가 열려 있는지 — `MLCM_220` 6단계.
+  ///
+  /// 홈 카드가 주 경로지만, 챗봇 탭으로 바로 들어오는 사람도 있습니다.
+  /// 그때 **성격 선택 화면만 보이면 시스템이 말을 걸어둔 걸 모른 채
+  /// 새 대화를 시작**하고, 그 대화는 기록에 묻힙니다.
+  ///
+  /// ⚠ 실패해도 조용히 넘어갑니다. 배너가 안 뜨는 것뿐이고 홈 카드가
+  ///   남아 있습니다. 여기서 오류를 띄우면 챗봇을 열자마자 실패 문구부터
+  ///   보게 됩니다.
+  Future<void> _findOutreach() async {
+    try {
+      final active = await _chat.activeSession();
+      if (!mounted || active == null || !active.fromOutreach) return;
+      setState(() => outreach = active);
+    } catch (_) {
+      // 배너만 못 띄운 것이라 그대로 진행합니다.
+    }
+  }
+
+  /// 이미 열려 있는 세션을 바로 대화 화면으로 엽니다 — `MLCM_220` 6단계.
+  ///
+  /// ⚠ **새 세션을 만들지 않습니다.** 서버가 첫 발화까지 넣어 만들어둔
+  ///   세션이라, 여기서 `startSession` 을 부르면 그 대화가 버려지고 빈
+  ///   세션이 하나 더 생깁니다.
+  Future<void> _openExisting(String id) async {
+    setState(() => starting = true);
+    try {
+      final detail = await _chat.getSession(id);
+      final match = ChatPersona.values
+          .where((p) => p.code == detail.summary.personaType);
+      if (!mounted) return;
+      setState(() {
+        sessionId = id;
+        messages = [
+          for (final b in detail.messages)
+            ChatMessage(b.content, fromUser: b.isUser),
+        ];
+        activePersona = match.isEmpty ? persona : match.first;
+        conversation = true;
+        starting = false;
+      });
+      _scrollToEnd();
+    } catch (e) {
+      if (!mounted) return;
+      // 못 열면 평소 화면으로 떨어집니다. 여기서 막히면 챗봇 자체를 못 씁니다.
+      setState(() => starting = false);
+      _applySavedPersona();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('대화를 불러오지 못했어요. 다시 시도해 주세요.')),
+      );
+    }
   }
 
   /// 설정에 저장된 성격(`USERS.persona_type`)을 첫 선택으로 맞춥니다.
@@ -422,7 +496,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 builder: (_) => ChatHistoryScreen(chatService: _chat)))),
         // 뒤로가기로 나온 대화가 있으면 돌아갈 길을 남깁니다. 이게 없으면
         // 세션은 살아 있는데 화면에서 들어갈 방법이 없습니다.
-        if (sessionId != null)
+        // ⚠ **선제 접촉 배너가 먼저입니다.** 둘 다 뜨는 경우는 없지만
+        //   (열린 세션은 하나) 순서를 못 박아 둡니다.
+        if (sessionId == null && outreach != null)
+          _OutreachBanner(
+            opener: outreach!.opener,
+            onTap: () => _openExisting(outreach!.sessionId),
+          )
+        else if (sessionId != null)
           _ResumeBanner(persona: talking, onTap: _resumeConversation),
         const Padding(
           padding: EdgeInsets.fromLTRB(22, 20, 22, 12),
@@ -890,6 +971,53 @@ class _TypingBubble extends StatelessWidget {
           Text('마음이가 생각하고 있어요',
               style: TextStyle(fontSize: 10, color: AppColors.muted)),
         ]),
+      ),
+    );
+  }
+}
+
+
+/// 시스템이 먼저 건 대화로 들어가는 배너 — `MLCM_220` 6단계.
+///
+/// ⚠ **경고색을 쓰지 않습니다.** 정신건강 화면에서 빨강·주황은 불안을 키워
+///   회피를 유발합니다. 주목도는 위치(맨 위)로 만듭니다.
+class _OutreachBanner extends StatelessWidget {
+  const _OutreachBanner({required this.opener, required this.onTap});
+
+  final String opener;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(22, 4, 22, 0),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.soft,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.line),
+          ),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('마음이가 먼저 말을 걸었어요',
+                    style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.navy)),
+                const SizedBox(height: 8),
+                // 첫 문장을 그대로 보여줍니다. 감추면 왜 말을 걸었는지
+                // 모른 채 열어야 하고, 그건 감시처럼 읽힙니다.
+                Text(opener,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 11, height: 1.5, color: AppColors.muted)),
+              ]),
+        ),
       ),
     );
   }

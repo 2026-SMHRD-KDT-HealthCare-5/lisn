@@ -54,6 +54,21 @@ class ChatService {
   }
 
   /// 상세 — ❺. messages 는 PII 가 마스킹된 상태입니다.
+  /// 열려 있는 대화 하나 — `MLCM_220` 6단계.
+  ///
+  /// **선제 접촉이 만든 세션을 앱이 발견하는 경로입니다.** 앱은 자기가
+  /// 시작한 대화만 알고 있어서, 서버가 먼저 만든 세션은 물어보지 않으면
+  /// 못 찾습니다.
+  ///
+  /// ⚠ 없으면 서버가 **204** 를 줍니다. `ApiClient` 는 본문 없는 응답을
+  ///   빈 맵으로 돌려주므로 그걸로 판별합니다.
+  Future<ActiveSession?> activeSession() async {
+    final json = await _apiClient.get('/chat/sessions/active',
+        authenticated: true);
+    if (json.isEmpty) return null;
+    return ActiveSession.fromJson(json);
+  }
+
   Future<ChatSessionDetail> getSession(String sessionId) async {
     final json = await _apiClient.get(
       '/chat/sessions/$sessionId',

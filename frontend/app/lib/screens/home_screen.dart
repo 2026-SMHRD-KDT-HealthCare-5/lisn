@@ -6,6 +6,7 @@ import '../models/home_models.dart';
 import '../services/app_services.dart';
 import '../services/home_service.dart';
 import '../theme/app_theme.dart';
+import 'chat_screen.dart';
 import 'report_screen.dart';
 import '../widgets/common_widgets.dart';
 
@@ -124,6 +125,13 @@ class _HomeScreenState extends State<HomeScreen> {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(14, 12, 14, 25),
           sliver: SliverList.list(children: [
+            // ⚠ **감정 카드보다 위입니다.** 선제 접촉은 사용자가 앱을 열
+            //   이유가 없는 상태에서 유일하게 닿는 경로라, 스크롤해야
+            //   보이면 존재 의미가 없습니다.
+            if (data.pendingOutreach != null) ...[
+              _outreachCard(data.pendingOutreach!),
+              const SizedBox(height: 10),
+            ],
             _moodCard(data.emotionToday),
             const SizedBox(height: 10),
             _metrics(data.lifelog),
@@ -404,6 +412,60 @@ class _HomeScreenState extends State<HomeScreen> {
     if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
     if (diff.inHours < 24) return '${diff.inHours}시간 전';
     return '${diff.inDays}일 전';
+  }
+
+  /// 시스템이 먼저 건 대화 — `MLCM_220` 6단계.
+  ///
+  /// ⚠ **「알림」이 아니라 「대화」로 보여줍니다.** 배지·빨간 점을 붙이면
+  ///   처리해야 할 일이 되고, 정신건강 앱에서 그건 부담입니다. 말을 걸어둔
+  ///   것이 그대로 보이는 편이 낫습니다.
+  ///
+  /// ⚠ **경고색을 쓰지 않습니다.** 위기 화면에 빨강·주황을 쓰면 불안을 키워
+  ///   회피를 유발합니다. 주목도는 위치(맨 위)로 만듭니다.
+  Widget _outreachCard(PendingOutreach o) {
+    return AppCard(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _openOutreach(o),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            MaeumeMascot(size: 44, mood: MaeumeMascot.moodFor(null)),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text('마음이가 먼저 말을 걸었어요',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.navy)),
+            ),
+          ]),
+          const SizedBox(height: 12),
+          // 첫 문장을 그대로 보여줍니다. 「새 메시지가 있습니다」로 감추면
+          // 왜 말을 걸었는지 모른 채 열어야 합니다 — 근거를 함께 보여주는
+          // 것이 감시로 읽히지 않게 하는 조건입니다.
+          Text(o.opener,
+              style: const TextStyle(
+                  fontSize: 12, height: 1.6, color: AppColors.navy)),
+          const SizedBox(height: 12),
+          const Align(
+            alignment: Alignment.centerRight,
+            child: Text('답장하기  ›',
+                style: TextStyle(fontSize: 11, color: AppColors.primary)),
+          ),
+        ]),
+      ),
+    );
+  }
+
+  /// 성격 선택을 건너뛰고 **그 세션으로 바로** 들어갑니다.
+  ///
+  /// 돌아오면 홈을 다시 불러 카드를 걷습니다 — 답을 했는데 카드가 남아
+  /// 있으면 안 읽은 것처럼 보입니다.
+  Future<void> _openOutreach(PendingOutreach o) async {
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => ChatScreen(resumeSessionId: o.sessionId),
+    ));
+    if (mounted) await _refresh().catchError((_) {});
   }
 
   Widget _summary(String text, String? riskLevel) {
