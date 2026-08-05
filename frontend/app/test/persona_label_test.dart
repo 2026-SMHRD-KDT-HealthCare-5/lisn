@@ -32,20 +32,31 @@ void main() {
     expect(f.readAsStringSync(), contains('MAIN_CHAT_01'));
   });
 
+  /// PPTX 는 한 줄이 여러 런으로 갈리고, 편집할 때마다 갈리는 자리가
+  /// 바뀝니다. 추출기가 런 사이에 공백을 넣으므로 `[T]` 가 `[ T ]` 로
+  /// 나오기도 합니다. 실제로 2026.08.05 재저장에서 그렇게 깨졌습니다.
+  ///
+  /// **공백만 지우고 비교합니다.** 문안이 바뀌면 여전히 잡히고, 서식
+  /// 때문에 생긴 공백에는 흔들리지 않습니다. `safety.keyword_scan()` 이
+  /// 사전과 입력에서 공백만 지우고 비교하는 것과 같은 방식입니다.
+  String squash(String s) => s.replaceAll(RegExp(r'\s+'), '');
+
   test('성격 이름이 화면설계서 문안과 같다', () {
-    final doc = File(_extract).readAsStringSync();
+    final doc = squash(File(_extract).readAsStringSync());
     for (final p in ChatPersona.values) {
-      expect(doc, contains(p.label),
+      expect(doc, contains(squash(p.label)),
           reason: '「${p.label}」이 화면설계서에 없습니다. '
               '앱만 바꾸지 말고 문서를 먼저 고치세요');
     }
   });
 
   test('화면설명의 [F]·[T] 표기와 같다', () {
-    final doc = File(_extract).readAsStringSync();
+    final doc = squash(File(_extract).readAsStringSync());
     // 화면설명 ❶ [F] 따스한 공감형 : … / ❷ [T] 현실적인 조언형 : …
-    expect(doc, contains('[${ChatPersona.feeling.tag}] ${ChatPersona.feeling.label}'));
-    expect(doc, contains('[${ChatPersona.thinking.tag}] ${ChatPersona.thinking.label}'));
+    expect(doc,
+        contains(squash('[${ChatPersona.feeling.tag}] ${ChatPersona.feeling.label}')));
+    expect(doc,
+        contains(squash('[${ChatPersona.thinking.tag}] ${ChatPersona.thinking.label}')));
   });
 
   test('⚠ 서버 코드 값은 스키마 값 그대로여야 한다', () {
