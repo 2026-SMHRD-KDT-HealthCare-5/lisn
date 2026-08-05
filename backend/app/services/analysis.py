@@ -22,6 +22,7 @@ from sqlalchemy import select
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal
 from app.models import Emotion, EmotionRiskScore
+from app.services import outreach
 
 logger = logging.getLogger(__name__)
 
@@ -99,6 +100,20 @@ async def _persist(user_id: uuid.UUID, result: dict) -> None:
             )
         )
         await db.commit()
+
+    # MLCM_220 — 판정 직후 연속 이탈일수를 확인한다.
+    #
+    # ⚠ **트랜잭션을 나눈다.** 판정 적재가 먼저 확정돼야 한다. 선제 접촉은
+    #   LLM 호출과 세션 생성이 걸려 있어 실패 여지가 크고, 같은 트랜잭션에
+    #   묶으면 **접촉이 실패했다고 판정 결과까지 사라진다.** 라이프로그
+    #   push 를 분석 실패로 되돌리지 않는 것과 같은 이유다.
+    async with AsyncSessionLocal() as db:
+        try:
+            await outreach.maybe_outreach(db, user_id, result)
+            await db.commit()
+        except Exception as e:
+            logger.warning("선제 접촉 처리 실패 (user=%s): %s", user_id, e)
+            await db.rollback()
 
     logger.info(
         "분석 적재 완료 user=%s level=%s emotion=%s",

@@ -72,7 +72,7 @@ def _signup_body(**overrides) -> dict:
 
 @pytest_asyncio.fixture
 async def user(client):
-    """가입된 일반 사용자. (token, body) 를 돌려준다."""
+    """가입된 일반 사용자. `token`·`email`·`headers` 를 담은 dict 를 돌려준다."""
     body = _signup_body()
     r = await client.post(f"{BASE}/auth/signup", json=body)
     assert r.status_code == 201, r.text

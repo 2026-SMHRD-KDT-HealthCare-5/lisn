@@ -308,6 +308,79 @@ async def generate_reply(
     return resp.choices[0].message.content or ""
 
 
+# --------------------------------------------------------------------------
+# 선제 접촉 첫 발화 — MLCM_220
+# --------------------------------------------------------------------------
+
+OUTREACH_SYSTEM = """너는 사용자가 먼저 말을 걸지 않았는데 안부를 묻는 상황이다.
+관찰된 생활 지표 변화를 근거로 대화를 여는 첫 마디를 만든다.
+
+반드시 지킬 것:
+- 관찰한 사실만 말한다. "요즘 잠드는 시간이 늦어지셨네요" 는 되지만
+  "우울해 보이세요" 는 안 된다. 상태를 단정하지 않는다.
+- 진단명·증상명을 쓰지 않는다.
+- 감시당한다는 느낌을 주지 않는다. 수치를 그대로 읽어주지 말고
+  변화를 부드럽게 언급한다.
+- 답을 강요하지 않는다. 부담 없이 넘길 수 있게 연다.
+- 두 문장 이내. 길면 읽지 않는다.
+
+출력은 사용자에게 보낼 첫 마디 한 덩어리만. 설명이나 따옴표를 붙이지 않는다.
+"""
+
+_FEATURE_PHRASE = {
+    "총수면": "주무시는 시간",
+    "걸음수": "움직이는 양",
+    "수면효율": "잠의 깊이",
+    "입면지연": "잠드는 데 걸리는 시간",
+    "야간각성": "밤에 깨는 횟수",
+    "입면시각": "잠자리에 드는 시각",
+    "활동개시": "하루를 시작하는 시각",
+}
+
+
+async def outreach_opener(
+    persona_type: str, deviant_features: list[str], streak_days: int
+) -> str:
+    """선제 접촉 첫 발화를 만든다 — `MLCM_220` 3단계.
+
+    ⚠ **지표 이름을 그대로 넘기지 않는다.** `수면효율`·`입면지연` 은 내부
+      용어다. 사용자에게 「수면효율이 낮아졌어요」라고 하면 감시받는 느낌이
+      들고, 무슨 말인지도 모른다. 사람이 쓰는 말로 바꿔 넘긴다.
+
+    실패는 호출자가 처리한다. 여기서 삼키면 발화 없는 세션이 생긴다.
+    """
+    phrases = [_FEATURE_PHRASE.get(f, f) for f in deviant_features[:2]]
+    observed = " · ".join(phrases) if phrases else "생활 리듬"
+    persona = PERSONA_PROMPTS.get(persona_type, PERSONA_PROMPTS["FRIEND"])
+
+    resp = await client().chat.completions.create(
+        model=model_for("reply"),
+        messages=[
+            {"role": "system", "content": persona + SAFETY_RULES + OUTREACH_SYSTEM},
+            {
+                "role": "user",
+                "content": (
+                    f"[관찰된 변화]\n{observed}\n"
+                    f"[지속 일수]\n{streak_days}일\n\n"
+                    "위 변화를 근거로 첫 마디를 만들어줘."
+                ),
+            },
+        ],
+    )
+    return (resp.choices[0].message.content or "").strip()
+
+
+FALLBACK_OUTREACH = {
+    "FRIEND": "요즘 생활 리듬이 조금 달라진 것 같아 마음이 쓰였어요. 어떻게 지내셨어요?",
+    "COUNSELOR": "최근 생활 패턴에 변화가 보여 안부를 여쭙습니다. 요즘 어떻게 지내시나요?",
+}
+"""LLM 실패 시 쓸 첫 마디.
+
+⚠ **접촉 자체를 취소하지 않는다.** 말을 걸기로 판정된 사람에게 아무 말도
+  안 하는 것보다, 지표를 언급하지 않는 일반적인 안부가 낫다.
+"""
+
+
 FALLBACK_REPLY = {
     "FRIEND": "지금 생각을 정리하는 데 시간이 조금 걸리네요. 잠시 후에 다시 말씀해 주시겠어요?",
     "COUNSELOR": "지금 답변을 준비하는 데 시간이 걸리고 있어요. 잠시 후 다시 시도해 주세요.",
