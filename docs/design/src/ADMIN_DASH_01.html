@@ -6,9 +6,12 @@
   body { display:grid;grid-template-columns:210px 1fr; }
   aside { background:#fff;padding:30px 22px;border-right:1px solid #E9EDF6;display:flex;flex-direction:column; }
   aside .brand { font-size:21px;margin:0 10px 42px; }
-  .nav { display:flex;flex-direction:column;gap:8px; }
-  .nav-item { height:44px;border-radius:13px;display:flex;align-items:center;gap:11px;padding:0 13px;color:#8992AA;font-size:12px;font-weight:700; }
-  .nav-item.on { background:#EDF1FF;color:#5264D1; }
+  /* ⚠ 클래스명을 `nav` 로 되돌리지 마세요. common.css 의 `.nav` 는 모바일 하단
+     탭바용(position:absolute; bottom:0; width:390px; height:74px)이라, 이 사이드바에
+     걸리면 좌하단으로 밀려 잘립니다. `.nav div`·`.nav span` 도 같이 걸립니다. */
+  .sidenav { display:flex;flex-direction:column;gap:8px; }
+  .sidenav-item { height:44px;border-radius:13px;display:flex;align-items:center;gap:11px;padding:0 13px;color:#8992AA;font-size:12px;font-weight:700; }
+  .sidenav-item.on { background:#EDF1FF;color:#5264D1; }
   .admin { margin-top:auto;border-top:1px solid var(--line);padding:18px 8px 0;display:flex;gap:10px;align-items:center; }
   .admin .avatar { width:34px;height:34px;border-radius:11px;background:#E8EDFF;display:flex;align-items:center;justify-content:center;color:#5C6ED7;font-size:11px;font-weight:800; }
   .admin b { font-size:10.5px;display:block }.admin small{font-size:8.5px;color:#ABB1C2}
@@ -26,6 +29,13 @@
   .panel-head { display:flex;justify-content:space-between;align-items:center;margin-bottom:12px; }
   .panel-head h2 { font-size:13.5px }.panel-head small{font-size:9px;color:#9DA5B8}
   .filters { display:flex;gap:5px }.filter{padding:5px 8px;border-radius:8px;background:#F2F4FA;color:#8B93A8;font-size:8px;font-weight:700}.filter.on{background:#E8EDFF;color:#5869D0}
+  /* 조회 조건 줄 — 위험도 필터(❷) + 이름·이메일 검색(❸).
+     panel-head 오른쪽에 같이 넣으면 검색창 폭이 없어 제목을 밀어낸다. */
+  .query { display:flex;align-items:center;gap:8px;margin-bottom:11px; }
+  .search { margin-left:auto;display:flex;align-items:center;gap:6px;width:152px;height:26px;padding:0 9px;
+            border:1px solid #E4E9F4;background:#FAFBFE;border-radius:9px; }
+  .search span { font-size:8px;color:#A8AEC0; }
+  .mail { color:#98A0B5;font-size:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
   table { width:100%;border-collapse:collapse;table-layout:fixed; }
   th { text-align:left;font-size:8px;color:#A2A9BA;font-weight:700;padding:8px 7px;border-bottom:1px solid #EFF1F6; }
   td { font-size:9px;color:#606A87;padding:11px 7px;border-bottom:1px solid #F3F4F8; }
@@ -45,24 +55,28 @@
   .download { height:32px;border-radius:10px;background:#5A6BE0;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:750;margin-top:7px; }
 </style>
 <body>
-  <aside><div class="brand">마음이 <span>♥</span></div><div class="nav"><div class="nav-item on"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="6" height="6" rx="1.5" stroke="#596AD2" stroke-width="1.8"/><rect x="14" y="4" width="6" height="6" rx="1.5" stroke="#596AD2" stroke-width="1.8"/><rect x="4" y="14" width="6" height="6" rx="1.5" stroke="#596AD2" stroke-width="1.8"/><rect x="14" y="14" width="6" height="6" rx="1.5" stroke="#596AD2" stroke-width="1.8"/></svg>관제 대시보드</div><div class="nav-item">대상자 조회</div><div class="nav-item">위기 사건 이력</div><div class="nav-item">시스템 설정</div></div><div class="admin"><div class="avatar">AD</div><div><b>관리자</b><small>ADMIN 권한</small></div></div></aside>
+  <aside><div class="brand">마음이 <span>♥</span></div><div class="sidenav"><div class="sidenav-item on"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="6" height="6" rx="1.5" stroke="#596AD2" stroke-width="1.8"/><rect x="14" y="4" width="6" height="6" rx="1.5" stroke="#596AD2" stroke-width="1.8"/><rect x="4" y="14" width="6" height="6" rx="1.5" stroke="#596AD2" stroke-width="1.8"/><rect x="14" y="14" width="6" height="6" rx="1.5" stroke="#596AD2" stroke-width="1.8"/></svg>관제 대시보드</div><div class="sidenav-item">대상자 조회</div><div class="sidenav-item">위기 사건 이력</div><div class="sidenav-item">시스템 설정</div></div><div class="admin"><div class="avatar">AD</div><div><b>관리자</b><small>ADMIN 권한</small></div></div></aside>
   <main>
     <div class="top"><div><h1>관제 대시보드</h1><p>전체 대상자의 최근 정서 위험 신호를 확인합니다.</p></div><div class="time">최근 갱신 · 2026.07.31 09:30</div></div>
     <div class="metrics"><div class="card metric stable"><div><small>안정 대상자</small><b>86</b></div><div class="circle">72%</div></div><div class="card metric watch"><div><small>주의 대상자</small><b>27</b></div><div class="circle">23%</div></div><div class="card metric critical"><div><small>심각 대상자</small><b>6</b></div><div class="circle">5%</div></div></div>
     <div class="grid">
-      <section class="card panel"><div class="panel-head"><div><h2>대상자 위험도 목록</h2><small>심각·주의 대상자가 먼저 표시됩니다</small></div><div class="filters"><span class="filter on">전체</span><span class="filter">심각</span><span class="filter">주의</span></div></div>
-        <table><thead><tr><th style="width:27%">대상자 ID</th><th style="width:19%">단계</th><th style="width:15%">점수</th><th>최근 평가</th></tr></thead><tbody>
-          <tr class="sel"><td>8f2a91c4</td><td><span class="level crit">심각</span></td><td class="score">92</td><td>오늘 09:21</td></tr>
-          <tr><td>3bd74e10</td><td><span class="level crit">심각</span></td><td class="score">87</td><td>오늘 09:04</td></tr>
-          <tr><td>a14c08d2</td><td><span class="level cau">주의</span></td><td class="score">68</td><td>오늘 08:55</td></tr>
-          <tr><td>7e921ab6</td><td><span class="level cau">주의</span></td><td class="score">62</td><td>오늘 08:42</td></tr>
-          <tr><td>0c35f871</td><td><span class="level norm">안정</span></td><td class="score">34</td><td>오늘 08:18</td></tr>
-          <tr><td>f49b20a3</td><td><span class="level norm">안정</span></td><td class="score">21</td><td>오늘 07:51</td></tr>
+      <section class="card panel"><div class="panel-head"><div><h2>대상자 위험도 목록</h2><small>심각·주의 대상자가 먼저 표시됩니다</small></div></div>
+        <div class="query">
+          <div class="filters"><span class="filter on">전체</span><span class="filter">심각</span><span class="filter">주의</span><span class="filter">안정</span></div>
+          <div class="search"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="6.5" stroke="#AAB0C2" stroke-width="2.2"/><path d="M16 16L21 21" stroke="#AAB0C2" stroke-width="2.2" stroke-linecap="round"/></svg><span>이름 또는 이메일</span></div>
+        </div>
+        <table><thead><tr><th style="width:19%">이름</th><th style="width:30%">이메일</th><th style="width:16%">단계</th><th style="width:13%">점수</th><th>최근 평가</th></tr></thead><tbody>
+          <tr class="sel"><td>김하늘</td><td class="mail">sky.kim@example.com</td><td><span class="level crit">심각</span></td><td class="score">92</td><td>오늘 09:21</td></tr>
+          <tr><td>박서준</td><td class="mail">sjpark@example.com</td><td><span class="level crit">심각</span></td><td class="score">87</td><td>오늘 09:04</td></tr>
+          <tr><td>이도윤</td><td class="mail">dy.lee@example.com</td><td><span class="level cau">주의</span></td><td class="score">68</td><td>오늘 08:55</td></tr>
+          <tr><td>최지우</td><td class="mail">jiwoo.c@example.com</td><td><span class="level cau">주의</span></td><td class="score">62</td><td>오늘 08:42</td></tr>
+          <tr><td>정민서</td><td class="mail">ms.jung@example.com</td><td><span class="level norm">안정</span></td><td class="score">34</td><td>오늘 08:18</td></tr>
+          <tr><td>한예린</td><td class="mail">yerin.h@example.com</td><td><span class="level norm">안정</span></td><td class="score">21</td><td>오늘 07:51</td></tr>
         </tbody></table>
-        <div class="event"><div><b>최근 위기 사건</b><p>8f2a91c4 · 긴급 상담 화면 노출 · 오늘 09:22</p></div><span>이력 보기 →</span></div>
+        <div class="event"><div><b>최근 위기 사건</b><p>김하늘 · 긴급 상담 화면 노출 · 오늘 09:22</p></div><span>이력 보기 →</span></div>
       </section>
       <section class="card panel"><div class="panel-head"><div><h2>대상자 상세 리포트</h2><small>앱 정서 리포트와 동일한 시각화 규격</small></div></div>
-        <div class="detail-id"><div class="avatar">8f2a</div><div><b>8f2a91c4</b><small>최근 위험도 · 심각 92점</small></div><div class="period">최근 7일⌄</div></div>
+        <div class="detail-id"><div class="avatar">김하</div><div><b>김하늘</b><small>최근 위험도 · 심각 92점</small></div><div class="period">최근 7일⌄</div></div>
         <div class="summary">최근 3일간 감정 점수가 낮아지고 수면 시간이 함께 감소했습니다. 오늘 심각 단계 신호가 감지되었습니다.</div>
         <div class="chart-title">감정 변화 <small>점수 0–100</small></div><div class="legend"><span><i style="background:#5A6BE0"></i>감정 점수</span></div>
         <svg width="474" height="120" viewBox="0 0 474 120"><g stroke="#EDF0F7"><path d="M28 18H465M28 50H465M28 82H465"/></g><g fill="#A8ACBA" font-size="7" font-family="Pretendard"><text x="2" y="21">100</text><text x="8" y="53">50</text><text x="13" y="85">0</text><text x="30" y="105">7/25</text><text x="98" y="105">7/26</text><text x="166" y="105">7/27</text><text x="234" y="105">7/28</text><text x="302" y="105">7/29</text><text x="370" y="105">7/30</text><text x="438" y="105">7/31</text></g><path d="M38 37C73 38 79 43 105 45S145 48 173 51S215 57 241 59S282 62 309 67S351 70 377 73S421 77 448 79" fill="none" stroke="#5A6BE0" stroke-width="3" stroke-linecap="round"/><path d="M38 37C73 38 79 43 105 45S145 48 173 51S215 57 241 59S282 62 309 67S351 70 377 73S421 77 448 79V84H38Z" fill="#8A9CF0" opacity=".12"/></svg>
