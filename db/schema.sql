@@ -311,6 +311,35 @@ CREATE TABLE BODY_COMPOSITION_METRICS (
 
 
 -- =====================================================================
+--  9. OUTREACH_LOGS — 선제 접촉 이력 (MLCM_220)
+-- =====================================================================
+--  ⚠ **이 테이블이 없으면 쿨다운을 지킬 수 없습니다.**
+--    MLCM_220 은 「쿨다운 3일 · 하루 1회」를 조건으로 규정하는데, 언제
+--    보냈는지 기록이 없으면 이탈이 지속되는 동안 매일 발송됩니다. 알림이
+--    부담이 되면 앱을 닫는데, **그 사람이 우리가 놓치면 안 되는 쪽**입니다.
+--
+--  ⚠ **SKIPPED 도 남깁니다.** MLCM_220 5단계가 「조건 미충족 시 발송하지
+--    않고 사유를 로그에 기록한다」를 규정합니다. 안 보낸 것을 안 남기면
+--    「왜 안 왔지」에 답할 수 없습니다.
+--
+--  근거 지표(streak_days · deviant_features)를 함께 남기는 이유 — 선제
+--  접촉은 「관찰된 변화를 근거로 먼저 말을 거는」 기능입니다. 무엇을 보고
+--  걸었는지가 없으면 나중에 검증도 개선도 못 합니다.
+CREATE TABLE OUTREACH_LOGS (
+    outreach_id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id          UUID NOT NULL REFERENCES USERS(user_id) ON DELETE CASCADE,
+    --  사용자가 대화를 지워도 접촉 사실은 남아야 쿨다운이 유지됩니다.
+    session_id       UUID REFERENCES CHAT_SESSIONS(session_id) ON DELETE SET NULL,
+    streak_days      SMALLINT NOT NULL CHECK (streak_days >= 0),
+    deviant_features JSONB NOT NULL,
+    delivery_status  VARCHAR(20) NOT NULL
+        CHECK (delivery_status IN ('SENT', 'FAILED', 'SKIPPED')),
+    skip_reason      VARCHAR(40),
+    sent_at          TIMESTAMPTZ NOT NULL
+);
+
+
+-- =====================================================================
 --  인덱스
 -- =====================================================================
 --  데이터베이스요구사항분석서 5항이 (user_id, collected_at DESC) 복합 인덱스를
@@ -345,6 +374,11 @@ CREATE INDEX idx_healing_emotion
 CREATE INDEX idx_device_last_synced
     ON DEVICE_HEALTH_CONNECTIONS (last_synced_at)
     WHERE permission_granted = TRUE;
+
+--  [05-O] 선제 접촉 쿨다운 판정용 (MLCM_220)
+--  「이 사용자에게 마지막으로 보낸 게 언제인가」를 매 판정마다 조회합니다.
+CREATE INDEX idx_outreach_user_sent
+    ON OUTREACH_LOGS (user_id, sent_at DESC);
 
 
 -- =====================================================================
