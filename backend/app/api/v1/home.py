@@ -89,6 +89,25 @@ class HomeOut(BaseModel):
     action: Literal["CHAT", "CONTENT", "EMERGENCY"]
 
 
+async def _pick_healing_contents(
+    db: AsyncSession, emotion_id: uuid.UUID, limit: int
+) -> list[HealingContent]:
+    """감정 코드로 필터링한 힐링 콘텐츠 중 무작위로 limit 개 선정.
+
+    ⚠ ORDER BY 없이 LIMIT 만 쓰면 매번 같은 콘텐츠만 나온다. 감정 하나당
+    콘텐츠가 5개보다 많으면(지금 6개) 나머지는 영원히 노출되지 않는다 —
+    빅데이터분석정의서 "데이터 분석 시나리오"가 규정한 "무작위/순환 방식"이 이 자리다.
+    """
+    return list(
+        await db.scalars(
+            select(HealingContent)
+            .where(HealingContent.emotion_id == emotion_id)
+            .order_by(func.random())
+            .limit(limit)
+        )
+    )
+
+
 @router.get("/home", response_model=HomeOut)
 async def home(user: CurrentUser, db: DbSession):
     """MAIN_HOME_01
@@ -147,16 +166,11 @@ async def home(user: CurrentUser, db: DbSession):
     )
 
     recommendations: list[ContentCard] = []
-    if action == "CONTENT" and emotion_today:
+    if action == "CONTENT" and emotion_today and row:
         # MLCM_400 — CAUTION 단계에서만 추천한다.
         # 등록되는 콘텐츠는 사전 안전 검수를 거친 중립적인 것만이므로
         # 감정 매칭이 빗나가도 사용자에게 해가 되지 않는다(데이터베이스요구사항분석서 7항).
-        cards = await db.scalars(
-            select(HealingContent)
-            .join(Emotion, Emotion.emotion_id == HealingContent.emotion_id)
-            .where(Emotion.emotion_code == emotion_today.emotion_code)
-            .limit(5)
-        )
+        cards = await _pick_healing_contents(db, row[1].emotion_id, 5)
         recommendations = [
             ContentCard(
                 content_id=str(c.content_id),
@@ -228,11 +242,7 @@ async def recommendations(
     if risk_policy.is_emergency(risk_level):
         return []
 
-    cards = await db.scalars(
-        select(HealingContent)
-        .where(HealingContent.emotion_id == emotion_id)
-        .limit(limit)
-    )
+    cards = await _pick_healing_contents(db, emotion_id, limit)
     return [
         ContentCard(
             content_id=str(c.content_id),
