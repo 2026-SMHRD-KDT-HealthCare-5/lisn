@@ -88,9 +88,9 @@ HEALING_CONTENTS에 등록되는 모든 콘텐츠는 AI의 감정 매칭 정확�
 객체 명 속성 명
 user_id, email, password_hash, name, phone, terms_agreed,
 terms_agreed_at, birth_date, gender, height_cm, fcm_token,
-사용자 정보 (USERS)
-persona_type(FRIEND/COUNSELOR), sensitive_agreed(BOOLEAN),
-sensitive_agreed_at, role(USER/ADMIN)
+사용자 정보 (USERS) persona_type(FRIEND/COUNSELOR), sensitive_agreed(BOOLEAN),
+sensitive_agreed_at, role(USER/ADMIN), care_alert_agreed(BOOLEAN),
+content_alert_agreed(BOOLEAN)
 디바이스 헬스 연동 connection_id(PK, UUID), USERS.user_id(FK), device_name,
 정보 platform_type(HEALTH_CONNECT/APPLE_HEALTH),
 (DEVICE_HEALTH_ permission_granted(BOOLEAN), agreed_at, consent_scopes,
@@ -122,9 +122,13 @@ CONTENTS) external_url
 체성분 데이터 body_metric_id(PK, UUID), USERS.user_id(FK), weight_kg,
 (BODY_COMPOSITION body_water_kg, body_fat_kg, muscle_mass_kg, muscle_mass_min_kg,
 _METRICS) muscle_mass_max_kg, skeletal_muscle_kg, bmr_kcal, measured_at
+outreach_id(PK, UUID), USERS.user_id(FK),
+선제 접촉 이력 CHAT_SESSIONS.session_id(FK), streak_days,
+(OUTREACH_LOGS) deviant_features(JSONB), delivery_status(SENT/FAILED/SKIPPED),
+skip_reason, sent_at
 --- table (page 4) ---
 객체 명 | 속성 명
-사용자 정보 (USERS) | user_id, email, password_hash, name, phone, terms_agreed, terms_agreed_at, birth_date, gender, height_cm, fcm_token, persona_type(FRIEND/COUNSELOR), sensitive_agreed(BOOLEAN), sensitive_agreed_at, role(USER/ADMIN)
+사용자 정보 (USERS) | user_id, email, password_hash, name, phone, terms_agreed, terms_agreed_at, birth_date, gender, height_cm, fcm_token, persona_type(FRIEND/COUNSELOR), sensitive_agreed(BOOLEAN), sensitive_agreed_at, role(USER/ADMIN), care_alert_agreed(BOOLEAN), content_alert_agreed(BOOLEAN)
 디바이스 헬스 연동 정보 (DEVICE_HEALTH_ CONNECTIONS) | connection_id(PK, UUID), USERS.user_id(FK), device_name, platform_type(HEALTH_CONNECT/APPLE_HEALTH), permission_granted(BOOLEAN), agreed_at, consent_scopes, last_synced_at
 시계열 라이프로그 (LIFELOG_METRICS) | metric_id(PK, UUID), USERS.user_id(FK), steps, distance, calories, activity_start_at, activity_end_at, total_active_min, sleep_start_at, sleep_end_at, total_sleep_min, deep_sleep_min, light_sleep_min, rem_sleep_min, awake_min, sleep_onset_min, sleep_efficiency_pct, heart_rate, hrv, collected_at
 감정 마스터 (EMOTIONS) | emotion_id(PK, UUID), emotion_code(UK), emotion_name, category(NORMAL/CAUTION/CRITICAL)
@@ -132,6 +136,7 @@ _METRICS) muscle_mass_max_kg, skeletal_muscle_kg, bmr_kcal, measured_at
 정서 위험도 예측 결과 (EMOTION_RISK_ SCORES) | score_id(PK, UUID), USERS.user_id(FK), EMOTIONS.emotion_id(FK), emotion_score, risk_level(NORMAL/CAUTION/CRITICAL), risk_score, model_version, evaluated_at
 힐링 콘텐츠 마스터 (HEALING_ CONTENTS) | content_id(PK, UUID), EMOTIONS.emotion_id(FK), category(MUSIC/FOOD/EXERCISE/ARTICLE), title, description, external_url
 체성분 데이터 (BODY_COMPOSITION _METRICS) | body_metric_id(PK, UUID), USERS.user_id(FK), weight_kg, body_water_kg, body_fat_kg, muscle_mass_kg, muscle_mass_min_kg, muscle_mass_max_kg, skeletal_muscle_kg, bmr_kcal, measured_at
+선제 접촉 이력 (OUTREACH_LOGS) | outreach_id(PK, UUID), USERS.user_id(FK), CHAT_SESSIONS.session_id(FK), streak_days, deviant_features(JSONB), delivery_status(SENT/FAILED/SKIPPED), skip_reason, sent_at
 
 ===== [page 5] =====
 데이터베이스 요구사항분석서
