@@ -114,6 +114,21 @@ app/
 
 ## 테스트
 
+> ### ⚠ 테스트는 로컬 DB 로만 돕니다 (2026.08.05)
+>
+> `.env` 기본값이 **캠퍼스 공용 DB** 라, 그대로 `pytest` 를 돌리면 팀 공용
+> DB 에 계정을 만들고 지웁니다. `conftest.py` 가 **로컬이 아니면 실행을
+> 막습니다.**
+>
+> ```powershell
+> $env:DATABASE_URL='<로컬주소>'; python -m pytest -q
+> ```
+>
+> 정말 원격으로 돌려야 하면 `LISN_ALLOW_REMOTE_TEST_DB=1` 로 열 수 있습니다.
+> **막기만 하고 대신 골라주지는 않습니다** — 어느 DB 로 돌릴지는 사람이
+> 정해야 하고, 조용히 바꿔치면 어디서 돌았는지가 흐려집니다.
+
+
 ```powershell
 python -m pytest -q
 ```
