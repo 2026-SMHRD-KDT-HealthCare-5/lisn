@@ -8,7 +8,7 @@ LLM 은 호출하지 않는다. 발화 생성은 `llm.outreach_opener` 를 갈�
 """
 
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, time, timedelta, timezone
 
 import pytest
 from sqlalchemy import select
@@ -40,6 +40,25 @@ def _no_llm(monkeypatch):
     async def fake(persona_type, deviant_features, streak_days):
         return f"[{persona_type}] 요즘 어떠셨어요"
     monkeypatch.setattr(llm, "outreach_opener", fake)
+
+
+@pytest.fixture(autouse=True)
+def _always_sendable(monkeypatch):
+    """발송 시간대를 하루 종일로 연다.
+
+    ⚠ **이게 없으면 테스트가 벽시계에 묶인다.** `ACTIVE_FROM`~`ACTIVE_TO`
+      밖에서 돌리면 조건 판정이 전부 `발송시간_아님` 으로 떨어져, 세션
+      선생성·쿨다운·발견 경로까지 **8건이 한꺼번에 실패**한다. 실제로
+      2026.08.05 저녁에 만들 때는 통과했다가 이튿날 08:43 에 깨졌다.
+
+      실패 메시지는 `assert 'SKIPPED' == 'FAILED'` 라 시각과 무관해 보이고,
+      **아홉 시가 지나면 저절로 낫는다.** 원인을 찾기 가장 나쁜 형태다.
+
+    시각 조건 자체는 아래 `test_발송_시간대가_아니면_보내지_않는다` 가
+    창을 닫아놓고 따로 잰다.
+    """
+    monkeypatch.setattr(outreach, "ACTIVE_FROM", time(0, 0))
+    monkeypatch.setattr(outreach, "ACTIVE_TO", time(23, 59, 59))
 
 
 async def _run(user_id, result):
@@ -102,6 +121,23 @@ async def test_CRITICAL_이면_보내지_않는다(client, user):
     row = await _run(uid, _result(risk_level="CRITICAL"))
     assert row.delivery_status == "SKIPPED"
     assert row.skip_reason == "risk_critical"
+    assert row.session_id is None
+
+
+@pytest.mark.asyncio
+async def test_발송_시간대가_아니면_보내지_않는다(client, user, monkeypatch):
+    """새벽에 말을 걸면 그 자체가 해가 된다.
+
+    `_always_sendable` 이 열어둔 창을 여기서만 닫는다. 벽시계를 그대로 쓰면
+    「아홉 시에 돌리면 통과하는 테스트」가 되어 아무것도 보장하지 못한다.
+    """
+    monkeypatch.setattr(outreach, "ACTIVE_FROM", time(3, 0))
+    monkeypatch.setattr(outreach, "ACTIVE_TO", time(3, 1))
+
+    uid = await _uid(client, user)
+    row = await _run(uid, _result())
+    assert row.delivery_status == "SKIPPED"
+    assert row.skip_reason == "발송시간_아님"
     assert row.session_id is None
 
 

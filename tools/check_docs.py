@@ -39,6 +39,7 @@ python tools/check_docs.py --only 인용 # 한 검사만
 지운 이유의 출처가 됩니다.
 """
 import argparse
+import os
 import re
 import sys
 import unicodedata
@@ -251,23 +252,57 @@ def check_인용():
 
 # ---------------------------------------------------------------------------
 
-def _run(cmd, cwd, pat):
-    """테스트를 돌려 건수를 뽑습니다.
+def _exe(name):
+    """실행 파일을 찾습니다. **PC 마다 다른 것이 여기서 갈립니다.**
 
-    ⚠ **`shutil.which` 로 실행 파일을 찾습니다.** Windows 에서 `flutter`·`npm`
-      은 `.bat`/`.cmd` 라 `shell=False` 로는 못 찾습니다.
+    - `python` 은 **PATH 를 믿지 않습니다.** Windows 는 실제 설치 없이도
+      Microsoft Store 스텁이 잡히고(→ `tools/check-env.ps1`), 잡히더라도
+      저장소 의존성이 없는 다른 파이썬일 수 있습니다. **저장소 venv 를
+      먼저** 봅니다.
+    - `flutter` 는 설치 위치가 제각각이라 `FLUTTER_BIN` 으로 지정할 수
+      있게 뒀습니다.
+
+    ⚠ `shutil.which` 를 함께 씁니다. Windows 에서 `flutter`·`npm` 은
+      `.bat`/`.cmd` 라 `shell=False` 로는 못 찾습니다.
     """
     import shutil
+    if name == 'python':
+        for c in (ROOT / '.venv/Scripts/python.exe', ROOT / '.venv/bin/python'):
+            if c.exists():
+                return str(c)
+    env = os.environ.get(f'{name.upper()}_BIN')
+    if env and Path(env).exists():
+        return env
+    return shutil.which(name)
+
+
+def _run(cmd, cwd, pat, env_extra=None):
+    """테스트를 돌려 건수를 뽑습니다.
+
+    ⚠ **실패를 함께 봅니다.** 전에는 `(\\d+) passed` 만 봐서 `8 failed,
+      94 passed` 를 **94 로 읽었습니다.** 건수만 맞으면 빨간 스위트가
+      그대로 통과합니다. 실제로 선제 접촉 8건이 깨진 채 검사기가 통과를
+      내준 적이 있습니다(2026.08.06).
+    """
     import subprocess
-    exe = shutil.which(cmd[0])
+    exe = _exe(cmd[0])
     if not exe:
-        return None, f'{cmd[0]} 을(를) PATH 에서 찾지 못했습니다'
+        return None, f'{cmd[0]} 을(를) 찾지 못했습니다 (PATH·venv·{cmd[0].upper()}_BIN)'
     try:
         r = subprocess.run([exe] + cmd[1:], cwd=ROOT / cwd, capture_output=True,
-                           text=True, timeout=900, errors='replace')
+                           text=True, timeout=900, errors='replace',
+                           env={**os.environ, **(env_extra or {})})
     except Exception as e:
         return None, str(e)
     out = (r.stdout or '') + (r.stderr or '')
+
+    if '로컬이 아닌 DB' in out:
+        return None, ('공용 DB 를 향해 막혔습니다 — $env:LISN_TEST_DATABASE_URL '
+                      '에 로컬 주소를 넣고 다시 돌리세요')
+    for fail in re.findall(r'(\d+) (?:failed|error)', out):
+        if int(fail):
+            return None, f'{fail}건 실패 — 건수를 세기 전에 고쳐야 합니다'
+
     m = re.findall(pat, out)
     return (int(m[-1]) if m else None), out[-200:]
 
@@ -288,9 +323,21 @@ def check_테스트건수():
         ('앱', ['flutter', 'test'], 'frontend/app', r'\+(\d+): All tests passed'),
         ('관리자 웹', ['npm', 'test', '--silent'], 'frontend/admin', r'pass (\d+)'),
     ]
+    # backend 는 DB 를 씁니다. `.env` 기본값이 공용이라 그대로 돌리면
+    # `conftest.pytest_configure` 가 막습니다(팀 DB 에 계정이 생겼다 지워짐).
+    # **여기서 로컬을 골라주지 않습니다** — 어느 DB 로 돌릴지는 사람이 정할
+    # 일이고, 검사기가 조용히 바꿔치면 정본이 어디인지 다시 흐려집니다.
+    #
+    #   $env:LISN_TEST_DATABASE_URL = "postgresql+asyncpg://…@localhost:5432/lisn"
+    #
+    # ⚠ PowerShell 은 `VAR=x cmd` 형태를 못 씁니다. 그래서 명령 앞에 붙이는
+    #   대신 환경변수로 받습니다.
+    test_db = os.environ.get('LISN_TEST_DATABASE_URL')
+    env_for = {'backend': {'DATABASE_URL': test_db} if test_db else None}
+
     counts, bad = {}, []
     for name, cmd, cwd, pat in suites:
-        n, tail = _run(cmd, cwd, pat)
+        n, tail = _run(cmd, cwd, pat, env_for.get(name))
         if n is None:
             bad.append(f'{name}: 건수를 읽지 못했습니다 — {tail.strip()[:80]}')
         else:
