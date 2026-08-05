@@ -5998,5 +5998,71 @@
     "severity": "HIGH",
     "text": "이번 학기만 마치고 정리하려구.. 날짜도 정했어",
     "model": "gemini-3.6-flash"
+  },
+  "ed33cfd5017baee1126c32e8c2c62e30": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "더워 죽겠다.",
+    "model": "gpt-5.6"
+  },
+  "4869679949ad0f147006152081c57142": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "카페 다른 손님이 시끄러워서 정신 나갈것 같아.",
+    "model": "gpt-5.6"
+  },
+  "0a19df913218bc5a1ac6cd4b1af6081c": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "내일 날씨가 어떻지?",
+    "model": "gpt-5.6"
+  },
+  "27f22dd25722a76de75e2a1ec925b91f": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "조용한 노래가 듣고싶어.",
+    "model": "gpt-5.6"
+  },
+  "ad2c2a6488d818b9c961a2204bd914d5": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "저녁으로 피자 먹었어.",
+    "model": "gpt-5.6"
+  },
+  "3b101632f42a1cd3237c2d4b631d20d9": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘은 피곤해서 운동 안 할거야.",
+    "model": "gpt-5.6"
+  },
+  "116908898f40ef062bb88d19c9d6de91": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "잠을 잘 못잤는데 생각보다 덜 피곤하네.",
+    "model": "gpt-5.6"
+  },
+  "3542f6d797af802ba32420c1a158582a": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "적게 먹었는데 의외로 배부르다.",
+    "model": "gpt-5.6"
+  },
+  "63daa29d13c68c5179dadf2c2b13c71f": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "엄마가 몸이 안좋아서 병원에 다녀",
+    "model": "gpt-5.6"
+  },
+  "6596f5712ccb4b01aa06f91508b41198": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "새끼발가락 부딪혔는데 너무 아파.",
+    "model": "gpt-5.6"
+  },
+  "5b4dbbdd8ee3db20b6cf90c09dc22226": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "여러모로 괴로웠는데 자고 나니까 괜찮아졌어.",
+    "model": "gpt-5.6"
   }
 }
