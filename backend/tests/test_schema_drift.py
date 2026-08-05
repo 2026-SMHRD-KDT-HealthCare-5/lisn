@@ -19,7 +19,7 @@ from pathlib import Path
 import pytest
 
 from app.models import base  # noqa: F401  — 메타데이터 등록용
-from app.models import chat, emotion, lifelog, user  # noqa: F401
+from app.models import chat, emotion, lifelog, outreach, user  # noqa: F401
 
 SCHEMA_SQL = Path(__file__).resolve().parents[2] / "db" / "schema.sql"
 
@@ -60,7 +60,7 @@ MODEL_TABLES = {
 
 def test_schema_sql_을_읽었다():
     """정규식이 헛돌면 뒤 테스트가 전부 조용히 통과한다."""
-    assert len(SCHEMA_TABLES) == 8, f"파싱된 테이블: {sorted(SCHEMA_TABLES)}"
+    assert len(SCHEMA_TABLES) == 9, f"파싱된 테이블: {sorted(SCHEMA_TABLES)}"
     assert SCHEMA_TABLES["lifelog_metrics"], "컬럼 파싱 실패"
 
 

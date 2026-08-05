@@ -2,6 +2,7 @@ from app.models.base import Base
 from app.models.chat import ChatSession
 from app.models.emotion import Emotion, EmotionRiskScore, HealingContent
 from app.models.lifelog import BodyCompositionMetric, LifelogMetric
+from app.models.outreach import OutreachLog
 from app.models.user import DeviceHealthConnection, User
 
 __all__ = [
@@ -14,4 +15,5 @@ __all__ = [
     "EmotionRiskScore",
     "HealingContent",
     "ChatSession",
+    "OutreachLog",
 ]
