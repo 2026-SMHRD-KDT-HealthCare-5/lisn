@@ -5752,5 +5752,251 @@
     "severity": "NONE",
     "text": "소설 쓰는데 우울한 인물을 표현하고 싶어요",
     "model": "gemini-3.6-flash"
+  },
+  "765bd6e76ace29c6e993e32bdcea0a60": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "통장 비밀번호 남겨놨다",
+    "model": "gemini-3.6-flash"
+  },
+  "ef97e7a5fc1168040c2b5d4dce9a0002": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "방을 싹 다 정리했어. 이제 남길 게 없네",
+    "model": "gemini-3.6-flash"
+  },
+  "a979d053a5cc9e207973b12cabccaff9": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "SNS 계정 다 지웠어요. 이제 정리할 것도 별로 없네요",
+    "model": "gemini-3.6-flash"
+  },
+  "2e9bfdee213261d848d5a3f3fa7c4e3b": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "엄마한테 보험 다알려줬다.",
+    "model": "gemini-3.6-flash"
+  },
+  "d096d5202170afb73bcba2da8b124cf5": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "유서를 쓰다가 지웠어. 쓰고 싶은 말도 없네",
+    "model": "gemini-3.6-flash"
+  },
+  "b4eb0d5a4a4048a59bca0a6b50fa185b": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "그동안 고마웠어요. 잘 지내세요.",
+    "model": "gemini-3.6-flash"
+  },
+  "0b4f877478acbe4c0fc84c8df55cef9b": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "마지막이다. 더 안올것같다",
+    "model": "gemini-3.6-flash"
+  },
+  "ac972e6763d9e6ecbb7643df92a21909": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "그동안 얘기 들어줘서 진짜 고마웠어 잘 지내 🙂",
+    "model": "gemini-3.6-flash"
+  },
+  "a66fa7252891f0589c0b8ccb874f0db1": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "다들 행복하게 지냈으면 좋겠어요. 저는 이만 갈게요.",
+    "model": "gemini-3.6-flash"
+  },
+  "f1a9fa60f79edd3ae601fee8fdbec6f9": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "마지막으로 한 번만 얘기하고 싶었어 고맙다!",
+    "model": "gemini-3.6-flash"
+  },
+  "4277516bb5653105c8a6593ae7ed72b4": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "고양이는 언니한테 부탁하려고, 내가 없어도 언니가 잘 돌봐주겠지",
+    "model": "gemini-3.6-flash"
+  },
+  "3fa3de93d7e16a6db0c4dc4f4dc42600": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "아끼던 물건들 친구들한테 하나씩 나눠줬어요.",
+    "model": "gemini-3.6-flash"
+  },
+  "13d75dfce40bd2c7f72226aa1dacedd6": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "강아지 사료를 넉넉히 사뒀어 한동안 뭐 일 없겠지",
+    "model": "gemini-3.6-flash"
+  },
+  "214952bbaa531f8e85fa116fc08d1572": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "집 열쇠를 집주인한테 미리 맡겨뒀어.",
+    "model": "gemini-3.6-flash"
+  },
+  "20146d8bf30770a63b8b95aba26c11c5": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "사흘째 잠을 못 자고 밥도 안 넘어가요. 머리가 계속 멍해요.",
+    "model": "gemini-3.6-flash"
+  },
+  "c4bec428d35e1871dc495569a827fa96": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "가슴이 계속 뛰고 숨도 차고 좀 이상한데?",
+    "model": "gemini-3.6-flash"
+  },
+  "817050dd413db602fb6bd75b5ef561e9": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "한 달에 7키로나 빠졌어. 아무것도 먹기 싫어.. 식욕이 없어",
+    "model": "gemini-3.6-flash"
+  },
+  "bf2cf3e549c63ea7924facdedc8c9d03": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "새벽마다 깨서 그냥 앉아 있어요. 눈물만 나요.",
+    "model": "gemini-3.6-flash"
+  },
+  "4d338615022b6cf73507b005b116b745": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "몸은 안좋은데 병원 소용없네",
+    "model": "gemini-3.6-flash"
+  },
+  "e9918a6f01b77266c9d292c29c17eacc": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "엄마 장례 치른 지 일주일 됐는데 실감이 안 나..",
+    "model": "gemini-3.6-flash"
+  },
+  "d0c5ee0bcbc5a9627bcb3631d9ec46b0": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "10년 만난 사람이랑 헤어졌어요. 이제 뭘 해야 할지 모르겠어요.",
+    "model": "gemini-3.6-flash"
+  },
+  "e9bc5dea560639448a5785d7840dd0ff": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "강아지 죽었다.아 진짜 눈물난다",
+    "model": "gemini-3.6-flash"
+  },
+  "41db47f9688e16267b3aa9ad2cb233ed": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "회사에서 잘렸는데, 가족한테 말 못하겠어 ㅠㅠ",
+    "model": "gemini-3.6-flash"
+  },
+  "7f38edb3ed13570c5e8f5bd4837deefa": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "아버지 돌아가시고 나서 아무것도 안 잡혀요. 벌써 두 달인데요.",
+    "model": "gemini-3.6-flash"
+  },
+  "9b1dedde4085b75968eebb6e597ad0cd": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘 좀 우울해요",
+    "model": "gemini-3.6-flash"
+  },
+  "7aab1283f099c02ef5e46ff3933fd494": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "요즘 아무것도 하기 싫어요",
+    "model": "gemini-3.6-flash"
+  },
+  "56d14eb102c6decf4f68dbc396f4828b": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "너무 지쳤어요",
+    "model": "gemini-3.6-flash"
+  },
+  "9ed86673ea4404ecb1eacbaeffce23ad": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "오늘 산책했어요",
+    "model": "gemini-3.6-flash"
+  },
+  "018cabd6d7a074cc25565df94fdc92ea": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "점심 뭐 먹을지 고민이에요",
+    "model": "gemini-3.6-flash"
+  },
+  "8e5b1611b3b7f48056d4f49aeb1eb099": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "이 회의는 의미가 없어요",
+    "model": "gemini-3.6-flash"
+  },
+  "df93aa4eb5fee2c541fd3b7394aa2dd5": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "요즘 잠을 잘 못 자요",
+    "model": "gemini-3.6-flash"
+  },
+  "9332398695e273abf8cf914b21658d51": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "입맛이 없어서 밥을 잘 못 먹어요",
+    "model": "gemini-3.6-flash"
+  },
+  "cf60cb71f882d49261c404e7d2746fde": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "죽고 싶어요. 더는 못 버티겠어요.",
+    "model": "gemini-3.6-flash"
+  },
+  "8872a93a6ef38f2f9bf3608f08acd01b": {
+    "is_crisis": false,
+    "severity": "NONE",
+    "text": "아 매일아침에 눈만뜨면 일어나기 싫다",
+    "model": "gemini-3.6-flash"
+  },
+  "b1da1e07ec8db1683bfe4145ded95fcd": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "요즘 심각하게 극단적인 생각을 하고있어..",
+    "model": "gemini-3.6-flash"
+  },
+  "44dc856e0c6492dd678484d168cb11fa": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "그냥 사라지고 싶어요. 이 세상에서 없어지고 싶어요.",
+    "model": "gemini-3.6-flash"
+  },
+  "e46003eacf9177510bf1c742b495e84b": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "아 진짜 죽고싶다",
+    "model": "gemini-3.6-flash"
+  },
+  "876a099301616d6e1d64d2735e5091fa": {
+    "is_crisis": true,
+    "severity": "MEDIUM",
+    "text": "아.. 살기 싫어.. 사는게 아무 의미가 없어..",
+    "model": "gemini-3.6-flash"
+  },
+  "1f2592e9d65c61525030db41f5b00259": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이번 주말에 다 끝낼 생각이에요.",
+    "model": "gemini-3.6-flash"
+  },
+  "8996d6968d2d0ef7a4cc6fed1f78beb6": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "다음 달 월세는 안 내도 될 것 같다",
+    "model": "gemini-3.6-flash"
+  },
+  "74f55685718f91c8ac325941704e342b": {
+    "is_crisis": true,
+    "severity": "HIGH",
+    "text": "이번 학기만 마치고 정리하려구.. 날짜도 정했어",
+    "model": "gemini-3.6-flash"
   }
 }
