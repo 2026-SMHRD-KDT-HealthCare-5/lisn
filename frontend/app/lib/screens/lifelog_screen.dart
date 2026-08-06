@@ -383,12 +383,20 @@ class _LogMetric extends StatelessWidget {
 /// ❺ 체성분 기록 — `MAIN_LIFELOG_01`
 ///
 /// ```
-/// ❺ 체성분 기록: 체중·체지방·근육량·기초대사량 측정 이력
+/// ❺ 체성분 기록: 체중·체지방·체수분·기초대사량 측정 이력
 /// ```
 ///
 /// ⚠ **체성분은 선택 동의 항목입니다**(`MAIN_JOIN_03` ❷ · `MAIN_SETTING_01` ❶).
 ///   동의하지 않았거나 체성분계가 없으면 평생 비어 있는 게 정상입니다.
 ///   그래서 「없음」을 **오류가 아니라 안내로** 그립니다.
+///
+/// ⚠ **「근육량」을 그리지 않습니다**(`PL-26` · 2026.08.05 화면설계서 반영).
+///   Health Connect 에 근육량 타입이 **없습니다.** 그리면 영영 비어 있는
+///   칸이 하나 생깁니다. `LEAN_BODY_MASS`(제지방량)는 근육 + 뼈 + 수분 +
+///   장기라 **다른 값**이므로 대신 넣으면 안 됩니다.
+///
+///   `muscle_mass_kg` 컬럼 자체는 남아 있습니다 — 기업 제공 학습 데이터에는
+///   8개가 다 있어서 지우면 규격이 어긋납니다. **수집 경로에만 없습니다.**
 class _BodyCompositionSection extends StatefulWidget {
   const _BodyCompositionSection({required this.service});
 
@@ -439,7 +447,7 @@ class _BodyCompositionSectionState extends State<_BodyCompositionSection> {
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800)),
         SizedBox(height: 8),
         Text('체성분계를 연동하고 설정에서 체성분 수집에 동의하면\n'
-            '체중·체지방·근육량이 여기에 쌓입니다.',
+            '체중·체지방·체수분이 여기에 쌓입니다.',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 11, height: 1.7, color: AppColors.muted)),
         SizedBox(height: 4),
@@ -459,9 +467,9 @@ class _BodyCompositionSectionState extends State<_BodyCompositionSection> {
           value: _kg(latest.bodyFatKg),
           color: AppColors.pink),
       _LogMetric(
-          icon: Icons.fitness_center_rounded,
-          title: '근육량',
-          value: _kg(latest.muscleMassKg),
+          icon: Icons.water_rounded,
+          title: '체수분',
+          value: _kg(latest.bodyWaterKg),
           color: AppColors.mint),
       _LogMetric(
           icon: Icons.local_fire_department_rounded,
