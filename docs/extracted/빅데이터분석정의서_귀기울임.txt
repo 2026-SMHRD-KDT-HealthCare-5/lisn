@@ -320,8 +320,8 @@ matched_context)로만 반환하도록 제약하여 파싱 안정성을
 수 없어 추가 확인이 필요한 상태를 의미하며, 위기
 아님(NONE)과 구분한다. 키워드 사전은 자해·극단선택 관련
 표현을 중심으로 구성하며 운영 중 갱신 가능하도록 설정 파일로
-학습 방법 분리한다.
-교체
+학습 방법
+분리한다.
 LLM 판정 결과(is_crisis, severity, matched_context)는 서비스 레벨
 값으로 매핑되어 저장된다. severity 가 HIGH 이면 is_crisis 와
 무관하게 risk_level 을 CRITICAL 로 확정하고 system_action 을
@@ -345,7 +345,7 @@ Split 대신 전량 평가셋으로 측정한다. 문장은 프롬프트 설계�
 4. 모델 생성 및 학습 | 
 모델링 목표 | 한국어 문맥 기반 위기 발화 탐지 재현율(Recall) 90% 이상 확보 를 목표로 하며 1.5초 이내 판정 지연시간 확보
 학습 모델 | 1차 키워드 규칙 필터(백엔드 내장) + 2차 OpenAI LLM 문맥 분 석 프롬프트의 2단계 하이브리드 판정
-학습 방법 | 별도 모델 학습을 수행하지 않고, 위기 심각도 분류 기준을 정의한 시스템 프롬프트를 설계하여 LLM에 주입한다. 프롬프트는 판정 결과를 정해진 JSON 스키마(is_crisis, severity, matched_context)로만 반환하도록 제약하여 파싱 안정성을 확보한다. severity 는 NONE, LOW, MEDIUM, HIGH, UNCLEAR 중 하나를 반환한다. UNCLEAR 는 발화만으로 위기 여부를 판별할 수 없어 추가 확인이 필요한 상태를 의미하며, 위기 아님(NONE)과 구분한다. 키워드 사전은 자해·극단선택 관련 표현을 중심으로 구성하며 운영 중 갱신 가능하도록 설정 파일로 분리한다. 교체 LLM 판정 결과(is_crisis, severity, matched_context)는 서비스 레벨 값으로 매핑되어 저장된다. severity 가 HIGH 이면 is_crisis 와 무관하게 risk_level 을 CRITICAL 로 확정하고 system_action 을 EMERGENCY 로 트리거한다. is_crisis=true 이면서 severity 가 MEDIUM 인 경우에는 CAUTION 으로 두어 콘텐츠 추천 경로로 보낸다 — 위기 신호는 있으나 임박도가 낮은 상태에 긴급 화면을 띄우면 안내가 과해진다. 원문 근거(matched_context)는 사후 검토용 로그에만 기록하고 대화 이력에는 저장하지 않는다.
+학습 방법 | 별도 모델 학습을 수행하지 않고, 위기 심각도 분류 기준을 정의한 시스템 프롬프트를 설계하여 LLM에 주입한다. 프롬프트는 판정 결과를 정해진 JSON 스키마(is_crisis, severity, matched_context)로만 반환하도록 제약하여 파싱 안정성을 확보한다. severity 는 NONE, LOW, MEDIUM, HIGH, UNCLEAR 중 하나를 반환한다. UNCLEAR 는 발화만으로 위기 여부를 판별할 수 없어 추가 확인이 필요한 상태를 의미하며, 위기 아님(NONE)과 구분한다. 키워드 사전은 자해·극단선택 관련 표현을 중심으로 구성하며 운영 중 갱신 가능하도록 설정 파일로 분리한다. LLM 판정 결과(is_crisis, severity, matched_context)는 서비스 레벨 값으로 매핑되어 저장된다. severity 가 HIGH 이면 is_crisis 와 무관하게 risk_level 을 CRITICAL 로 확정하고 system_action 을 EMERGENCY 로 트리거한다. is_crisis=true 이면서 severity 가 MEDIUM 인 경우에는 CAUTION 으로 두어 콘텐츠 추천 경로로 보낸다 — 위기 신호는 있으나 임박도가 낮은 상태에 긴급 화면을 띄우면 안내가 과해진다. 원문 근거(matched_context)는 사후 검토용 로그에만 기록하고 대화 이력에는 저장하지 않는다.
 모델 예측 결과 | 입력 대화 시퀀스에 대한 위기 여부 플래그 및 심각도 등급
 5. 검증 | 
 분석 검증 방안 | - 자체 구축 고정 평가셋 211건(위기 111건, 비위기 100건)에 대 한 Confusion Matrix 분석. 학습 과정이 없으므로 Train/Test Split 대신 전량 평가셋으로 측정한다. 문장은 프롬프트 설계에 관여하지 않은 팀원 3인이 작성하였으며, 라벨은 작성자와 다른 인원 2인이 독립적으로 부여한 뒤 조정을 거쳐 확정하였다. - 프롬프트 수정 시마다 동일 평가셋으로 재측정하여 회귀 여부를
