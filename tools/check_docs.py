@@ -210,9 +210,9 @@ def check_인용():
     이 검사가 필요한 이유 — **개정안이 인용한 원문이 실제와 달랐던 사고가
     과거에 있었습니다**(CLAUDE.md). 인용이 틀리면 엉뚱한 곳을 고칩니다.
     """
-    plan = DOCS / '결정' / '기획서_개정안.md'
+    plan = DOCS / '결정' / '산출물_개정안.md'
     if not plan.exists():
-        report('인용', [], '개정안 없음 — 건너뜁니다')
+        report('인용', ['개정안 파일이 없습니다 — 이름이 바뀌었는지 확인하세요'])
         return
 
     haystacks = [_norm(f.read_text(encoding='utf-8'))

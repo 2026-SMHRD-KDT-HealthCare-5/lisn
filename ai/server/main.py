@@ -187,7 +187,7 @@ def _has_signal(rows: list) -> bool:
 #
 # ⚠ 심박·HRV 는 넣지 않았다. 기업 제공 데이터에 없고, 삼성헬스가 Health
 #   Connect 에 HRV 를 쓰지 않아 실기기에서도 안 들어온다
-#   (→ docs/검증/구현_갭_20260803.md).
+#   (→ docs/진행/구현_갭.md).
 _FEATURES = [
     ("총수면",     "total_sleep_min",      "down"),
     ("걸음수",     "steps",                "down"),

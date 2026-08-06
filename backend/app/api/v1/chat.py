@@ -58,7 +58,7 @@ def _risk(level: str, source: str) -> RiskInfo:
     ⚠ **액션을 손으로 적지 않는다.** 단계→액션 매핑은
       `services/risk_policy.py` 한 곳에 있다. 전에는 여기서 `action=` 을
       직접 채웠는데, `home.py` 에도 같은 표가 있어 규칙이 두 곳에 존재했다
-      (→ `docs/검증/구현_갭_20260803.md` 중복 1).
+      (→ `docs/진행/구현_갭.md` 중복 1).
     """
     return RiskInfo(level=level, action=risk_policy.RISK_ACTION[level], source=source)
 

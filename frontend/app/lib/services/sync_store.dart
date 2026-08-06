@@ -26,7 +26,7 @@ abstract class SyncStore {
   ///   UPSERT 라 다시 보내도 안전하지만, `POST /body-composition` 은
   ///   INSERT 라 같은 걸 두 번 보내면 **이력에 중복 행이 쌓입니다.**
   ///   `BODY_COMPOSITION_METRICS` 에는 `uq_lifelog_user_collected` 같은
-  ///   UNIQUE 제약이 없습니다(→ `docs/검증/구현_갭_20260803.md`).
+  ///   UNIQUE 제약이 없습니다(→ `docs/진행/구현_갭.md`).
   Future<DateTime?> lastBodyAt();
   Future<void> saveLastBodyAt(DateTime value);
 
