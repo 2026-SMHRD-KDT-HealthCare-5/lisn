@@ -51,6 +51,8 @@ python tools/eval_outreach.py --no-call --review > 검토.md
 정합니다.
 """
 import argparse
+import collections
+import difflib
 import hashlib
 import json
 import os
@@ -173,7 +175,20 @@ def check(text):
     return bad
 
 
+def system_message(llm, persona):
+    """모델에 실제로 들어가는 시스템 메시지. `outreach_opener()` 와 같아야 합니다."""
+    return (llm.PERSONA_PROMPTS.get(persona, llm.PERSONA_PROMPTS['FRIEND'])
+            + llm.SAFETY_RULES + llm.OUTREACH_SYSTEM)
+
+
 def key(persona, features, streak, prompt):
+    """판정에 영향을 주는 것이 하나라도 바뀌면 캐시가 저절로 무효가 됩니다.
+
+    ⚠ **`OUTREACH_SYSTEM` 만 넣으면 안 됩니다.** 시스템 메시지는
+      `PERSONA_PROMPTS` + `SAFETY_RULES` + `OUTREACH_SYSTEM` 입니다.
+      앞의 둘을 고쳐도 캐시가 안 깨지면 **옛 발화로 새 프롬프트를 채점**하게
+      됩니다 — `eval_crisis` 가 같은 자리에서 한 번 겪은 사고입니다.
+    """
     h = hashlib.sha256()
     for part in (persona, '|'.join(features), str(streak), prompt):
         h.update(part.encode())
@@ -192,7 +207,6 @@ def main():
     from eval_crisis import resolve_model
     model = resolve_model(args.model)
 
-    prompt = llm.OUTREACH_SYSTEM
     cache = json.loads(CACHE.read_text(encoding='utf-8')) if CACHE.exists() else {}
 
     import asyncio
@@ -203,7 +217,7 @@ def main():
     rows, called = [], 0
     for persona in ('FRIEND', 'COUNSELOR'):
         for name, features, streak in CASES:
-            k = key(persona, features, streak, prompt)
+            k = key(persona, features, streak, system_message(llm, persona))
             if k in cache:
                 text = cache[k]
             elif args.no_call:
@@ -259,6 +273,40 @@ def main():
                 print(f'      {name:12} {" ".join(sorted(t))}')
         else:
             print(f'  ✓ {persona} — {" ".join(sorted(allt)) or "판정 불가"}')
+    print()
+
+    # ── 페르소나가 구분되는가
+    #
+    # ⚠ **첫 발화는 원래 구분이 약합니다.** 사용자가 아직 아무 말도 안 했으니
+    #   COUNSELOR 가 「상황을 정리」할 재료가 없습니다. 그래도 **거의 같은
+    #   문장이면 성격을 고르게 한 의미가 없습니다** — 화면설계서
+    #   `MAIN_CHAT_01` 이 두 성격을 고르게 하고 있습니다.
+    by_case = {}
+    for persona, name, feats, streak, text in rows:
+        by_case.setdefault(name, {})[persona] = text
+    pairs = [(n, difflib.SequenceMatcher(None, d['FRIEND'], d['COUNSELOR']).ratio())
+             for n, d in by_case.items() if len(d) == 2]
+    if pairs:
+        avg = sum(r for _, r in pairs) / len(pairs)
+        worst = max(pairs, key=lambda x: x[1])
+        print(f'■ 페르소나 구분 — 같은 사례에서 두 발화가 얼마나 다른가')
+        print(f'  평균 유사도 {avg:.2f} · 가장 비슷한 사례 「{worst[0]}」 {worst[1]:.2f}')
+        if avg >= 0.7:
+            print('  ⚠ 성격을 골라도 거의 같은 말이 나옵니다')
+        print()
+
+    # ── 닫는 문장이 반복되는가
+    #
+    # ⚠ **쿨다운 3일마다 옵니다.** 같은 문장이 반복되면 자동 발송으로 읽히고,
+    #   그러면 「누가 신경 써준다」는 효과가 사라집니다. 선제 접촉의 존재
+    #   이유가 거기에 있습니다.
+    tails = collections.Counter(sentences(t)[-1].strip() for *_, t in rows)
+    top, n = tails.most_common(1)[0]
+    print(f'■ 닫는 문장 반복 — 서로 다른 표현 {len(tails)}종 / {len(rows)}건')
+    if n > 1:
+        print(f'  가장 잦은 것 {n}회 — 「{top[:40]}…」')
+    if len(tails) < len(rows) * 0.7:
+        print('  ⚠ 틀이 굳어 있습니다')
     print()
 
     fails = 0
