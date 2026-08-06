@@ -20,8 +20,8 @@ from datetime import datetime, time, timedelta, timezone
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import ChatSession, OutreachLog, User
-from app.services import llm
+from app.models import ChatSession, EmotionRiskScore, OutreachLog, User
+from app.services import llm, risk_policy
 
 logger = logging.getLogger(__name__)
 
@@ -107,6 +107,9 @@ async def _blocking_reason(
     if not (ACTIVE_FROM <= now_kst.time() <= ACTIVE_TO):
         return "발송시간_아님"
 
+    if await _content_alert_today(db, user_id, user, result, now_kst):
+        return "콘텐츠알림_겹침"
+
     last = await db.scalar(
         select(OutreachLog.sent_at)
         .where(OutreachLog.user_id == user_id)
@@ -121,6 +124,54 @@ async def _blocking_reason(
             return "쿨다운_중"
 
     return None
+
+
+async def _content_alert_today(
+    db: AsyncSession,
+    user_id: uuid.UUID,
+    user: User,
+    result: dict,
+    now_kst: datetime,
+) -> bool:
+    """오늘 힐링 콘텐츠 알림(`MLCM_400`)이 나갔거나 나갈 상황인가.
+
+    요구사항정의서 `MLCM_220` ※ 주석 — **「같은 날 두 알림이 겹치면
+    `MLCM_220` 을 보내지 않는다」**.
+
+    **하루에 두 번 울리면 그날 그 사람에게 앱은 성가신 것이 된다.**
+    옵트인·빈도 상한으로 「감시로 읽히지 않게」 지켜온 선이 거기서 무너진다.
+
+    겹침은 **판정 단계로** 판단한다. `MLCM_400` 은 `CAUTION` 판정 시점에
+    콘텐츠를 전달하므로(`risk_policy`), 오늘 `CONTENT` 액션이 걸린 판정이
+    있으면 그날 콘텐츠 알림이 나간 것이다.
+
+    ⚠ **`content_alert_agreed` 를 함께 본다.** 콘텐츠 알림을 꺼둔 사용자에게는
+      애초에 푸시가 안 나가므로 **겹칠 것이 없다.** 이걸 빼면 알림을 끈 사람이
+      선제 접촉까지 못 받는다 — 끈 것은 콘텐츠 쪽인데 안부 인사가 막힌다.
+
+    ⚠ **두 곳을 본다.** 지금 들고 있는 판정과 오늘 적재된 판정 둘 다다.
+      `analysis.py` 는 판정을 커밋한 **뒤에** 이 함수를 부르므로 DB 조회만으로
+      충분하지만, 그러면 **호출 순서에 조용히 의존**하게 된다. 트랜잭션을
+      합치는 순간 검사가 사라진다.
+    """
+    if not user.content_alert_agreed:
+        return False
+
+    if risk_policy.action_for(result.get("risk_level")) == "CONTENT":
+        return True
+
+    start = now_kst.replace(hour=0, minute=0, second=0, microsecond=0)
+    hit = await db.scalar(
+        select(EmotionRiskScore.score_id)
+        .where(
+            EmotionRiskScore.user_id == user_id,
+            EmotionRiskScore.evaluated_at >= start,
+            EmotionRiskScore.evaluated_at < start + timedelta(days=1),
+            EmotionRiskScore.risk_level == "CAUTION",
+        )
+        .limit(1)
+    )
+    return hit is not None
 
 
 async def _log(

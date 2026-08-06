@@ -9,22 +9,32 @@ LLM 은 호출하지 않는다. 발화 생성은 `llm.outreach_opener` 를 갈�
 
 import uuid
 from datetime import datetime, time, timedelta, timezone
+from decimal import Decimal
 
 import pytest
 from sqlalchemy import select
 
 from app.core.database import AsyncSessionLocal
-from app.models import ChatSession, OutreachLog, User
+from app.models import ChatSession, Emotion, EmotionRiskScore, OutreachLog, User
 from app.services import llm, outreach
 
 BASE = "http://test/api/v1"
 
 
 def _result(**over) -> dict:
+    """판정 결과. **기본값은 `NORMAL` 이다.**
+
+    ⚠ `CAUTION` 을 기본으로 두면 안 된다. 그날은 힐링 콘텐츠 알림
+      (`MLCM_400`)이 나가므로 **선제 접촉이 겹침으로 전부 막힌다.**
+      다른 조건을 재려는 테스트가 죄다 `콘텐츠알림_겹침` 으로 떨어진다.
+
+      선제 접촉의 트리거는 위험 단계가 아니라 **기준선 이탈**이다. 이탈이
+      3일 이어졌지만 위험 단계는 `NORMAL` 인 상태가 이 기능의 본래 자리다.
+    """
     r = {
         "emotion_code": "SADNESS",
         "emotion_score": 60.0,
-        "risk_level": "CAUTION",
+        "risk_level": "NORMAL",
         "risk_score": 55.0,
         "model_version": "rule-baseline-v1",
         "streak_days": 5,
@@ -153,6 +163,95 @@ async def test_케어_알림을_끄면_보내지_않는다(client, user):
     row = await _run(uid, _result())
     assert row.delivery_status == "SKIPPED"
     assert row.skip_reason == "케어알림_미동의"
+
+
+@pytest.mark.asyncio
+async def test_콘텐츠_알림과_같은_날이면_보내지_않는다(client, user):
+    """`MLCM_220` ※ — 「같은 날 두 알림이 겹치면 보내지 않는다」.
+
+    `CAUTION` 판정은 힐링 콘텐츠 알림(`MLCM_400`)을 유발한다. 거기에 선제
+    접촉까지 가면 **하루에 두 번 울린다.**
+    """
+    uid = await _uid(client, user)
+    row = await _run(uid, _result(risk_level="CAUTION"))
+    assert row.delivery_status == "SKIPPED"
+    assert row.skip_reason == "콘텐츠알림_겹침"
+    assert row.session_id is None
+
+
+@pytest.mark.asyncio
+async def test_콘텐츠_알림을_꺼두면_겹치지_않는다(client, user):
+    """끈 것은 콘텐츠 쪽인데 안부 인사까지 막히면 안 된다.
+
+    푸시가 애초에 안 나가므로 **겹칠 것이 없다.** 이 검사가 빠지면 알림을
+    줄이려던 사람이 선제 접촉까지 잃는다 — 알림을 끄는 사람일수록 앱을
+    안 여는 사람이라 손실이 크다.
+    """
+    uid = await _uid(client, user)
+    async with AsyncSessionLocal() as db:
+        u = await db.get(User, uid)
+        u.content_alert_agreed = False
+        await db.commit()
+
+    row = await _run(uid, _result(risk_level="CAUTION"))
+    assert row.delivery_status == "FAILED"      # 접촉이 나갔다
+    assert row.session_id is not None
+
+
+@pytest.mark.asyncio
+async def test_오늘_앞서_CAUTION_판정이_있었으면_보내지_않는다(client, user):
+    """지금 판정이 NORMAL 이어도 **오늘 이미 콘텐츠 알림이 나갔다.**
+
+    하루에 판정이 여러 번 적재될 수 있다. 지금 들고 있는 것만 보면
+    오전에 나간 콘텐츠 알림을 놓친다.
+    """
+    uid = await _uid(client, user)
+    async with AsyncSessionLocal() as db:
+        emotion_id = await db.scalar(
+            select(Emotion.emotion_id).where(Emotion.emotion_code == "SADNESS")
+        )
+        assert emotion_id is not None, "EMOTIONS 시드가 없습니다"
+        db.add(EmotionRiskScore(
+            user_id=uid,
+            emotion_id=emotion_id,
+            emotion_score=Decimal("60.00"),
+            risk_level="CAUTION",
+            risk_score=Decimal("55.00"),
+            model_version="test",
+            # 오늘(KST) 안이되 지금보다 앞선 시각.
+            evaluated_at=datetime.now(outreach.KST).replace(
+                hour=9, minute=0, second=0, microsecond=0
+            ),
+        ))
+        await db.commit()
+
+    row = await _run(uid, _result(risk_level="NORMAL"))
+    assert row.delivery_status == "SKIPPED"
+    assert row.skip_reason == "콘텐츠알림_겹침"
+
+
+@pytest.mark.asyncio
+async def test_어제_CAUTION_은_오늘을_막지_않는다(client, user):
+    """겹침 판정은 **하루 단위**다. 어제 것까지 막으면 쿨다운과 구분이 없다."""
+    uid = await _uid(client, user)
+    async with AsyncSessionLocal() as db:
+        emotion_id = await db.scalar(
+            select(Emotion.emotion_id).where(Emotion.emotion_code == "SADNESS")
+        )
+        db.add(EmotionRiskScore(
+            user_id=uid,
+            emotion_id=emotion_id,
+            emotion_score=Decimal("60.00"),
+            risk_level="CAUTION",
+            risk_score=Decimal("55.00"),
+            model_version="test",
+            evaluated_at=datetime.now(outreach.KST) - timedelta(days=1),
+        ))
+        await db.commit()
+
+    row = await _run(uid, _result())
+    assert row.delivery_status == "FAILED"
+    assert row.session_id is not None
 
 
 @pytest.mark.asyncio
