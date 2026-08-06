@@ -85,6 +85,34 @@ def schema_tables():
     return len(re.findall(r'CREATE TABLE (\w+)', sql))
 
 
+# 미달한 목표를 「달성했다」고 단정한 자리.
+#
+# 2026.08.06 에 두 번 걸렸습니다.
+#   빅데이터분석정의서  「재현율 90% 이상 달성」   → 실측 0.793 미달
+#   기획서             「재현율 90% 이상 확보한다」 → 같은 유형
+#
+# **재현율은 목표 미달입니다.** 목표를 적는 것은 괜찮지만 **달성했다고
+# 단정하면 안 됩니다** — 발표에서 실측을 대면 바로 무너집니다.
+ASSERTED = re.compile(
+    r'(재현율|정밀도|F1[- ]?Score|정확도|Recall|Precision)'
+    r'[^.]{0,40}(?:\d+(?:\.\d+)?%?|0\.\d+)'
+    r'[^.]{0,30}?(확보한다|달성한다|달성하였|확보하였)'
+)
+
+
+def check_단정():
+    """미달한 목표를 단정형으로 적은 곳."""
+    bad = []
+    for d in DOCS:
+        p = EX / f'{d}_귀기울임.txt'
+        if not p.exists():
+            continue
+        t = re.sub(r'\s+', ' ', p.read_text(encoding='utf-8'))
+        for m in ASSERTED.finditer(t):
+            bad.append(f'{d}  「{m.group(0).strip()[:60]}」')
+    return sorted(set(bad))
+
+
 def main():
     texts = load()
     bad = []
@@ -127,6 +155,11 @@ def main():
                    + ' · '.join(f'{d}={"/".join(sorted(v))}' for d, v in wrong.items()))
     else:
         print(f'  ✓ {"테이블 수":12} {n}  (schema.sql 정본)')
+
+    for b in check_단정():
+        bad.append(f'단정 표현 — {b} · 실측은 목표 미달입니다')
+    if not any('단정 표현' in b for b in bad):
+        print(f'  ✓ {"목표 단정":12} 없음  (미달을 달성으로 적지 않았는가)')
 
     print()
     if bad:
