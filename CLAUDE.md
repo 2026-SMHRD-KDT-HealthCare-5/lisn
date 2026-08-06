@@ -96,7 +96,7 @@ python tools/doc2txt.py
 CFB(OLE) 컨테이너를 파싱하고 raw deflate 를 풉니다. **Python 없이 동작**하므로 환경이 안 갖춰졌을 때 씁니다. 다만 **표 구조가 무너져** 행·열 관계를 알 수 없습니다.
 
 ```powershell
-.\tools\hwp2txt.ps1 -Path ".\Documents\02_요구사항정의서_귀기울임.hwp"
+.\tools\hwp2txt.ps1 -Path ".\documents\요구사항정의서_귀기울임.hwp"
 ```
 
 큰 문서(600KB+)는 2분 이상 걸리므로 백그라운드로 돌리세요.

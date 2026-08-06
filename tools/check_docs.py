@@ -28,6 +28,12 @@ python tools/check_docs.py --only 인용 # 한 검사만
     성능목표      F1 0.80 · Accuracy 85 목표가 빅데이터분석정의서 밖에 남아 있는가
     링크          문서 간 마크다운 링크가 실재하는가
     인용          개정안이 인용한 「현재 문장」이 추출본에 실제로 있는가
+    API건수       문서가 주장하는 API 개수가 실제 OpenAPI 스키마와 같은가
+    테스트건수     (--with-tests) 문서가 주장하는 회귀 테스트 수가 실제와 같은가
+
+**세는 일은 전부 기계가 합니다.** 「API 30개」·「회귀 213건」처럼 손으로
+적은 숫자는 **적는 순간부터 틀리기 시작합니다.** 실제로 API 는 30 → 33 으로,
+테스트는 273 → 291 로 어긋난 채 며칠씩 방치됐습니다.
 
 **「인용」이 핵심입니다.** 개정안이 인용한 원문이 실제와 달랐던 사고가
 과거에 있었고(CLAUDE.md), 지금도 사람이 눈으로 대조하고 있습니다.
@@ -356,11 +362,55 @@ def check_테스트건수():
     report('테스트건수', bad, '실제: ' + (detail or '측정 실패'))
 
 
+def check_API건수():
+    """문서가 주장하는 API 개수가 실제와 같은지.
+
+    `테스트건수` 와 같은 병입니다 — **손으로 적은 숫자는 적는 순간부터
+    틀리기 시작합니다.** 2026.08.06 에 실측하니 문서는 30개, 실제는 33개
+    였습니다. 그 사이 알림 설정 2개·선제 접촉 발견 1개가 늘었습니다.
+
+    ⚠ **`/health` 는 세지 않습니다.** 기능 API 가 아니라 상태 점검이고,
+      문서가 말하는 「API 30개」도 그 뜻이었습니다.
+
+    ⚠ **소스를 세지 않고 OpenAPI 스키마를 봅니다.** `@router.get` 을 세면
+      주석 처리된 것·데코레이터가 두 줄인 것에서 어긋납니다. 실제로 뜨는
+      경로가 답입니다.
+    """
+    import os
+    cwd = os.getcwd()
+    os.chdir(ROOT / 'backend')          # settings 가 CWD 기준으로 .env 를 찾습니다
+    sys.path.insert(0, os.getcwd())
+    try:
+        from app.main import app
+        paths = app.openapi()['paths']
+    except Exception as e:
+        report('API건수', [f'백엔드를 불러오지 못했습니다 — {e}'])
+        return
+    finally:
+        os.chdir(cwd)
+
+    actual = sum(len(v) for k, v in paths.items() if not k.startswith('/health'))
+
+    bad = []
+    checked = 0
+    for f in (ROOT / 'README.md', DOCS / 'SESSION-HANDOFF.md'):
+        if not f.exists():
+            continue
+        for m in re.finditer(r'API (\d+)개|\((\d+)개\)', f.read_text(encoding='utf-8')):
+            claimed = int(m.group(1) or m.group(2))
+            checked += 1
+            if claimed != actual:
+                bad.append(f'{f.name} 는 {claimed}개 · 실제 {actual}개')
+
+    report('API건수', bad, f'실제 {actual}개 (/health 제외) · {checked}곳 대조')
+
+
 CHECKS = {
     '모델명': check_모델명,
     '성능목표': check_성능목표,
     '링크': check_링크,
     '인용': check_인용,
+    'API건수': check_API건수,
 }
 SLOW = {'테스트건수': check_테스트건수}
 
