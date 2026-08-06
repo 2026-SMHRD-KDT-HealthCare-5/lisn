@@ -13,7 +13,24 @@ python tools/eval_crisis.py --stage llm --no-call
 
 # 라벨러 두 명의 일치율 (Cohen's kappa)
 python tools/eval_crisis.py --agreement
+
+# 모델을 바꿀지 검토하는 대조군 — 성적이 아닙니다
+python tools/eval_crisis.py --stage llm --limit 20 --model gemini-3.6-flash
 ```
+
+## ⚠ 채점 모델은 `.env` 를 따르지 않습니다
+
+**기본이 정본(OpenAI)입니다.** `LLM_PROVIDER` 가 무엇으로 설정돼 있든
+`--model` 을 주지 않으면 OpenAI 로 잽니다.
+
+전에는 `LLM_PROVIDER` 를 따랐습니다. 평소 개발은 무료 한도(Gemini) 쪽이라
+그렇게 맞춰뒀는데, **채점까지 따라가서 그냥 돌리면 제미나이로 갔습니다.**
+2026.08.06 에 실제로 그랬습니다 — OpenAI 채점 211/211 이 이미 끝나 있었는데
+화면에는 「제미나이 53/211」만 떠서 **성적이 안 나온 것처럼 보였습니다.**
+
+**개발 편의로 설정한 값이 성적 모델을 바꾸면 안 됩니다.** 산출 문서의 정본은
+OpenAI 이고(기획서 · `MLCM_310`/`MLCM_320`), 문서에 싣는 수치는 그 모델로 잰
+것이어야 합니다.
 
 ## 왜 이렇게 나눴나
 
@@ -182,6 +199,37 @@ def stage_keyword(rows):
           '1단계 키워드 (HIGH+MEDIUM 양성) — 참고')
 
 
+def resolve_model(override=None):
+    """채점 모델을 정합니다. **기본은 정본(OpenAI)입니다.**
+
+    ⚠ **`LLM_PROVIDER` 를 따르지 않습니다.** 전에는 `llm.model_for('crisis')`
+      를 썼는데, 그러면 `.env` 의 `LLM_PROVIDER=gemini`(평소 개발용 무료 한도
+      설정) 때문에 **그냥 돌리면 채점이 제미나이로 갔습니다.**
+
+      2026.08.06 에 실제로 그랬습니다. OpenAI 채점은 211/211 이 이미 끝나
+      있었는데 화면에는 「제미나이 53/211」만 떠서, **성적이 안 나온 것처럼
+      보였습니다.**
+
+    **개발 편의로 설정한 값이 성적 모델을 바꾸면 안 됩니다.** 산출 문서의
+    정본은 OpenAI 이고(기획서 · `MLCM_310`/`MLCM_320`), 문서에 싣는 수치는
+    그 모델로 잰 것이어야 합니다.
+
+    제미나이로 재려면 **`--model gemini-3.6-flash` 처럼 명시**하세요. 그건
+    「모델을 바꿀지」를 검토하는 대조군이지 성적이 아닙니다.
+
+    모델명에서 공급자를 정하고 클라이언트를 그쪽으로 돌려놓습니다 — 안 그러면
+    제미나이 엔드포인트에 `gpt-5.6` 을 보내게 됩니다.
+    """
+    _, llm = load_backend()      # sys.path 에 backend 를 올립니다
+    from app.core.config import settings
+    model = override or settings.openai_model
+    want = 'gemini' if model.startswith('gemini') else 'openai'
+    if settings.llm_provider != want:
+        settings.llm_provider = want
+        llm.reset_client()
+    return model
+
+
 async def judge(llm, text, model, timeout):
     """detect_crisis 와 같은 프롬프트·스키마로 판정합니다.
 
@@ -234,10 +282,7 @@ def stage_llm(rows, limit, no_call, model_override=None, timeout=None, only=None
     #   맞추려고 잡아둔 운영 타임아웃(8초)을 그대로 쓰면, 느린 응답을
     #   「실패」로 세어 성능을 실제보다 낮게 봅니다.
     #
-    # ⚠ 모델도 바꿀 수 있게 둡니다. 무료 한도가 **모델별**이라 crisis 모델이
-    #   소진되면 남은 모델로 이어서 채점할 수 있습니다. 다만 **모델이 다르면
-    #   결과도 다릅니다** — 캐시 키에 모델명이 들어가는 이유입니다.
-    model = model_override or llm.model_for('crisis')
+    model = resolve_model(model_override)
     prompt = llm.CRISIS_SYSTEM
     cache = json.loads(CACHE.read_text(encoding='utf-8')) if CACHE.exists() else {}
 
@@ -355,7 +400,9 @@ def main():
     ap.add_argument('--limit', type=int, default=15,
                     help='이번 실행의 최대 호출 건수 (기본 15 — 하루 한도 20 여유)')
     ap.add_argument('--no-call', action='store_true', help='캐시만 써서 채점')
-    ap.add_argument('--model', help='crisis 모델 대신 쓸 모델 (한도 소진 시)')
+    ap.add_argument('--model',
+                    help='정본(OpenAI) 대신 쓸 모델. 예: gemini-3.6-flash. '
+                         '⚠ 대조군이지 성적이 아닙니다 — 문서 수치는 정본으로 잽니다')
     ap.add_argument('--timeout', type=float, default=30.0,
                     help='배치라 운영(8초)보다 넉넉히 잡습니다')
     ap.add_argument('--only',
