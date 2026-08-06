@@ -1,7 +1,12 @@
 /// 체성분 기록 — MAIN_LIFELOG_01 ❺
 ///
 /// ```
-/// ❺ 체성분 기록: 체중·체지방·근육량·기초대사량 측정 이력
+/// ❺ 체성분 기록: 체중·체지방·체수분·기초대사량 측정 이력
+///
+/// ⚠ **근육량이 아니라 체수분입니다**(`PL-26`). Health Connect 에 근육량
+///   타입이 없어 화면설계서를 고쳤습니다. 시드에 `muscle_mass_kg` 를
+///   남겨둔 것은 **서버가 내려줘도 화면에 안 뜨는지**를 함께 재기 위해서
+///   입니다 — 컬럼은 살아 있고 수집 경로에만 없습니다.
 /// ```
 ///
 /// ## 왜 없었나
@@ -89,6 +94,7 @@ final _rows = [
     'weight_kg': 63.4,
     'body_fat_kg': 15.2,
     'muscle_mass_kg': 45.1,
+    'body_water_kg': 38.6,
     'bmr_kcal': 1420,
   },
   {
@@ -96,6 +102,7 @@ final _rows = [
     'weight_kg': 64.1,
     'body_fat_kg': 15.8,
     'muscle_mass_kg': 44.9,
+    'body_water_kg': 38.2,
     'bmr_kcal': 1415,
   },
 ];
@@ -109,8 +116,10 @@ void main() {
       // 화면설명이 규정한 네 가지입니다.
       expect(find.text('체중'), findsOneWidget);
       expect(find.text('체지방'), findsOneWidget);
-      expect(find.text('근육량'), findsOneWidget);
+      expect(find.text('체수분'), findsOneWidget);
       expect(find.text('기초대사량'), findsOneWidget);
+      // 근육량은 Health Connect 가 안 주므로 그리지 않습니다.
+      expect(find.text('근육량'), findsNothing);
     });
 
     testWidgets('가장 최근 측정치를 쓴다', (tester) async {

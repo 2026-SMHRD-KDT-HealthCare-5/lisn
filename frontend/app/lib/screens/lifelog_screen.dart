@@ -4,6 +4,7 @@ import '../models/auth_models.dart' show ApiException;
 import '../models/lifelog_models.dart';
 import '../services/app_services.dart';
 import '../services/lifelog_service.dart';
+import '../services/settings_service.dart';
 import '../theme/app_theme.dart';
 import 'report_screen.dart';
 import '../widgets/common_widgets.dart';
@@ -14,10 +15,14 @@ import '../widgets/common_widgets.dart';
 ///   권한 모델이라 앱이 읽어서 서버로 push 하는 구조입니다(안건 1-1).
 ///   여기서는 적재된 것을 조회해 그리기만 합니다.
 class LifelogScreen extends StatefulWidget {
-  const LifelogScreen({super.key, this.lifelogService});
+  const LifelogScreen({super.key, this.lifelogService, this.settingsService});
 
   /// 테스트 주입용. 평소에는 null 이고 AppServices.lifelog 를 씁니다.
   final LifelogService? lifelogService;
+
+  /// ❶ 「최종 동기화 시각」을 읽으려고 함께 받습니다.
+  /// 값은 `GET /devices/connections` 의 `last_synced_at` 입니다.
+  final SettingsService? settingsService;
 
   @override
   State<LifelogScreen> createState() => _LifelogScreenState();
@@ -26,6 +31,9 @@ class LifelogScreen extends StatefulWidget {
 class _LifelogScreenState extends State<LifelogScreen> {
   /// 0 일간 · 1 주간 · 2 월간
   int range = 1;
+
+  /// ❶ 최종 동기화 시각. 아직 못 읽었으면 null 입니다.
+  DateTime? _syncedAt;
   late Future<List<LifelogEntry>> _future;
 
   /// 마지막으로 성공한 기록.
@@ -35,6 +43,8 @@ class _LifelogScreenState extends State<LifelogScreen> {
   List<LifelogEntry>? _last;
 
   LifelogService get _service => widget.lifelogService ?? AppServices.lifelog;
+  SettingsService get _settings =>
+      widget.settingsService ?? AppServices.settings;
 
   static const _days = [1, 7, 30];
 
@@ -42,6 +52,24 @@ class _LifelogScreenState extends State<LifelogScreen> {
   void initState() {
     super.initState();
     _future = _loadAndKeep();
+    _loadSyncedAt();
+  }
+
+  /// ❶ 최종 동기화 시각.
+  ///
+  /// ⚠ **라이프로그 조회와 따로 부릅니다.** 여기서 실패했다고 활동량·수면이
+  ///   같이 사라지면 안 됩니다. 못 읽으면 줄을 그리지 않을 뿐입니다.
+  Future<void> _loadSyncedAt() async {
+    try {
+      final rows = await _settings.connections();
+      final at = rows
+          .map((c) => c.lastSyncedAt)
+          .whereType<DateTime>()
+          .fold<DateTime?>(null, (a, b) => a == null || b.isAfter(a) ? b : a);
+      if (mounted) setState(() => _syncedAt = at);
+    } catch (_) {
+      // 조용히 넘깁니다 — 이 줄이 없다고 화면이 못 쓰게 되지 않습니다.
+    }
   }
 
   Future<List<LifelogEntry>> _load() {
@@ -140,6 +168,7 @@ class _LifelogScreenState extends State<LifelogScreen> {
                         selected: {range},
                         onSelectionChanged: (v) => _changeRange(v.first),
                         showSelectedIcon: false),
+                    _SyncedAtLine(at: _syncedAt),
                     const SizedBox(height: 16),
                     ...body,
                     // ❺ 체성분 기록.
@@ -499,4 +528,39 @@ class _BodyCompositionSectionState extends State<_BodyCompositionSection> {
 
   /// 값이 없으면 0 이 아니라 '–'. 「0kg」과 「측정 안 됨」은 다릅니다.
   String _kg(double? v) => v == null ? '–' : '${v.toStringAsFixed(1)} kg';
+}
+
+/// ❶ 「최종 동기화 시각 표시」 — `MAIN_LIFELOG_01`
+///
+/// **왜 필요한가** — 라이프로그가 비어 있을 때 「데이터가 없는 것」인지
+/// 「동기화가 멈춘 것」인지 사용자가 구분할 수 없습니다. `NFR-DV-002` 는
+/// 3시간 미갱신을 미수신으로 보는데, **그 사실이 사용자에게 닿는 화면이
+/// 여기밖에 없습니다.**
+///
+/// ⚠ **경고색을 쓰지 않습니다.** 오래됐다고 빨강·주황을 쓰면 불안을 키웁니다
+/// (정신건강 UI 규칙). 시간만 담담히 적습니다.
+class _SyncedAtLine extends StatelessWidget {
+  const _SyncedAtLine({required this.at});
+
+  final DateTime? at;
+
+  @override
+  Widget build(BuildContext context) {
+    if (at == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Text('최종 동기화 ${_ago(at!)}',
+          style: const TextStyle(fontSize: 11, color: AppColors.muted)),
+    );
+  }
+
+  static String _ago(DateTime t) {
+    final d = DateTime.now().difference(t.toLocal());
+    if (d.inMinutes < 1) return '방금';
+    if (d.inMinutes < 60) return '${d.inMinutes}분 전';
+    if (d.inHours < 24) return '${d.inHours}시간 전';
+    if (d.inDays < 7) return '${d.inDays}일 전';
+    final l = t.toLocal();
+    return '${l.month}월 ${l.day}일';
+  }
 }
