@@ -29,6 +29,7 @@ python tools/check_docs.py --only 인용 # 한 검사만
     링크          문서 간 마크다운 링크가 실재하는가
     인용          개정안이 인용한 「현재 문장」이 추출본에 실제로 있는가
     API건수       문서가 주장하는 API 개수가 실제 OpenAPI 스키마와 같은가
+    붙여넣기      개정 안내문·마크다운 기호가 문서 본문에 딸려 들어갔는가
     테스트건수     (--with-tests) 문서가 주장하는 회귀 테스트 수가 실제와 같은가
 
 **세는 일은 전부 기계가 합니다.** 「API 30개」·「회귀 213건」처럼 손으로
@@ -405,12 +406,55 @@ def check_API건수():
     report('API건수', bad, f'실제 {actual}개 (/health 제외) · {checked}곳 대조')
 
 
+def check_붙여넣기():
+    """개정 안내문이 문서 본문에 딸려 들어갔는지.
+
+    CLAUDE.md 가 「마크다운 기호가 딸려 들어가지 않게 확인하세요」라고
+    경고하는데 **경고만 하고 기계는 안 봤습니다.** 그래서 또 났습니다.
+
+    2026.08.06 — 빅데이터분석정의서 「학습 방법」 칸에 **「교체」 두 글자**가
+    본문으로 들어갔습니다. 제가 안내에 쓴 「교체」 머리말을 문안과 함께
+    복사하신 것입니다.
+
+        … 설정 파일로 분리한다. 교체 LLM 판정 결과(is_crisis, …
+                                ↑
+
+    ⚠ **문맥을 봐야 합니다.** 「모델 교체 시」처럼 정당한 「교체」가 있습니다.
+      그래서 **문장 시작 자리**에 온 것만 잡습니다 — 안내문 머리말은 항상
+      문장 앞에 붙습니다.
+    """
+    # 안내문에서 쓰는 말. 문장 첫머리에 오면 딸려 들어간 것입니다.
+    heads = ['교체', '현재 문장', '개정 문안', '붙여넣', '삭제', '추가']
+    pat = re.compile(r'(?:^|[.!?] )(' + '|'.join(heads) + r')\s+[가-힣A-Za-z(]')
+    bad = []
+    for f in EXTRACTED.glob('*.txt'):
+        if any(k in f.name for k in ('발표자료',)):
+            continue
+        for line in f.read_text(encoding='utf-8').splitlines():
+            if ' | ' not in line:      # 표 덤프만 — 본문은 줄바꿈이 끼어 오탐
+                continue
+            for m in pat.finditer(re.sub(r'\s+', ' ', line)):
+                ctx = m.string[max(0, m.start() - 34):m.end() + 26]
+                bad.append(f'{f.name.split("_")[0]}  …{ctx}…')
+
+    # 마크다운 기호는 문서에 있을 이유가 없습니다.
+    for f in extracted_files():
+        t = f.read_text(encoding='utf-8')
+        for sym in ('**', '```'):
+            if sym in t:
+                bad.append(f'{f.name}  마크다운 「{sym}」')
+
+    report('붙여넣기', sorted(set(bad)),
+           '개정 안내문·마크다운 기호가 본문에 섞였습니다.')
+
+
 CHECKS = {
     '모델명': check_모델명,
     '성능목표': check_성능목표,
     '링크': check_링크,
     '인용': check_인용,
     'API건수': check_API건수,
+    '붙여넣기': check_붙여넣기,
 }
 SLOW = {'테스트건수': check_테스트건수}
 
