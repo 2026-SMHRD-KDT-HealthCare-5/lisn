@@ -55,11 +55,18 @@ class Settings(BaseSettings):
     #   gemini-3.5-flash        503 UNAVAILABLE   ← 쓰지 말 것
     #   gemini-3.5-flash-lite   OK 0.93s
     #   gemini-3.1-flash-lite   OK 0.93s
-    #   gemini-2.5-flash        OK 1.22s
-    #   gemini-2.5-flash-lite   OK 1.12s
+    #   gemini-2.5-flash        OK 1.22s (2026.08.01) → 404 "no longer available to
+    #                           new users" (2026.08.05, 새로 발급한 키로 실측) ← 쓰지 말 것
+    #   gemini-2.5-flash-lite   OK 1.12s (2026.08.01) → 같은 이유로 404 (2026.08.05) ← 쓰지 말 것
     #   gemini-2.5-pro          429 무료 한도 없음  ← 쓰지 말 것
+    #   gemini-flash-latest     OK (2026.08.05, 새 키 기준) — reply 대체
+    #
+    #   ⚠ 2.5 계열은 **키 발급 시점에 따라 갈린다.** 기존 키(2026.08.01 발급)는
+    #     계속 되는데 신규 키(2026.08.05 발급)는 404 다 — 구글이 "신규 사용자"
+    #     기준으로 모델을 순차 은퇴시키는 것으로 보인다. 팀원이 새로 키를
+    #     받을 때마다 재현되므로 **팀 공통 기본값에서 빼야 한다.**
     gemini_model_crisis: str = "gemini-3.6-flash"        # 위기 판정 — 안전 직결, 가장 좋은 모델
-    gemini_model_reply: str = "gemini-2.5-flash"         # 페르소나 응답 — 품질·지연 균형
+    gemini_model_reply: str = "gemini-flash-latest"      # 페르소나 응답 — 품질·지연 균형
     gemini_model_summary: str = "gemini-3.5-flash-lite"  # 세션 요약 — 백그라운드
     gemini_model_daily: str = "gemini-3.1-flash-lite"    # 홈 한줄 요약 — 캐시됨
 
