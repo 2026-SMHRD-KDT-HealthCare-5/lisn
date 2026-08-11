@@ -79,9 +79,16 @@ def model_for(task: str) -> str:
     호출되므로, 같은 모델을 쓰면 한쪽이 다른 쪽의 RPM 을 잡아먹는다.
 
     OpenAI 는 유료라 쿼터를 나눌 이유가 없고, **정확도 기준선**으로 쓰는 경로라
-    네 작업이 같은 모델을 써야 Gemini 와의 비교가 의미를 갖는다.
+    판정 계열은 같은 모델을 써야 Gemini 와의 비교가 의미를 갖는다.
+
+    ⚠ **`reply` 만 예외다.** `NFR-DV-001` 3초 예산 때문에 더 빠른 모델을
+      쓴다(2026.08.11). 응답 생성은 판정이 아니라 **문장 생성**이라 정확도
+      기준선과 무관하다. 판정 계열(`crisis`)은 그대로 둔다 — 근거는
+      `config.py` 의 `openai_model_reply` 주석.
     """
     if settings.llm_provider == "openai":
+        if task == "reply":
+            return settings.openai_model_reply
         return settings.openai_model
     return {
         "reply": settings.gemini_model_reply,
@@ -125,6 +132,7 @@ PERSONA_PROMPTS = {
 사용자의 감정을 먼저 있는 그대로 받아들이고 따뜻하게 위로해.
 해결책을 제시하기보다 "많이 힘드셨겠어요", "그런 마음이 드는 건 자연스러워요"처럼
 공감을 먼저 건네. 조언은 사용자가 원할 때만 짧게 덧붙여.
+**세 문장 이내로 답한다.** 채팅 말풍선이라 길면 읽지 않는다.
 """,
     # MBTI T형. 상황 정리와 실행 가능한 다음 행동이 중심.
     "COUNSELOR": """너는 '마음이'라는 이름의 차분한 상담자야.
@@ -132,6 +140,7 @@ PERSONA_PROMPTS = {
 사용자의 상황을 객관적으로 정리해주고, 실질적으로 도움이 되는 다음 행동을 제안해.
 다만 감정을 무시하지는 마. 먼저 한 문장으로 상황을 인정한 뒤 정리로 넘어가.
 사용자가 스스로 판단할 수 있도록 선택지를 제시하는 방식으로 말해.
+**세 문장 이내로 답한다.** 채팅 말풍선이라 길면 읽지 않는다.
 """,
 }
 
@@ -332,6 +341,16 @@ async def generate_reply(
     ]
     messages.append({"role": "user", "content": utterance})
 
+    # ⚠ **`max_tokens` 로 지연을 줄이려 하지 마세요.** 두 번 헛짚은 자리입니다
+    #   (2026.08.11).
+    #
+    #   ① 추론 모델은 `max_tokens` 에 **추론분까지 함께 셉니다.** 250 을
+    #      걸었더니 10회 전부 본문이 빈 채 끝나 폴백 문구만 나왔습니다.
+    #   ② 애초에 **지연이 토큰 수와 무관합니다** — 47토큰 4622ms ·
+    #      128토큰 4300ms. 긴 쪽은 생성이 아니라 **첫 토큰까지의 시간**입니다.
+    #      그래서 프롬프트에 「세 문장 이내」를 넣어도 최댓값이 안 줄었습니다.
+    #
+    #   실제로 통한 것은 **모델 교체**입니다 → `config.py` `openai_model_reply`.
     resp = await client().chat.completions.create(
         model=model_for("reply"), messages=messages
     )
