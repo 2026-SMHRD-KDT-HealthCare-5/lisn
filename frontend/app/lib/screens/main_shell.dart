@@ -31,6 +31,19 @@ class _MainShellState extends State<MainShell> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _pullLifelog();
+    _registerPush();
+  }
+
+  /// FCM 토큰을 서버에 등록합니다 — `MLCM_220` 4단계.
+  ///
+  /// ⚠ **await 하지 않습니다.** 권한 요청이 시스템 다이얼로그를 띄우는데,
+  ///   그걸 기다리면 홈 화면이 그만큼 늦게 뜹니다. 등록은 실패해도
+  ///   앱 동작에 영향이 없습니다.
+  ///
+  /// ⚠ **여기가 로그인 직후이자 자동 로그인 직후입니다.** 두 경로가 모두
+  ///   `MainShell` 을 지나므로 한 곳에서 잡힙니다.
+  void _registerPush() {
+    unawaited(AppServices.push.register());
   }
 
   @override

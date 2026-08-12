@@ -21,6 +21,9 @@ plugins {
     id("dev.flutter.flutter-plugin-loader") version "1.0.0"
     id("com.android.application") version "9.0.1" apply false
     id("org.jetbrains.kotlin.android") version "2.3.20" apply false
+    // FCM — `google-services.json` 을 읽어 빌드에 심습니다. 이게 없으면
+    // Firebase 초기화가 런타임에 실패합니다(빌드는 됩니다).
+    id("com.google.gms.google-services") version "4.4.2" apply false
 }
 
 include(":app")

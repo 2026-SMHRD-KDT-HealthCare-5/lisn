@@ -5,6 +5,7 @@ import 'health_reader.dart';
 import 'home_service.dart';
 import 'lifelog_service.dart';
 import 'lifelog_sync.dart';
+import 'push_messaging.dart';
 import 'report_service.dart';
 import 'settings_service.dart';
 import 'sync_store.dart';
@@ -29,6 +30,16 @@ class AppServices {
 
   /// Health Connect 읽기 — MLCM_200
   static final HealthReader healthReader = HealthConnectReader();
+
+  /// FCM 토큰 등록 — MLCM_220 4단계.
+  ///
+  /// ⚠ **로그인 뒤에 `register()` 를 부릅니다.** 토큰은 사용자에게 매다는
+  ///   값이라 인증이 없으면 저장할 곳이 없습니다. 호출 지점은 `MainShell`
+  ///   입니다 — 새로 로그인하든 자동 로그인이든 거기를 지나갑니다.
+  static final PushRegistrar push = PushRegistrar(
+    source: FirebasePushTokenSource(),
+    settings: settings,
+  );
 
   /// 라이프로그 동기화. 화면에서 즉시 당길 때 씁니다.
   ///

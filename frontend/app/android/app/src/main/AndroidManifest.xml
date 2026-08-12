@@ -2,6 +2,15 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <!-- ================================================================
+         FCM 푸시 — MLCM_220 4단계 · MLCM_400 5단계
+         ⚠ Android 13(API 33)부터 알림은 **런타임 권한**입니다. 선언만으로는
+           안 뜨고 사용자에게 물어야 합니다 → services/push_messaging.dart
+         ※ 거부해도 앱은 정상 동작합니다. 선제 접촉 세션은 서버에 선생성돼
+           있어 앱을 열면 보입니다(MLCM_220 6단계).
+         ================================================================ -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <!-- ================================================================
          Health Connect — MLCM_200
          ⚠ 여기 없는 타입은 HealthConnectReader 가 요청해도 조용히 거부됩니다.
            health_reader.dart 의 _types 와 반드시 같이 고치세요.

@@ -9,6 +9,7 @@ import 'screens/login_screen.dart';
 import 'screens/main_shell.dart';
 import 'screens/password_reset_screen.dart';
 import 'services/app_services.dart';
+import 'services/push_messaging.dart';
 import 'services/sync_worker.dart';
 import 'theme/app_theme.dart';
 
@@ -16,6 +17,16 @@ final appNavigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // FCM 초기화 — MLCM_220 4단계.
+  //
+  // ⚠ **여기서 await 합니다.** WorkManager 와 달리 Firebase 는 초기화가 끝나기
+  //   전에 `FirebaseMessaging.instance` 를 만지면 던집니다. 토큰 등록은
+  //   `MainShell` 에서 일어나므로 그 전에 끝나 있어야 합니다.
+  //
+  // ⚠ **실패해도 앱은 뜹니다.** `google-services.json` 이 없는 PC 에서 앱
+  //   전체가 안 뜨면 원인을 찾기 어렵습니다 → services/push_messaging.dart
+  await initializePush();
 
   AppServices.apiClient.onUnauthorized = () {
     appNavigatorKey.currentState?.pushNamedAndRemoveUntil(

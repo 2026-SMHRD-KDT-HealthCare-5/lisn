@@ -338,6 +338,28 @@ flutter pub get
 cd ..\..
 ```
 
+#### ⚠ `google-services.json` 은 저장소에 없습니다 — 각자 받으세요
+
+FCM 푸시 설정 파일입니다. **이 저장소는 공개**라 `.gitignore` 로 막아뒀습니다.
+
+1. [Firebase 콘솔](https://console.firebase.google.com) → 프로젝트 **`lisn-be2e8`**
+2. 프로젝트 설정 → 내 앱 → Android 앱 **`com.lisn.maeume`**
+3. `google-services.json` 내려받기
+4. **`frontend/app/android/app/`** 에 넣기
+
+**콘솔 접근에 2단계 인증이 필수입니다.** 구글 계정 전체에 적용되는 설정이니
+백업 코드를 꼭 따로 저장하세요.
+
+> **없어도 앱은 뜹니다.** 푸시만 죽고 나머지는 전부 정상입니다. 로그에
+> 이렇게 찍히면 그 상태입니다 — 고장이 아닙니다.
+>
+> ```
+> [푸시] Firebase 초기화 실패 — 푸시 없이 계속합니다: ...
+> ```
+>
+> 다만 **`flutter build apk` 는 실패합니다.** `google-services` Gradle
+> 플러그인이 파일을 못 찾으면 빌드를 멈춥니다. 빌드까지 하려면 받으세요.
+
 ### 10-3. 관리자 웹
 
 ```powershell

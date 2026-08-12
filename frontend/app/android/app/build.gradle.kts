@@ -2,6 +2,12 @@ plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    // FCM 발송 경로 — `MLCM_220` 4단계 · `MLCM_200` 7단계 · `MLCM_400` 5단계 · `NFR-DV-002`
+    //
+    // ⚠ `google-services.json` 이 `android/app/` 에 있어야 합니다. **저장소에는
+    //   없습니다**(공개 저장소라 `.gitignore` 로 막았습니다). 새 PC 에서는
+    //   Firebase 콘솔에서 내려받으세요 → `docs/SETUP.md`
+    id("com.google.gms.google-services")
 }
 
 android {

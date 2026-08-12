@@ -289,3 +289,17 @@ docs/평가셋/분담/*.csv
 # 합니다. `git add -A` 한 번이면 들어갑니다. 규칙으로 막습니다.
 documents/*SW구매*
 documents/*구매완료*
+
+# --- Firebase 자격증명 (FCM · MLCM_220/MLCM_200/MLCM_400/NFR-DV-002) ---
+# **이 저장소는 공개입니다.** 올리면 지워도 커밋 기록에 남습니다.
+#
+# google-services.json  — 앱 설정. APK 안에 어차피 들어가지만, 저장소에 두면
+#                         프로젝트 번호·API 키가 검색엔진에 노출됩니다.
+# 서비스 계정 키(*.json) — **서버 발송용 비공개 키.** 유출되면 누구나 우리
+#                         사용자 전원에게 푸시를 보낼 수 있습니다. 절대 금지.
+#
+# 새 PC 에서는 Firebase 콘솔에서 각자 내려받으세요 → docs/SETUP.md
+frontend/app/android/app/google-services.json
+frontend/app/ios/Runner/GoogleService-Info.plist
+backend/firebase-service-account*.json
+**/firebase-adminsdk*.json

@@ -95,6 +95,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> logout() async {
     if (loggingOut) return;
     setState(() => loggingOut = true);
+    // ⚠ **로그아웃보다 먼저** 토큰을 지웁니다. 인증이 끊긴 뒤에는 서버에
+    //   지워달라고 말할 수단이 없고, 남겨두면 **다음 사용자에게 갈 알림이
+    //   앞사람 폰으로 갑니다.** 수집 워커를 멈추는 것과 같은 이유입니다.
+    try {
+      await AppServices.push.unregister();
+    } catch (_) {
+      // 실패해도 로그아웃은 진행합니다. 여기서 막으면 나갈 수가 없습니다.
+    }
     try {
       await AppServices.auth.logout();
     } catch (_) {
