@@ -181,16 +181,21 @@ def system_message(llm, persona):
             + llm.SAFETY_RULES + llm.OUTREACH_SYSTEM)
 
 
-def key(persona, features, streak, prompt):
+def key(persona, features, streak, prompt, model):
     """판정에 영향을 주는 것이 하나라도 바뀌면 캐시가 저절로 무효가 됩니다.
 
     ⚠ **`OUTREACH_SYSTEM` 만 넣으면 안 됩니다.** 시스템 메시지는
       `PERSONA_PROMPTS` + `SAFETY_RULES` + `OUTREACH_SYSTEM` 입니다.
       앞의 둘을 고쳐도 캐시가 안 깨지면 **옛 발화로 새 프롬프트를 채점**하게
       됩니다 — `eval_crisis` 가 같은 자리에서 한 번 겪은 사고입니다.
+
+    ⚠ **모델도 넣습니다** (2026.08.12). 빠져 있어서 `--model` 을 바꿔도
+      캐시가 그대로 맞아 **호출 0건**으로 옛 발화를 다시 채점했습니다.
+      `LLM-016` 이 응답 모델을 `openai_model_reply` 로 가른 뒤로는 그 값을
+      바꾸는 것만으로 같은 사고가 납니다.
     """
     h = hashlib.sha256()
-    for part in (persona, '|'.join(features), str(streak), prompt):
+    for part in (persona, '|'.join(features), str(streak), prompt, model):
         h.update(part.encode())
     return h.hexdigest()[:32]
 
@@ -205,19 +210,34 @@ def main():
     llm = load_backend()
     sys.path.insert(0, str(ROOT / 'tools'))
     from eval_crisis import resolve_model
-    model = resolve_model(args.model)
+    from app.core.config import settings
+
+    # ⚠ **위기 판정 모델이 아닙니다.** `resolve_model()` 의 기본값은
+    #   `openai_model`(판정용)인데, 선제 접촉 첫 마디는 `model_for('reply')`
+    #   로 만들어집니다. `LLM-016` 이 응답 모델을 갈라놓은 뒤 이 도구가
+    #   따라오지 않아, 헤더에 `gpt-5.4` 를 찍으면서 실제로는 `gpt-5.4-mini`
+    #   로 생성하고 있었습니다(2026.08.12).
+    #
+    #   `settings.openai_model_reply` 를 직접 씁니다 — `model_for('reply')` 는
+    #   `.env` 의 `LLM_PROVIDER=gemini`(평소 개발용)를 따라가서, 그냥 돌리면
+    #   채점이 제미나이로 샙니다. `eval_crisis.resolve_model` 과 같은 이유입니다.
+    model = resolve_model(args.model or settings.openai_model_reply)
 
     cache = json.loads(CACHE.read_text(encoding='utf-8')) if CACHE.exists() else {}
 
     import asyncio
 
     async def gen(persona, features, streak):
-        return await llm.outreach_opener(persona, features, streak)
+        # ⚠ **모델을 반드시 넘깁니다** (2026.08.12). 전에는 인자 없이 불러
+        #   `outreach_opener` 안의 `model_for('reply')` 가 쓰였고, `--model` 은
+        #   **헤더에만 찍히고 실제 호출은 안 바뀌었습니다.** 대조군을 비교하려고
+        #   만든 옵션이 비교를 안 하고 있었습니다.
+        return await llm.outreach_opener(persona, features, streak, model=model)
 
     rows, called = [], 0
     for persona in ('FRIEND', 'COUNSELOR'):
         for name, features, streak in CASES:
-            k = key(persona, features, streak, system_message(llm, persona))
+            k = key(persona, features, streak, system_message(llm, persona), model)
             if k in cache:
                 text = cache[k]
             elif args.no_call:

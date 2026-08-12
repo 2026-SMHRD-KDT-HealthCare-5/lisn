@@ -388,7 +388,10 @@ _FEATURE_PHRASE = {
 
 
 async def outreach_opener(
-    persona_type: str, deviant_features: list[str], streak_days: int
+    persona_type: str,
+    deviant_features: list[str],
+    streak_days: int,
+    model: str | None = None,
 ) -> str:
     """선제 접촉 첫 발화를 만든다 — `MLCM_220` 3단계.
 
@@ -397,13 +400,17 @@ async def outreach_opener(
       들고, 무슨 말인지도 모른다. 사람이 쓰는 말로 바꿔 넘긴다.
 
     실패는 호출자가 처리한다. 여기서 삼키면 발화 없는 세션이 생긴다.
+
+    `model` 은 **평가 도구 전용 우회로**다(`tools/eval_outreach.py`). 운영은
+    넘기지 않으므로 `model_for('reply')` 가 그대로 쓰인다. 이 인자가 없어서
+    `--model` 이 헤더에만 찍히고 실제 호출은 안 바뀌었다(2026.08.12).
     """
     phrases = [_FEATURE_PHRASE.get(f, f) for f in deviant_features[:2]]
     observed = " · ".join(phrases) if phrases else "생활 리듬"
     persona = PERSONA_PROMPTS.get(persona_type, PERSONA_PROMPTS["FRIEND"])
 
     resp = await client().chat.completions.create(
-        model=model_for("reply"),
+        model=model or model_for("reply"),
         messages=[
             {"role": "system", "content": persona + SAFETY_RULES + OUTREACH_SYSTEM},
             {
