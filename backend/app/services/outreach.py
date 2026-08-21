@@ -4,10 +4,11 @@
 말을 건다. 감지 결과가 사용자에게 도달하는 유일한 경로다 — 앱을 열지 않는
 사람은 홈 화면의 콘텐츠 추천을 영영 보지 못한다.
 
-⚠ **푸시 발송은 아직 없다.** Firebase 자격증명이 없어 FCM 경로가 비어 있다
-  (구현_갭 갭 1). 그래도 **세션은 선생성한다** — `MLCM_220` 6단계가 「푸시
-  발송이 실패해도 선생성된 세션은 유지되어, 다음 앱 실행 시 사용자가 확인할
-  수 있다」를 규정한다. 발송 실패는 `OUTREACH_LOGS` 에 남는다.
+**푸시 발송은 `services/push.py` 로 한다**(2026.08.21, 구현_갭 갭 1 해소).
+  토큰이 없거나 발송이 실패해도 **세션은 이미 선생성돼 있다** — `MLCM_220`
+  6단계가 「푸시 발송이 실패해도 선생성된 세션은 유지되어, 다음 앱 실행 시
+  사용자가 확인할 수 있다」를 규정한다. 성공·실패 모두 `OUTREACH_LOGS` 에
+  남는다.
 
 ⚠ **임계치는 임의값이다.** 연속 3일·쿨다운 3일·09~21시는 선행연구에서 가져온
   값이 아니다. 성능 근거로 쓰지 말 것.
@@ -21,7 +22,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import ChatSession, EmotionRiskScore, OutreachLog, User
-from app.services import llm, risk_policy
+from app.services import llm, push, risk_policy
 
 logger = logging.getLogger(__name__)
 
@@ -81,10 +82,27 @@ async def maybe_outreach(
     db.add(session)
     await db.flush()
 
-    # ── 3. FCM 이 없으므로 발송은 실패로 남긴다. 세션은 유지된다.
+    # ── 3. FCM 으로 발송한다. 실패해도 세션은 이미 커밋 대기 중이라 유지된다.
+    #
+    # ⚠ 알림 본문에 opener 원문을 넣지 않는다 — 잠금화면 노출 위험
+    #   (services/push.py 모듈 docstring 참고). 실제 내용은 앱 안에서 보여준다.
+    status, reason = "FAILED", "fcm_토큰_없음"
+    if user and user.fcm_token:
+        try:
+            await push.send(
+                user.fcm_token,
+                title="마음이가 먼저 말을 걸었어요",
+                body="지금 어떻게 지내고 계신지 궁금해요. 눌러서 확인해보세요.",
+                data={"type": "outreach", "session_id": str(session.session_id)},
+            )
+            status, reason = "SENT", None
+        except Exception as e:
+            logger.warning("선제 접촉 FCM 발송 실패 (user=%s): %s", user_id, e)
+            reason = "fcm_발송_실패"
+
     return await _log(
         db, user_id, session.session_id, streak, features,
-        "FAILED", "fcm_미구현",
+        status, reason,
     )
 
 

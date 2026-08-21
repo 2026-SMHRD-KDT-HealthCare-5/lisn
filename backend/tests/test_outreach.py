@@ -16,7 +16,7 @@ from sqlalchemy import select
 
 from app.core.database import AsyncSessionLocal
 from app.models import ChatSession, Emotion, EmotionRiskScore, OutreachLog, User
-from app.services import llm, outreach
+from app.services import llm, outreach, push
 
 BASE = "http://test/api/v1"
 
@@ -116,12 +116,73 @@ async def test_조건을_넘기면_세션을_선생성한다(client, user):
 
 
 @pytest.mark.asyncio
-async def test_FCM_이_없으므로_발송은_실패로_남는다(client, user):
-    """`SENT` 로 적으면 보내지도 않고 보냈다고 기록하는 것이다."""
+async def test_FCM_토큰이_없으면_발송은_실패로_남는다(client, user):
+    """`SENT` 로 적으면 보내지도 않고 보냈다고 기록하는 것이다.
+
+    회원가입만으로는 `fcm_token` 이 채워지지 않는다 — 앱이 로그인 후
+    `PATCH /users/me/notifications` 로 등록해야 생긴다.
+    """
     uid = await _uid(client, user)
     row = await _run(uid, _result())
     assert row.delivery_status == "FAILED"
-    assert row.skip_reason == "fcm_미구현"
+    assert row.skip_reason == "fcm_토큰_없음"
+
+
+@pytest.mark.asyncio
+async def test_FCM_토큰이_있으면_실제로_발송한다(client, user, monkeypatch):
+    """`push.send` 가 호출되고, 성공하면 `SENT` 로 남는다.
+
+    실제 Firebase 로 나가면 테스트가 자격증명·네트워크에 묶인다 —
+    `push.send` 자체를 갈아끼워 「호출했는가」만 잰다.
+    """
+    uid = await _uid(client, user)
+    async with AsyncSessionLocal() as db:
+        u = await db.get(User, uid)
+        u.fcm_token = "fake-token-for-test"
+        await db.commit()
+
+    sent: list[tuple[str, str, str]] = []
+
+    async def fake_send(token, title, body, data=None):
+        sent.append((token, title, body))
+        return "fake-message-id"
+
+    monkeypatch.setattr(push, "send", fake_send)
+
+    row = await _run(uid, _result())
+    assert row.delivery_status == "SENT"
+    assert row.skip_reason is None
+    assert len(sent) == 1
+    token, title, body = sent[0]
+    assert token == "fake-token-for-test"
+    assert title and body
+    # ⚠ 알림 본문에 opener 원문(예: "요즘 어떠셨어요")을 넣지 않는다 —
+    #   잠금화면 노출 위험(services/push.py 참고).
+    assert "요즘 어떠셨어요" not in body
+
+
+@pytest.mark.asyncio
+async def test_FCM_발송이_실패해도_세션은_유지된다(client, user, monkeypatch):
+    """`MLCM_220` 6단계 — 발송 실패가 선생성된 세션을 되돌리지 않는다."""
+    uid = await _uid(client, user)
+    async with AsyncSessionLocal() as db:
+        u = await db.get(User, uid)
+        u.fcm_token = "fake-token-for-test"
+        await db.commit()
+
+    async def boom(token, title, body, data=None):
+        raise RuntimeError("네트워크 장애 흉내")
+
+    monkeypatch.setattr(push, "send", boom)
+
+    row = await _run(uid, _result())
+    assert row.delivery_status == "FAILED"
+    assert row.skip_reason == "fcm_발송_실패"
+    assert row.session_id is not None
+
+    async with AsyncSessionLocal() as db:
+        s = await db.get(ChatSession, row.session_id)
+        assert s is not None
 
 
 @pytest.mark.asyncio

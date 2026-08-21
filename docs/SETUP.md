@@ -342,7 +342,10 @@ cd ..\..
 
 FCM 푸시 설정 파일입니다. **이 저장소는 공개**라 `.gitignore` 로 막아뒀습니다.
 
-1. [Firebase 콘솔](https://console.firebase.google.com) → 프로젝트 **`lisn-be2e8`**
+1. [Firebase 콘솔](https://console.firebase.google.com) → 프로젝트 **`lisn-952c8`**
+   ⚠ 예전엔 `lisn-be2e8` 로 적혀 있었습니다. **2026.08.21 에 실제 프로젝트
+   ID 로 정정**했습니다 — 콘솔에서 프로젝트 이름이 아니라 **프로젝트 ID**
+   (설정 톱니바퀴 → 일반 탭 상단)로 확인하세요.
 2. 프로젝트 설정 → 내 앱 → Android 앱 **`com.lisn.maeume`**
 3. `google-services.json` 내려받기
 4. **`frontend/app/android/app/`** 에 넣기
@@ -352,6 +355,26 @@ FCM 푸시 설정 파일입니다. **이 저장소는 공개**라 `.gitignore` �
 
 > **없어도 앱은 뜹니다.** 푸시만 죽고 나머지는 전부 정상입니다. 로그에
 > 이렇게 찍히면 그 상태입니다 — 고장이 아닙니다.
+
+#### ⚠ 서버 발송용 키도 따로 필요합니다 — `backend/firebase-service-account.json`
+
+**위 `google-services.json` 과는 다른 파일입니다.** 그건 앱이 토큰을
+받는 데 쓰고, 이건 **서버가 그 토큰으로 실제 푸시를 쏘는 데** 씁니다
+(2026.08.21, `services/push.py` · 구현_갭 갭 1 해소).
+
+1. Firebase 콘솔 → 프로젝트 **`lisn-952c8`** → 톱니바퀴 → **프로젝트 설정**
+2. 상단 탭 **서비스 계정(Service accounts)**
+3. **새 비공개 키 생성(Generate new private key)**
+4. 받은 JSON 파일을 **`backend/firebase-service-account.json`** 이름으로 저장
+
+⚠ **이 파일은 `google-services.json` 보다 훨씬 민감합니다.** 클라이언트 키가
+아니라 프로젝트에 서버 권한으로 접근하는 비공개 키입니다. `.gitignore` 가
+`backend/firebase-service-account*.json` · `**/firebase-adminsdk*.json` 을
+막아두지만, 절대 채팅·이슈·PR 설명에 내용을 붙여넣지 마세요.
+
+**없어도 서버는 뜹니다.** 선제 접촉(`MLCM_220`)은 세션을 그대로 선생성하고,
+발송만 `OUTREACH_LOGS.skip_reason = 'fcm_토큰_없음'`(토큰 자체가 없을 때)
+또는 `'fcm_발송_실패'`(키가 없거나 잘못됐을 때)로 남습니다.
 >
 > ```
 > [푸시] Firebase 초기화 실패 — 푸시 없이 계속합니다: ...

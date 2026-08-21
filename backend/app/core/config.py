@@ -112,6 +112,16 @@ class Settings(BaseSettings):
     # AI 추론 서버. 내부 통신이라 인증이 없으므로 외부에 포트를 열지 말 것.
     ai_server_url: str = "http://localhost:8001"
 
+    # ----------------------------------------------------------------
+    # FCM 푸시 발송 — MLCM_220 4단계 · NFR-DV-002 (구현_갭 갭 1)
+    # ----------------------------------------------------------------
+    # Firebase 콘솔 → 프로젝트 설정 → Service accounts → Generate new
+    # private key 로 받는다. **저장소에는 없다** — .gitignore
+    # `backend/firebase-service-account*.json` · `**/firebase-adminsdk*.json`.
+    # 새 PC 에서는 각자 발급받아 backend/ 에 넣는다. 없으면 발송만 실패로
+    # 남고(OUTREACH_LOGS.skip_reason) 세션 선생성 등 나머지는 그대로 동작한다.
+    firebase_credentials_path: str = "firebase-service-account.json"
+
     # 브라우저 기반 관리자 웹의 개발 origin. 쉼표로 여러 값을 지정한다.
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 

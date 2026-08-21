@@ -303,3 +303,11 @@ frontend/app/android/app/google-services.json
 frontend/app/ios/Runner/GoogleService-Info.plist
 backend/firebase-service-account*.json
 **/firebase-adminsdk*.json
+
+# 라라랩스 실데이터 적재 — ai/preprocess/load_company_data.py
+# 회원번호↔user_id 매핑(--map-out)과 원본 파일 자체는 개인정보라 커밋 금지
+*_member_map.csv
+ai/data_raw/company/
+
+# Claude Code 실행 중 만들어지는 잠금 파일
+.claude/scheduled_tasks.lock

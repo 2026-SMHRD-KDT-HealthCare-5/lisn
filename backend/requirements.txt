@@ -8,6 +8,7 @@ bcrypt
 pyjwt
 cryptography
 openai
+firebase-admin
 httpx
 pytest
 pytest-asyncio
