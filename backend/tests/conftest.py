@@ -19,8 +19,10 @@ from urllib.parse import urlsplit
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import text
 
 from app.core.config import settings
+from app.core.database import AsyncSessionLocal
 from app.main import app
 
 BASE = "http://test/api/v1"
@@ -100,3 +102,40 @@ def _auth(token: str) -> dict:
 @pytest.fixture
 def auth():
     return _auth
+
+
+@pytest_asyncio.fixture
+async def admin(client):
+    """ADMIN 으로 승격된 계정. `token`·`headers`·`email` 을 담은 dict.
+
+    ⚠ **승격은 DB 를 직접 고친다.** `require_admin` 은 JWT 가 아니라 DB 의
+      role 을 보므로 토큰은 그대로 쓴다. 재로그인이 필요 없다는 것 자체가
+      검증 대상이라(`test_admin.py`) 여기서도 같은 방식을 쓴다.
+
+    전에는 `test_admin.py` 안에만 있었다. 관제 화면까지 닿는지 보는 테스트가
+    다른 파일에도 생기면서 conftest 로 올렸다 — 픽스처를 복사하면 한쪽만
+    고쳐지는 순간 두 파일의 「관리자」가 달라진다.
+    """
+    body = _signup_body(
+        email=f"adm{uuid.uuid4().hex[:12]}@lisn-test.example", name="관제담당"
+    )
+    r = await client.post(f"{BASE}/auth/signup", json=body)
+    assert r.status_code == 201, r.text
+    token = r.json()["access_token"]
+
+    async with AsyncSessionLocal() as db:
+        await db.execute(
+            text("UPDATE users SET role = 'ADMIN' WHERE email = :email"),
+            {"email": body["email"]},
+        )
+        await db.commit()
+
+    yield {"token": token, "headers": _auth(token), "email": body["email"]}
+
+    # 탈퇴 API 는 본인 확인을 요구한다. 관리자 계정도 예외가 아니다.
+    await client.request(
+        "DELETE",
+        f"{BASE}/users/me",
+        headers=_auth(token),
+        json={"password": body["password"]},
+    )

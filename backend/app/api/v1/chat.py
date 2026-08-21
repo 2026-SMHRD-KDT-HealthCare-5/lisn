@@ -25,7 +25,7 @@ from app.schemas.chat import (
     SessionOut,
     SessionStarted,
 )
-from app.services import llm, risk_policy, safety
+from app.services import crisis_log, llm, risk_policy, safety
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -148,14 +148,25 @@ async def send_message(
         reply, verdict = None, None
 
     risk = _decide(keyword, verdict)
+    now = datetime.now(timezone.utc)
 
     if risk.action == "EMERGENCY":
         # MLCM_510 2단계 — 콘텐츠 추천과 일반 응답을 중단한다.
         reply = None
+
+        # MLCM_320 7단계 — 위험 탐지 로그를 DB 에 남긴다.
+        #
+        # ⚠ **이게 없으면 관제 화면에 아무 일도 일어나지 않는다.** 관리자의
+        #   위기 사건 이력은 EMOTION_RISK_SCORES 만 읽으므로, 여기서 안 남기면
+        #   「죽고 싶다」고 말한 사람이 관제에서 보이지 않는다(구현_갭 갭 9).
+        #
+        # ⚠ **같은 트랜잭션에 얹는다.** 커밋 하나로 묶여야 「메시지는 저장됐는데
+        #   위기 기록은 없는」 상태가 안 생긴다. 판정 근거(risk.source)를 넘겨
+        #   키워드 단독 건이 관제에서 구분되게 한다 — 정밀도가 0.500 이다.
+        await crisis_log.record(db, user.user_id, s.started_at, risk.source, now)
     elif reply is None:
         reply = llm.FALLBACK_REPLY.get(s.persona_type, llm.FALLBACK_REPLY["FRIEND"])
 
-    now = datetime.now(timezone.utc)
     history.append({"role": "user", "content": masked, "at": now.isoformat()})
     if reply:
         history.append({"role": "assistant", "content": reply, "at": now.isoformat()})

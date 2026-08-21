@@ -29,30 +29,6 @@ async def _promote(email: str, role: str) -> None:
 
 
 @pytest_asyncio.fixture
-async def admin(client):
-    """ADMIN 으로 승격된 계정. (token, headers) 를 돌려준다."""
-    body = {
-        "email": f"adm{uuid.uuid4().hex[:12]}@lisn-test.example",
-        "password": "test1234!",
-        "name": "관제담당",
-        "terms_agreed": True,
-        "sensitive_agreed": True,
-    }
-    r = await client.post(f"{BASE}/auth/signup", json=body)
-    assert r.status_code == 201, r.text
-    token = r.json()["access_token"]
-    await _promote(body["email"], "ADMIN")
-
-    yield {"token": token, "headers": _auth(token), "email": body["email"]}
-
-    # 탈퇴 API 는 본인 확인을 요구한다. 관리자 계정도 예외가 아니다.
-    await client.request(
-        "DELETE", f"{BASE}/users/me", headers=_auth(token),
-        json={"password": body["password"]},
-    )
-
-
-@pytest_asyncio.fixture
 async def target(client):
     """검색 대상 일반 사용자. 이름에 검색어를 심어둔다."""
     tag = uuid.uuid4().hex[:10]
