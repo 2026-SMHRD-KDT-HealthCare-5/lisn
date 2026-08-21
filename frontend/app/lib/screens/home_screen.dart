@@ -501,7 +501,17 @@ class _HomeScreenState extends State<HomeScreen> {
   /// 있으면 안 읽은 것처럼 보입니다.
   Future<void> _openOutreach(PendingOutreach o) async {
     await Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => ChatScreen(resumeSessionId: o.sessionId),
+      // ⚠ **Scaffold 로 감싸야 합니다.** ChatScreen 은 평소 MainShell 의
+      //   Scaffold 안에서 그려지므로 자기 Scaffold 가 없습니다. 라우트로
+      //   그냥 push 하면 Material 조상이 없어, 빠른 답장 칩(ActionChip)이
+      //   「No Material widget found」로 **화면 전체를 빨간 에러로** 만듭니다.
+      //
+      //   MainShell 경로에서는 멀쩡해서 평소 개발 중에는 안 보입니다.
+      //   여기 선제 접촉 카드가 유일한 진입로입니다 — 시연영상 녹화에서
+      //   처음 드러났습니다(2026.08.22).
+      builder: (_) => Scaffold(
+        body: ChatScreen(resumeSessionId: o.sessionId),
+      ),
     ));
     if (mounted) await _refresh().catchError((_) {});
   }
