@@ -274,7 +274,6 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    final score = emotion.emotionScore.clamp(0, 100).toDouble();
     return AppCard(
       child: Column(children: [
         SectionTitle('오늘의 마음 상태',
@@ -288,17 +287,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(fontSize: 10, color: AppColors.primary)),
             )),
         const SizedBox(height: 18),
-        // 마스코트 · 문구 · 점수를 한 줄에 둡니다.
-        //
-        // ⚠ 문구가 카드 중앙에 오도록 폭을 벌어 놨습니다(마스코트 62 · 링 86).
-        //   기본값(72 · 100)이면 문구에 143dp 밖에 안 남아 「보 / 여요」처럼
-        //   단어 중간에서 잘립니다. 상태를 알리는 문장이 그렇게 보이면 안 됩니다.
-        //   **크기를 되돌리려면 아래 문구 길이도 같이 확인하세요.**
         Row(children: [
           // ⚠ 위험도에 따라 표정이 갈립니다. 「많이 힘들어 보여요」 옆에서
           //   웃고 있으면 공감이 아니라 무시로 읽힙니다.
-          _feelingMascot(62, riskLevel: emotion.riskLevel),
-          const SizedBox(width: 12),
+          _feelingMascot(72, riskLevel: emotion.riskLevel),
+          const SizedBox(width: 15),
           // ⚠ **감정 이름(emotion_name)을 사용자에게 보여주지 않습니다.**
           //
           //   마스터 9종에 「위기」·「절망」이 들어 있습니다. 힘들어하는 사람 화면에
@@ -309,30 +302,31 @@ class _HomeScreenState extends State<HomeScreen> {
           //   아래 문구가 이미 상태를 전달하므로 라벨이 정보를 더하지 않습니다.
           //   관리자 화면은 그대로 둡니다 — 담당자가 판단하는 데 필요한 용어입니다.
           Expanded(
-              child: Text(_riskMessage(emotion.riskLevel),
-                  style: const TextStyle(
-                      fontSize: 12,
-                      height: 1.75,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.navy))),
-          const SizedBox(width: 4),
-          SizedBox(
-              width: 86,
-              height: 86,
-              child: Stack(alignment: Alignment.center, children: [
-                Positioned.fill(
-                    child: CircularProgressIndicator(
-                        value: score / 100,
-                        strokeWidth: 5,
-                        backgroundColor: const Color(0xFFE2E6F2),
-                        color: AppColors.primary)),
-                Column(mainAxisSize: MainAxisSize.min, children: [
-                  Text(score.round().toString(),
-                      style: const TextStyle(
-                          fontSize: 21, fontWeight: FontWeight.w900)),
-                  const Text('/100',
-                      style: TextStyle(fontSize: 9, color: AppColors.muted))
-                ])
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                Text(_riskMessage(emotion.riskLevel),
+                    style: const TextStyle(
+                        fontSize: 12,
+                        height: 1.75,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.navy)),
+                const SizedBox(height: 8),
+                // 화면설계서 `MAIN_HOME_01` ❶ — 「상태 안내 문구와 **정서 점수 표시**」.
+                //
+                // ⚠ **원형 게이지로 그리지 마세요**(2026.08.21). `emotion_score` 는
+                //   개인 기준선 이탈 정도라 **높을수록 위험**한데, 채워지는 링은
+                //   「많이 찰수록 좋다」로 읽힙니다. 「많이 힘들어 보여요」 옆에
+                //   브랜드색으로 94% 찬 원이 뜨면 문구와 정반대 신호가 됩니다.
+                //   실제로 그렇게 그렸다가 걷어냈습니다.
+                //
+                //   그렇다고 숫자를 빼면 **화면설계서 ❶ 과 어긋납니다.** 문서가
+                //   정본이고 이미 제출됐으므로, 「표시는 하되 좋고 나쁨으로 읽히는
+                //   시각 언어를 쓰지 않는다」로 맞췄습니다 — 보조 텍스트로만 둡니다.
+                Text(
+                    '정서 점수 ${emotion.emotionScore.clamp(0, 100).round()} / 100',
+                    style:
+                        const TextStyle(fontSize: 10, color: AppColors.muted)),
               ])),
         ]),
       ]),
