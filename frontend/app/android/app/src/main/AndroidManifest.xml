@@ -1,9 +1,70 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
 
+    <!-- ================================================================
+         Health Connect — MLCM_200
+         ⚠ 여기 없는 타입은 HealthConnectReader 가 요청해도 조용히 거부됩니다.
+           health_reader.dart 의 _types 와 반드시 같이 고치세요.
+         ================================================================ -->
+    <uses-permission android:name="android.permission.health.READ_STEPS"/>
+    <uses-permission android:name="android.permission.health.READ_DISTANCE"/>
+    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED"/>
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE"/>
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE_VARIABILITY"/>
+    <uses-permission android:name="android.permission.health.READ_SLEEP"/>
+
+    <!-- 체성분 — MAIN_LIFELOG_01 ❺ · MAIN_JOIN_03 선택 동의.
+         근육량·골격근량은 Health Connect 에 레코드가 없어 빠집니다(PL-26). -->
+    <uses-permission android:name="android.permission.health.READ_WEIGHT"/>
+    <uses-permission android:name="android.permission.health.READ_BODY_FAT"/>
+    <uses-permission android:name="android.permission.health.READ_BODY_WATER_MASS"/>
+    <uses-permission android:name="android.permission.health.READ_BASAL_METABOLIC_RATE"/>
+
+    <!-- ⚠ 이게 없으면 백그라운드 워커가 **돌기는 하는데 아무것도 못 읽습니다.**
+         앱을 열었을 때만 수집돼서 「가끔 되는」 것처럼 보입니다. -->
+    <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND"/>
+
+    <!-- 걸음 수는 Health Connect 권한과 별개로 이것도 필요합니다. -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
+
+    <!-- Health Connect 앱이 설치돼 있는지 조회하기 위해 필요합니다.
+         Android 11+ 의 패키지 가시성 제한 때문에 빠지면 "미설치"로 보입니다. -->
+    <queries>
+        <package android:name="com.google.android.apps.healthdata" />
+        <intent>
+            <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+        </intent>
+
+        <!-- ⚠ 109 긴급 상담 연결(MAIN_EMERGENCY_01)에 필요합니다.
+             Health Connect 와 **같은 이유**입니다 — Android 11+ 의 패키지
+             가시성 제한 때문에, 이게 없으면 `url_launcher` 가 전화 앱을
+             찾지 못해 `launchUrl` 이 false 를 돌려줍니다.
+             화면에는 「전화 앱을 열 수 없어요」만 뜹니다.
+
+             앱에서 가장 안전에 직결된 동작이라 빼면 안 됩니다.
+             에뮬레이터에는 전화 앱이 없어 어차피 실패하므로 **이 결함은
+             에뮬레이터로 확인되지 않습니다.** -->
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+            <data android:scheme="tel" />
+        </intent>
+
+        <!-- 추천 콘텐츠(MLCM_400)를 외부 브라우저로 엽니다. 같은 가시성 제한. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
+
+    <!-- ⚠ networkSecurityConfig 를 빼지 마세요.
+         targetSdk 36 은 평문 HTTP 를 기본 차단합니다. Flutter 는 debug
+         매니페스트에만 평문을 허용해 두기 때문에, 이게 없으면 **릴리스
+         APK 만 서버에 못 붙습니다** — 에뮬레이터에서는 멀쩡해 보입니다.
+         허용 범위와 실기기 설정법은 res/xml/network_security_config.xml 참고. -->
     <application
         android:label="마음이"
         android:name="${applicationName}"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
@@ -26,7 +87,25 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
+            <!-- Health Connect 권한 화면의 「이 앱이 왜 필요한가」 링크 -->
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
         </activity>
+
+        <!-- Health Connect 설정에서 개인정보 처리방침으로 들어오는 경로.
+             ⚠ Google 심사에서 민감 권한을 요청할 때 요구될 수 있습니다. -->
+        <activity-alias
+            android:name="ViewPermissionUsageActivity"
+            android:exported="true"
+            android:targetActivity=".MainActivity"
+            android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
+                <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
+            </intent-filter>
+        </activity-alias>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

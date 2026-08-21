@@ -13,6 +13,13 @@ dependencies:
   http: ^1.6.0
   flutter_secure_storage: ^10.3.1
   url_launcher: ^6.3.2
+  pdf: ^3.13.0
+  printing: ^5.15.0
+  health: 13.3.1
+  workmanager: ^0.9.1+1
+  shared_preferences: ^2.5.5
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
@@ -23,3 +30,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/login_mascot.png
+    - assets/images/chat_persona_feeling.png
+    - assets/images/chat_persona_thinking.png
+    - assets/images/home_emotion.png

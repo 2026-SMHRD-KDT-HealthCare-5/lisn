@@ -50,7 +50,64 @@ class ApiClient {
     );
   }
 
+  Future<Map<String, dynamic>> patch(
+    String path, {
+    Map<String, dynamic>? body,
+    bool authenticated = false,
+  }) async {
+    return _send('PATCH', path, body: body, authenticated: authenticated);
+  }
+
+  /// 204 No Content 를 돌려주는 엔드포인트용. 응답 본문을 읽지 않습니다.
+  ///
+  /// ⚠ 요청 본문은 받습니다. `DELETE /users/me` 는 본인 확인용 비밀번호를
+  ///   본문으로 요구합니다(MLCM_103 2단계).
+  Future<void> delete(
+    String path, {
+    Map<String, dynamic>? body,
+    bool authenticated = false,
+  }) async {
+    await _send('DELETE', path, body: body, authenticated: authenticated);
+  }
+
+  /// 최상위가 **배열**인 응답용.
+  ///
+  /// [get] 은 Map 이 아니면 빈 Map 을 돌려주므로 목록 조회에 쓸 수 없습니다.
+  /// `GET /chat/sessions` 처럼 리스트를 그대로 내려주는 곳에서 씁니다.
+  Future<List<Map<String, dynamic>>> getList(
+    String path, {
+    Map<String, String>? queryParameters,
+    bool authenticated = false,
+  }) async {
+    final decoded = await _sendRaw(
+      'GET',
+      path,
+      queryParameters: queryParameters,
+      authenticated: authenticated,
+    );
+    if (decoded is! List) return const [];
+    return decoded.whereType<Map<String, dynamic>>().toList();
+  }
+
   Future<Map<String, dynamic>> _send(
+    String method,
+    String path, {
+    Map<String, String>? queryParameters,
+    Map<String, dynamic>? body,
+    required bool authenticated,
+  }) async {
+    final decoded = await _sendRaw(
+      method,
+      path,
+      queryParameters: queryParameters,
+      body: body,
+      authenticated: authenticated,
+    );
+    return decoded is Map<String, dynamic> ? decoded : const {};
+  }
+
+  /// 디코딩된 JSON 을 형태 그대로 돌려줍니다. Map 이든 List 든.
+  Future<dynamic> _sendRaw(
     String method,
     String path, {
     Map<String, String>? queryParameters,
@@ -97,10 +154,9 @@ class ApiClient {
       }
 
       if (response.body.isEmpty) {
-        return const {};
+        return const <String, dynamic>{};
       }
-      final decoded = jsonDecode(utf8.decode(response.bodyBytes));
-      return decoded is Map<String, dynamic> ? decoded : const {};
+      return jsonDecode(utf8.decode(response.bodyBytes));
     } on TimeoutException {
       throw const ApiException('서버 응답이 지연되고 있습니다. 잠시 후 다시 시도해주세요.');
     } on http.ClientException {

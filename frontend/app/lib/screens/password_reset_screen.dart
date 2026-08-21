@@ -92,7 +92,10 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
           onPressed: loading ? null : () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_rounded),
         ),
-        title: const MaeumeBrand(size: 18),
+        // AppBar 제목은 "여기가 어디인지"를 알려주는 자리입니다.
+        // 브랜드를 넣으면 사용자가 어떤 작업 중인지 알 수 없습니다.
+        title: const Text('비밀번호 재설정',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
         centerTitle: true,
       ),
       body: SafeArea(

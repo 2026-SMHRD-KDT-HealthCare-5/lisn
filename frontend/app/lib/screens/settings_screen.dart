@@ -1,21 +1,96 @@
 import 'package:flutter/material.dart';
 
+import '../models/auth_models.dart' show ApiException;
+import '../models/settings_models.dart';
 import '../services/app_services.dart';
+import '../services/settings_service.dart';
+import '../services/sync_worker.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common_widgets.dart';
+import 'account_screen.dart';
 import 'login_screen.dart';
 
+/// MAIN_SETTING_01
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  const SettingsScreen({super.key, this.settingsService});
+
+  /// 테스트 주입용. 평소에는 null 이고 AppServices.settings 를 씁니다.
+  final SettingsService? settingsService;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool healthConnect = true;
+  SettingsService get _service => widget.settingsService ?? AppServices.settings;
+
+  UserProfile? profile;
+  List<DeviceConnection> connections = const [];
+  NotificationSettings? alerts;
+  bool loading = true;
   bool loggingOut = false;
-  final notifications = [true, true, false];
+  bool busy = false;
+  String? error;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      loading = true;
+      error = null;
+    });
+    try {
+      // 둘은 서로 독립이라 함께 기다립니다.
+      final results = await Future.wait([
+        _service.profile(),
+        _service.connections(),
+        _service.notifications(),
+      ]);
+      if (!mounted) return;
+      setState(() {
+        profile = results[0] as UserProfile;
+        connections = results[1] as List<DeviceConnection>;
+        alerts = results[2] as NotificationSettings;
+        loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        error = e is ApiException ? e.message : '설정을 불러오지 못했습니다.';
+        loading = false;
+      });
+    }
+  }
+
+  void _toast(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _toggleConnection(DeviceConnection c, bool value) async {
+    if (busy) return;
+    setState(() => busy = true);
+    try {
+      final updated = await _service.updateConnection(c.connectionId,
+          permissionGranted: value);
+      if (!mounted) return;
+      setState(() {
+        connections = [
+          for (final item in connections)
+            item.connectionId == updated.connectionId ? updated : item
+        ];
+      });
+    } catch (e) {
+      _toast(e is ApiException ? e.message : '변경하지 못했습니다.');
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
 
   Future<void> logout() async {
     if (loggingOut) return;
@@ -24,6 +99,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await AppServices.auth.logout();
     } catch (_) {
       // 서버가 응답하지 않아도 로컬 토큰은 AuthService에서 반드시 폐기한다.
+    }
+    // ⚠ 수집 워커도 같이 멈춥니다. 안 멈추면 로그아웃한 뒤에도 계속 돌면서
+    //   실패분을 쌓고, **다음 사람이 로그인하면 앞사람 데이터가 그 계정으로
+    //   올라갑니다.**
+    try {
+      await cancelLifelogSync();
+    } catch (_) {
+      // 워커 해제 실패로 로그아웃이 막히면 안 됩니다.
     }
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
@@ -36,118 +119,246 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Column(children: [
-        SizedBox(
+        const SizedBox(
             height: 68,
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                      onPressed: () {}, icon: const Icon(Icons.menu_rounded)),
-                  const Text('설정',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
-                  IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.notifications_none_rounded))
-                ])),
+            child: Center(
+                child: Text('설정',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.w900)))),
         Expanded(
+          child: RefreshIndicator(
+            onRefresh: _load,
             child: ListView(
-                padding: const EdgeInsets.fromLTRB(15, 8, 15, 25),
-                children: [
-              const AppCard(
-                  child: Row(children: [
-                MaeumeMascot(size: 50),
-                SizedBox(width: 13),
-                Expanded(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                      Text('지은님',
-                          style: TextStyle(fontWeight: FontWeight.w800)),
-                      Text('jieun@email.com',
-                          style:
-                              TextStyle(fontSize: 10, color: AppColors.muted))
-                    ])),
-                Icon(Icons.chevron_right_rounded)
-              ])),
-              const _SettingsTitle('연결된 기기'),
-              const AppCard(
-                  child: Row(children: [
-                CircleAvatar(
-                    backgroundColor: Color(0xFFEEF1FF),
-                    child: Icon(Icons.watch_rounded, color: AppColors.primary)),
-                SizedBox(width: 13),
-                Expanded(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                      Text('스마트워치',
-                          style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.w800)),
-                      Text('Galaxy Watch 6 · 방금 동기화',
-                          style: TextStyle(fontSize: 9, color: AppColors.muted))
-                    ])),
-                Text('연결됨',
-                    style: TextStyle(
-                        fontSize: 10,
-                        color: Color(0xFF43B58E),
-                        fontWeight: FontWeight.w800))
-              ])),
-              const _SettingsTitle('데이터 연동'),
-              AppCard(
-                  child: SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      secondary: const CircleAvatar(
-                          backgroundColor: Color(0xFFEEF1FF),
-                          child: Icon(Icons.smartphone_rounded,
-                              color: AppColors.primary)),
-                      title: const Text('Health Connect',
-                          style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.w800)),
-                      subtitle: const Text('수면 · 걸음 · 심박수 · 스트레스',
-                          style: TextStyle(fontSize: 9)),
-                      value: healthConnect,
-                      onChanged: (value) =>
-                          setState(() => healthConnect = value))),
-              const _SettingsTitle('알림 설정'),
-              AppCard(
-                  padding: EdgeInsets.zero,
-                  child: Column(
-                      children: List.generate(
-                          3,
-                          (i) => SwitchListTile(
-                              secondary: Icon(
-                                  [
-                                    Icons.favorite_border_rounded,
-                                    Icons.auto_awesome_rounded,
-                                    Icons.monitor_heart_outlined
-                                  ][i],
-                                  color: AppColors.primary),
-                              title: Text(['감정 알림', '추천 콘텐츠 알림', '리포트 알림'][i],
-                                  style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700)),
-                              value: notifications[i],
-                              onChanged: (value) =>
-                                  setState(() => notifications[i] = value))))),
-              const _SettingsTitle('기타'),
-              AppCard(
-                  padding: EdgeInsets.zero,
-                  child: Column(children: [
-                    const _SettingsRow(
-                        icon: Icons.dark_mode_outlined, label: '테마 설정'),
-                    const _SettingsRow(
-                        icon: Icons.account_circle_outlined, label: '계정 관리'),
-                    const _SettingsRow(
-                        icon: Icons.help_outline_rounded, label: '도움말 및 문의'),
-                    _SettingsRow(
-                        icon: Icons.logout_rounded,
-                        label: loggingOut ? '로그아웃 중...' : '로그아웃',
-                        onTap: loggingOut ? null : logout),
-                  ])),
-            ])),
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(15, 8, 15, 25),
+              // 당겨서 새로고침할 때 본문을 스피너로 갈아치우지 않습니다.
+              // RefreshIndicator 가 이미 위에서 진행을 알리고 있고, 보고 있던
+              // 프로필·기기 목록이 사라졌다 돌아오면 화면이 크게 튑니다.
+              children: (loading && profile == null)
+                  ? [
+                      const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 70),
+                          child: Center(
+                              child:
+                                  CircularProgressIndicator(strokeWidth: 2.5)))
+                    ]
+                  : error != null
+                      ? [
+                          AppCard(
+                              child: Column(children: [
+                            Text(error!,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                    fontSize: 12, color: AppColors.muted)),
+                            const SizedBox(height: 12),
+                            TextButton(
+                                onPressed: _load, child: const Text('다시 시도')),
+                          ]))
+                        ]
+                      : loading
+                          // 갱신 중임은 흐리게 알립니다. 이 사이 토글을 누르면
+                          // 곧 덮어써질 값을 바꾸게 되므로 조작도 막습니다.
+                          ? [StaleContent(child: Column(children: _sections()))]
+                          : _sections(),
+            ),
+          ),
+        ),
       ]),
     );
+  }
+
+  List<Widget> _sections() => [
+        _profileCard(),
+        // 「대화 성격」 절은 없습니다 — 챗봇 탭이 확인·변경 화면입니다(SD-A⑥).
+        const _SettingsTitle('데이터 연동'),
+        ..._connectionCards(),
+        const _SettingsTitle('알림 설정'),
+        _notificationsCard(),
+        const _SettingsTitle('기타'),
+        AppCard(
+            padding: EdgeInsets.zero,
+            child: Column(children: [
+              // ❸ 계정 관리 — 화면설계서는 여기서 **이동**하도록 규정합니다.
+              //    전에는 탈퇴 버튼이 이 자리에 직접 있었습니다(MAIN_SETTING_02
+              //    화면 자체가 없었음). 되돌리지 마세요.
+              _SettingsRow(
+                  icon: Icons.manage_accounts_outlined,
+                  label: '계정 관리',
+                  onTap: busy
+                      ? null
+                      : () => Navigator.of(context)
+                          .push(MaterialPageRoute<void>(
+                              builder: (_) => const AccountScreen()))
+                          .then((_) => _load())),
+              _SettingsRow(
+                  icon: Icons.logout_rounded,
+                  label: loggingOut ? '로그아웃 중...' : '로그아웃',
+                  onTap: loggingOut ? null : logout),
+            ])),
+      ];
+
+  Widget _profileCard() {
+    final p = profile;
+    return AppCard(
+        child: Row(children: [
+      const MaeumeMascot(size: 50),
+      const SizedBox(width: 13),
+      Expanded(
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('${p?.name ?? ''}님',
+            style: const TextStyle(fontWeight: FontWeight.w800)),
+        Text(p?.email ?? '',
+            style: const TextStyle(fontSize: 10, color: AppColors.muted)),
+      ])),
+      if (p?.role == 'ADMIN')
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+          decoration: BoxDecoration(
+              color: AppColors.soft, borderRadius: BorderRadius.circular(9)),
+          child: const Text('관리자',
+              style: TextStyle(fontSize: 9, color: AppColors.primary)),
+        ),
+    ]));
+  }
+
+  // ❸ 페르소나 항목은 **설정에서 뺐습니다.**
+  //
+  // 이 앱은 성격 선택과 대화 시작이 한 동작입니다(카드 버튼이 「이 성격으로
+  // 대화하기」). 그래서 설정에서 「바꾸기」를 누르면 결국 대화가 시작돼,
+  // 설정 변경치고는 이상한 흐름이 됩니다.
+  //
+  // 대신 **챗봇 탭이 확인 화면 역할을 합니다** — 열면 최근에 고른 성격 카드가
+  // 먼저 뜨고 「최근 대화」 표시가 붙습니다. 확인도 변경도 거기서 됩니다.
+  // 설정에 같은 것을 또 두면 어느 쪽이 실제로 적용되는지 알 수 없습니다.
+  //
+  // 화면설계서 `MAIN_SETTING_01` ❸ 삭제 → 체크리스트 `SD-A⑥`
+
+  List<Widget> _connectionCards() {
+    if (connections.isEmpty) {
+      return [
+        const AppCard(
+            child: Column(children: [
+          Text('연동된 기기가 없어요',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
+          SizedBox(height: 7),
+          Text('Health Connect 를 연동하면 걸음·수면·심박수가\n자동으로 기록됩니다.',
+              textAlign: TextAlign.center,
+              style:
+                  TextStyle(fontSize: 10, height: 1.6, color: AppColors.muted)),
+        ]))
+      ];
+    }
+
+    return [
+      for (final c in connections)
+        AppCard(
+            child: Column(children: [
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            secondary: const CircleAvatar(
+                backgroundColor: Color(0xFFEEF1FF),
+                child:
+                    Icon(Icons.smartphone_rounded, color: AppColors.primary)),
+            title: Text(c.deviceName ?? _platformLabel(c.platformType),
+                style:
+                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
+            subtitle: Text(_scopeText(c),
+                style: const TextStyle(fontSize: 9, color: AppColors.muted)),
+            value: c.permissionGranted,
+            onChanged: busy ? null : (v) => _toggleConnection(c, v),
+          ),
+          // ⚠ 연동을 꺼도 이미 수집된 기록은 지워지지 않습니다(MLCM_110 종료조건).
+          //   이 말을 빼면 "끄면 다 사라진다"고 오해합니다.
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text('연동을 꺼도 지금까지 쌓인 기록은 그대로 남아요.',
+                style: TextStyle(fontSize: 9, color: AppColors.muted)),
+          ),
+        ])),
+    ];
+  }
+
+  String _platformLabel(String type) =>
+      type == 'APPLE_HEALTH' ? 'Apple 건강' : 'Health Connect';
+
+  String _scopeText(DeviceConnection c) {
+    final on = [
+      if (c.consentScopes.activity) '활동',
+      if (c.consentScopes.sleep) '수면',
+      if (c.consentScopes.bodyComposition) '체성분',
+    ];
+    final synced = c.lastSyncedAt == null
+        ? '아직 수신 없음'
+        : '마지막 수신 ${c.lastSyncedAt!.month}.${c.lastSyncedAt!.day}';
+    return '${on.isEmpty ? '수집 항목 없음' : on.join(' · ')}  ·  $synced';
+  }
+
+  /// 알림 수신 동의 — `MAIN_SETTING_01` ❷ · `MLCM_400` 5단계
+  ///
+  /// ⚠ **토글이 둘인 이유가 있습니다.** 하나로 묶으면 콘텐츠 알림이 귀찮아
+  ///   끈 사람이 선제 접촉(`MLCM_220`)까지 끕니다. 알림을 끄는 사람일수록
+  ///   앱을 안 여는 사람, 즉 우리가 놓치면 안 되는 쪽입니다.
+  Widget _notificationsCard() {
+    final a = alerts;
+    if (a == null) return const AppCard(child: SizedBox(height: 44));
+
+    return AppCard(
+        child: Column(children: [
+      _alertToggle(
+        '케어 알림',
+        '평소와 달라진 점을 먼저 알려드려요',
+        a.careAlert,
+        (v) => _saveAlerts(careAlert: v),
+      ),
+      _alertToggle(
+        '콘텐츠·리포트 알림',
+        '추천 콘텐츠와 주간 리포트',
+        a.contentAlert,
+        (v) => _saveAlerts(contentAlert: v),
+      ),
+    ]));
+  }
+
+  Widget _alertToggle(
+    String label,
+    String hint,
+    bool value,
+    ValueChanged<bool> onChanged,
+  ) =>
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        title: Text(label,
+            style: const TextStyle(fontSize: 12, color: AppColors.navy)),
+        subtitle: Text(hint,
+            style: const TextStyle(fontSize: 9, color: AppColors.muted)),
+        value: value,
+        onChanged: busy ? null : onChanged,
+      );
+
+  /// ⚠ **보낸 것만 바뀝니다.** 둘을 함께 보내면 한쪽을 끌 때 다른 쪽이
+  ///   화면의 옛 값으로 덮어써집니다.
+  Future<void> _saveAlerts({bool? careAlert, bool? contentAlert}) async {
+    setState(() => busy = true);
+    try {
+      final next = await _service.updateNotifications(
+        careAlert: careAlert,
+        contentAlert: contentAlert,
+      );
+      if (!mounted) return;
+      setState(() {
+        alerts = next;
+        busy = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      // 실패하면 **화면을 되돌립니다.** 켜진 것처럼 두면 안 오는 알림을
+      // 기다리게 됩니다.
+      setState(() => busy = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(e is ApiException ? e.message : '알림 설정을 저장하지 못했습니다.'),
+      ));
+    }
   }
 }
 
@@ -157,9 +368,12 @@ class _SettingsTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-      padding: const EdgeInsets.fromLTRB(4, 22, 4, 9),
+      padding: const EdgeInsets.fromLTRB(4, 20, 4, 9),
       child: Text(label,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)));
+          style: const TextStyle(
+              fontSize: 10,
+              color: AppColors.muted,
+              fontWeight: FontWeight.w800)));
 }
 
 class _SettingsRow extends StatelessWidget {
@@ -170,9 +384,9 @@ class _SettingsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListTile(
-      onTap: onTap,
-      leading: Icon(icon, color: AppColors.primary),
+      leading: Icon(icon, color: AppColors.primary, size: 20),
       title: Text(label,
           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-      trailing: const Icon(Icons.chevron_right_rounded, size: 19));
+      trailing: const Icon(Icons.chevron_right_rounded, size: 19),
+      onTap: onTap);
 }

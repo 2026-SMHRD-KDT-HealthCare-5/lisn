@@ -1,3 +1,5 @@
+import 'json.dart';
+
 class AuthUser {
   const AuthUser({
     required this.userId,
@@ -39,7 +41,7 @@ class AuthSession {
     return AuthSession(
       accessToken: json['access_token'] as String,
       expiresAt: DateTime.parse(json['expires_at'] as String).toUtc(),
-      user: AuthUser.fromJson(json['user'] as Map<String, dynamic>),
+      user: AuthUser.fromJson(jsonObj(json['user'])),
     );
   }
 }

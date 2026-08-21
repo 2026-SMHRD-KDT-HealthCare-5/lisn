@@ -54,13 +54,10 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(24, 20, 24, 8),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: MaeumeBrand(size: 18),
-              ),
-            ),
+            // 브랜드를 두지 않습니다. 위기 상황에서 서비스명은 잡음이고,
+            // 상담 연결 화면 맨 위에 로고가 있으면 우리가 상담 제공자인 것처럼
+            // 읽힙니다. 실제 연결 대상은 외부 전문 기관입니다.
+            const SizedBox(height: 12),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
