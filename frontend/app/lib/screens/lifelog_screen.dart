@@ -130,8 +130,10 @@ class _LifelogScreenState extends State<LifelogScreen> {
                 AsyncSnapshot(connectionState: ConnectionState.waiting)
                     when _last != null =>
                   [StaleContent(child: Column(children: _body(_last!)))],
-                AsyncSnapshot(connectionState: ConnectionState.waiting) =>
-                  [const _Centered(child: CircularProgressIndicator(strokeWidth: 2.5))],
+                AsyncSnapshot(connectionState: ConnectionState.waiting) => [
+                    const _Centered(
+                        child: CircularProgressIndicator(strokeWidth: 2.5))
+                  ],
                 AsyncSnapshot(hasError: true, :final error) => [
                     _Centered(
                       child: Column(children: [
@@ -165,7 +167,9 @@ class _LifelogScreenState extends State<LifelogScreen> {
                           ButtonSegment(value: 1, label: Text('주간')),
                           ButtonSegment(value: 2, label: Text('월간'))
                         ],
-                        selected: {range},
+                        selected: {
+                          range
+                        },
                         onSelectionChanged: (v) => _changeRange(v.first),
                         showSelectedIcon: false),
                     _SyncedAtLine(at: _syncedAt),
@@ -233,7 +237,8 @@ class _LifelogScreenState extends State<LifelogScreen> {
       _LogMetric(
           icon: Icons.monitor_heart_rounded,
           title: 'HRV',
-          value: latest.hrv == null ? '–' : '${latest.hrv!.toStringAsFixed(0)} ms',
+          value:
+              latest.hrv == null ? '–' : '${latest.hrv!.toStringAsFixed(0)} ms',
           color: AppColors.blue),
       const SizedBox(height: 4),
       Text('마지막 수집  ${_stamp(latest.collectedAt)}',
@@ -267,8 +272,7 @@ class _LifelogScreenState extends State<LifelogScreen> {
             height: 115,
             width: double.infinity,
             child: CustomPaint(
-                painter: _LineChartPainter(
-                    points.map((p) => p.$2).toList()))),
+                painter: _LineChartPainter(points.map((p) => p.$2).toList()))),
         const SizedBox(height: 6),
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Text(_short(points.first.$1),
@@ -288,11 +292,11 @@ class _LifelogScreenState extends State<LifelogScreen> {
 
   String _sleepText(int? min) =>
       min == null ? '–' : '${min ~/ 60}시간 ${min % 60}분';
-
 }
 
-String _comma(int n) => n.toString().replaceAllMapped(
-    RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},');
+String _comma(int n) => n
+    .toString()
+    .replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},');
 
 String _stamp(DateTime at) {
   final diff = DateTime.now().difference(at);
@@ -327,7 +331,8 @@ class _LineChartPainter extends CustomPainter {
 
     Offset at(int i) => Offset(
           size.width * i / (values.length - 1),
-          size.height * (1 - (values[i] - lo) / span) * 0.9 + size.height * 0.05,
+          size.height * (1 - (values[i] - lo) / span) * 0.9 +
+              size.height * 0.05,
         );
 
     final path = Path()..moveTo(at(0).dx, at(0).dy);
@@ -437,8 +442,8 @@ class _BodyCompositionSection extends StatefulWidget {
 }
 
 class _BodyCompositionSectionState extends State<_BodyCompositionSection> {
-  late final Future<List<BodyComposition>> _future = widget.service
-      .fetchBodyComposition(limit: 30);
+  late final Future<List<BodyComposition>> _future =
+      widget.service.fetchBodyComposition(limit: 30);
 
   @override
   Widget build(BuildContext context) {
@@ -475,10 +480,12 @@ class _BodyCompositionSectionState extends State<_BodyCompositionSection> {
         Text('아직 체성분 기록이 없어요.',
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800)),
         SizedBox(height: 8),
-        Text('체성분계를 연동하고 설정에서 체성분 수집에 동의하면\n'
+        Text(
+            '체성분계를 연동하고 설정에서 체성분 수집에 동의하면\n'
             '체중·체지방·체수분이 여기에 쌓입니다.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 11, height: 1.7, color: AppColors.muted)),
+            style:
+                TextStyle(fontSize: 11, height: 1.7, color: AppColors.muted)),
         SizedBox(height: 4),
       ]));
 
@@ -503,7 +510,8 @@ class _BodyCompositionSectionState extends State<_BodyCompositionSection> {
       _LogMetric(
           icon: Icons.local_fire_department_rounded,
           title: '기초대사량',
-          value: latest.bmrKcal == null ? '–' : '${_comma(latest.bmrKcal!)} kcal',
+          value:
+              latest.bmrKcal == null ? '–' : '${_comma(latest.bmrKcal!)} kcal',
           color: AppColors.purple),
       const SizedBox(height: 12),
       // 「측정 이력」 — 최신 한 건만 보여주면 변화를 알 수 없습니다.

@@ -284,7 +284,8 @@ DailyLifelog _foldDay(DateTime day, List<HealthSample> samples) {
   if (active.isNotEmpty) {
     active.sort((a, b) => a.from.compareTo(b.from));
     activityStart = active.first.from;
-    activityEnd = active.map((s) => s.to).reduce((a, b) => a.isAfter(b) ? a : b);
+    activityEnd =
+        active.map((s) => s.to).reduce((a, b) => a.isAfter(b) ? a : b);
     activeMin = active.fold<int>(0, (a, s) => a + s.duration.inMinutes);
   }
 
@@ -304,8 +305,7 @@ DailyLifelog _foldDay(DateTime day, List<HealthSample> samples) {
   if (sessions.isNotEmpty) {
     sessions.sort((a, b) => a.from.compareTo(b.from));
     sleepStart = sessions.first.from;
-    sleepEnd =
-        sessions.map((s) => s.to).reduce((a, b) => a.isAfter(b) ? a : b);
+    sleepEnd = sessions.map((s) => s.to).reduce((a, b) => a.isAfter(b) ? a : b);
     final inBed = sessions.fold<int>(0, (a, s) => a + s.duration.inMinutes);
 
     final staged = [deep, light, rem].whereType<int>();
@@ -438,7 +438,7 @@ List<BodyCompositionSample> aggregateBodyComposition(
   for (final s in samples) {
     if (!fields.contains(s.field)) continue;
     final key = DateTime(
-      s.from.year, s.from.month, s.from.day, s.from.hour, s.from.minute);
+        s.from.year, s.from.month, s.from.day, s.from.hour, s.from.minute);
     // 같은 분에 같은 지표가 여럿이면 마지막 것을 씁니다.
     (byMinute[key] ??= {})[s.field] = s.value;
   }

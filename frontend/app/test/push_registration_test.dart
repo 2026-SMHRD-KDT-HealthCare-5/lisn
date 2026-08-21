@@ -84,8 +84,7 @@ void main() {
   test('권한을 허용하면 토큰이 서버에 등록된다', () async {
     final server = _Server();
     final source = _FakeSource(value: 'token-a');
-    final registrar =
-        PushRegistrar(source: source, settings: server.service);
+    final registrar = PushRegistrar(source: source, settings: server.service);
 
     expect(await registrar.register(), isTrue);
     expect(server.patches, [
@@ -99,8 +98,7 @@ void main() {
     // 앱을 열면 보입니다(MLCM_220 6단계).
     final server = _Server();
     final source = _FakeSource(granted: false);
-    final registrar =
-        PushRegistrar(source: source, settings: server.service);
+    final registrar = PushRegistrar(source: source, settings: server.service);
 
     expect(await registrar.register(), isFalse);
     expect(server.patches, isEmpty);
@@ -110,8 +108,7 @@ void main() {
   test('토큰을 못 받으면 등록하지 않는다', () async {
     final server = _Server();
     final source = _FakeSource(value: null);
-    final registrar =
-        PushRegistrar(source: source, settings: server.service);
+    final registrar = PushRegistrar(source: source, settings: server.service);
 
     expect(await registrar.register(), isFalse);
     expect(server.patches, isEmpty);
@@ -124,8 +121,7 @@ void main() {
     //   않는 종류라 제일 늦게 발견됩니다.
     final server = _Server();
     final source = _FakeSource(value: 'token-a');
-    final registrar =
-        PushRegistrar(source: source, settings: server.service);
+    final registrar = PushRegistrar(source: source, settings: server.service);
 
     await registrar.register();
     source.emitRefresh('token-b');
@@ -141,8 +137,7 @@ void main() {
   test('같은 토큰은 다시 보내지 않는다', () async {
     final server = _Server();
     final source = _FakeSource(value: 'token-a');
-    final registrar =
-        PushRegistrar(source: source, settings: server.service);
+    final registrar = PushRegistrar(source: source, settings: server.service);
 
     await registrar.register();
     await registrar.register();
@@ -159,8 +154,7 @@ void main() {
     //   폰으로 갑니다.
     final server = _Server();
     final source = _FakeSource(value: 'token-a');
-    final registrar =
-        PushRegistrar(source: source, settings: server.service);
+    final registrar = PushRegistrar(source: source, settings: server.service);
 
     await registrar.register();
     await registrar.unregister();
@@ -174,8 +168,7 @@ void main() {
     // 구독을 안 끊으면 로그아웃했는데 앞사람 계정으로 토큰이 붙습니다.
     final server = _Server();
     final source = _FakeSource(value: 'token-a');
-    final registrar =
-        PushRegistrar(source: source, settings: server.service);
+    final registrar = PushRegistrar(source: source, settings: server.service);
 
     await registrar.register();
     await registrar.unregister();
@@ -191,8 +184,7 @@ void main() {
     // 푸시가 없다고 앱이 멈추면 안 됩니다.
     final server = _Server()..failTimes = 1;
     final source = _FakeSource(value: 'token-a');
-    final registrar =
-        PushRegistrar(source: source, settings: server.service);
+    final registrar = PushRegistrar(source: source, settings: server.service);
 
     expect(await registrar.register(), isFalse);
     await source.close();

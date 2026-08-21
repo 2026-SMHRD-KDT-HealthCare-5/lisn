@@ -67,8 +67,8 @@ class _MainShellState extends State<MainShell> with WidgetsBindingObserver {
   ///   홈 화면은 떠야 합니다. 실패분은 큐에 남아 다음 주기가 가져갑니다.
   void _pullLifelog() {
     unawaited(AppServices.lifelogSync.sync().catchError(
-      (Object e) => const SyncResult(SyncOutcome.failedAndQueued),
-    ));
+          (Object e) => const SyncResult(SyncOutcome.failedAndQueued),
+        ));
   }
 
   @override

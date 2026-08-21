@@ -40,8 +40,6 @@ int? jsonInt(dynamic v) => switch (v) {
 DateTime? jsonAt(dynamic v) =>
     v is String ? DateTime.tryParse(v)?.toLocal() : null;
 
-String jsonStr(dynamic v, [String fallback = '']) =>
-    v is String ? v : fallback;
+String jsonStr(dynamic v, [String fallback = '']) => v is String ? v : fallback;
 
-bool jsonBool(dynamic v, [bool fallback = false]) =>
-    v is bool ? v : fallback;
+bool jsonBool(dynamic v, [bool fallback = false]) => v is bool ? v : fallback;

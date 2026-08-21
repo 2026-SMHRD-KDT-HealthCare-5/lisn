@@ -53,10 +53,14 @@ void main() {
   test('화면설명의 [F]·[T] 표기와 같다', () {
     final doc = squash(File(_extract).readAsStringSync());
     // 화면설명 ❶ [F] 따스한 공감형 : … / ❷ [T] 현실적인 조언형 : …
-    expect(doc,
-        contains(squash('[${ChatPersona.feeling.tag}] ${ChatPersona.feeling.label}')));
-    expect(doc,
-        contains(squash('[${ChatPersona.thinking.tag}] ${ChatPersona.thinking.label}')));
+    expect(
+        doc,
+        contains(squash(
+            '[${ChatPersona.feeling.tag}] ${ChatPersona.feeling.label}')));
+    expect(
+        doc,
+        contains(squash(
+            '[${ChatPersona.thinking.tag}] ${ChatPersona.thinking.label}')));
   });
 
   test('⚠ 서버 코드 값은 스키마 값 그대로여야 한다', () {

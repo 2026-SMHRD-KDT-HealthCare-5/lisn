@@ -64,7 +64,8 @@ class PrefsSyncStore implements SyncStore {
 
   @override
   Future<void> saveLastSyncedAt(DateTime value) async {
-    await (await _prefs).setString(_kLastSynced, value.toUtc().toIso8601String());
+    await (await _prefs)
+        .setString(_kLastSynced, value.toUtc().toIso8601String());
   }
 
   @override
@@ -104,10 +105,11 @@ class PrefsSyncStore implements SyncStore {
     // 최신 것부터 남깁니다. 오래된 행일수록 다시 읽어 채울 여지가 큽니다.
     final trimmed = rows.length <= maxPending
         ? rows
-        : (rows.toList()..sort((a, b) => a.collectedAt.compareTo(b.collectedAt)))
+        : (rows.toList()
+              ..sort((a, b) => a.collectedAt.compareTo(b.collectedAt)))
             .sublist(rows.length - maxPending);
-    await (await _prefs)
-        .setString(_kPending, jsonEncode(trimmed.map((r) => r.toJson()).toList()));
+    await (await _prefs).setString(
+        _kPending, jsonEncode(trimmed.map((r) => r.toJson()).toList()));
   }
 
   @override

@@ -68,8 +68,8 @@ void main() {
         sample(HealthField.weight, 68.4, t),
         sample(HealthField.bodyFatPercentage, 22.5,
             t.add(const Duration(seconds: 3))),
-        sample(HealthField.bodyWaterMass, 38.2,
-            t.add(const Duration(seconds: 5))),
+        sample(
+            HealthField.bodyWaterMass, 38.2, t.add(const Duration(seconds: 5))),
       ]);
 
       expect(rows, hasLength(1));
@@ -104,8 +104,8 @@ void main() {
   });
 
   group('전송 — 중복을 만들지 않는다', () {
-    LifelogSyncService build(FakeHealthReader reader, SyncStore store,
-            LifelogService service) =>
+    LifelogSyncService build(
+            FakeHealthReader reader, SyncStore store, LifelogService service) =>
         LifelogSyncService(
           reader: reader,
           store: store,
@@ -163,12 +163,11 @@ void main() {
       final server = _Server()..failBodyTimes = 99;
       final store = MemorySyncStore();
 
-      final result =
-          await build(reader, store, server.service).sync(now: DateTime(2026, 8, 3, 9));
+      final result = await build(reader, store, server.service)
+          .sync(now: DateTime(2026, 8, 3, 9));
 
       expect(result.outcome, SyncOutcome.sent);
-      expect(await store.lastBodyAt(), isNull,
-          reason: '실패했으므로 워터마크를 옮기면 안 된다');
+      expect(await store.lastBodyAt(), isNull, reason: '실패했으므로 워터마크를 옮기면 안 된다');
     });
   });
 }

@@ -63,9 +63,7 @@ class SessionStarted {
         sessionId: jsonStr(json['session_id']),
         personaType: jsonStr(json['persona_type'], 'FRIEND'),
         greeting: jsonStr(json['greeting']),
-        startedAt:
-            jsonAt(json['started_at']) ??
-                DateTime.now(),
+        startedAt: jsonAt(json['started_at']) ?? DateTime.now(),
       );
 }
 
@@ -79,8 +77,7 @@ class MessageResult {
 
   factory MessageResult.fromJson(Map<String, dynamic> json) => MessageResult(
         reply: json['reply'] as String?,
-        risk: RiskInfo.fromJson(
-            jsonObj(json['risk'])),
+        risk: RiskInfo.fromJson(jsonObj(json['risk'])),
       );
 }
 
@@ -108,9 +105,7 @@ class ChatSessionSummary {
         sessionId: jsonStr(json['session_id']),
         personaType: jsonStr(json['persona_type'], 'FRIEND'),
         sessionSummary: json['session_summary'] as String?,
-        startedAt:
-            jsonAt(json['started_at']) ??
-                DateTime.now(),
+        startedAt: jsonAt(json['started_at']) ?? DateTime.now(),
         endedAt: jsonAt(json['ended_at']),
       );
 }
@@ -156,7 +151,6 @@ class ChatSessionDetail {
         messages: jsonList(json['messages']).map(ChatBubble.fromJson).toList(),
       );
 }
-
 
 /// 열려 있는 대화 — `MLCM_220` 6단계.
 ///

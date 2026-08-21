@@ -380,7 +380,8 @@ class _Reveal extends StatelessWidget {
       curve: const Interval(0.35, 1.0, curve: Curves.easeOut),
       builder: (context, t, child) => Opacity(
         opacity: t,
-        child: Transform.translate(offset: Offset(0, 10 * (1 - t)), child: child),
+        child:
+            Transform.translate(offset: Offset(0, 10 * (1 - t)), child: child),
       ),
       child: child,
     );
@@ -491,8 +492,7 @@ class _DesktopLoginVisual extends StatelessWidget {
               end: Alignment.bottomRight)),
       child: Stack(
         children: [
-          const Align(
-              alignment: Alignment.topLeft, child: LisnBrand(size: 26)),
+          const Align(alignment: Alignment.topLeft, child: LisnBrand(size: 26)),
           const Align(
             alignment: Alignment(-.65, -.15),
             child: Column(

@@ -13,7 +13,8 @@ HealthSample sample(
   DateTime from, [
   DateTime? to,
 ]) =>
-    HealthSample(field: field, value: value.toDouble(), from: from, to: to ?? from);
+    HealthSample(
+        field: field, value: value.toDouble(), from: from, to: to ?? from);
 
 void main() {
   group('하루 한 행으로 접는다', () {
@@ -23,7 +24,8 @@ void main() {
       final day = DateTime(2026, 8, 2);
       final rows = aggregateDaily([
         sample(HealthField.steps, 500, day.add(const Duration(hours: 9))),
-        sample(HealthField.steps, 700, day.add(const Duration(hours: 9, minutes: 15))),
+        sample(HealthField.steps, 700,
+            day.add(const Duration(hours: 9, minutes: 15))),
         sample(HealthField.steps, 300, day.add(const Duration(hours: 18))),
       ]);
 

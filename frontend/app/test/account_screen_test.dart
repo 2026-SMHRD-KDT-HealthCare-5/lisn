@@ -115,7 +115,8 @@ void main() {
       await tester.tap(find.text('비밀번호 변경'));
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.widgetWithText(TextFormField, '현재 비밀번호'), 'old-password');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, '현재 비밀번호'), 'old-password');
       await tester.enterText(
           find.widgetWithText(TextFormField, '새 비밀번호 (8자 이상)'), 'new-password');
       await tester.enterText(
@@ -125,7 +126,8 @@ void main() {
 
       expect(find.text('새 비밀번호가 서로 다릅니다'), findsOneWidget);
       expect(s.requests.any((r) => r.url.path.endsWith('/users/me/password')),
-          isFalse, reason: '검증 실패인데 서버로 나갔습니다');
+          isFalse,
+          reason: '검증 실패인데 서버로 나갔습니다');
     });
 
     testWidgets('8자 미만은 보내지 않는다', (tester) async {
@@ -134,10 +136,12 @@ void main() {
       await _pump(tester, s.build());
       await tester.tap(find.text('비밀번호 변경'));
       await tester.pumpAndSettle();
-      await tester.enterText(find.widgetWithText(TextFormField, '현재 비밀번호'), 'old-password');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, '현재 비밀번호'), 'old-password');
       await tester.enterText(
           find.widgetWithText(TextFormField, '새 비밀번호 (8자 이상)'), 'short');
-      await tester.enterText(find.widgetWithText(TextFormField, '새 비밀번호 확인'), 'short');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, '새 비밀번호 확인'), 'short');
       await tester.tap(find.text('변경하기'));
       await tester.pumpAndSettle();
 
@@ -151,7 +155,8 @@ void main() {
       await _pump(tester, s.build());
       await tester.tap(find.text('비밀번호 변경'));
       await tester.pumpAndSettle();
-      await tester.enterText(find.widgetWithText(TextFormField, '현재 비밀번호'), 'old-password');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, '현재 비밀번호'), 'old-password');
       await tester.enterText(
           find.widgetWithText(TextFormField, '새 비밀번호 (8자 이상)'), 'new-password');
       await tester.enterText(
@@ -172,7 +177,8 @@ void main() {
       await _pump(tester, s.build());
       await tester.tap(find.text('비밀번호 변경'));
       await tester.pumpAndSettle();
-      await tester.enterText(find.widgetWithText(TextFormField, '현재 비밀번호'), 'wrong-password');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, '현재 비밀번호'), 'wrong-password');
       await tester.enterText(
           find.widgetWithText(TextFormField, '새 비밀번호 (8자 이상)'), 'new-password');
       await tester.enterText(

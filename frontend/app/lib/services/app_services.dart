@@ -22,11 +22,9 @@ class AppServices {
   );
   static final HomeService home = HomeService(apiClient: apiClient);
   static final ChatService chat = ChatService(apiClient: apiClient);
-  static final LifelogService lifelog =
-      LifelogService(apiClient: apiClient);
+  static final LifelogService lifelog = LifelogService(apiClient: apiClient);
   static final ReportService report = ReportService(apiClient: apiClient);
-  static final SettingsService settings =
-      SettingsService(apiClient: apiClient);
+  static final SettingsService settings = SettingsService(apiClient: apiClient);
 
   /// Health Connect 읽기 — MLCM_200
   static final HealthReader healthReader = HealthConnectReader();

@@ -9,7 +9,8 @@ import 'json.dart';
 
 /// ❸ 위험 단계 분포 — 안정·주의·심각 비율
 class RiskDistribution {
-  const RiskDistribution({this.normal = 0, this.caution = 0, this.critical = 0});
+  const RiskDistribution(
+      {this.normal = 0, this.caution = 0, this.critical = 0});
 
   final int normal;
   final int caution;
@@ -107,12 +108,10 @@ class EmotionReport {
         dateFrom: jsonAt(json['date_from']),
         dateTo: jsonAt(json['date_to']),
         distribution: RiskDistribution.fromJson(jsonObj(json['distribution'])),
-        emotionTrend: jsonList(json['emotion_trend'])
-            .map(RiskPoint.fromJson)
-            .toList(),
-        lifelogTrend: jsonList(json['lifelog_trend'])
-            .map(LifelogPoint.fromJson)
-            .toList(),
+        emotionTrend:
+            jsonList(json['emotion_trend']).map(RiskPoint.fromJson).toList(),
+        lifelogTrend:
+            jsonList(json['lifelog_trend']).map(LifelogPoint.fromJson).toList(),
         summary: jsonStr(json['summary']),
       );
 }

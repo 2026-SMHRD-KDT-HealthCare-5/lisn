@@ -22,7 +22,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  SettingsService get _service => widget.settingsService ?? AppServices.settings;
+  SettingsService get _service =>
+      widget.settingsService ?? AppServices.settings;
 
   UserProfile? profile;
   List<DeviceConnection> connections = const [];

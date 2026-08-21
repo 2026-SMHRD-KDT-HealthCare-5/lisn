@@ -86,8 +86,8 @@ void main() {
 
     await expectLater(
       api.get('/home'),
-      throwsA(isA<ApiException>()
-          .having((e) => e.statusCode, 'statusCode', 502)),
+      throwsA(
+          isA<ApiException>().having((e) => e.statusCode, 'statusCode', 502)),
     );
   });
 }

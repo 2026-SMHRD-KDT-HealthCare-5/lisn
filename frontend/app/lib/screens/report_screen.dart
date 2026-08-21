@@ -78,8 +78,8 @@ class _ReportScreenState extends State<ReportScreen> {
       //   고른 마지막 날이 통째로 빠집니다.
       return _service.fetch(
         from: picked.start,
-        to: DateTime(picked.end.year, picked.end.month, picked.end.day,
-            23, 59, 59),
+        to: DateTime(
+            picked.end.year, picked.end.month, picked.end.day, 23, 59, 59),
       );
     }
     return _service.fetch(
@@ -145,8 +145,7 @@ class _ReportScreenState extends State<ReportScreen> {
   String get _customLabel {
     final c = _custom;
     if (c == null) return _Range.custom.label;
-    String f(DateTime d) =>
-        '${d.month}.${d.day.toString().padLeft(2, '0')}';
+    String f(DateTime d) => '${d.month}.${d.day.toString().padLeft(2, '0')}';
     return '${f(c.start)} ~ ${f(c.end)}';
   }
 
@@ -237,8 +236,7 @@ class _ReportScreenState extends State<ReportScreen> {
                     ],
                   AsyncSnapshot(connectionState: ConnectionState.waiting) => [
                       const _Pad(
-                          child:
-                              CircularProgressIndicator(strokeWidth: 2.5)),
+                          child: CircularProgressIndicator(strokeWidth: 2.5)),
                     ],
                   // ⚠ 분석 이력이 없으면 서버가 409 를 돌려줍니다
                   //   (MLCM_500 선행조건). 오류가 아니라 빈 상태입니다.
@@ -372,8 +370,8 @@ class _ReportScreenState extends State<ReportScreen> {
                         ? '–'
                         : '$count일 ${(count / total * 100).round()}%',
                     textAlign: TextAlign.right,
-                    style: const TextStyle(
-                        fontSize: 10, color: AppColors.muted))),
+                    style:
+                        const TextStyle(fontSize: 10, color: AppColors.muted))),
           ]),
           const SizedBox(height: 10),
         ],
@@ -468,13 +466,13 @@ class _ReportScreenState extends State<ReportScreen> {
                     child: CircularProgressIndicator(strokeWidth: 2))
                 : const Icon(Icons.picture_as_pdf_outlined, size: 17),
             label: Text(exporting ? '만드는 중...' : 'PDF로 내보내기',
-                style: const TextStyle(
-                    fontSize: 12, fontWeight: FontWeight.w700)),
+                style:
+                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
             style: OutlinedButton.styleFrom(
               minimumSize: const Size.fromHeight(46),
               side: const BorderSide(color: AppColors.line),
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
           ),
         ),
@@ -507,12 +505,13 @@ class _Legend extends StatelessWidget {
   final String label;
 
   @override
-  Widget build(BuildContext context) => Row(mainAxisSize: MainAxisSize.min, children: [
+  Widget build(BuildContext context) =>
+      Row(mainAxisSize: MainAxisSize.min, children: [
         Container(
             width: 9,
             height: 9,
-            decoration:
-                BoxDecoration(color: color, borderRadius: BorderRadius.circular(3))),
+            decoration: BoxDecoration(
+                color: color, borderRadius: BorderRadius.circular(3))),
         const SizedBox(width: 5),
         Text(label,
             style: const TextStyle(fontSize: 9, color: AppColors.muted)),

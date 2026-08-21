@@ -33,7 +33,8 @@ class AccountScreen extends StatefulWidget {
 }
 
 class _AccountScreenState extends State<AccountScreen> {
-  SettingsService get _service => widget.settingsService ?? AppServices.settings;
+  SettingsService get _service =>
+      widget.settingsService ?? AppServices.settings;
 
   UserProfile? profile;
   bool loading = true;
@@ -198,8 +199,7 @@ class _AccountScreenState extends State<AccountScreen> {
               onPressed: () => Navigator.of(dialogContext).pop(),
               child: const Text('취소')),
           TextButton(
-              onPressed: () =>
-                  Navigator.of(dialogContext).pop(_deletePw.text),
+              onPressed: () => Navigator.of(dialogContext).pop(_deletePw.text),
               child: const Text('탈퇴하기')),
         ],
       ),
@@ -297,22 +297,21 @@ class _AccountScreenState extends State<AccountScreen> {
         //   판단입니다 — 빨간 박스는 겁을 주고, 필요한 건 「무엇이 지워지는지」를
         //   정확히 아는 것입니다. 강조는 색이 아니라 구조로 합니다.
         const AppCard(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-              Text('탈퇴하면 함께 삭제되는 것',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
-              SizedBox(height: 8),
-              Text('라이프로그 · 체성분 · 대화 기록 · 정서 분석 결과 · 연동 기기',
-                  style:
-                      TextStyle(fontSize: 11, height: 1.7, color: AppColors.muted)),
-              SizedBox(height: 6),
-              Text('되돌릴 수 없어요.',
-                  style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.muted)),
-            ])),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('탈퇴하면 함께 삭제되는 것',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
+          SizedBox(height: 8),
+          Text('라이프로그 · 체성분 · 대화 기록 · 정서 분석 결과 · 연동 기기',
+              style:
+                  TextStyle(fontSize: 11, height: 1.7, color: AppColors.muted)),
+          SizedBox(height: 6),
+          Text('되돌릴 수 없어요.',
+              style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.muted)),
+        ])),
       ];
 
   /// `USERS` 에 `created_at` 이 없어 약관 동의 시각을 씁니다 → `UserProfile.joinedAt`

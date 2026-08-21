@@ -104,8 +104,8 @@ void main() {
     expect(server.patches.single, {'content_alert_agreed': false},
         reason: '보낸 것만 바뀌어야 한다 — 둘을 함께 보내면 옛 값이 덮어쓴다');
 
-    final care = tester.widget<SwitchListTile>(
-        find.byType(SwitchListTile).first);
+    final care =
+        tester.widget<SwitchListTile>(find.byType(SwitchListTile).first);
     expect(care.value, isTrue);
   });
 
@@ -115,9 +115,8 @@ void main() {
       ..content = true;
     await pump(tester, server.service);
 
-    final tiles = tester
-        .widgetList<SwitchListTile>(find.byType(SwitchListTile))
-        .toList();
+    final tiles =
+        tester.widgetList<SwitchListTile>(find.byType(SwitchListTile)).toList();
     expect(tiles.first.value, isFalse);
     expect(tiles.last.value, isTrue);
   });

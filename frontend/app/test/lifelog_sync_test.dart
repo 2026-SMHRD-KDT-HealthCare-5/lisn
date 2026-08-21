@@ -116,8 +116,8 @@ void main() {
     test('권한이 없으면 읽지 않고 끝낸다', () async {
       final reader = FakeHealthReader(permission: HealthPermission.denied);
       final store = MemorySyncStore();
-      final sync = build(
-          reader: reader, store: store, service: _Server().service);
+      final sync =
+          build(reader: reader, store: store, service: _Server().service);
 
       final result = await sync.sync();
 
@@ -160,8 +160,8 @@ void main() {
       // 15분치로 계산돼 UPSERT 로 **덮어써집니다.**
       final store = MemorySyncStore();
       await store.saveLastSyncedAt(DateTime(2026, 8, 2, 9));
-      final reader = FakeHealthReader(
-          samples: [steps(500, DateTime(2026, 8, 2, 9, 10))]);
+      final reader =
+          FakeHealthReader(samples: [steps(500, DateTime(2026, 8, 2, 9, 10))]);
       final sync =
           build(reader: reader, store: store, service: _Server().service);
 
@@ -174,9 +174,7 @@ void main() {
     test('첫 동기화는 14일 전부터 읽는다 — MLCM_210 기준값', () async {
       final reader = FakeHealthReader();
       final sync = build(
-          reader: reader,
-          store: MemorySyncStore(),
-          service: _Server().service);
+          reader: reader, store: MemorySyncStore(), service: _Server().service);
 
       await sync.sync(now: DateTime(2026, 8, 2, 10));
 
@@ -323,7 +321,8 @@ void main() {
       ]);
       final server = _Server();
       final sync = build(
-        reader: FakeHealthReader(samples: [steps(222, DateTime(2026, 8, 2, 9))]),
+        reader:
+            FakeHealthReader(samples: [steps(222, DateTime(2026, 8, 2, 9))]),
         store: store,
         service: server.service,
       );
@@ -345,7 +344,8 @@ void main() {
       ]);
       final server = _Server();
       final sync = build(
-        reader: FakeHealthReader(samples: [steps(8000, DateTime(2026, 8, 2, 9))]),
+        reader:
+            FakeHealthReader(samples: [steps(8000, DateTime(2026, 8, 2, 9))]),
         store: store,
         service: server.service,
       );

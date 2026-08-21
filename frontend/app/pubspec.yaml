@@ -33,3 +33,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/login_mascot.png
+    - assets/images/chat_persona_feeling.png
+    - assets/images/chat_persona_thinking.png
+    - assets/images/home_emotion.png

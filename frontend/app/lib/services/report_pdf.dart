@@ -99,9 +99,8 @@ class ReportPdf {
   static pw.Widget _header(
       EmotionReport report, String userName, DateTime generatedAt) {
     final from = report.dateFrom, to = report.dateTo;
-    final period = (from == null || to == null)
-        ? '-'
-        : '${_ymd(from)} ~ ${_ymd(to)}';
+    final period =
+        (from == null || to == null) ? '-' : '${_ymd(from)} ~ ${_ymd(to)}';
 
     return pw.Container(
       padding: const pw.EdgeInsets.only(bottom: 10),
@@ -149,8 +148,7 @@ class ReportPdf {
             fontSize: 7, color: PdfColor.fromInt(0xFF97A0B5)),
       );
 
-  static String _ymd(DateTime d) =>
-      '${d.year}-${_two(d.month)}-${_two(d.day)}';
+  static String _ymd(DateTime d) => '${d.year}-${_two(d.month)}-${_two(d.day)}';
 
   static String _ymdhm(DateTime d) =>
       '${_ymd(d)} ${_two(d.hour)}:${_two(d.minute)}';

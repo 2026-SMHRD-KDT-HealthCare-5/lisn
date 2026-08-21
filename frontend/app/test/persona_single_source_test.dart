@@ -97,8 +97,8 @@ void main() {
         theme: AppTheme.light,
         home: SettingsScreen(
             settingsService: SettingsService(
-                apiClient: _api(_client('FRIEND',
-                    spy: (r) => methods.add(r.method))))),
+                apiClient: _api(
+                    _client('FRIEND', spy: (r) => methods.add(r.method))))),
       ));
       await tester.pump(const Duration(milliseconds: 300));
 

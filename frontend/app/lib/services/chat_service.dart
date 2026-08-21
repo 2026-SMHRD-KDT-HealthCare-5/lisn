@@ -63,8 +63,8 @@ class ChatService {
   /// ⚠ 없으면 서버가 **204** 를 줍니다. `ApiClient` 는 본문 없는 응답을
   ///   빈 맵으로 돌려주므로 그걸로 판별합니다.
   Future<ActiveSession?> activeSession() async {
-    final json = await _apiClient.get('/chat/sessions/active',
-        authenticated: true);
+    final json =
+        await _apiClient.get('/chat/sessions/active', authenticated: true);
     if (json.isEmpty) return null;
     return ActiveSession.fromJson(json);
   }

@@ -87,8 +87,7 @@ void main() {
           code: 'CRISIS', name: '위기', risk: 'CRITICAL', action: 'EMERGENCY'),
     );
 
-    expect(find.text('위기'), findsNothing,
-        reason: '감정 이름을 헤드라인으로 쓰면 진단으로 읽힙니다');
+    expect(find.text('위기'), findsNothing, reason: '감정 이름을 헤드라인으로 쓰면 진단으로 읽힙니다');
     // 대신 상태를 서술하는 문구가 나와야 합니다. 라벨만 지우고 아무것도
     // 안 남기면 사용자가 자기 상태를 알 수 없습니다.
     expect(find.textContaining('힘들어 보여요'), findsOneWidget);
@@ -150,6 +149,18 @@ void main() {
     );
     expect(find.byIcon(Icons.notifications_none_rounded), findsNothing);
     expect(find.byType(Badge), findsNothing);
+  });
+
+  testWidgets('라이프로그 카드 높이는 60이다', (tester) async {
+    await _pump(
+      tester,
+      _homeJson(code: 'JOY', name: '기쁨', risk: 'NORMAL', action: 'CHAT'),
+    );
+
+    for (var i = 0; i < 4; i++) {
+      expect(
+          tester.getSize(find.byKey(ValueKey('lifelog-metric-$i'))).height, 60);
+    }
   });
 
   testWidgets('위기 상태에서는 인사말에 웃는 이모지를 붙이지 않는다', (tester) async {

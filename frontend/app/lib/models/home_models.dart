@@ -50,9 +50,7 @@ class EmotionToday {
         emotionName: jsonStr(json['emotion_name']),
         emotionScore: jsonNum(json['emotion_score']) ?? 0,
         riskLevel: jsonStr(json['risk_level'], 'NORMAL'),
-        evaluatedAt:
-            jsonAt(json['evaluated_at']) ??
-                DateTime.now(),
+        evaluatedAt: jsonAt(json['evaluated_at']) ?? DateTime.now(),
       );
 }
 
@@ -75,8 +73,7 @@ class LifelogSummary {
         totalSleepMin: jsonInt(json['total_sleep_min']),
         steps: jsonInt(json['steps']),
         hrv: jsonNum(json['hrv']),
-        collectedAt:
-            jsonAt(json['collected_at']),
+        collectedAt: jsonAt(json['collected_at']),
       );
 }
 
@@ -163,10 +160,8 @@ class HomeSnapshot {
         action: HomeAction.parse(json['action'] as String?),
         emotionToday: json['emotion_today'] == null
             ? null
-            : EmotionToday.fromJson(
-                jsonObj(json['emotion_today'])),
-        lifelog: LifelogSummary.fromJson(
-            jsonObj(json['lifelog_summary'])),
+            : EmotionToday.fromJson(jsonObj(json['emotion_today'])),
+        lifelog: LifelogSummary.fromJson(jsonObj(json['lifelog_summary'])),
         aiSummary: json['ai_summary'] as String?,
         recommendations: jsonList(json['recommendations'])
             .map(ContentCard.fromJson)

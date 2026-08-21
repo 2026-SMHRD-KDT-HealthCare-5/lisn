@@ -43,7 +43,8 @@ Map<String, Object?> _profile(String persona) => {
 class _Recorder {
   final calls = <String>[];
 
-  http.Client client({String persona = 'FRIEND'}) => MockClient((request) async {
+  http.Client client({String persona = 'FRIEND'}) =>
+      MockClient((request) async {
         final path = request.url.path;
         calls.add('${request.method} $path');
 
@@ -52,7 +53,8 @@ class _Recorder {
           body = _profile(persona);
         } else if (path.endsWith('/connections')) {
           body = const [];
-        } else if (request.method == 'POST' && path.endsWith('/chat/sessions')) {
+        } else if (request.method == 'POST' &&
+            path.endsWith('/chat/sessions')) {
           body = {
             'session_id': _sessionId,
             'persona_type': persona,
@@ -165,7 +167,8 @@ void main() {
       await tester.tap(find.text('종료하기'));
       await tester.pump(const Duration(milliseconds: 300));
 
-      expect(rec.calls, contains('PATCH /api/v1/chat/sessions/$_sessionId/end'));
+      expect(
+          rec.calls, contains('PATCH /api/v1/chat/sessions/$_sessionId/end'));
       expect(find.text('오늘 좀 힘들었어요'), findsNothing, reason: '종료하면 초기화됩니다');
     });
 
@@ -182,8 +185,7 @@ void main() {
 
       expect(find.text('대화를 끝낼까요?'), findsNothing, reason: '잃을 것이 없으면 묻지 않습니다');
       expect(rec.calls, contains('DELETE /api/v1/chat/sessions/$_sessionId'));
-      expect(
-          rec.calls.any((c) => c.endsWith('/end')), isFalse,
+      expect(rec.calls.any((c) => c.endsWith('/end')), isFalse,
           reason: '빈 세션을 종료로 남기면 요약 없는 기록이 쌓입니다');
     });
   });
@@ -199,8 +201,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
 
       // 두 번째 카드로 넘겨서 다른 성격을 고릅니다.
-      await tester.fling(
-          find.byType(PageView), const Offset(-400, 0), 1000);
+      await tester.fling(find.byType(PageView), const Offset(-400, 0), 1000);
       await tester.pumpAndSettle();
       await tester.tap(find.text('이 성격으로 대화하기').first);
       await tester.pump(const Duration(milliseconds: 300));

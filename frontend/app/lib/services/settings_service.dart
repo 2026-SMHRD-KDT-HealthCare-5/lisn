@@ -91,8 +91,8 @@ class SettingsService {
   /// 서버가 현재 비밀번호를 검증합니다. 틀리면 `ApiException` 이 납니다.
   /// 알림 수신 동의 조회 — `MAIN_SETTING_01` ❷
   Future<NotificationSettings> notifications() async {
-    final json = await _apiClient.get('/users/me/notifications',
-        authenticated: true);
+    final json =
+        await _apiClient.get('/users/me/notifications', authenticated: true);
     return NotificationSettings.fromJson(json);
   }
 

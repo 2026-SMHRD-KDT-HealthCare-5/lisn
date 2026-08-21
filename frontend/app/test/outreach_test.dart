@@ -75,12 +75,12 @@ void main() {
       // 열어야 한다. 근거를 함께 보여주는 것이 감시로 읽히지 않게 하는
       // 조건이다.
       final service = HomeService(
-        apiClient: _client(MockClient((_) async =>
-            http.Response(jsonEncode(_home()), 200, headers: _h))),
+        apiClient: _client(MockClient(
+            (_) async => http.Response(jsonEncode(_home()), 200, headers: _h))),
       );
 
-      await tester.pumpWidget(
-          MaterialApp(home: HomeScreen(homeService: service)));
+      await tester
+          .pumpWidget(MaterialApp(home: HomeScreen(homeService: service)));
       await tester.pumpAndSettle();
 
       expect(find.text('마음이가 먼저 말을 걸었어요'), findsOneWidget);
@@ -90,11 +90,12 @@ void main() {
     testWidgets('선제 접촉이 없으면 카드도 없다', (tester) async {
       final service = HomeService(
         apiClient: _client(MockClient((_) async => http.Response(
-            jsonEncode(_home(withOutreach: false)), 200, headers: _h))),
+            jsonEncode(_home(withOutreach: false)), 200,
+            headers: _h))),
       );
 
-      await tester.pumpWidget(
-          MaterialApp(home: HomeScreen(homeService: service)));
+      await tester
+          .pumpWidget(MaterialApp(home: HomeScreen(homeService: service)));
       await tester.pumpAndSettle();
 
       expect(find.text('마음이가 먼저 말을 걸었어요'), findsNothing);

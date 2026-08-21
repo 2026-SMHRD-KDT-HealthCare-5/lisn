@@ -76,9 +76,9 @@ final Map<String, ({String id, Widget Function() build})> devScreens = {
   'account': (
     id: 'MAIN_SETTING_02',
     build: () => const _PushOver(
-      under: MainShell(initialTab: 3),
-      child: AccountScreen(),
-    ),
+          under: MainShell(initialTab: 3),
+          child: AccountScreen(),
+        ),
   ),
   // ⚠ 아래 둘은 평소에 **push 로 열리는 화면**입니다. 최상위 라우트로 그냥 띄우면
   //   뒤로가기·닫기가 사라져 실제 화면과 달라집니다(캡처가 틀어집니다).
@@ -87,18 +87,18 @@ final Map<String, ({String id, Widget Function() build})> devScreens = {
     id: 'MAIN_REPORT_01',
     // 메뉴경로가 「라이프로그 / 정서 리포트」라 라이프로그 탭 위에 얹습니다.
     build: () => const _PushOver(
-      under: MainShell(initialTab: 2),
-      child: ReportScreen(),
-    ),
+          under: MainShell(initialTab: 2),
+          child: ReportScreen(),
+        ),
   ),
   // 위기 화면은 CRITICAL 판정이 나야 뜹니다. 캡처하려고 그 상황을 만들 수는
   // 없으니 여기서 직접 띄웁니다. 전화 연결은 실제로 동작하므로 주의하세요.
   'emergency': (
     id: 'MAIN_EMERGENCY_01',
     build: () => const _PushOver(
-      under: MainShell(initialTab: 0),
-      child: EmergencyScreen(),
-    ),
+          under: MainShell(initialTab: 0),
+          child: EmergencyScreen(),
+        ),
   ),
 };
 
@@ -148,7 +148,6 @@ Widget? devScreenOrNull() {
   debugPrint('[dev] ${entry.id} 로 시작합니다 (SCREEN=$kDevScreen)');
   return entry.build();
 }
-
 
 // ---------------------------------------------------------------------------
 //  자동 로그인

@@ -54,6 +54,30 @@ const _card = ContentCard(
   externalUrl: 'https://gongu.copyright.or.kr/example',
 );
 
+const _exerciseCard = ContentCard(
+  contentId: 'c2',
+  category: 'EXERCISE',
+  title: '가볍게 몸 움직이기',
+  description: null,
+  externalUrl: 'https://health.example/exercise',
+);
+
+const _quoteCard = ContentCard(
+  contentId: 'c3',
+  category: 'ARTICLE',
+  title: '오늘의 나에게 건네는 한마디',
+  description: null,
+  externalUrl: 'https://health.example/quote',
+);
+
+const _foodCard = ContentCard(
+  contentId: 'c4',
+  category: 'FOOD',
+  title: '따뜻한 차 한 잔',
+  description: null,
+  externalUrl: 'https://food.example/tea',
+);
+
 /// 홈은 세로로 길어서 기본 테스트 화면(800x600)에서는 추천 섹션이 화면 밖에
 /// 있습니다. ListView 가 lazy 라 아예 만들어지지 않으므로 화면을 키웁니다.
 void _useTallScreen(WidgetTester tester) {
@@ -108,5 +132,25 @@ void main() {
     await tester.pump();
 
     expect(find.textContaining('링크를 열 수 없어요'), findsOneWidget);
+  });
+
+  testWidgets('홈 최하단에는 음악·운동·문구 추천을 하나씩 보여준다', (tester) async {
+    _useTallScreen(tester);
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: HomeScreen(
+          homeService: _FakeHomeService(_snapshotWith(
+              const [_foodCard, _quoteCard, _exerciseCard, _card])),
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.text('맞춤 힐링 콘텐츠'), findsOneWidget);
+    expect(find.text('음악'), findsOneWidget);
+    expect(find.text('운동'), findsOneWidget);
+    expect(find.text('문구'), findsOneWidget);
+    expect(find.byKey(const ValueKey('content-card-c4')), findsNothing,
+        reason: '먹을거리 카테고리는 홈의 세 가지 추천에 포함하지 않습니다');
   });
 }

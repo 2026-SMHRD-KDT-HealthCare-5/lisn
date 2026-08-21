@@ -74,13 +74,6 @@ class ChatScreen extends StatefulWidget {
     this.resumeSessionId,
   });
 
-  /// 열자마자 이어받을 세션. **선제 접촉(`MLCM_220`)이 이 통로를 씁니다.**
-  ///
-  /// ⚠ 홈 카드에서 넘어올 때 성격 선택 화면을 거치면, 시스템이 이미 말을
-  ///   걸어놓은 대화를 두고 사용자가 성격부터 고르게 됩니다. 그러면 「먼저
-  ///   말을 건다」가 성립하지 않습니다.
-  final String? resumeSessionId;
-
   /// 테스트에서 가짜 서비스를 넣기 위한 통로. 평소에는 null 이고
   /// AppServices.chat 을 씁니다.
   final ChatService? chatService;
@@ -90,6 +83,13 @@ class ChatScreen extends StatefulWidget {
   /// ⚠ 주입 통로를 지우지 마세요. 없을 때 `AppServices.settings` 를 직접 쓰다가
   ///   테스트에서 진짜 네트워크로 나가 「최근 대화」 표시가 안 뜬 적이 있습니다.
   final SettingsService? settingsService;
+
+  /// 열자마자 이어받을 세션. **선제 접촉(`MLCM_220`)이 이 통로를 씁니다.**
+  ///
+  /// ⚠ 홈 카드에서 넘어올 때 성격 선택 화면을 거치면, 시스템이 이미 말을
+  ///   걸어놓은 대화를 두고 사용자가 성격부터 고르게 됩니다. 그러면 「먼저
+  ///   말을 건다」가 성립하지 않습니다.
+  final String? resumeSessionId;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -121,16 +121,15 @@ class _ChatScreenState extends State<ChatScreen> {
   /// 카드에 「최근 대화」 표시를 붙이는 데 씁니다. **기본으로 떠 있는 것만으로는
   /// 그게 저장된 값인지 그냥 첫 카드인지 알 수 없습니다.**
   ChatPersona? lastUsed;
-
-  /// 시스템이 먼저 건 대화. null 이면 없습니다.
-  ActiveSession? outreach;
-
   bool conversation = false;
   List<ChatMessage> messages = [];
 
   String? sessionId;
   bool starting = false;
   bool sending = false;
+
+  /// 시스템이 먼저 건 대화. null 이면 없습니다.
+  ActiveSession? outreach;
 
   /// 대화 화면이 기준으로 삼는 성격.
   ChatPersona get talking => activePersona ?? persona;
@@ -181,8 +180,8 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() => starting = true);
     try {
       final detail = await _chat.getSession(id);
-      final match = ChatPersona.values
-          .where((p) => p.code == detail.summary.personaType);
+      final match =
+          ChatPersona.values.where((p) => p.code == detail.summary.personaType);
       if (!mounted) return;
       setState(() {
         sessionId = id;
@@ -340,8 +339,7 @@ class _ChatScreenState extends State<ChatScreen> {
       starting = true;
     });
     try {
-      final session =
-          await _chat.startSession(personaType: selected.code);
+      final session = await _chat.startSession(personaType: selected.code);
       if (!mounted) return;
 
       // 고른 성격을 **기본값으로도 저장**합니다(`USERS.persona_type`).
@@ -350,9 +348,8 @@ class _ChatScreenState extends State<ChatScreen> {
       // ⚠ 대화 시작을 막지 않습니다. 실패해도 이번 대화는 고른 성격으로
       //   진행되고, 기본값만 예전 값으로 남습니다.
       setState(() => lastUsed = selected);
-      _settings
-          .updateProfile(personaType: selected.code)
-          .then((_) {}, onError: (Object e) {
+      _settings.updateProfile(personaType: selected.code).then((_) {},
+          onError: (Object e) {
         debugPrint('[chat] 최근 성격 저장 실패: $e');
       });
       setState(() {
@@ -494,8 +491,6 @@ class _ChatScreenState extends State<ChatScreen> {
             title: 'AI 챗봇',
             onHistory: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => ChatHistoryScreen(chatService: _chat)))),
-        // 뒤로가기로 나온 대화가 있으면 돌아갈 길을 남깁니다. 이게 없으면
-        // 세션은 살아 있는데 화면에서 들어갈 방법이 없습니다.
         // ⚠ **선제 접촉 배너가 먼저입니다.** 둘 다 뜨는 경우는 없지만
         //   (열린 세션은 하나) 순서를 못 박아 둡니다.
         if (sessionId == null && outreach != null)
@@ -503,6 +498,8 @@ class _ChatScreenState extends State<ChatScreen> {
             opener: outreach!.opener,
             onTap: () => _openExisting(outreach!.sessionId),
           )
+        // 뒤로가기로 나온 대화가 있으면 돌아갈 길을 남깁니다. 이게 없으면
+        // 세션은 살아 있는데 화면에서 들어갈 방법이 없습니다.
         else if (sessionId != null)
           _ResumeBanner(persona: talking, onTap: _resumeConversation),
         const Padding(
@@ -797,58 +794,56 @@ class _PersonaCard extends StatelessWidget {
                 //   테두리에 붙고 「이 성격으로 대화하기」가 바닥에 닿습니다.
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 child: ConstrainedBox(
-                  constraints:
-                      BoxConstraints(minHeight: box.maxHeight - 36),
+                  constraints: BoxConstraints(minHeight: box.maxHeight - 36),
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-              MaeumeMascot(
-                  size: 84,
-                  mood: feeling ? MascotMood.smile : MascotMood.thinking),
-              const SizedBox(height: 14),
-              Text(feeling ? 'FEELING' : 'THINKING',
-                  style: TextStyle(
-                      fontSize: 9,
-                      letterSpacing: 1.8,
-                      fontWeight: FontWeight.w900,
-                      color: feeling ? AppColors.primary : AppColors.teal)),
-              const SizedBox(height: 6),
-              Text(persona.label,
-                  style: const TextStyle(
-                      fontSize: 24,
-                      color: AppColors.navy,
-                      fontWeight: FontWeight.w900)),
-              const SizedBox(height: 9),
-              Text(persona.description,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      fontSize: 12, height: 1.6, color: AppColors.muted)),
-              const SizedBox(height: 12),
-              Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
-                  decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(179),
-                      borderRadius: BorderRadius.circular(14)),
-                  child: Text(
-                      feeling ? '감정 지지 · 경청 · 위로' : '상황 분석 · 문제 해결 · 실행 제안',
-                      style: TextStyle(
-                          fontSize: 10,
-                          color: feeling
-                              ? const Color(0xFF6678CE)
-                              : const Color(0xFF38889A)))),
-              const SizedBox(height: 16),
-              Row(mainAxisSize: MainAxisSize.min, children: [
-                Text(ongoing ? '이어서 대화하기' : '이 성격으로 대화하기',
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: feeling
-                            ? const Color(0xFF5F73DA)
-                            : const Color(0xFF38889A))),
-                const Icon(Icons.chevron_right_rounded, size: 17)
-              ]),
-                  ]),
+                        SizedBox(
+                            width: 130,
+                            height: 96,
+                            child: Image.asset(
+                                feeling
+                                    ? 'assets/images/chat_persona_feeling.png'
+                                    : 'assets/images/chat_persona_thinking.png',
+                                fit: BoxFit.cover,
+                                alignment: Alignment.center,
+                                semanticLabel: feeling
+                                    ? '따스한 공감형 마음이 캐릭터'
+                                    : '현실적인 조언형 마음이 캐릭터')),
+                        const SizedBox(height: 14),
+                        Text(feeling ? 'FEELING' : 'THINKING',
+                            style: TextStyle(
+                                fontSize: 9,
+                                letterSpacing: 1.8,
+                                fontWeight: FontWeight.w900,
+                                color: feeling
+                                    ? AppColors.primary
+                                    : AppColors.teal)),
+                        const SizedBox(height: 6),
+                        Text(persona.label,
+                            style: const TextStyle(
+                                fontSize: 24,
+                                color: AppColors.navy,
+                                fontWeight: FontWeight.w900)),
+                        const SizedBox(height: 9),
+                        Text(persona.description,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                fontSize: 12,
+                                height: 1.6,
+                                color: AppColors.muted)),
+                        const SizedBox(height: 16),
+                        Row(mainAxisSize: MainAxisSize.min, children: [
+                          Text(ongoing ? '이어서 대화하기' : '이 성격으로 대화하기',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w800,
+                                  color: feeling
+                                      ? const Color(0xFF5F73DA)
+                                      : const Color(0xFF38889A))),
+                          const Icon(Icons.chevron_right_rounded, size: 17)
+                        ]),
+                      ]),
                 ),
               );
             })),
@@ -976,7 +971,6 @@ class _TypingBubble extends StatelessWidget {
   }
 }
 
-
 /// 시스템이 먼저 건 대화로 들어가는 배너 — `MLCM_220` 6단계.
 ///
 /// ⚠ **경고색을 쓰지 않습니다.** 정신건강 화면에서 빨강·주황은 불안을 키워
@@ -1000,23 +994,22 @@ class _OutreachBanner extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: AppColors.line),
           ),
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('마음이가 먼저 말을 걸었어요',
-                    style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.navy)),
-                const SizedBox(height: 8),
-                // 첫 문장을 그대로 보여줍니다. 감추면 왜 말을 걸었는지
-                // 모른 채 열어야 하고, 그건 감시처럼 읽힙니다.
-                Text(opener,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontSize: 11, height: 1.5, color: AppColors.muted)),
-              ]),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('마음이가 먼저 말을 걸었어요',
+                style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.navy)),
+            const SizedBox(height: 8),
+            // 첫 문장을 그대로 보여줍니다. 감추면 왜 말을 걸었는지
+            // 모른 채 열어야 하고, 그건 감시처럼 읽힙니다.
+            Text(opener,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                    fontSize: 11, height: 1.5, color: AppColors.muted)),
+          ]),
         ),
       ),
     );

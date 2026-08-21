@@ -45,9 +45,7 @@ class LifelogEntry {
   final double? hrv;
 
   factory LifelogEntry.fromJson(Map<String, dynamic> json) => LifelogEntry(
-        collectedAt:
-            jsonAt(json['collected_at']) ??
-                DateTime.now(),
+        collectedAt: jsonAt(json['collected_at']) ?? DateTime.now(),
         steps: jsonInt(json['steps']),
         distance: jsonInt(json['distance']),
         calories: jsonInt(json['calories']),
@@ -84,9 +82,7 @@ class BodyComposition {
 
   factory BodyComposition.fromJson(Map<String, dynamic> json) =>
       BodyComposition(
-        measuredAt:
-            jsonAt(json['measured_at']) ??
-                DateTime.now(),
+        measuredAt: jsonAt(json['measured_at']) ?? DateTime.now(),
         weightKg: jsonNum(json['weight_kg']),
         bodyWaterKg: jsonNum(json['body_water_kg']),
         bodyFatKg: jsonNum(json['body_fat_kg']),

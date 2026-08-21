@@ -16,11 +16,31 @@ import 'package:maeume_care/screens/report_screen.dart';
 
 /// 수면은 5일 전부, 걸음은 그중 이틀만 측정된 상황.
 List<Map<String, dynamic>> _mismatchedTrend() => [
-      {'collected_at': '2026-07-28T00:00:00Z', 'total_sleep_min': 400, 'steps': 0},
-      {'collected_at': '2026-07-29T00:00:00Z', 'total_sleep_min': 380, 'steps': 0},
-      {'collected_at': '2026-07-30T00:00:00Z', 'total_sleep_min': 360, 'steps': 5200},
-      {'collected_at': '2026-07-31T00:00:00Z', 'total_sleep_min': 200, 'steps': 0},
-      {'collected_at': '2026-08-01T00:00:00Z', 'total_sleep_min': 180, 'steps': 900},
+      {
+        'collected_at': '2026-07-28T00:00:00Z',
+        'total_sleep_min': 400,
+        'steps': 0
+      },
+      {
+        'collected_at': '2026-07-29T00:00:00Z',
+        'total_sleep_min': 380,
+        'steps': 0
+      },
+      {
+        'collected_at': '2026-07-30T00:00:00Z',
+        'total_sleep_min': 360,
+        'steps': 5200
+      },
+      {
+        'collected_at': '2026-07-31T00:00:00Z',
+        'total_sleep_min': 200,
+        'steps': 0
+      },
+      {
+        'collected_at': '2026-08-01T00:00:00Z',
+        'total_sleep_min': 180,
+        'steps': 900
+      },
     ];
 
 EmotionReport _report() => EmotionReport.fromJson({
@@ -44,8 +64,7 @@ void main() {
         (p.steps != null && p.steps! > 0) ? p.steps!.toDouble() : null,
     ];
 
-    expect(sleeps.length, steps.length,
-        reason: '길이가 다르면 같은 x 가 다른 날을 가리킵니다');
+    expect(sleeps.length, steps.length, reason: '길이가 다르면 같은 x 가 다른 날을 가리킵니다');
     expect(sleeps.whereType<double>().length, 5);
     expect(steps.whereType<double>().length, 2, reason: '0걸음은 측정으로 치지 않습니다');
 

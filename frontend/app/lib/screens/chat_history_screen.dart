@@ -81,7 +81,8 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
               child: const Text('그대로 둘게요')),
           TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('지우기', style: TextStyle(color: Color(0xFF987466)))),
+              child: const Text('지우기',
+                  style: TextStyle(color: Color(0xFF987466)))),
         ],
       ),
     );
@@ -103,8 +104,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
 
   Future<void> _openDetail(ChatSessionSummary s) async {
     Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) =>
-            _SessionDetailScreen(summary: s, chatService: _chat)));
+        builder: (_) => _SessionDetailScreen(summary: s, chatService: _chat)));
   }
 
   @override
@@ -235,7 +235,8 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
 ///
 /// 읽기 전용입니다. 종료된 대화에 이어 쓰면 그 시점의 감정 맥락과 섞입니다.
 class _SessionDetailScreen extends StatefulWidget {
-  const _SessionDetailScreen({required this.summary, required this.chatService});
+  const _SessionDetailScreen(
+      {required this.summary, required this.chatService});
 
   final ChatSessionSummary summary;
   final ChatService chatService;
@@ -251,17 +252,14 @@ class _SessionDetailScreenState extends State<_SessionDetailScreen> {
   @override
   void initState() {
     super.initState();
-    widget.chatService
-        .getSession(widget.summary.sessionId)
-        .then((d) {
-          if (mounted) setState(() => detail = d);
-        })
-        .catchError((Object e) {
-          if (mounted) {
-            setState(() =>
-                error = e is ApiException ? e.message : '대화를 불러오지 못했습니다.');
-          }
-        });
+    widget.chatService.getSession(widget.summary.sessionId).then((d) {
+      if (mounted) setState(() => detail = d);
+    }).catchError((Object e) {
+      if (mounted) {
+        setState(
+            () => error = e is ApiException ? e.message : '대화를 불러오지 못했습니다.');
+      }
+    });
   }
 
   @override

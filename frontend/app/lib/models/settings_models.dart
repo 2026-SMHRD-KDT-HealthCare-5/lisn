@@ -85,7 +85,8 @@ class ConsentScopes {
         'body_composition': bodyComposition,
       };
 
-  ConsentScopes copyWith({bool? activity, bool? sleep, bool? bodyComposition}) =>
+  ConsentScopes copyWith(
+          {bool? activity, bool? sleep, bool? bodyComposition}) =>
       ConsentScopes(
         activity: activity ?? this.activity,
         sleep: sleep ?? this.sleep,
@@ -129,13 +130,9 @@ class DeviceConnection {
         deviceName: json['device_name'] as String?,
         platformType: jsonStr(json['platform_type'], 'HEALTH_CONNECT'),
         permissionGranted: jsonBool(json['permission_granted']),
-        agreedAt:
-            jsonAt(json['agreed_at']) ??
-                DateTime.now(),
-        lastSyncedAt:
-            jsonAt(json['last_synced_at']),
-        consentScopes: ConsentScopes.fromJson(
-            jsonObj(json['consent_scopes'])),
+        agreedAt: jsonAt(json['agreed_at']) ?? DateTime.now(),
+        lastSyncedAt: jsonAt(json['last_synced_at']),
+        consentScopes: ConsentScopes.fromJson(jsonObj(json['consent_scopes'])),
       );
 }
 

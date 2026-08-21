@@ -381,8 +381,8 @@ class _JoinScreenState extends State<JoinScreen> {
                       borderRadius: BorderRadius.circular(12)),
                 ),
                 child: const Text('이메일 중복 확인',
-                    style: TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.w700)),
+                    style:
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
               ),
             ),
           ]),
@@ -420,9 +420,8 @@ class _JoinScreenState extends State<JoinScreen> {
             controller: passwordConfirmController,
             obscure: true,
             textInputAction: TextInputAction.next,
-            validator: (value) => value != passwordController.text
-                ? '비밀번호가 일치하지 않습니다'
-                : null,
+            validator: (value) =>
+                value != passwordController.text ? '비밀번호가 일치하지 않습니다' : null,
           ),
           // ❹~❻ 사용자 인적사항 — 문서에 선택 표기가 없으므로 필수입니다.
           // ⚠ schema.sql 은 birth_date·gender 를 NULL 허용으로 두지만,
@@ -556,16 +555,13 @@ class _JoinScreenState extends State<JoinScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('선택 입력',
-                    style:
-                        TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
-                SizedBox(height: 3),
-                Text('건너뛰어도 가입할 수 있어요',
-                    style: TextStyle(fontSize: 10, color: AppColors.muted)),
-              ]),
+          const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('선택 입력',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
+            SizedBox(height: 3),
+            Text('건너뛰어도 가입할 수 있어요',
+                style: TextStyle(fontSize: 10, color: AppColors.muted)),
+          ]),
           const SizedBox(height: 12),
           AnimatedSize(
             duration: const Duration(milliseconds: 420),
@@ -750,8 +746,7 @@ class _JoinScreenState extends State<JoinScreen> {
                 // 후에도 유지합니다. 상태는 오른쪽 끝에서 알립니다.
                 const CircleAvatar(
                     backgroundColor: Color(0xFFEEF1FF),
-                    child:
-                        Icon(Icons.watch_rounded, color: AppColors.primary)),
+                    child: Icon(Icons.watch_rounded, color: AppColors.primary)),
                 const SizedBox(width: 13),
                 const Expanded(
                     child: Column(
@@ -867,8 +862,8 @@ class _Field extends StatelessWidget {
         children: [
           Row(children: [
             Text(label,
-                style: const TextStyle(
-                    fontSize: 12, fontWeight: FontWeight.w700)),
+                style:
+                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
             if (onWhy != null) ...[
               // 오른쪽 끝에 붙입니다. 라벨 옆에 바짝 두면 글자와 뭉쳐
               // 라벨의 일부처럼 보입니다. 입력란 폭에 맞춰 떨어뜨리면

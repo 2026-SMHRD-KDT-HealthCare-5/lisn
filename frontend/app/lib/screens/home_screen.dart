@@ -145,10 +145,9 @@ class _HomeScreenState extends State<HomeScreen> {
             //   한 번 더 막습니다. 위기 상황에서 콘텐츠가 뜨면 안 됩니다.
             if (data.action != HomeAction.emergency &&
                 data.recommendations.isNotEmpty) ...[
-              const SectionTitle('당신을 위한 추천',
-                  trailing: Text('더보기  ›',
-                      style:
-                          TextStyle(fontSize: 10, color: AppColors.primary))),
+              const SectionTitle('맞춤 힐링 콘텐츠',
+                  trailing: Text('음악 · 운동 · 문장',
+                      style: TextStyle(fontSize: 10, color: AppColors.muted))),
               const SizedBox(height: 11),
               _recommendations(data.recommendations),
             ],
@@ -166,8 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final cheerful =
         MaeumeMascot.moodFor(data?.emotionToday?.riskLevel) == MascotMood.smile;
     final face = cheerful ? ' 😊' : '';
-    final greeting =
-        name == null ? '안녕하세요$face' : '안녕하세요, $name님$face';
+    final greeting = name == null ? '안녕하세요$face' : '안녕하세요, $name님$face';
     return Container(
       // 높이를 줄여 「오늘의 마음 상태」가 위로 올라오게 합니다. 홈에서 가장
       // 먼저 봐야 할 것은 브랜드가 아니라 오늘 상태입니다.
@@ -194,11 +192,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Image.asset('assets/images/login_mascot.png',
                     fit: BoxFit.contain))),
 
-        // ⚠ **브랜드를 헤드라인처럼 키우지 마세요.**
-        //   전에는 브랜드(23pt w900)와 인사말(21pt w900)이 둘 다 큰 굵은
-        //   네이비라 **헤드라인이 두 개**였습니다. 브랜드는 「어느 앱인지」를
-        //   알리는 표식이지 화면의 주제가 아닙니다.
-        const Align(alignment: Alignment.topLeft, child: LisnBrand(size: 15)),
+        const Align(
+          alignment: Alignment.topLeft,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '마음이',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.navy,
+                ),
+              ),
+              SizedBox(width: 2),
+              Icon(Icons.favorite_rounded, size: 15, color: AppColors.primary),
+            ],
+          ),
+        ),
 
         // ⚠ **알림 종 아이콘을 되살리지 마세요.**
         //
@@ -247,14 +258,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _moodCard(EmotionToday? emotion) {
     // 분석 기록이 없으면 수치를 지어내지 않습니다. 가입 직후가 이 상태입니다.
     if (emotion == null) {
-      return const AppCard(
+      return AppCard(
         child: Column(children: [
-          SectionTitle('오늘의 마음 상태'),
-          SizedBox(height: 18),
+          const SectionTitle('오늘의 마음 상태'),
+          const SizedBox(height: 18),
           Row(children: [
-            MaeumeMascot(size: 72),
-            SizedBox(width: 15),
-            Expanded(
+            _feelingMascot(72),
+            const SizedBox(width: 15),
+            const Expanded(
                 child: Text('아직 분석된 기록이 없어요.\n하루 이상 데이터가 모이면 알려드릴게요.',
                     style: TextStyle(
                         fontSize: 11, height: 1.6, color: AppColors.muted))),
@@ -271,8 +282,8 @@ class _HomeScreenState extends State<HomeScreen> {
             // 라이프로그 하위지만, 오늘 상태를 본 자리에서 바로 기간별
             // 추이로 넘어가는 흐름이 자연스럽습니다.
             trailing: GestureDetector(
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const ReportScreen())),
+              onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ReportScreen())),
               child: const Text('자세히 보기  ›',
                   style: TextStyle(fontSize: 10, color: AppColors.primary)),
             )),
@@ -286,14 +297,13 @@ class _HomeScreenState extends State<HomeScreen> {
         Row(children: [
           // ⚠ 위험도에 따라 표정이 갈립니다. 「많이 힘들어 보여요」 옆에서
           //   웃고 있으면 공감이 아니라 무시로 읽힙니다.
-          MaeumeMascot(
-              size: 62, mood: MaeumeMascot.moodFor(emotion.riskLevel)),
+          _feelingMascot(62, riskLevel: emotion.riskLevel),
           const SizedBox(width: 12),
           // ⚠ **감정 이름(emotion_name)을 사용자에게 보여주지 않습니다.**
           //
           //   마스터 9종에 「위기」·「절망」이 들어 있습니다. 힘들어하는 사람 화면에
           //   그 단어를 헤드라인으로 박으면 관찰이 아니라 **사람에 대한 판정**으로
-          //   읽힙니다. 요구사항정의서 요구사항의 「진단 금지」에 걸리고, 라벨이 내면화되면
+          //   읽힙니다. 02 요구사항의 「진단 금지」에 걸리고, 라벨이 내면화되면
           //   상태를 더 굳힙니다.
           //
           //   아래 문구가 이미 상태를 전달하므로 라벨이 정보를 더하지 않습니다.
@@ -326,6 +336,27 @@ class _HomeScreenState extends State<HomeScreen> {
               ])),
         ]),
       ]),
+    );
+  }
+
+  Widget _feelingMascot(double size, {String? riskLevel}) {
+    // 위기 상태에서 웃는 얼굴은 사용자의 어려움을 가볍게 여기는 인상을 줄 수
+    // 있으므로 기존의 비웃는 표정을 유지합니다.
+    if (riskLevel == 'CRITICAL') {
+      return MaeumeMascot(
+        size: size,
+        mood: MaeumeMascot.moodFor(riskLevel),
+      );
+    }
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Image.asset(
+        'assets/images/home_emotion.png',
+        fit: BoxFit.contain,
+        alignment: Alignment.center,
+        semanticLabel: '오늘의 마음 상태 캐릭터',
+      ),
     );
   }
 
@@ -368,43 +399,56 @@ class _HomeScreenState extends State<HomeScreen> {
         AppColors.blue
       ),
     ];
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisExtent: 118,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10),
-      itemCount: data.length,
-      itemBuilder: (_, i) => AppCard(
-          child: Row(children: [
-        CircleAvatar(
-            backgroundColor: data[i].$4,
-            child: Icon(data[i].$1, size: 18, color: AppColors.primary)),
-        const SizedBox(width: 10),
-        Expanded(
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-              Text(data[i].$2,
-                  style: const TextStyle(fontSize: 10, color: AppColors.muted)),
-              const SizedBox(height: 5),
-              Text(data[i].$3,
-                  style: const TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.w800))
-            ])),
-      ])),
-    );
+    Widget metricCard(int i) => SizedBox(
+          height: 60,
+          child: AppCard(
+              key: ValueKey('lifelog-metric-$i'),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Row(children: [
+                CircleAvatar(
+                    radius: 16,
+                    backgroundColor: data[i].$4,
+                    child:
+                        Icon(data[i].$1, size: 16, color: AppColors.primary)),
+                const SizedBox(width: 9),
+                Expanded(
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                      Text(data[i].$2,
+                          style: const TextStyle(
+                              fontSize: 10, color: AppColors.muted)),
+                      const SizedBox(height: 3),
+                      Text(data[i].$3,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w800))
+                    ])),
+              ])),
+        );
+
+    // 네 카드의 높이를 명시적으로 60dp로 고정해 기존 118dp의 빈 공간을 없앱니다.
+    Widget metricRow(int start) => Row(children: [
+          Expanded(child: metricCard(start)),
+          const SizedBox(width: 10),
+          Expanded(child: metricCard(start + 1)),
+        ]);
+
+    return Column(children: [
+      metricRow(0),
+      const SizedBox(height: 10),
+      metricRow(2),
+    ]);
   }
 
   // 값이 없으면 0 이 아니라 '–' 로 둡니다. "0걸음" 과 "모름" 은 다릅니다.
-  String _sleep(int? min) =>
-      min == null ? '–' : '${min ~/ 60}시간 ${min % 60}분';
+  String _sleep(int? min) => min == null ? '–' : '${min ~/ 60}시간 ${min % 60}분';
 
-  String _comma(int n) => n.toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},');
+  String _comma(int n) => n
+      .toString()
+      .replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},');
 
   String _collected(DateTime? at) {
     if (at == null) return '–';
@@ -429,7 +473,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: () => _openOutreach(o),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            MaeumeMascot(size: 44, mood: MaeumeMascot.moodFor(null)),
+            _feelingMascot(44),
             const SizedBox(width: 12),
             const Expanded(
               child: Text('마음이가 먼저 말을 걸었어요',
@@ -474,7 +518,7 @@ class _HomeScreenState extends State<HomeScreen> {
       const SectionTitle('오늘의 한 줄 요약'),
       const SizedBox(height: 14),
       Row(children: [
-        MaeumeMascot(size: 52, mood: MaeumeMascot.moodFor(riskLevel)),
+        _feelingMascot(52, riskLevel: riskLevel),
         const SizedBox(width: 12),
         Expanded(
             child: Text(text,
@@ -485,43 +529,72 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _recommendations(List<ContentCard> cards) {
-    const palette = [AppColors.mint, AppColors.blue, Color(0xFFFFF0E9)];
+    // 홈에서는 사용자가 고르기 쉬운 세 갈래만 보여줍니다. 서버가 같은
+    // 카테고리를 여러 건 내려줘도 카테고리별 첫 카드 하나만 사용합니다.
+    const categories = ['MUSIC', 'EXERCISE', 'ARTICLE'];
+    final selected = <ContentCard>[];
+    for (final category in categories) {
+      for (final card in cards) {
+        if (card.category == category) {
+          selected.add(card);
+          break;
+        }
+      }
+    }
+
     return SizedBox(
-      height: 132,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: cards.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
-        itemBuilder: (_, i) => InkWell(
-          key: ValueKey('content-card-${cards[i].contentId}'),
-          onTap: () => _openContent(cards[i]),
-          borderRadius: BorderRadius.circular(15),
-          child: Container(
-            width: 132,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-                color: palette[i % palette.length],
-                borderRadius: BorderRadius.circular(15)),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(_categoryLabel(cards[i].category),
-                  style: const TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.w800)),
-              const SizedBox(height: 2),
-              Expanded(
-                  child: Text(cards[i].title,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontSize: 9, height: 1.5, color: AppColors.muted))),
-              Text(_categoryEmoji(cards[i].category),
-                  style: const TextStyle(fontSize: 25))
-            ]),
-          ),
-        ),
+      height: 142,
+      child: Row(
+        children: [
+          for (var i = 0; i < selected.length; i++) ...[
+            if (i > 0) const SizedBox(width: 9),
+            Expanded(child: _recommendationCard(selected[i])),
+          ],
+        ],
       ),
     );
   }
+
+  Widget _recommendationCard(ContentCard card) => InkWell(
+        key: ValueKey('content-card-${card.contentId}'),
+        onTap: () => _openContent(card),
+        borderRadius: BorderRadius.circular(17),
+        child: Ink(
+          padding: const EdgeInsets.fromLTRB(12, 12, 10, 10),
+          decoration: BoxDecoration(
+            color: _categoryColor(card.category),
+            borderRadius: BorderRadius.circular(17),
+          ),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Container(
+              width: 31,
+              height: 31,
+              decoration: const BoxDecoration(
+                  color: Color(0xCCFFFFFF), shape: BoxShape.circle),
+              child: Icon(_categoryIcon(card.category),
+                  size: 17, color: AppColors.primary),
+            ),
+            const SizedBox(height: 8),
+            Text(_categoryLabel(card.category),
+                style:
+                    const TextStyle(fontSize: 11, fontWeight: FontWeight.w800)),
+            const SizedBox(height: 3),
+            Expanded(
+              child: Text(card.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                      fontSize: 9, height: 1.4, color: AppColors.muted)),
+            ),
+            const Align(
+              alignment: Alignment.bottomRight,
+              child: Icon(Icons.arrow_forward_rounded,
+                  size: 15, color: AppColors.primary),
+            ),
+          ]),
+        ),
+      );
 
   /// 추천 콘텐츠를 외부 브라우저로 엽니다 — MLCM_400.
   ///
@@ -547,17 +620,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _categoryLabel(String category) => switch (category) {
         'MUSIC' => '음악',
-        'FOOD' => '먹을거리',
-        'EXERCISE' => '몸 움직이기',
-        'ARTICLE' => '읽을거리',
+        'EXERCISE' => '운동',
+        'ARTICLE' => '문구',
         _ => '추천',
       };
 
-  String _categoryEmoji(String category) => switch (category) {
-        'MUSIC' => '♫',
-        'FOOD' => '☕',
-        'EXERCISE' => '🌿',
-        _ => '📖',
+  Color _categoryColor(String category) => switch (category) {
+        'MUSIC' => const Color(0xFFF0EEFF),
+        'EXERCISE' => AppColors.mint,
+        _ => const Color(0xFFFFF0E9),
+      };
+
+  IconData _categoryIcon(String category) => switch (category) {
+        'MUSIC' => Icons.music_note_rounded,
+        'EXERCISE' => Icons.directions_walk_rounded,
+        _ => Icons.format_quote_rounded,
       };
 }
 
