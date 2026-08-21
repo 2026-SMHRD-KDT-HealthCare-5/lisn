@@ -120,6 +120,19 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- ⚠ FCM 알림의 **상태표시줄 아이콘**을 지정합니다.
+             지정하지 않으면 Firebase 가 앱 아이콘(@mipmap/ic_launcher)을
+             대신 씁니다. 그런데 Android 는 상태표시줄 아이콘의 **알파만**
+             쓰기 때문에, 색이 있는 앱 아이콘은 통째로 흰 사각형이 됩니다.
+             ic_stat_maeume 은 그래서 흰 실루엣 + 투명 배경입니다
+             (tools/make_app_icon.py 가 만듭니다). -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_maeume" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/maeume_notification" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

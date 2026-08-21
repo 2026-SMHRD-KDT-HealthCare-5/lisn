@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 알림 아이콘·강조색. lib/theme/app_colors.dart 의 primary 와 같습니다.
+         ⚠ 경고색(빨강·주황)을 쓰지 마세요 — 정신건강 알림에서 불안을 키웁니다. -->
+    <color name="maeume_notification">#647BEC</color>
+</resources>
