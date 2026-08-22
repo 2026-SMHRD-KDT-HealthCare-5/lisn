@@ -671,12 +671,17 @@ async function main() {
     });
 
     s.addShape('roundRect', { x: 8.5, y: 2.05, w: 4.2, h: rh * rows.length, rectRadius: 0.08, fill: { color: NAVY }, line: { type: 'none' } });
-    s.addText('왜 전 컬럼 암호화를 하지 않았나', { x: 8.8, y: 2.28, w: 3.6, h: 0.4, fontFace: FONT, fontSize: 13, bold: true, color: WHITE });
-    s.addText('라이프로그 측정치를 컬럼 암호화하면 서비스가 동작하지 않습니다. 기간별 집계와 복합 인덱스가 핵심 동작인데, 암호화하면 범위 조회를 할 수 없습니다.', {
-      x: 8.8, y: 2.72, w: 3.6, h: 1.15, fontFace: FONT_LIGHT, fontSize: 10.5, color: 'C7CDEA', lineSpacingMultiple: 1.3,
-    });
-    s.addText('그래서 유출 시 즉각적 2차 피해가 나는 항목(연락처)만 컬럼 암호화하고, 측정치는 전송 구간 보호와 접근통제로 지킵니다.', {
-      x: 8.8, y: 3.95, w: 3.6, h: 1.6, fontFace: FONT_LIGHT, fontSize: 10.5, color: 'C7CDEA', lineSpacingMultiple: 1.3,
+    // 제목과 두 문단을 한 블록으로 묶어 카드 안에서 세로 가운데 정렬합니다.
+    // ⚠ 예전에는 셋을 각각 절대 y(2.28 / 2.72 / 3.95)에 놓았는데, 첫 문단이
+    //   예상보다 짧게 끝나면서 문단 사이에 빈 줄 두 개만큼 구멍이 났습니다.
+    //   절대 좌표로 문단을 쌓으면 글자 수가 바뀔 때마다 이 문제가 되돌아옵니다.
+    s.addText([
+      { text: '왜 전 컬럼 암호화를 하지 않았나', options: { fontFace: FONT, fontSize: 13, bold: true, color: WHITE, breakLine: true, paraSpaceAfter: 12 } },
+      { text: '라이프로그 측정치를 컬럼 암호화하면 서비스가 동작하지 않습니다. 기간별 집계와 복합 인덱스가 핵심 동작인데, 암호화하면 범위 조회를 할 수 없습니다.', options: { color: 'C7CDEA', breakLine: true, paraSpaceAfter: 12 } },
+      { text: '그래서 유출 시 즉각적 2차 피해가 나는 항목(연락처)만 컬럼 암호화하고, 측정치는 전송 구간 보호와 접근통제로 지킵니다.', options: { color: 'C7CDEA' } },
+    ], {
+      x: 8.8, y: 2.05, w: 3.6, h: rh * rows.length,
+      fontFace: FONT_LIGHT, fontSize: 10.5, valign: 'middle', lineSpacingMultiple: 1.3, margin: 0,
     });
 
     card(s, 0.6, 5.75, 12.1, 1.2, { fill: BG_TINT, line: false, shadow: false });
@@ -707,7 +712,9 @@ async function main() {
     let y = 2.05;
     const rh = 0.78;
     rows.forEach(([a, tag, c], i) => {
-      card(s, 0.6, y, 12.1, rh - 0.08, { fill: WHITE, shadow: false });
+      // ⚠ 그림자를 끄지 마세요. 흰 배경 위의 흰 카드라 1px 테두리만으로는
+      //   경계가 거의 안 보입니다 — 이 덱에서 가장 약한 자리였습니다.
+      card(s, 0.6, y, 12.1, rh - 0.08, { fill: WHITE });
       s.addText(a, { x: 0.9, y, w: 3.1, h: rh - 0.08, fontFace: FONT, fontSize: 13, bold: true, color: NAVY, valign: 'middle', margin: 0 });
       const tagColor = tag === '분석 완료' ? MINT : (tag === '범위 제외' ? BLUE : PEACH);
       const tagBg = tag === '분석 완료' ? MINT_BG : (tag === '범위 제외' ? BLUE_BG : PEACH_BG);
