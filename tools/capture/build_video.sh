@@ -44,10 +44,14 @@ OUT="$D/final"
 BRAND="$REPO/docs/design/brand.json"
 tok() { python -c "import json,sys;print(json.load(open(sys.argv[1],encoding='utf-8'))$1)" "$BRAND"; }
 
-NAVY="0x$(tok "['color']['navy']")"
-INDIGO="0x$(tok "['color']['indigo']")"
-MUTED="0x$(tok "['color']['muted']")"
-BG="0x$(tok "['color']['bg']")"
+# 영상은 **어두운 캔버스**입니다. 앱·관제 화면이 대부분 흰 바탕이라 밝은
+# 배경에서는 화면 경계가 묻혔습니다. 값과 이유는 brand.json 의 video 절에.
+BG="0x$(tok "['video']['bg']")"
+NUM_C="0x$(tok "['video']['number']")"      # 번호
+TITLE_C="0x$(tok "['video']['title']")"     # 제목
+BODY_C="0x$(tok "['video']['body']")"       # 설명
+FRAME_C="0x$(tok "['video']['frame']")"     # 화면 둘레 테두리
+FRAME_W="$(tok "['video']['frameWidth']")"
 
 # 정적 Noto Sans KR — 없으면 만듭니다(가변폰트 기본 굵기가 Thin 이라 그대로 못 씁니다)
 W_TITLE="$(tok "['font']['weightTitle']")"
@@ -96,7 +100,7 @@ card() {  # card <출력> <초> <윗줄> <큰줄> <아랫줄>
     fa=":alpha='min(1,t/${CAP_FADE})'"
   fi
   "$FF" -y -f lavfi -i "color=c=${BG}:s=${W}x${H}:d=${sec}:r=${FPS}" \
-    -vf "drawtext=fontfile='${FONT_B}':text='${kicker}':fontsize=34:fontcolor=${INDIGO}:x=(w-text_w)/2:y=380${fa},drawtext=fontfile='${FONT_B}':text='${big}':fontsize=96:fontcolor=${NAVY}:x=(w-text_w)/2:y=450${fa},drawtext=fontfile='${FONT_R}':text='${sub}':fontsize=38:fontcolor=${MUTED}:x=(w-text_w)/2:y=600${fa}" \
+    -vf "drawtext=fontfile='${FONT_B}':text='${kicker}':fontsize=34:fontcolor=${NUM_C}:x=(w-text_w)/2:y=380${fa},drawtext=fontfile='${FONT_B}':text='${big}':fontsize=96:fontcolor=${TITLE_C}:x=(w-text_w)/2:y=450${fa},drawtext=fontfile='${FONT_R}':text='${sub}':fontsize=38:fontcolor=${BODY_C}:x=(w-text_w)/2:y=600${fa}" \
     -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
 }
 
@@ -133,7 +137,7 @@ fi
 captions() {  # captions <번호> <제목> <설명1> <설명2> <설명3>
   local t="$TXT"
   t="${t//@B@/\'${FONT_B}\'}"; t="${t//@R@/\'${FONT_R}\'}"
-  t="${t//@I@/${INDIGO}}"; t="${t//@N@/${NAVY}}"; t="${t//@M@/${MUTED}}"
+  t="${t//@I@/${NUM_C}}"; t="${t//@N@/${TITLE_C}}"; t="${t//@M@/${BODY_C}}"
   t="${t//@NO@/\'$1\'}"; t="${t//@T@/\'$2\'}"
   t="${t//@L1@/\'$3\'}"; t="${t//@L2@/\'$4\'}"; t="${t//@L3@/\'$5\'}"
   printf '%s' "$t"
@@ -159,7 +163,7 @@ phone() {  # phone <입력> <출력> <목표초> <번호> <제목> <설명1> <�
   ff="$(footfade)"
   say "  ${no} ${title} — ${d}s → ${want}s (x${factor})"
   "$FF" -y -i "$in" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}" \
-    -filter_complex "[0:v]setpts=${factor}*PTS,scale=-2:940,fps=${FPS}${ff}[ph];[1:v]trim=duration=${want},setpts=PTS-STARTPTS[bg];[bg][ph]overlay=x=1240:y=70:shortest=1[v0];[v0]${cap}[v]" \
+    -filter_complex "[0:v]setpts=${factor}*PTS,scale=-2:$((940-2*6)),pad=iw+$((2*6)):ih+$((2*6)):6:6:color=${FRAME_C},fps=${FPS}${ff}[ph];[1:v]trim=duration=${want},setpts=PTS-STARTPTS[bg];[bg][ph]overlay=x=1240:y=70:shortest=1[v0];[v0]${cap}[v]" \
     -map "[v]" -t "${want}" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
 }
 
@@ -186,7 +190,7 @@ still() {  # still <png> <출력> <초> <번호> <제목> <설명1> <설명2> <�
   ff="$(footfade)"
   say "  ${no} ${title} — 정지 ${sec}s"
   "$FF" -y -loop 1 -t "${sec}" -i "$img" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}" \
-    -filter_complex "[0:v]scale=-2:940,fps=${FPS}${ff}[ph];[1:v]trim=duration=${sec},setpts=PTS-STARTPTS[bg];[bg][ph]overlay=x=1240:y=70:shortest=1[v0];[v0]${cap}[v]" \
+    -filter_complex "[0:v]scale=-2:$((940-2*6)),pad=iw+$((2*6)):ih+$((2*6)):6:6:color=${FRAME_C},fps=${FPS}${ff}[ph];[1:v]trim=duration=${sec},setpts=PTS-STARTPTS[bg];[bg][ph]overlay=x=1240:y=70:shortest=1[v0];[v0]${cap}[v]" \
     -map "[v]" -t "${sec}" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
 }
 
@@ -222,7 +226,7 @@ desktop() {  # desktop <입력> <출력> <번호> <제목> <설명1> <설명2>
     fa4=":alpha='min(1,(t-0.24)/${CAP_FADE})'"
   fi
   say "  ${no} ${title} — $(dur "$in")s"
-  "$FF" -y -i "$in" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}"     -filter_complex "[0:v]scale=1190:-2,fps=${FPS}${ff}[sc];[1:v]trim=duration=999,setpts=PTS-STARTPTS[bg];[bg][sc]overlay=x=170:y=350:shortest=1[v0];[v0]drawtext=fontfile='${FONT_B}':text='${no}':fontsize=30:fontcolor=${INDIGO}:x=170:y=80${fa1},drawtext=fontfile='${FONT_B}':text='${title}':fontsize=76:fontcolor=${NAVY}:x=170:y=114${fa2},drawtext=fontfile='${FONT_R}':text='${l1}':fontsize=30:fontcolor=${MUTED}:x=170:y=232${fa3},drawtext=fontfile='${FONT_R}':text='${l2}':fontsize=30:fontcolor=${MUTED}:x=170:y=270${fa4}[v]"     -map "[v]" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
+  "$FF" -y -i "$in" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}"     -filter_complex "[0:v]scale=$((1190-2*6)):-2,pad=iw+$((2*6)):ih+$((2*6)):6:6:color=${FRAME_C},fps=${FPS}${ff}[sc];[1:v]trim=duration=999,setpts=PTS-STARTPTS[bg];[bg][sc]overlay=x=170:y=350:shortest=1[v0];[v0]drawtext=fontfile='${FONT_B}':text='${no}':fontsize=30:fontcolor=${NUM_C}:x=170:y=80${fa1},drawtext=fontfile='${FONT_B}':text='${title}':fontsize=76:fontcolor=${TITLE_C}:x=170:y=114${fa2},drawtext=fontfile='${FONT_R}':text='${l1}':fontsize=30:fontcolor=${BODY_C}:x=170:y=232${fa3},drawtext=fontfile='${FONT_R}':text='${l2}':fontsize=30:fontcolor=${BODY_C}:x=170:y=270${fa4}[v]"     -map "[v]" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
 }
 
 # ---------------------------------------------------------------------------
@@ -338,4 +342,14 @@ else
   "$FF" -y -f concat -safe 0 -i "$P/list.txt" -c copy "$OUT/lisn_demo_3min.mp4" 2>/dev/null
 fi
 
+# ---------------------------------------------------------------------------
+#  표지 이미지 — 발표자료(build_deck.js)가 영상 슬라이드의 표지로 씁니다.
+#
+#  ⚠ **반드시 영상과 함께 다시 만듭니다.** 예전에는 손으로 한 번 뽑아 두고
+#    영상만 다시 구웠더니, 캔버스를 어둡게 바꾼 뒤에도 발표자료에는 옛
+#    밝은 표지가 남아 있었습니다(2026.08.22). 두 산출물이 갈라지는 자리는
+#    전부 자동으로 묶어 둡니다.
+# ---------------------------------------------------------------------------
+"$FF" -y -ss 4 -i "$OUT/lisn_demo_3min.mp4" -frames:v 1 -update 1 "$OUT/poster.png" 2>/dev/null
 say "완료 → $OUT/lisn_demo_3min.mp4  ($(dur "$OUT/lisn_demo_3min.mp4")s)"
+say "표지 → $OUT/poster.png"
