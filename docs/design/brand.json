@@ -1,0 +1,29 @@
+{
+  "_": "귀기울임 브랜드 토큰 — 색·글꼴의 정본입니다. 발표자료(build.js)와 시연영상(build_video.sh)이 둘 다 이 파일을 읽습니다. 어느 한쪽에 값을 직접 적지 마세요. 2026.08.22 에 두 산출물의 남색·인디고·회색·글꼴이 전부 어긋나 있던 것을 발견하고 만들었습니다.",
+  "출처": "docs/design/README.md — 앱 화면에서 뽑은 값입니다. 앱이 정본이고 발표자료·영상이 따라갑니다.",
+  "color": {
+    "navy": "24325F",
+    "navyDark": "1B2547",
+    "indigo": "5A6BE0",
+    "indigoLt": "8A9CF0",
+    "muted": "6E7488",
+    "bg": "F4F6FD",
+    "white": "FFFFFF",
+    "line": "E3E7F3",
+    "mint": "2F9E82",
+    "mintBg": "EAF8F4",
+    "blue": "3F7FC1",
+    "blueBg": "EAF5FF",
+    "peach": "C97448",
+    "peachBg": "FFF0E9"
+  },
+  "font": {
+    "family": "Noto Sans KR",
+    "familyBlack": "Noto Sans KR Black",
+    "familyLight": "Noto Sans KR DemiLight",
+    "_weights": "영상은 ffmpeg drawtext 라 글꼴 '파일'이 필요합니다. Windows 의 NotoSansKR-VF.ttf 는 가변폰트이고 기본 굵기가 Thin(100) 이라 그대로 쓰면 종잇장처럼 나옵니다. tools/capture/make_fonts.py 가 아래 굵기로 정적 폰트를 뽑습니다.",
+    "weightTitle": 700,
+    "weightBody": 400,
+    "_weightBody": "발표자료 본문은 DemiLight(350) 인데 영상은 400 입니다. 일부러 다릅니다 — 발표자료는 PowerPoint 가 고해상도로 그리지만 영상 자막은 29~30px 라서 350 은 획이 날아가 흐려 보입니다. 350/400/500 을 실제로 찍어 보고 400 으로 정했습니다(2026.08.22). 글꼴 가족은 양쪽 다 Noto Sans KR 로 같습니다."
+  }
+}

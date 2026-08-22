@@ -311,3 +311,7 @@ ai/data_raw/company/
 
 # Claude Code 실행 중 만들어지는 잠금 파일
 .claude/scheduled_tasks.lock
+
+# 시연영상용 정적 글꼴 — tools/capture/make_fonts.py 로 다시 뽑습니다(10MB)
+tools/capture/fonts/
+glyph_suspects.png

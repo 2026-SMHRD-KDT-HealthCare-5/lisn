@@ -15,7 +15,17 @@
 
 set -euo pipefail
 
+# ⚠ **이 파일이 유일한 정본입니다.** 예전에는 스크래치패드에 사본을 두고
+#   거기서 고친 뒤 저장소로 복사했는데, 두 사본이 갈라져 「어느 게 최신이지」가
+#   반복됐습니다. 이제 저장소 파일만 고치고, 결과물 저장 위치만 넘깁니다.
+#
+#     OUT_ROOT=/경로 bash tools/capture/build_video.sh
+#
+#   OUT_ROOT 를 안 주면 이 스크립트 옆에 parts/·final/ 을 만듭니다.
 HERE="$(cd "$(dirname "$0")" && pwd)"
+REPO="${LISN_REPO:-$(cd "$HERE/../.." && pwd)}"
+HERE="${OUT_ROOT:-$HERE}"
+mkdir -p "$HERE"
 D="$(cygpath -m "$HERE")"
 FF="$(cat /tmp/ffmpeg_path)"
 FP="$(dirname "$FF")/ffprobe.exe"
@@ -23,14 +33,35 @@ mkdir -p "$HERE/final" "$HERE/parts"
 P="$D/parts"
 OUT="$D/final"
 
-# ffmpeg drawtext 는 경로의 콜론을 escape 해야 합니다.
-FONT_B="C\\:/Windows/Fonts/malgunbd.ttf"
-FONT_R="C\\:/Windows/Fonts/malgun.ttf"
+# ---------------------------------------------------------------------------
+#  색·글꼴은 docs/design/brand.json 이 정본입니다. 여기에 값을 적지 마세요.
+#
+#  ⚠ 2026.08.22 이전에는 이 파일이 자기 색(0x172147 등)과 Malgun Gothic 을
+#    따로 갖고 있었습니다. 발표자료는 #24325F 와 Noto Sans KR 을 쓰는데
+#    영상만 달라서, **한 슬라이드 안에서 색도 글씨체도 어긋나 보였습니다.**
+#    같은 값을 두 곳에 적으면 반드시 갈라집니다 — 그래서 한 곳에서 읽습니다.
+# ---------------------------------------------------------------------------
+BRAND="$REPO/docs/design/brand.json"
+tok() { python -c "import json,sys;print(json.load(open(sys.argv[1],encoding='utf-8'))$1)" "$BRAND"; }
 
-NAVY="0x172147"
-INDIGO="0x647BEC"
-MUTED="0x7C86A5"
-BG="0xF4F6FD"
+NAVY="0x$(tok "['color']['navy']")"
+INDIGO="0x$(tok "['color']['indigo']")"
+MUTED="0x$(tok "['color']['muted']")"
+BG="0x$(tok "['color']['bg']")"
+
+# 정적 Noto Sans KR — 없으면 만듭니다(가변폰트 기본 굵기가 Thin 이라 그대로 못 씁니다)
+W_TITLE="$(tok "['font']['weightTitle']")"
+W_BODY="$(tok "['font']['weightBody']")"
+FDIR="$REPO/tools/capture/fonts"
+if [ ! -f "$FDIR/NotoSansKR-$W_TITLE.ttf" ] || [ ! -f "$FDIR/NotoSansKR-$W_BODY.ttf" ]; then
+  say "정적 글꼴 생성 중 (처음 한 번)"
+  python "$REPO/tools/capture/make_fonts.py"
+fi
+# ffmpeg drawtext 는 경로의 콜론을 escape 해야 합니다 (C:/... -> C\\:/...)
+_fb="$(cygpath -m "$FDIR/NotoSansKR-$W_TITLE.ttf")"
+_fr="$(cygpath -m "$FDIR/NotoSansKR-$W_BODY.ttf")"
+FONT_B="${_fb/:/\\:}"
+FONT_R="${_fr/:/\\:}"
 
 W=1920; H=1080; FPS=30
 
@@ -89,6 +120,10 @@ fi
 #   처럼 앞뒤가 이어지는 설명을 두 줄에 욱여넣으니 주어·목적어가 잘려나가
 #   번역투가 됐습니다. 줄을 늘리고 폰트를 34→30 으로 줄여 자리를 만들었습니다.
 #   **한 줄에 한 가지만** 말하세요. 빈 줄이 필요하면 "" 를 넘기면 됩니다.
+#
+# ⚠ **번호가 붙는 소제목은 명사구로 끊습니다.** "01 먼저 말을 겁니다" 처럼
+#   서술형으로 쓰면 번호와 따로 놀아서 목차처럼 훑히지 않습니다.
+#   "01 수면 이상 감지 후 선제 접촉" 처럼 딱 끊으세요. 설명은 아래 3줄이 합니다.
 #
 # ⚠ **글자가 이 크기에서 깨지는지 반드시 검사하세요.** Malgun Gothic 은
 #   29·30px 에서 「맡」의 ㅏ 세로획을 통째로 지웁니다(34px 부터 정상). 완성본을
@@ -226,11 +261,11 @@ mux "$HERE/parts/00_title.mp4" "00"
 mux "$HERE/parts/99_outro.mp4" "99"
 
 say "앱 컷"
-phone "$D/cuts/cut1_outreach.mp4" "$P/01.mp4" 44 "01" "먼저 말을 겁니다" \
+phone "$D/cuts/cut1_outreach.mp4" "$P/01.mp4" 44 "01" "수면 이상 감지 후 선제 접촉" \
   "사용자의 수면 패턴이 5일째 무너진 것을 먼저 알아챕니다." \
   "이상 징후가 발견되면 알림으로 선제 접촉을 합니다." \
   "앱을 열면 상태를 묻는 첫 마디가 대화를 시작합니다."
-phone "$D/cuts/cut2_chat.mp4" "$P/02.mp4" 33 "02" "성격을 골라 대화합니다" \
+phone "$D/cuts/cut2_chat.mp4" "$P/02.mp4" 33 "02" "성격별 맞춤 응답 비교" \
   "사용자는 따스한 공감형과 현실적인 조언형 중에서 고릅니다." \
   "같은 말을 해도 성격에 따라 답이 달라집니다." \
   "위기 판정과 응답 생성을 동시에 돌려 3초 안에 답합니다."
@@ -239,12 +274,12 @@ mux "$HERE/parts/01.mp4" "01"
 mux "$HERE/parts/02.mp4" "02"
 
 say "긴급 상담 연결"
-still "$D/emg.png" "$P/02b.mp4" 14 "03" "위로가 위험을 덮지 않게" \
+still "$D/emg.png" "$P/02b.mp4" 14 "03" "위기 발화 감지 후 상담 연결" \
   "위기가 확인되면 서버는 만들어 둔 챗봇 답변을 버립니다." \
   "위로를 건네는 대신 상담 연결 화면으로 넘어갑니다." \
   "경고색은 쓰지 않았습니다. 불안을 키우면 회피로 이어집니다."
 
-phone "$D/cuts/cut3_report.mp4" "$P/03.mp4" 36 "04" "몸의 신호에서 마음을 읽습니다" \
+phone "$D/cuts/cut3_report.mp4" "$P/03.mp4" 36 "04" "라이프로그 기반 정서 분석" \
   "앱은 사용자의 수면과 활동량, 심박을 함께 모읍니다." \
   "그 사람의 평소 기준선에서 얼마나 벗어났는지를 봅니다." \
   "데이터가 사흘치에 못 미치면 정상이라고 말하지 않습니다."
@@ -253,7 +288,7 @@ mux "$HERE/parts/02b.mp4" "02b"
 mux "$HERE/parts/03.mp4" "03"
 
 say "관제 컷"
-desktop "$D/cuts/cut4_admin.mp4" "$P/04.mp4" "05" "위험한 사람이 먼저 보입니다" \
+desktop "$D/cuts/cut4_admin.mp4" "$P/04.mp4" "05" "이상 징후 사용자 우선 탐색" \
   "관리자는 담당 대상자의 위험도를 한 화면에서 봅니다." \
   "채팅에서 감지한 위기도 여기 쌓이고, 무엇이 판정했는지는 「모델」 칸에 남습니다."
 

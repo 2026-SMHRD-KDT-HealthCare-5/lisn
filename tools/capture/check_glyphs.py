@@ -11,25 +11,46 @@
 ①실제 크기와 ②8배 크기로 그린 뒤 8배본을 줄여, 잉크량(불투명 픽셀 합)을
 견줍니다. 힌팅이 획을 지우면 실제 크기 쪽이 뚜렷하게 적습니다.
 
-기준 — 잉크가 이상적인 모습보다 **10% 넘게 적으면** 의심합니다. 「맡」 29px 이
--13.4% 였습니다. 다만 -11% 대에는 멀쩡한 글자(팀·건·미·3)도 걸리므로
-**판정은 사람이 합니다** — 걸린 글자를 `glyph_suspects.png` 로 10배 확대해
-뽑아 주니 그것만 보면 됩니다. 문장부호는 원래 얇아 비율이 요동쳐 뺍니다.
+기준 — **또래와 견줍니다.** 절대 잉크량으로 재면 얇은 굵기가 통째로 걸립니다
+(400 대신 350 을 쓰던 때 자막 글자 전부가 -40% 로 나왔는데 실제로는 멀쩡했습니다).
+그래서 같은 크기 글자들의 잉크 손실 **중앙값**을 구하고, 거기서 5%p 넘게 더
+잃은 글자만 집어냅니다. 획이 빠진 글자는 또래 사이에서 반드시 튑니다 —
+Malgun 29px 에서 「맡」은 또래가 -7% 일 때 -13.4% 였습니다.
+
+판정은 사람이 합니다 — 걸린 글자를 `glyph_suspects.png` 로 10배 확대해 뽑아
+주니 그것만 보면 됩니다. 문장부호는 원래 얇아 비율이 요동쳐 뺍니다.
 """
 import json, os, subprocess, sys, tempfile
 from pathlib import Path
 from PIL import Image
 
 FF = os.environ.get("FFMPEG_BIN") or Path(os.environ.get("TEMP", "/tmp"), "ffmpeg_path").read_text().strip()
-FONT = 'C' + chr(92) + ':/Windows/Fonts/malgun.ttf'
+ROOT = Path(__file__).resolve().parents[2]
+BRAND = json.loads((ROOT / "docs" / "design" / "brand.json").read_text(encoding="utf-8"))
+# ⚠ 영상이 실제로 쓰는 글꼴로 검사해야 합니다. 예전엔 Malgun 을 박아 뒀는데
+#   영상이 Noto Sans KR 로 바뀌면서 엉뚱한 글꼴을 재던 적이 있습니다.
+_W = BRAND["font"]
+FONTS = {
+    "title": ROOT / "tools" / "capture" / "fonts" / f"NotoSansKR-{_W['weightTitle']}.ttf",
+    "body":  ROOT / "tools" / "capture" / "fonts" / f"NotoSansKR-{_W['weightBody']}.ttf",
+}
+def fontfile(size):
+    """제목(42px 이상)은 굵은 쪽, 설명은 얇은 쪽으로 그립니다.
+
+    ⚠ ffmpeg drawtext 는 역슬래시 경로를 못 받습니다. 슬래시로 바꾸고
+      드라이브 콜론만 escape 해야 합니다 — C:/... -> C\:/...
+      역슬래시로 넘겼더니 ffmpeg 이 통째로 죽었습니다(exit 3221225477).
+    """
+    p = FONTS["title"] if size >= 42 else FONTS["body"]
+    return str(p).replace(chr(92), "/").replace(":", chr(92) + ":", 1)
 SKIP = set(" .,·—「」()[]'\"~-·…!?:;/")
-LIMIT = -10.0
+LIMIT = -5.0   # 또래 중앙값보다 이만큼(%p) 더 잃으면 의심
 
 def render(ch, size, out):
     box = size * 4
     subprocess.run(
         [FF, "-y", "-f", "lavfi", "-i", f"color=c=black:s={box}x{box}:d=1", "-frames:v", "1",
-         "-vf", f"drawtext=fontfile='{FONT}':text='{ch}':fontsize={size}:fontcolor=white:x={size}:y={size}",
+         "-vf", f"drawtext=fontfile='{fontfile(size)}':text='{ch}':fontsize={size}:fontcolor=white:x={size}:y={size}",
          "-update", "1", str(out)],
         check=True, capture_output=True)
 
@@ -42,31 +63,44 @@ def ink(path, size=None):
 def check(rows):
     bad_total = 0
     seen = set()
+    import statistics
     with tempfile.TemporaryDirectory() as td:
         td = Path(td)
         cache = {}
+
+        def delta(ch, size):
+            key = (ch, size)
+            if key not in cache:
+                a, b = td / "a.png", td / "b.png"
+                render(ch, size, a)
+                render(ch, size * 8, b)
+                cache[key] = (ink(a) - ink(b, size * 4)) / ink(b, size * 4) * 100
+            return cache[key]
+
+        # 크기별로 또래 중앙값을 먼저 구합니다
+        chars_by_size = {}
+        for row in rows:
+            chars_by_size.setdefault(row["size"], set()).update(
+                c for c in row["text"] if c not in SKIP)
+        base = {}
+        for size, chars in chars_by_size.items():
+            vals = [delta(c, size) for c in sorted(chars)]
+            base[size] = statistics.median(vals) if vals else 0.0
+
         for row in rows:
             text, size, label = row["text"], row["size"], row.get("label", "")
-            hits = []
-            for ch in dict.fromkeys(text):      # 순서 유지 + 중복 제거
-                if ch in SKIP:
-                    continue
-                key = (ch, size)
-                if key not in cache:
-                    a, b = td / "a.png", td / "b.png"
-                    render(ch, size, a)
-                    render(ch, size * 8, b)
-                    cache[key] = (ink(a) - ink(b, size * 4)) / ink(b, size * 4) * 100
-                if cache[key] < LIMIT:
-                    hits.append((ch, cache[key]))
+            med = base[size]
+            hits = [(c, delta(c, size) - med)
+                    for c in dict.fromkeys(text)
+                    if c not in SKIP and delta(c, size) - med < LIMIT]
             if hits:
                 bad_total += len(hits)
                 seen.update((size, c) for c, _ in hits)
-                detail = ", ".join(f"「{c}」 {d:+.0f}%" for c, d in hits)
-                print(f"  \u2717 [{label}] {size}px — {detail}")
+                detail = ", ".join(f"「{c}」 {d:+.0f}%p" for c, d in hits)
+                print(f"  ✗ [{label}] {size}px — 또래보다 {detail}")
                 print(f"       {text}")
             else:
-                print(f"  \u2713 [{label}] {size}px  {text}")
+                print(f"  ✓ [{label}] {size}px  {text}")
     return bad_total, sorted(seen)
 
 
@@ -103,7 +137,7 @@ if __name__ == "__main__":
         contact(suspects, out)
         print(f"⚠ 의심 글자 {n}건 — {out} 를 열어 눈으로 확인하세요.")
         print("   획이 실제로 빠졌으면 낱말을 바꾸거나 fontsize 를 올립니다.")
-        print("   -11% 대는 대개 멀쩡합니다(팀·건·미·3 확인함). 「맡」은 -13% 였습니다.")
+        print("   또래보다 -5%p 안팎은 대개 멀쩡합니다. 실제 결함이던 「맡」은 -14%p 였습니다.")
     else:
         print("✓ 모든 자막이 렌더 크기에서 온전합니다")
     sys.exit(1 if n else 0)
