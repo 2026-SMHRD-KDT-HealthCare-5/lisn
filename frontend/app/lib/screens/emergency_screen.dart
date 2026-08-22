@@ -62,6 +62,14 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
                 child: Column(
+                  // 카드 세 장의 너비를 맞춥니다.
+                  //
+                  // ⚠ **기본값(center)이면 카드마다 너비가 달라집니다.**
+                  //   느슨한 제약이 내려가 각자 내용 너비로 줄어들기 때문에,
+                  //   버튼이 있는 카드는 넓고 글자만 있는 카드는 좁아집니다.
+                  //   실제로 「지금 많이 힘드신 것 같아요」만 눈에 띄게
+                  //   좁았습니다(2026.08.22 시연영상에서 발견).
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _NoticeCard(),
                     const SizedBox(height: 14),

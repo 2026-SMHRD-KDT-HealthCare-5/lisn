@@ -95,19 +95,52 @@ still() {  # still <png> <출력> <초> <번호> <제목> <설명1> <설명2>
 
 # ---------------------------------------------------------------------------
 #  관제 컷 — 가로라 화면을 채우고 아래에 띠 설명
+#
+#  ⚠ **자막을 화면 밑에 붙이지 마세요.** 처음에 1740px 로 키웠더니 스크린샷
+#    아래끝(1008)과 자막(985)이 겹쳤고, 줄여도 아랫줄이 캔버스 바닥에
+#    18px 까지 닿았습니다. 발표 화면에서는 잘려 보입니다.
+#
+#    1500px → 높이 843. y=28 이면 28~871 을 차지하고, 자막은 900·958 에
+#    놓여 **위로 29px, 아래로 93px** 이 남습니다.
 # ---------------------------------------------------------------------------
 desktop() {  # desktop <입력> <출력> <번호> <제목> <설명>
   local in="$1" out="$2" no="$3" title="$4" l1="$5"
   say "  ${no} ${title} — $(dur "$in")s"
   "$FF" -y -i "$in" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}" \
-    -filter_complex "[0:v]scale=1740:-2,fps=${FPS}[sc];[1:v]trim=duration=999,setpts=PTS-STARTPTS[bg];[bg][sc]overlay=x=(W-w)/2:y=30:shortest=1[v0];[v0]drawtext=fontfile='${FONT_B}':text='${no}  ${title}':fontsize=44:fontcolor=${NAVY}:x=(w-text_w)/2:y=985,drawtext=fontfile='${FONT_R}':text='${l1}':fontsize=30:fontcolor=${MUTED}:x=(w-text_w)/2:y=1040[v]" \
+    -filter_complex "[0:v]scale=1500:-2,fps=${FPS}[sc];[1:v]trim=duration=999,setpts=PTS-STARTPTS[bg];[bg][sc]overlay=x=(W-w)/2:y=28:shortest=1[v0];[v0]drawtext=fontfile='${FONT_B}':text='${no}  ${title}':fontsize=42:fontcolor=${NAVY}:x=(w-text_w)/2:y=900,drawtext=fontfile='${FONT_R}':text='${l1}':fontsize=29:fontcolor=${MUTED}:x=(w-text_w)/2:y=958[v]" \
     -map "[v]" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
+}
+
+# ---------------------------------------------------------------------------
+#  내레이션 얹기
+#
+#  ⚠ **구간마다 따로 얹고 나서 이어붙입니다.** 통짜 음성 하나를 만들어
+#    맞추면, 구간 길이를 조금만 바꿔도 뒤가 전부 밀립니다.
+#
+#  ⚠ `adelay` 로 앞을 조금 비웁니다. 화면이 바뀌자마자 말이 시작되면
+#    쫓기는 느낌이 납니다.
+#  ⚠ `apad` + `-shortest` — 음성이 구간보다 짧으면 무음으로 채우고,
+#    길면 잘라 냅니다. 밀려서 다음 구간과 겹치는 것이 제일 나쁩니다.
+# ---------------------------------------------------------------------------
+LEAD=0.7
+mux() {  # mux <파트mp4> <wav이름>
+  local v="$1" name="$2" wav="$D/tts/$2.wav" tmp="${1%.mp4}_a.mp4"
+  if [ ! -f "$HERE/tts/$2.wav" ]; then
+    say "  (음성 없음: $2 — 무음으로 둡니다)"
+    return
+  fi
+  local ms; ms="$(awk -v a="$LEAD" 'BEGIN{printf "%d", a*1000}')"
+  "$FF" -y -i "$v" -i "$wav"     -filter_complex "[1:a]adelay=${ms}|${ms},aresample=48000,apad[a]"     -map 0:v -map "[a]" -shortest -c:v copy -c:a aac -b:a 160k "$tmp" 2>/dev/null
+  mv -f "$tmp" "$v"
 }
 
 # ===========================================================================
 say "타이틀 · 마무리 카드"
-card "$P/00_title.mp4" 7 "MULTIMODAL LIFELOG EMOTION CARE" "귀기울임" "먼저 말을 거는 정서 케어"
+card "$P/00_title.mp4" 9 "MULTIMODAL LIFELOG EMOTION CARE" "귀기울임" "먼저 말을 거는 정서 케어"
 card "$P/99_outro.mp4" 10 "SMHRD KDT HEALTHCARE 5팀" "귀기울임 LISN" "감지한 것을 사람에게 닿게 합니다"
+
+mux "$HERE/parts/00_title.mp4" "00"
+mux "$HERE/parts/99_outro.mp4" "99"
 
 say "앱 컷"
 phone "$D/cuts/cut1_outreach.mp4" "$P/01.mp4" 44 "01" "먼저 말을 겁니다" \
@@ -117,18 +150,26 @@ phone "$D/cuts/cut2_chat.mp4" "$P/02.mp4" 33 "02" "두 성격으로 듣습니다
   "공감형과 조언형 중에 고릅니다. 같은 말에 다르게 답합니다." \
   "위기 판정과 응답 생성을 병렬로 돌려 3초 안에 답합니다."
 
+mux "$HERE/parts/01.mp4" "01"
+mux "$HERE/parts/02.mp4" "02"
+
 say "긴급 상담 연결"
 still "$D/emg.png" "$P/02b.mp4" 14 "03" "위로가 위험을 덮지 않게" \
   "위기가 확인되면 만들어 둔 챗봇 답변을 버리고 사람에게 연결합니다." \
   "경고색을 쓰지 않았습니다 — 불안을 키우면 회피로 이어집니다."
 
-phone "$D/cuts/cut3_report.mp4" "$P/03.mp4" 38 "04" "몸의 신호를 정서로" \
+phone "$D/cuts/cut3_report.mp4" "$P/03.mp4" 36 "04" "몸의 신호를 정서로" \
   "수면·활동량·심박이 개인 기준선에서 얼마나 벗어났는지 봅니다." \
   "데이터가 3일치 미만이면 '정상'이라고 하지 않습니다."
+
+mux "$HERE/parts/02b.mp4" "02b"
+mux "$HERE/parts/03.mp4" "03"
 
 say "관제 컷"
 desktop "$D/cuts/cut4_admin.mp4" "$P/04.mp4" "05" "관리자는 전체를 봅니다" \
   "위기 판정이 여기 기록됩니다 — 무엇이 판정했는지 「모델」 칸에 함께."
+
+mux "$HERE/parts/04.mp4" "04"
 
 say "이어붙이기"
 cat > "$HERE/parts/list.txt" <<EOF
