@@ -80,6 +80,10 @@ else
   TXT="drawtext=fontfile=@B@:text=@NO@:fontsize=30:fontcolor=@I@:x=170:y=360,drawtext=fontfile=@B@:text=@T@:fontsize=76:fontcolor=@N@:x=170:y=410,drawtext=fontfile=@R@:text=@L1@:fontsize=34:fontcolor=@M@:x=170:y=540,drawtext=fontfile=@R@:text=@L2@:fontsize=34:fontcolor=@M@:x=170:y=592"
 fi
 
+# ⚠ 설명1·설명2 는 drawtext 라 자동 줄바꿈이 안 됩니다. phone/still 레이아웃은
+#   왼쪽 x=170 ~ 폰 화면 시작 x=1240 까지만 폭이 있어(fontsize 34) 약 26자를
+#   넘기면 폰 화면 영역을 침범합니다. 넣기 전에 글자 수를 세세요.
+#   (2026.08.22 에 cut1 자막이 이 폭을 넘겨 폰 화면을 침범한 걸 실제로 발견했습니다.)
 captions() {  # captions <번호> <제목> <설명1> <설명2>
   local t="$TXT"
   t="${t//@B@/\'${FONT_B}\'}"; t="${t//@R@/\'${FONT_R}\'}"
@@ -210,7 +214,7 @@ mux "$HERE/parts/99_outro.mp4" "99"
 say "앱 컷"
 phone "$D/cuts/cut1_outreach.mp4" "$P/01.mp4" 44 "01" "먼저 말을 겁니다" \
   "수면 패턴이 5일째 무너진 것을 시스템이 먼저 알아챕니다." \
-  "앱을 열지 않아도 알림이 먼저 도착하고, 첫 마디는 이미 준비돼 있습니다."
+  "알림은 먼저 오고, 첫 마디는 앱 안에서 기다립니다."
 phone "$D/cuts/cut2_chat.mp4" "$P/02.mp4" 33 "02" "두 성격으로 듣습니다" \
   "공감형과 조언형 중에 고릅니다. 같은 말에 다르게 답합니다." \
   "위기 판정과 응답 생성을 병렬로 돌려 3초 안에 답합니다."
@@ -220,7 +224,7 @@ mux "$HERE/parts/02.mp4" "02"
 
 say "긴급 상담 연결"
 still "$D/emg.png" "$P/02b.mp4" 14 "03" "위로가 위험을 덮지 않게" \
-  "위기가 확인되면 만들어 둔 챗봇 답변을 버리고 사람에게 연결합니다." \
+  "위기가 확인되면 챗봇 답변 대신 사람에게 연결합니다." \
   "경고색을 쓰지 않았습니다 — 불안을 키우면 회피로 이어집니다."
 
 phone "$D/cuts/cut3_report.mp4" "$P/03.mp4" 36 "04" "몸의 신호를 정서로" \
