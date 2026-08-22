@@ -1,0 +1,107 @@
+[
+ {
+  "text": "MULTIMODAL LIFELOG EMOTION CARE",
+  "size": 34,
+  "label": "card"
+ },
+ {
+  "text": "귀기울임",
+  "size": 96,
+  "label": "card"
+ },
+ {
+  "text": "먼저 다가가는 정서 케어",
+  "size": 38,
+  "label": "card"
+ },
+ {
+  "text": "SMHRD KDT HEALTHCARE 5팀",
+  "size": 34,
+  "label": "card"
+ },
+ {
+  "text": "귀기울임 LISN",
+  "size": 96,
+  "label": "card"
+ },
+ {
+  "text": "감지에서 멈추지 않고 먼저 다가갑니다",
+  "size": 38,
+  "label": "card"
+ },
+ {
+  "text": "사용자의 수면 패턴이 5일째 무너진 것을 먼저 알아챕니다.",
+  "size": 76,
+  "label": "phone"
+ },
+ {
+  "text": "이상 징후가 발견되면 알림으로 선제 접촉을 합니다.",
+  "size": 30,
+  "label": "phone"
+ },
+ {
+  "text": "앱을 열면 상태를 묻는 첫 마디가 대화를 시작합니다.",
+  "size": 30,
+  "label": "phone"
+ },
+ {
+  "text": "사용자는 따스한 공감형과 현실적인 조언형 중에서 고릅니다.",
+  "size": 76,
+  "label": "phone"
+ },
+ {
+  "text": "같은 말을 해도 성격에 따라 답이 달라집니다.",
+  "size": 30,
+  "label": "phone"
+ },
+ {
+  "text": "위기 판정과 응답 생성을 동시에 돌려 3초 안에 답합니다.",
+  "size": 30,
+  "label": "phone"
+ },
+ {
+  "text": "위기가 확인되면 서버는 만들어 둔 챗봇 답변을 버립니다.",
+  "size": 76,
+  "label": "still"
+ },
+ {
+  "text": "위로를 건네는 대신 상담 연결 화면으로 넘어갑니다.",
+  "size": 30,
+  "label": "still"
+ },
+ {
+  "text": "경고색은 쓰지 않았습니다. 불안을 키우면 회피로 이어집니다.",
+  "size": 30,
+  "label": "still"
+ },
+ {
+  "text": "앱은 사용자의 수면과 활동량, 심박을 함께 모읍니다.",
+  "size": 76,
+  "label": "phone"
+ },
+ {
+  "text": "그 사람의 평소 기준선에서 얼마나 벗어났는지를 봅니다.",
+  "size": 30,
+  "label": "phone"
+ },
+ {
+  "text": "데이터가 사흘치에 못 미치면 정상이라고 말하지 않습니다.",
+  "size": 30,
+  "label": "phone"
+ },
+ {
+  "text": "위험한 사람이 먼저 보입니다",
+  "size": 42,
+  "label": "desktop"
+ },
+ {
+  "text": "관리자는 담당 대상자의 위험도를 한 화면에서 봅니다.",
+  "size": 29,
+  "label": "desktop"
+ },
+ {
+  "text": "채팅에서 감지한 위기도 여기 쌓이고, 무엇이 판정했는지는 「모델」 칸에 남습니다.",
+  "size": 29,
+  "label": "desktop"
+ }
+]
