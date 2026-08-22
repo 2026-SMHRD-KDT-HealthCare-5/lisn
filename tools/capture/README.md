@@ -6,8 +6,19 @@
 
 | 스크립트 | 무엇을 찍나 | 어떻게 |
 |---|---|---|
-| `capture_app.sh` | **컷 1 — 선제 접촉** (앱) | `adb screenrecord` + 스크립트 조작 |
-| `capture_admin.js` | **컷 4 — 관제 웹** | Playwright (조작 + 녹화 동시에) |
+| `capture_app.sh` | 선제 접촉 (앱) | `adb screenrecord` + 스크립트 조작 |
+| `capture_cut23.sh` | 성격 선택·대화 / 라이프로그·리포트 | 같음 (`2` 또는 `3` 인자) |
+| `capture_admin.js` | 관제 웹 | Playwright (조작 + 녹화 동시에) |
+| `build_video.sh` | **위를 이어 3분 완성본** | ffmpeg |
+| `type_unicode.ps1` | (실패 기록) 한글 입력 시도 | 아래 참고 |
+
+```bash
+MSYS_NO_PATHCONV=1 bash tools/capture/capture_app.sh
+MSYS_NO_PATHCONV=1 bash tools/capture/capture_cut23.sh 2
+MSYS_NO_PATHCONV=1 bash tools/capture/capture_cut23.sh 3
+node tools/capture/capture_admin.js
+bash tools/capture/build_video.sh          # → final/lisn_demo_3min.mp4
+```
 
 ## 왜 도구가 두 개인가
 
@@ -76,10 +87,32 @@ node tools/capture/capture_admin.js
   찍기 전에 알림을 비우세요.
 - **`screenrecord` 는 30초 언저리에서 끊길 수 있습니다.** `--time-limit 90`
   을 줘도 그렇습니다. 흐름을 그 안에 담도록 대기 시간을 조절하세요.
-- **한글은 `adb shell input text` 로 못 넣습니다.** 에뮬레이터에 한글 IME 가
-  없습니다. 외부 IME APK 를 설치하지 마세요 — **답장 타이핑·위기 발화·페르소나
-  비교는 사람이 호스트 키보드로 직접 치면서 찍습니다.** 에뮬레이터는 물리
-  키보드 입력을 받습니다.
+### ⚠ 한글 입력은 자동화가 **안 됩니다** — 세 가지를 다 해봤습니다
+
+| 시도 | 결과 |
+|---|---|
+| `adb shell input text` | **ASCII 만** 들어갑니다 |
+| 기기 IME 교체 | 에뮬레이터에 한글 IME 가 **없습니다**(LatinIME · 음성 둘뿐) |
+| 호스트 키보드 유니코드 주입 (`type_unicode.ps1`) | **글자가 깨집니다** |
+
+마지막 것은 두 단계로 막혔습니다.
+
+1. `SetForegroundWindow` 가 **조용히 실패**합니다. Windows 는 포그라운드가
+   아닌 프로세스의 창 끌어오기를 거부합니다. `AttachThreadInput` 으로
+   우회하면 포커스는 갑니다(스크립트에 넣어 뒀습니다).
+2. 포커스가 가도 **에뮬레이터가 유니코드를 안 받습니다.** `KEYEVENTF_UNICODE`
+   로 보낸 글자를 **스캔코드로 해석**해서, 「요즘 잠이 잘 안 와요」가 `cc` 로
+   들어갔습니다.
+
+**그래서 한글이 필요한 장면은 두 길뿐입니다.**
+
+- **빠른 답장 칩을 누릅니다.** 칩이 한글을 입력창에 넣어 줍니다 —
+  `capture_cut23.sh` 가 이 방법을 씁니다. 대화 컷은 이걸로 전부 됩니다.
+- **위기 발화만은 사람이 칩니다.** 칩에 위기 문장이 있을 리 없으니
+  자동화할 방법이 없습니다. 에뮬레이터는 물리 키보드를 받으므로 한글 IME 로
+  그냥 치면 됩니다.
+
+⚠ 외부 IME APK 를 받아 설치하지 마세요.
 
 ### 경로 (Git Bash + 윈도우 바이너리)
 
@@ -100,6 +133,20 @@ Git Bash 에서 부릅니다.
 - Vite 는 `localhost`(IPv6)에만 붙고 `127.0.0.1` 에는 안 붙을 수 있습니다.
 
 ---
+
+## 3분 완성본
+
+`build_video.sh` 가 컷들을 1920×1080 캔버스에 얹어 이어붙입니다.
+
+- **세로·가로가 섞여 있습니다.** 앱은 9:16, 관제 웹은 16:9 라 앱 컷은
+  오른쪽에 세우고 왼쪽에 설명을 답니다.
+- **앱 컷은 실제보다 빠릅니다.** 에뮬레이터 인코더가 못 따라가 45초 조작이
+  32초로 기록됩니다. `setpts` 로 늘려 되돌립니다 — 화면이 거의 정지라
+  프레임이 빠져도 눈에 안 띕니다.
+- **긴급 상담 화면은 정지 컷**입니다. 위기 판정이 있어야 뜨는 화면인데
+  한글을 못 쳐서, `SCREEN=emergency` 로 실제 화면을 띄워 캡처했습니다.
+  화면 자체는 진짜지만 **「방금 판정이 나서 전환됐다」고 말하면 안 됩니다.**
+  자막도 「위기가 확인되면 …합니다」라는 동작 설명으로 썼습니다.
 
 ## 결과물
 
