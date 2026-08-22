@@ -119,11 +119,50 @@ desktop() {  # desktop <입력> <출력> <번호> <제목> <설명>
 #
 #    원고는 `docs/가이드/시연_대본.md` 의 「내레이션 원고」 절에 있습니다.
 #    **사람이 읽으세요.** 구간 길이에 맞춰 써 두었습니다.
+# ---------------------------------------------------------------------------
+#  내레이션 얹기 — ElevenLabs (Sarah, eleven_multilingual_v2)
+#
+#  ⚠ **Windows 내장 TTS 는 기각됐습니다**(2026.08.22, "기괴하다"). 그 시도의
+#    교훈(WinRT vs SAPI5, 원고가 영상보다 길어지기 쉽다는 것)은
+#    `docs/가이드/시연_대본.md` 에 남아 있습니다.
+#
+#  ⚠ **Seulki(전문 보이스)는 Free 플랜 API 에서 막혔습니다** — "Free users
+#    cannot use library voices via the API". 계정 기본 제공(premade) 목록의
+#    Sarah 로 대체했습니다. 음성 생성은 `gen_elevenlabs.py` 가 미리 만들어
+#    `tts/*.mp3` 로 둡니다 — 이 스크립트는 그걸 얹기만 합니다.
+#
+#  ⚠ **구간마다 따로 얹고 나서 이어붙입니다.** 통짜 음성 하나를 만들어
+#    맞추면, 구간 길이를 조금만 바꿔도 뒤가 전부 밀립니다.
+#
+#  ⚠ `adelay` 로 앞을 조금 비웁니다. 화면이 바뀌자마자 말이 시작되면
+#    쫓기는 느낌이 납니다.
+#  ⚠ `apad` + `-shortest` — 음성이 구간보다 짧으면 무음으로 채우고,
+#    길면 잘라 냅니다. **Sarah 는 원고보다 훨씬 빨리 읽어서**, 모든 구간에서
+#    말이 끝난 뒤 화면만 이어지는 여백이 남습니다(길게는 20초대). 화면을
+#    더 줄이지 않은 이유는 화면 속 UI 를 읽을 시간과 실제 조작 속도를
+#    지키기 위해서입니다 — 필요하면 이 여백을 보고 구간 길이를 더 줄이세요.
+# ---------------------------------------------------------------------------
+LEAD=0.7
+mux() {  # mux <파트mp4> <음성이름>
+  local v="$1" name="$2" tmp="${1%.mp4}_a.mp4"
+  local mp3="$D/tts/$2.mp3"
+  if [ ! -f "$HERE/tts/$2.mp3" ]; then
+    say "  (음성 없음: $2 — 무음으로 둡니다)"
+    return
+  fi
+  local ms; ms="$(awk -v a="$LEAD" 'BEGIN{printf "%d", a*1000}')"
+  "$FF" -y -i "$v" -i "$mp3"     -filter_complex "[1:a]adelay=${ms}|${ms},aresample=48000,apad[a]"     -map 0:v -map "[a]" -shortest -c:v copy -c:a aac -b:a 160k "$tmp" 2>/dev/null
+  mv -f "$tmp" "$v"
+}
+
 # ===========================================================================
 say "타이틀 · 마무리 카드"
 card "$P/00_title.mp4" 9 "MULTIMODAL LIFELOG EMOTION CARE" "귀기울임" "먼저 말을 거는 정서 케어"
 card "$P/99_outro.mp4" 10 "SMHRD KDT HEALTHCARE 5팀" "귀기울임 LISN" "감지한 것을 사람에게 닿게 합니다"
 
+
+mux "$HERE/parts/00_title.mp4" "00"
+mux "$HERE/parts/99_outro.mp4" "99"
 
 say "앱 컷"
 phone "$D/cuts/cut1_outreach.mp4" "$P/01.mp4" 44 "01" "먼저 말을 겁니다" \
@@ -133,6 +172,9 @@ phone "$D/cuts/cut2_chat.mp4" "$P/02.mp4" 33 "02" "두 성격으로 듣습니다
   "공감형과 조언형 중에 고릅니다. 같은 말에 다르게 답합니다." \
   "위기 판정과 응답 생성을 병렬로 돌려 3초 안에 답합니다."
 
+
+mux "$HERE/parts/01.mp4" "01"
+mux "$HERE/parts/02.mp4" "02"
 
 say "긴급 상담 연결"
 still "$D/emg.png" "$P/02b.mp4" 14 "03" "위로가 위험을 덮지 않게" \
@@ -144,10 +186,15 @@ phone "$D/cuts/cut3_report.mp4" "$P/03.mp4" 36 "04" "몸의 신호를 정서로"
   "데이터가 3일치 미만이면 '정상'이라고 하지 않습니다."
 
 
+mux "$HERE/parts/02b.mp4" "02b"
+mux "$HERE/parts/03.mp4" "03"
+
 say "관제 컷"
 desktop "$D/cuts/cut4_admin.mp4" "$P/04.mp4" "05" "관리자는 전체를 봅니다" \
   "위기 판정이 여기 기록됩니다 — 무엇이 판정했는지 「모델」 칸에 함께."
 
+
+mux "$HERE/parts/04.mp4" "04"
 
 say "이어붙이기"
 cat > "$HERE/parts/list.txt" <<EOF
