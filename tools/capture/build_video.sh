@@ -191,21 +191,24 @@ still() {  # still <png> <출력> <초> <번호> <제목> <설명1> <설명2> <�
 }
 
 # ---------------------------------------------------------------------------
-#  관제 컷 — 가로 화면이라 위에 놓고 설명을 아래에 답니다
+#  관제 컷 — 자막을 위에, 화면을 아래에. 둘 다 x=170 좌측 정렬.
 #
-#  ⚠ **자막 규칙은 앱 컷과 같습니다.** 예전에는 이 컷만 번호와 제목을 한
-#    덩어리로 묶어 **남색 42px 가운데 정렬**로 그렸습니다. 앱 컷은 번호가
-#    인디고 30px, 제목이 남색 76px, 전부 x=170 좌측 정렬인데 말입니다.
-#    한 영상 안에서 컷마다 색도 정렬도 달라 보였습니다(2026.08.22 지적).
+#  ⚠ **자막 규칙은 앱 컷과 같습니다** — 번호 30px 인디고 · 제목 76px 남색 ·
+#    설명 30px 회색, 전부 x=170. 예전에는 이 컷만 번호와 제목을 한 덩어리로
+#    묶어 남색 42px 가운데 정렬로 그렸습니다. check_caption_style.py 가
+#    이제 이걸 감시합니다.
 #
-#    지금은 같은 규칙을 씁니다 — 번호 30px 인디고 · 제목 76px 남색 ·
-#    설명 30px 회색, 전부 **x=170 좌측**. y 좌표만 다릅니다. 가로 화면은
-#    옆이 아니라 위에 놓이니 설명이 아래로 내려갈 수밖에 없습니다.
+#  ⚠ **자막을 화면 아래에 두지 마세요.** 그렇게 했더니 어색하다는 지적을
+#    받았습니다(2026.08.22). 관제 화면은 대시보드일 때 위쪽 35% 만 차서,
+#    그 아래 빈 공간을 지나 자막이 저 밑에 떨어져 보였습니다. 자막을 위로
+#    올리면 제목이 먼저 읽히고 화면이 근거로 따라오는 순서가 됩니다.
 #
-#  ⚠ **자막을 화면 밑에 붙이지 마세요.** 처음에 1740px 로 키웠더니 스크린샷
-#    아래끝과 자막이 겹쳤습니다. 지금은 1330px(높이 748) 을 y=10 에 놓아
-#    758 에서 끝내고, 자막이 800 부터 시작해 1008 에서 끝납니다 —
-#    위로 42px, 아래로 72px 이 남습니다.
+#  ⚠ **화면을 잘라내지 마세요.** 빈 공간을 없애려고 아래를 크롭해 봤는데,
+#    「대상자 조회」가 10명 목록으로 세로 81% 까지 쓰고 로그인 화면은 전체를
+#    씁니다. 자막이 설명하는 바로 그 화면이 잘립니다.
+#
+#    캡처가 1280x720 이라 1190px(0.93배 축소)로 넣습니다. 확대하면 표 글자가
+#    뭉개집니다 — 여기서 보여줄 것이 그 표입니다.
 # ---------------------------------------------------------------------------
 desktop() {  # desktop <입력> <출력> <번호> <제목> <설명1> <설명2>
   local in="$1" out="$2" no="$3" title="$4" l1="$5" l2="$6"
@@ -219,7 +222,7 @@ desktop() {  # desktop <입력> <출력> <번호> <제목> <설명1> <설명2>
     fa4=":alpha='min(1,(t-0.24)/${CAP_FADE})'"
   fi
   say "  ${no} ${title} — $(dur "$in")s"
-  "$FF" -y -i "$in" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}"     -filter_complex "[0:v]scale=1330:-2,fps=${FPS}${ff}[sc];[1:v]trim=duration=999,setpts=PTS-STARTPTS[bg];[bg][sc]overlay=x=170:y=10:shortest=1[v0];[v0]drawtext=fontfile='${FONT_B}':text='${no}':fontsize=30:fontcolor=${INDIGO}:x=170:y=800${fa1},drawtext=fontfile='${FONT_B}':text='${title}':fontsize=76:fontcolor=${NAVY}:x=170:y=834${fa2},drawtext=fontfile='${FONT_R}':text='${l1}':fontsize=30:fontcolor=${MUTED}:x=170:y=940${fa3},drawtext=fontfile='${FONT_R}':text='${l2}':fontsize=30:fontcolor=${MUTED}:x=170:y=978${fa4}[v]"     -map "[v]" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
+  "$FF" -y -i "$in" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}"     -filter_complex "[0:v]scale=1190:-2,fps=${FPS}${ff}[sc];[1:v]trim=duration=999,setpts=PTS-STARTPTS[bg];[bg][sc]overlay=x=170:y=350:shortest=1[v0];[v0]drawtext=fontfile='${FONT_B}':text='${no}':fontsize=30:fontcolor=${INDIGO}:x=170:y=80${fa1},drawtext=fontfile='${FONT_B}':text='${title}':fontsize=76:fontcolor=${NAVY}:x=170:y=114${fa2},drawtext=fontfile='${FONT_R}':text='${l1}':fontsize=30:fontcolor=${MUTED}:x=170:y=232${fa3},drawtext=fontfile='${FONT_R}':text='${l2}':fontsize=30:fontcolor=${MUTED}:x=170:y=270${fa4}[v]"     -map "[v]" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
 }
 
 # ---------------------------------------------------------------------------
