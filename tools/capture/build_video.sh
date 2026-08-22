@@ -191,29 +191,35 @@ still() {  # still <png> <출력> <초> <번호> <제목> <설명1> <설명2> <�
 }
 
 # ---------------------------------------------------------------------------
-#  관제 컷 — 가로라 화면을 채우고 아래에 띠 설명
+#  관제 컷 — 가로 화면이라 위에 놓고 설명을 아래에 답니다
+#
+#  ⚠ **자막 규칙은 앱 컷과 같습니다.** 예전에는 이 컷만 번호와 제목을 한
+#    덩어리로 묶어 **남색 42px 가운데 정렬**로 그렸습니다. 앱 컷은 번호가
+#    인디고 30px, 제목이 남색 76px, 전부 x=170 좌측 정렬인데 말입니다.
+#    한 영상 안에서 컷마다 색도 정렬도 달라 보였습니다(2026.08.22 지적).
+#
+#    지금은 같은 규칙을 씁니다 — 번호 30px 인디고 · 제목 76px 남색 ·
+#    설명 30px 회색, 전부 **x=170 좌측**. y 좌표만 다릅니다. 가로 화면은
+#    옆이 아니라 위에 놓이니 설명이 아래로 내려갈 수밖에 없습니다.
 #
 #  ⚠ **자막을 화면 밑에 붙이지 마세요.** 처음에 1740px 로 키웠더니 스크린샷
-#    아래끝(1008)과 자막(985)이 겹쳤고, 줄여도 아랫줄이 캔버스 바닥에
-#    18px 까지 닿았습니다. 발표 화면에서는 잘려 보입니다.
-#
-#    1500px → 높이 843. y=28 이면 28~871 을 차지하고, 자막은 900(제목)·
-#    952·996(설명 2줄)에 놓여 **위로 29px, 아래로 55px** 이 남습니다.
-#
-#    ⚠ 설명이 2줄인 이유는 phone/still 과 같습니다 — 한 줄에 다 넣으려니
-#    주어가 잘려 번역투가 됐습니다. 여기는 가운데 정렬이라 한 줄 46자까지 됩니다.
+#    아래끝과 자막이 겹쳤습니다. 지금은 1330px(높이 748) 을 y=10 에 놓아
+#    758 에서 끝내고, 자막이 800 부터 시작해 1008 에서 끝납니다 —
+#    위로 42px, 아래로 72px 이 남습니다.
 # ---------------------------------------------------------------------------
 desktop() {  # desktop <입력> <출력> <번호> <제목> <설명1> <설명2>
   local in="$1" out="$2" no="$3" title="$4" l1="$5" l2="$6"
-  local ff fa=""
+  local ff fa1="" fa2="" fa3="" fa4=""
   ff="$(footfade)"
+  # 앱 컷과 똑같이 한 줄씩 시차를 두고 떠오르게 합니다
   if [ "$EFFECTS" = "1" ]; then
-    fa=":alpha='min(1,t/${CAP_FADE})'"
+    fa1=":alpha='min(1,t/${CAP_FADE})'"
+    fa2=":alpha='min(1,(t-0.08)/${CAP_FADE})'"
+    fa3=":alpha='min(1,(t-0.16)/${CAP_FADE})'"
+    fa4=":alpha='min(1,(t-0.24)/${CAP_FADE})'"
   fi
   say "  ${no} ${title} — $(dur "$in")s"
-  "$FF" -y -i "$in" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}" \
-    -filter_complex "[0:v]scale=1500:-2,fps=${FPS}${ff}[sc];[1:v]trim=duration=999,setpts=PTS-STARTPTS[bg];[bg][sc]overlay=x=(W-w)/2:y=28:shortest=1[v0];[v0]drawtext=fontfile='${FONT_B}':text='${no}  ${title}':fontsize=42:fontcolor=${NAVY}:x=(w-text_w)/2:y=900${fa},drawtext=fontfile='${FONT_R}':text='${l1}':fontsize=29:fontcolor=${MUTED}:x=(w-text_w)/2:y=952${fa},drawtext=fontfile='${FONT_R}':text='${l2}':fontsize=29:fontcolor=${MUTED}:x=(w-text_w)/2:y=996${fa}[v]" \
-    -map "[v]" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
+  "$FF" -y -i "$in" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}"     -filter_complex "[0:v]scale=1330:-2,fps=${FPS}${ff}[sc];[1:v]trim=duration=999,setpts=PTS-STARTPTS[bg];[bg][sc]overlay=x=170:y=10:shortest=1[v0];[v0]drawtext=fontfile='${FONT_B}':text='${no}':fontsize=30:fontcolor=${INDIGO}:x=170:y=800${fa1},drawtext=fontfile='${FONT_B}':text='${title}':fontsize=76:fontcolor=${NAVY}:x=170:y=834${fa2},drawtext=fontfile='${FONT_R}':text='${l1}':fontsize=30:fontcolor=${MUTED}:x=170:y=940${fa3},drawtext=fontfile='${FONT_R}':text='${l2}':fontsize=30:fontcolor=${MUTED}:x=170:y=978${fa4}[v]"     -map "[v]" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
 }
 
 # ---------------------------------------------------------------------------
