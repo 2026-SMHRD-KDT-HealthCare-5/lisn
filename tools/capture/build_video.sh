@@ -38,16 +38,43 @@ say() { printf '  %s\n' "$*"; }
 dur() { "$FP" -v error -show_entries format=duration -of csv=p=0 "$1"; }
 
 # ---------------------------------------------------------------------------
+#  효과 — 기본 켜짐. `EFFECTS=0` 으로 끌 수 있습니다.
+#
+#  ⚠ **화려한 트랜지션은 넣지 않습니다.** 정신건강 서비스라 화면 자체가
+#    차분한 톤인데, 큐브 회전이나 화이트플래시 같은 트랜지션을 얹으면
+#    화면 설계 원칙(경고색·과장된 강조 금지)과 어긋납니다. 그래서
+#    **매끄러움**만 더합니다 — 크로스페이드, 자막 페이드인, 화면 페이드인,
+#    완전 정지 구간의 미세한 줌(Ken Burns)뿐입니다.
+# ---------------------------------------------------------------------------
+EFFECTS="${EFFECTS:-1}"
+XFADE=0.6   # 컷 사이 크로스페이드 길이(초)
+CAP_FADE=0.5   # 자막 한 줄이 페이드인하는 시간(초)
+FOOT_FADE=0.35  # 화면(폰/데스크톱) 자체가 페이드인하는 시간(초)
+
+# ---------------------------------------------------------------------------
 #  카드 (타이틀 · 마무리)
 # ---------------------------------------------------------------------------
 card() {  # card <출력> <초> <윗줄> <큰줄> <아랫줄>
   local out="$1" sec="$2" kicker="$3" big="$4" sub="$5"
+  local fa=""
+  if [ "$EFFECTS" = "1" ]; then
+    fa=":alpha='min(1,t/${CAP_FADE})'"
+  fi
   "$FF" -y -f lavfi -i "color=c=${BG}:s=${W}x${H}:d=${sec}:r=${FPS}" \
-    -vf "drawtext=fontfile='${FONT_B}':text='${kicker}':fontsize=34:fontcolor=${INDIGO}:x=(w-text_w)/2:y=380,drawtext=fontfile='${FONT_B}':text='${big}':fontsize=96:fontcolor=${NAVY}:x=(w-text_w)/2:y=450,drawtext=fontfile='${FONT_R}':text='${sub}':fontsize=38:fontcolor=${MUTED}:x=(w-text_w)/2:y=600" \
+    -vf "drawtext=fontfile='${FONT_B}':text='${kicker}':fontsize=34:fontcolor=${INDIGO}:x=(w-text_w)/2:y=380${fa},drawtext=fontfile='${FONT_B}':text='${big}':fontsize=96:fontcolor=${NAVY}:x=(w-text_w)/2:y=450${fa},drawtext=fontfile='${FONT_R}':text='${sub}':fontsize=38:fontcolor=${MUTED}:x=(w-text_w)/2:y=600${fa}" \
     -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
 }
 
-TXT='drawtext=fontfile=@B@:text=@NO@:fontsize=30:fontcolor=@I@:x=170:y=360,drawtext=fontfile=@B@:text=@T@:fontsize=76:fontcolor=@N@:x=170:y=410,drawtext=fontfile=@R@:text=@L1@:fontsize=34:fontcolor=@M@:x=170:y=540,drawtext=fontfile=@R@:text=@L2@:fontsize=34:fontcolor=@M@:x=170:y=592'
+# 캡션 템플릿 — @자리@ 를 나중에 치환합니다.
+#
+# ⚠ **네 줄이 시차를 두고 순서대로 페이드인합니다**(0, 0.08, 0.16, 0.24초
+#   지연). 한꺼번에 팝업되는 것보다 훨씬 자연스럽습니다 — 다만 차이가
+#   커지면 산만해지므로 0.08초 간격을 넘기지 마세요.
+if [ "$EFFECTS" = "1" ]; then
+  TXT="drawtext=fontfile=@B@:text=@NO@:fontsize=30:fontcolor=@I@:x=170:y=360:alpha='min(1,t/${CAP_FADE})',drawtext=fontfile=@B@:text=@T@:fontsize=76:fontcolor=@N@:x=170:y=410:alpha='min(1,(t-0.08)/${CAP_FADE})',drawtext=fontfile=@R@:text=@L1@:fontsize=34:fontcolor=@M@:x=170:y=540:alpha='min(1,(t-0.16)/${CAP_FADE})',drawtext=fontfile=@R@:text=@L2@:fontsize=34:fontcolor=@M@:x=170:y=592:alpha='min(1,(t-0.24)/${CAP_FADE})'"
+else
+  TXT="drawtext=fontfile=@B@:text=@NO@:fontsize=30:fontcolor=@I@:x=170:y=360,drawtext=fontfile=@B@:text=@T@:fontsize=76:fontcolor=@N@:x=170:y=410,drawtext=fontfile=@R@:text=@L1@:fontsize=34:fontcolor=@M@:x=170:y=540,drawtext=fontfile=@R@:text=@L2@:fontsize=34:fontcolor=@M@:x=170:y=592"
+fi
 
 captions() {  # captions <번호> <제목> <설명1> <설명2>
   local t="$TXT"
@@ -58,18 +85,27 @@ captions() {  # captions <번호> <제목> <설명1> <설명2>
   printf '%s' "$t"
 }
 
+# 화면(폰/데스크톱) 레이어 자체를 배경색에서 스르륵 떠오르게 합니다.
+# ⚠ 알파 채널이 있는 포맷으로 먼저 바꿔야 fade 의 alpha=1 옵션이 먹습니다.
+footfade() {
+  if [ "$EFFECTS" = "1" ]; then
+    printf ',format=yuva420p,fade=t=in:st=0:d=%s:alpha=1' "$FOOT_FADE"
+  fi
+}
+
 # ---------------------------------------------------------------------------
 #  앱 컷 — 세로 영상을 오른쪽에, 설명을 왼쪽에
 # ---------------------------------------------------------------------------
 phone() {  # phone <입력> <출력> <목표초> <번호> <제목> <설명1> <설명2>
   local in="$1" out="$2" want="$3" no="$4" title="$5" l1="$6" l2="$7"
-  local d factor cap
+  local d factor cap ff
   d="$(dur "$in")"
   factor="$(awk -v a="$want" -v b="$d" 'BEGIN{printf "%.4f", a/b}')"
   cap="$(captions "$no" "$title" "$l1" "$l2")"
+  ff="$(footfade)"
   say "  ${no} ${title} — ${d}s → ${want}s (x${factor})"
   "$FF" -y -i "$in" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}" \
-    -filter_complex "[0:v]setpts=${factor}*PTS,scale=-2:940,fps=${FPS}[ph];[1:v]trim=duration=${want},setpts=PTS-STARTPTS[bg];[bg][ph]overlay=x=1240:y=70:shortest=1[v0];[v0]${cap}[v]" \
+    -filter_complex "[0:v]setpts=${factor}*PTS,scale=-2:940,fps=${FPS}${ff}[ph];[1:v]trim=duration=${want},setpts=PTS-STARTPTS[bg];[bg][ph]overlay=x=1240:y=70:shortest=1[v0];[v0]${cap}[v]" \
     -map "[v]" -t "${want}" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
 }
 
@@ -82,15 +118,39 @@ phone() {  # phone <입력> <출력> <목표초> <번호> <제목> <설명1> <�
 #
 #    화면 자체는 진짜입니다. 다만 **「방금 판정이 나서 전환됐다」고 말하면
 #    안 됩니다.** 자막도 「위기가 확인되면 …합니다」라는 동작 설명으로 씁니다.
+#
+#  ⚠ **완전 정지 이미지라 14초를 그대로 두면 죽어 보입니다.** zoompan 으로
+#    아주 미세하게(6%) 천천히 확대합니다 — Ken Burns 효과. 눈에 띄게
+#    확대하면 정지 화면이라는 게 더 도드라지니 반드시 느리게 유지하세요.
 # ---------------------------------------------------------------------------
 still() {  # still <png> <출력> <초> <번호> <제목> <설명1> <설명2>
   local img="$1" out="$2" sec="$3" no="$4" title="$5" l1="$6" l2="$7"
-  local cap
+  local cap w h tgt_w zoomclip frames ff src
   cap="$(captions "$no" "$title" "$l1" "$l2")"
-  say "  ${no} ${title} — 정지 ${sec}s"
-  "$FF" -y -loop 1 -t "${sec}" -i "$img" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}" \
-    -filter_complex "[0:v]scale=-2:940,fps=${FPS}[ph];[1:v]trim=duration=${sec},setpts=PTS-STARTPTS[bg];[bg][ph]overlay=x=1240:y=70:shortest=1[v0];[v0]${cap}[v]" \
-    -map "[v]" -t "${sec}" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
+  frames=$((sec * FPS))
+
+  if [ "$EFFECTS" = "1" ]; then
+    say "  ${no} ${title} — 정지 ${sec}s (Ken Burns)"
+    read -r w h <<< "$("$FP" -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$img" | tr 'x' ' ')"
+    # 목표 높이 940 에 맞춘 짝수 너비. 홀수면 yuv420p 인코딩이 실패합니다.
+    tgt_w="$(awk -v w="$w" -v h="$h" 'BEGIN{printf "%d", int(940*w/h/2)*2}')"
+    zoomclip="${out%.mp4}_zoom.mp4"
+    "$FF" -y -loop 1 -i "$img" \
+      -vf "scale=${tgt_w}:940,zoompan=z='min(zoom+0.00018,1.06)':d=${frames}:s=${tgt_w}x940:fps=${FPS}" \
+      -frames:v "$frames" -c:v libx264 -preset fast -pix_fmt yuv420p "$zoomclip" 2>/dev/null
+    src="$zoomclip"
+    ff="$(footfade)"
+    # 이미 zoompan 이 fps/size 를 확정했으므로 여기서는 포맷만 맞춥니다.
+    "$FF" -y -i "$src" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}" \
+      -filter_complex "[0:v]${ff#,}[ph];[1:v]trim=duration=${sec},setpts=PTS-STARTPTS[bg];[bg][ph]overlay=x=1240:y=70:shortest=1[v0];[v0]${cap}[v]" \
+      -map "[v]" -t "${sec}" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
+    rm -f "$zoomclip"
+  else
+    say "  ${no} ${title} — 정지 ${sec}s"
+    "$FF" -y -loop 1 -t "${sec}" -i "$img" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}" \
+      -filter_complex "[0:v]scale=-2:940,fps=${FPS}[ph];[1:v]trim=duration=${sec},setpts=PTS-STARTPTS[bg];[bg][ph]overlay=x=1240:y=70:shortest=1[v0];[v0]${cap}[v]" \
+      -map "[v]" -t "${sec}" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
+  fi
 }
 
 # ---------------------------------------------------------------------------
@@ -105,43 +165,20 @@ still() {  # still <png> <출력> <초> <번호> <제목> <설명1> <설명2>
 # ---------------------------------------------------------------------------
 desktop() {  # desktop <입력> <출력> <번호> <제목> <설명>
   local in="$1" out="$2" no="$3" title="$4" l1="$5"
+  local ff fa=""
+  ff="$(footfade)"
+  if [ "$EFFECTS" = "1" ]; then
+    fa=":alpha='min(1,t/${CAP_FADE})'"
+  fi
   say "  ${no} ${title} — $(dur "$in")s"
   "$FF" -y -i "$in" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}" \
-    -filter_complex "[0:v]scale=1500:-2,fps=${FPS}[sc];[1:v]trim=duration=999,setpts=PTS-STARTPTS[bg];[bg][sc]overlay=x=(W-w)/2:y=28:shortest=1[v0];[v0]drawtext=fontfile='${FONT_B}':text='${no}  ${title}':fontsize=42:fontcolor=${NAVY}:x=(w-text_w)/2:y=900,drawtext=fontfile='${FONT_R}':text='${l1}':fontsize=29:fontcolor=${MUTED}:x=(w-text_w)/2:y=958[v]" \
+    -filter_complex "[0:v]scale=1500:-2,fps=${FPS}${ff}[sc];[1:v]trim=duration=999,setpts=PTS-STARTPTS[bg];[bg][sc]overlay=x=(W-w)/2:y=28:shortest=1[v0];[v0]drawtext=fontfile='${FONT_B}':text='${no}  ${title}':fontsize=42:fontcolor=${NAVY}:x=(w-text_w)/2:y=900${fa},drawtext=fontfile='${FONT_R}':text='${l1}':fontsize=29:fontcolor=${MUTED}:x=(w-text_w)/2:y=958${fa}[v]" \
     -map "[v]" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
 }
 
 # ---------------------------------------------------------------------------
-#  ⚠ **내레이션은 넣지 않습니다.** 2026.08.22 에 Windows 내장 한국어
-#    음성(Heami)으로 얹어 봤는데 **기괴하다는 판단으로 기각**됐습니다.
-#    정신건강 서비스 소개라 목소리의 온도가 내용의 일부인데, 합성음이
-#    그 반대로 작동했습니다.
-#
-#    원고는 `docs/가이드/시연_대본.md` 의 「내레이션 원고」 절에 있습니다.
-#    **사람이 읽으세요.** 구간 길이에 맞춰 써 두었습니다.
-# ---------------------------------------------------------------------------
 #  내레이션 얹기 — ElevenLabs (Sarah, eleven_multilingual_v2)
 #
-#  ⚠ **Windows 내장 TTS 는 기각됐습니다**(2026.08.22, "기괴하다"). 그 시도의
-#    교훈(WinRT vs SAPI5, 원고가 영상보다 길어지기 쉽다는 것)은
-#    `docs/가이드/시연_대본.md` 에 남아 있습니다.
-#
-#  ⚠ **Seulki(전문 보이스)는 Free 플랜 API 에서 막혔습니다** — "Free users
-#    cannot use library voices via the API". 계정 기본 제공(premade) 목록의
-#    Sarah 로 대체했습니다. 음성 생성은 `gen_elevenlabs.py` 가 미리 만들어
-#    `tts/*.mp3` 로 둡니다 — 이 스크립트는 그걸 얹기만 합니다.
-#
-#  ⚠ **구간마다 따로 얹고 나서 이어붙입니다.** 통짜 음성 하나를 만들어
-#    맞추면, 구간 길이를 조금만 바꿔도 뒤가 전부 밀립니다.
-#
-#  ⚠ `adelay` 로 앞을 조금 비웁니다. 화면이 바뀌자마자 말이 시작되면
-#    쫓기는 느낌이 납니다.
-#  ⚠ `apad` + `-shortest` — 음성이 구간보다 짧으면 무음으로 채우고,
-#    길면 잘라 냅니다. **Sarah 는 원고보다 훨씬 빨리 읽어서**, 모든 구간에서
-#    말이 끝난 뒤 화면만 이어지는 여백이 남습니다(길게는 20초대). 화면을
-#    더 줄이지 않은 이유는 화면 속 UI 를 읽을 시간과 실제 조작 속도를
-#    지키기 위해서입니다 — 필요하면 이 여백을 보고 구간 길이를 더 줄이세요.
-# ---------------------------------------------------------------------------
 #  ⚠ **기본은 무음입니다.** 2026.08.22 에 Sarah 로 내레이션을 붙였다가
 #    "일단 영상만 두고 직접 녹음 하는게 낫겠다"로 결정이 바뀌었습니다.
 #    합성음보다 사람 목소리가 낫다는 판단입니다 — Windows TTS 는 "기괴하다",
@@ -150,6 +187,12 @@ desktop() {  # desktop <입력> <출력> <번호> <제목> <설명>
 #
 #    `NARRATE=1 bash build_video.sh` 로 다시 켤 수 있습니다 —
 #    `gen_elevenlabs.py` 가 이미 만들어 둔 `tts/*.mp3` 를 그대로 씁니다.
+#
+#  ⚠ **NARRATE=1 이면 크로스페이드가 꺼집니다.** xfade 로 이으면 전환마다
+#    영상이 0.6초씩 짧아지는데, 오디오는 그대로 이어 붙이면 그만큼씩 밀려
+#    누적 어긋남이 생깁니다(전환 6번이면 3.6초). 오디오가 있을 때는 안전한
+#    하드컷(concat)으로 돌아갑니다 — 아래 조립 단계 참고.
+# ---------------------------------------------------------------------------
 NARRATE="${NARRATE:-0}"
 LEAD=0.7
 mux() {  # mux <파트mp4> <음성이름>
@@ -163,7 +206,9 @@ mux() {  # mux <파트mp4> <음성이름>
     return
   fi
   local ms; ms="$(awk -v a="$LEAD" 'BEGIN{printf "%d", a*1000}')"
-  "$FF" -y -i "$v" -i "$mp3"     -filter_complex "[1:a]adelay=${ms}|${ms},aresample=48000,apad[a]"     -map 0:v -map "[a]" -shortest -c:v copy -c:a aac -b:a 160k "$tmp" 2>/dev/null
+  "$FF" -y -i "$v" -i "$mp3" \
+    -filter_complex "[1:a]adelay=${ms}|${ms},aresample=48000,apad[a]" \
+    -map 0:v -map "[a]" -shortest -c:v copy -c:a aac -b:a 160k "$tmp" 2>/dev/null
   mv -f "$tmp" "$v"
 }
 
@@ -171,7 +216,6 @@ mux() {  # mux <파트mp4> <음성이름>
 say "타이틀 · 마무리 카드"
 card "$P/00_title.mp4" 9 "MULTIMODAL LIFELOG EMOTION CARE" "귀기울임" "먼저 말을 거는 정서 케어"
 card "$P/99_outro.mp4" 10 "SMHRD KDT HEALTHCARE 5팀" "귀기울임 LISN" "감지한 것을 사람에게 닿게 합니다"
-
 
 mux "$HERE/parts/00_title.mp4" "00"
 mux "$HERE/parts/99_outro.mp4" "99"
@@ -183,7 +227,6 @@ phone "$D/cuts/cut1_outreach.mp4" "$P/01.mp4" 44 "01" "먼저 말을 겁니다" 
 phone "$D/cuts/cut2_chat.mp4" "$P/02.mp4" 33 "02" "두 성격으로 듣습니다" \
   "공감형과 조언형 중에 고릅니다. 같은 말에 다르게 답합니다." \
   "위기 판정과 응답 생성을 병렬로 돌려 3초 안에 답합니다."
-
 
 mux "$HERE/parts/01.mp4" "01"
 mux "$HERE/parts/02.mp4" "02"
@@ -197,7 +240,6 @@ phone "$D/cuts/cut3_report.mp4" "$P/03.mp4" 36 "04" "몸의 신호를 정서로"
   "수면·활동량·심박이 개인 기준선에서 얼마나 벗어났는지 봅니다." \
   "데이터가 3일치 미만이면 '정상'이라고 하지 않습니다."
 
-
 mux "$HERE/parts/02b.mp4" "02b"
 mux "$HERE/parts/03.mp4" "03"
 
@@ -205,19 +247,41 @@ say "관제 컷"
 desktop "$D/cuts/cut4_admin.mp4" "$P/04.mp4" "05" "관리자는 전체를 봅니다" \
   "위기 판정이 여기 기록됩니다 — 무엇이 판정했는지 「모델」 칸에 함께."
 
-
 mux "$HERE/parts/04.mp4" "04"
 
+# ---------------------------------------------------------------------------
+#  조립 — 크로스페이드(EFFECTS=1·NARRATE=0) 또는 하드컷(그 외)
+# ---------------------------------------------------------------------------
 say "이어붙이기"
-cat > "$HERE/parts/list.txt" <<EOF
-file '00_title.mp4'
-file '01.mp4'
-file '02.mp4'
-file '02b.mp4'
-file '03.mp4'
-file '04.mp4'
-file '99_outro.mp4'
-EOF
+PARTS=(00_title 01 02 02b 03 04 99_outro)
+DURS=(9 44 33 14 36 "$(dur "$P/04.mp4")" 10)
 
-"$FF" -y -f concat -safe 0 -i "$P/list.txt" -c copy "$OUT/lisn_demo_3min.mp4" 2>/dev/null
+if [ "$EFFECTS" = "1" ] && [ "$NARRATE" != "1" ]; then
+  say "  크로스페이드 조립 (${XFADE}s)"
+  INPUTS=()
+  for part in "${PARTS[@]}"; do INPUTS+=(-i "$P/$part.mp4"); done
+
+  FILTER=""
+  prevlabel="0:v"
+  cumsum=0
+  n=${#PARTS[@]}
+  for ((k = 0; k < n - 1; k++)); do
+    cumsum="$(awk -v c="$cumsum" -v d="${DURS[$k]}" 'BEGIN{printf "%.3f", c+d}')"
+    offset="$(awk -v c="$cumsum" -v x="$XFADE" -v m="$((k + 1))" 'BEGIN{printf "%.3f", c-(m*x)}')"
+    nextlabel="v$((k + 1))"
+    FILTER+="[${prevlabel}][$((k + 1)):v]xfade=transition=fade:duration=${XFADE}:offset=${offset}[${nextlabel}];"
+    prevlabel="${nextlabel}"
+  done
+  FILTER="${FILTER%;}"
+
+  "$FF" -y "${INPUTS[@]}" -filter_complex "$FILTER" -map "[${prevlabel}]" \
+    -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$OUT/lisn_demo_3min.mp4" 2>/dev/null
+else
+  say "  하드컷 조립 (concat)"
+  {
+    for part in "${PARTS[@]}"; do echo "file '${part}.mp4'"; done
+  } > "$HERE/parts/list.txt"
+  "$FF" -y -f concat -safe 0 -i "$P/list.txt" -c copy "$OUT/lisn_demo_3min.mp4" 2>/dev/null
+fi
+
 say "완료 → $OUT/lisn_demo_3min.mp4  ($(dur "$OUT/lisn_demo_3min.mp4")s)"
