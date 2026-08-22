@@ -43,8 +43,12 @@ dur() { "$FP" -v error -show_entries format=duration -of csv=p=0 "$1"; }
 #  ⚠ **화려한 트랜지션은 넣지 않습니다.** 정신건강 서비스라 화면 자체가
 #    차분한 톤인데, 큐브 회전이나 화이트플래시 같은 트랜지션을 얹으면
 #    화면 설계 원칙(경고색·과장된 강조 금지)과 어긋납니다. 그래서
-#    **매끄러움**만 더합니다 — 크로스페이드, 자막 페이드인, 화면 페이드인,
-#    완전 정지 구간의 미세한 줌(Ken Burns)뿐입니다.
+#    **매끄러움**만 더합니다 — 크로스페이드, 자막 페이드인, 화면 페이드인뿐입니다.
+#
+#  ⚠ Ken Burns 줌(정지 컷의 미세한 확대)은 넣었다가 뺐습니다. UI
+#    스크린샷에 줌을 넣으니 「화면이 스스로 커지는」 위화감이 났습니다 —
+#    사진에는 자연스러운 기법이 캡처 화면에는 안 맞았습니다. `still()`
+#    함수 주석 참고.
 # ---------------------------------------------------------------------------
 EFFECTS="${EFFECTS:-1}"
 XFADE=0.6   # 컷 사이 크로스페이드 길이(초)
@@ -119,38 +123,21 @@ phone() {  # phone <입력> <출력> <목표초> <번호> <제목> <설명1> <�
 #    화면 자체는 진짜입니다. 다만 **「방금 판정이 나서 전환됐다」고 말하면
 #    안 됩니다.** 자막도 「위기가 확인되면 …합니다」라는 동작 설명으로 씁니다.
 #
-#  ⚠ **완전 정지 이미지라 14초를 그대로 두면 죽어 보입니다.** zoompan 으로
-#    아주 미세하게(6%) 천천히 확대합니다 — Ken Burns 효과. 눈에 띄게
-#    확대하면 정지 화면이라는 게 더 도드라지니 반드시 느리게 유지하세요.
+#  ⚠ **Ken Burns 줌을 넣었다가 뺐습니다**(2026.08.22). UI 스크린샷은
+#    사진과 달라서, 줌이 들어가면 「화면이 스스로 확대되는」 부자연스러운
+#    느낌이 났습니다 — 실제로 "박스가 조금씩 커져" 라는 지적을 받았습니다.
+#    Ken Burns 은 사진에는 자연스럽지만 UI 캡처에는 위화감을 만듭니다.
+#    지금은 등장할 때의 페이드인(footfade)만 남기고 그 뒤로는 진짜 정지입니다.
 # ---------------------------------------------------------------------------
 still() {  # still <png> <출력> <초> <번호> <제목> <설명1> <설명2>
   local img="$1" out="$2" sec="$3" no="$4" title="$5" l1="$6" l2="$7"
-  local cap w h tgt_w zoomclip frames ff src
+  local cap ff
   cap="$(captions "$no" "$title" "$l1" "$l2")"
-  frames=$((sec * FPS))
-
-  if [ "$EFFECTS" = "1" ]; then
-    say "  ${no} ${title} — 정지 ${sec}s (Ken Burns)"
-    read -r w h <<< "$("$FP" -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$img" | tr 'x' ' ')"
-    # 목표 높이 940 에 맞춘 짝수 너비. 홀수면 yuv420p 인코딩이 실패합니다.
-    tgt_w="$(awk -v w="$w" -v h="$h" 'BEGIN{printf "%d", int(940*w/h/2)*2}')"
-    zoomclip="${out%.mp4}_zoom.mp4"
-    "$FF" -y -loop 1 -i "$img" \
-      -vf "scale=${tgt_w}:940,zoompan=z='min(zoom+0.00018,1.06)':d=${frames}:s=${tgt_w}x940:fps=${FPS}" \
-      -frames:v "$frames" -c:v libx264 -preset fast -pix_fmt yuv420p "$zoomclip" 2>/dev/null
-    src="$zoomclip"
-    ff="$(footfade)"
-    # 이미 zoompan 이 fps/size 를 확정했으므로 여기서는 포맷만 맞춥니다.
-    "$FF" -y -i "$src" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}" \
-      -filter_complex "[0:v]${ff#,}[ph];[1:v]trim=duration=${sec},setpts=PTS-STARTPTS[bg];[bg][ph]overlay=x=1240:y=70:shortest=1[v0];[v0]${cap}[v]" \
-      -map "[v]" -t "${sec}" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
-    rm -f "$zoomclip"
-  else
-    say "  ${no} ${title} — 정지 ${sec}s"
-    "$FF" -y -loop 1 -t "${sec}" -i "$img" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}" \
-      -filter_complex "[0:v]scale=-2:940,fps=${FPS}[ph];[1:v]trim=duration=${sec},setpts=PTS-STARTPTS[bg];[bg][ph]overlay=x=1240:y=70:shortest=1[v0];[v0]${cap}[v]" \
-      -map "[v]" -t "${sec}" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
-  fi
+  ff="$(footfade)"
+  say "  ${no} ${title} — 정지 ${sec}s"
+  "$FF" -y -loop 1 -t "${sec}" -i "$img" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}" \
+    -filter_complex "[0:v]scale=-2:940,fps=${FPS}${ff}[ph];[1:v]trim=duration=${sec},setpts=PTS-STARTPTS[bg];[bg][ph]overlay=x=1240:y=70:shortest=1[v0];[v0]${cap}[v]" \
+    -map "[v]" -t "${sec}" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
 }
 
 # ---------------------------------------------------------------------------
