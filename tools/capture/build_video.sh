@@ -75,21 +75,26 @@ card() {  # card <출력> <초> <윗줄> <큰줄> <아랫줄>
 #   지연). 한꺼번에 팝업되는 것보다 훨씬 자연스럽습니다 — 다만 차이가
 #   커지면 산만해지므로 0.08초 간격을 넘기지 마세요.
 if [ "$EFFECTS" = "1" ]; then
-  TXT="drawtext=fontfile=@B@:text=@NO@:fontsize=30:fontcolor=@I@:x=170:y=360:alpha='min(1,t/${CAP_FADE})',drawtext=fontfile=@B@:text=@T@:fontsize=76:fontcolor=@N@:x=170:y=410:alpha='min(1,(t-0.08)/${CAP_FADE})',drawtext=fontfile=@R@:text=@L1@:fontsize=34:fontcolor=@M@:x=170:y=540:alpha='min(1,(t-0.16)/${CAP_FADE})',drawtext=fontfile=@R@:text=@L2@:fontsize=34:fontcolor=@M@:x=170:y=592:alpha='min(1,(t-0.24)/${CAP_FADE})'"
+  TXT="drawtext=fontfile=@B@:text=@NO@:fontsize=30:fontcolor=@I@:x=170:y=360:alpha='min(1,t/${CAP_FADE})',drawtext=fontfile=@B@:text=@T@:fontsize=76:fontcolor=@N@:x=170:y=410:alpha='min(1,(t-0.08)/${CAP_FADE})',drawtext=fontfile=@R@:text=@L1@:fontsize=30:fontcolor=@M@:x=170:y=540:alpha='min(1,(t-0.16)/${CAP_FADE})',drawtext=fontfile=@R@:text=@L2@:fontsize=30:fontcolor=@M@:x=170:y=586:alpha='min(1,(t-0.24)/${CAP_FADE})',drawtext=fontfile=@R@:text=@L3@:fontsize=30:fontcolor=@M@:x=170:y=632:alpha='min(1,(t-0.32)/${CAP_FADE})'"
 else
-  TXT="drawtext=fontfile=@B@:text=@NO@:fontsize=30:fontcolor=@I@:x=170:y=360,drawtext=fontfile=@B@:text=@T@:fontsize=76:fontcolor=@N@:x=170:y=410,drawtext=fontfile=@R@:text=@L1@:fontsize=34:fontcolor=@M@:x=170:y=540,drawtext=fontfile=@R@:text=@L2@:fontsize=34:fontcolor=@M@:x=170:y=592"
+  TXT="drawtext=fontfile=@B@:text=@NO@:fontsize=30:fontcolor=@I@:x=170:y=360,drawtext=fontfile=@B@:text=@T@:fontsize=76:fontcolor=@N@:x=170:y=410,drawtext=fontfile=@R@:text=@L1@:fontsize=30:fontcolor=@M@:x=170:y=540,drawtext=fontfile=@R@:text=@L2@:fontsize=30:fontcolor=@M@:x=170:y=586,drawtext=fontfile=@R@:text=@L3@:fontsize=30:fontcolor=@M@:x=170:y=632"
 fi
 
-# ⚠ 설명1·설명2 는 drawtext 라 자동 줄바꿈이 안 됩니다. phone/still 레이아웃은
-#   왼쪽 x=170 ~ 폰 화면 시작 x=1240 까지만 폭이 있어(fontsize 34) 약 26자를
-#   넘기면 폰 화면 영역을 침범합니다. 넣기 전에 글자 수를 세세요.
+# ⚠ 설명줄은 drawtext 라 **자동 줄바꿈이 없습니다.** phone/still 레이아웃은
+#   왼쪽 x=170 ~ 폰 화면 시작 x=1240 까지 1070px 뿐이라, fontsize 30 기준
+#   **한 줄 34자**를 넘기면 폰 화면 영역을 침범합니다. 넣기 전에 세세요.
 #   (2026.08.22 에 cut1 자막이 이 폭을 넘겨 폰 화면을 침범한 걸 실제로 발견했습니다.)
-captions() {  # captions <번호> <제목> <설명1> <설명2>
+#
+# ⚠ **설명은 3줄입니다.** 원래 2줄이었는데, 「감지 → 선제 접촉 → 첫 마디」
+#   처럼 앞뒤가 이어지는 설명을 두 줄에 욱여넣으니 주어·목적어가 잘려나가
+#   번역투가 됐습니다. 줄을 늘리고 폰트를 34→30 으로 줄여 자리를 만들었습니다.
+#   **한 줄에 한 가지만** 말하세요. 빈 줄이 필요하면 "" 를 넘기면 됩니다.
+captions() {  # captions <번호> <제목> <설명1> <설명2> <설명3>
   local t="$TXT"
   t="${t//@B@/\'${FONT_B}\'}"; t="${t//@R@/\'${FONT_R}\'}"
   t="${t//@I@/${INDIGO}}"; t="${t//@N@/${NAVY}}"; t="${t//@M@/${MUTED}}"
   t="${t//@NO@/\'$1\'}"; t="${t//@T@/\'$2\'}"
-  t="${t//@L1@/\'$3\'}"; t="${t//@L2@/\'$4\'}"
+  t="${t//@L1@/\'$3\'}"; t="${t//@L2@/\'$4\'}"; t="${t//@L3@/\'$5\'}"
   printf '%s' "$t"
 }
 
@@ -104,12 +109,12 @@ footfade() {
 # ---------------------------------------------------------------------------
 #  앱 컷 — 세로 영상을 오른쪽에, 설명을 왼쪽에
 # ---------------------------------------------------------------------------
-phone() {  # phone <입력> <출력> <목표초> <번호> <제목> <설명1> <설명2>
-  local in="$1" out="$2" want="$3" no="$4" title="$5" l1="$6" l2="$7"
+phone() {  # phone <입력> <출력> <목표초> <번호> <제목> <설명1> <설명2> <설명3>
+  local in="$1" out="$2" want="$3" no="$4" title="$5" l1="$6" l2="$7" l3="$8"
   local d factor cap ff
   d="$(dur "$in")"
   factor="$(awk -v a="$want" -v b="$d" 'BEGIN{printf "%.4f", a/b}')"
-  cap="$(captions "$no" "$title" "$l1" "$l2")"
+  cap="$(captions "$no" "$title" "$l1" "$l2" "$l3")"
   ff="$(footfade)"
   say "  ${no} ${title} — ${d}s → ${want}s (x${factor})"
   "$FF" -y -i "$in" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}" \
@@ -133,10 +138,10 @@ phone() {  # phone <입력> <출력> <목표초> <번호> <제목> <설명1> <�
 #    Ken Burns 은 사진에는 자연스럽지만 UI 캡처에는 위화감을 만듭니다.
 #    지금은 등장할 때의 페이드인(footfade)만 남기고 그 뒤로는 진짜 정지입니다.
 # ---------------------------------------------------------------------------
-still() {  # still <png> <출력> <초> <번호> <제목> <설명1> <설명2>
-  local img="$1" out="$2" sec="$3" no="$4" title="$5" l1="$6" l2="$7"
+still() {  # still <png> <출력> <초> <번호> <제목> <설명1> <설명2> <설명3>
+  local img="$1" out="$2" sec="$3" no="$4" title="$5" l1="$6" l2="$7" l3="$8"
   local cap ff
-  cap="$(captions "$no" "$title" "$l1" "$l2")"
+  cap="$(captions "$no" "$title" "$l1" "$l2" "$l3")"
   ff="$(footfade)"
   say "  ${no} ${title} — 정지 ${sec}s"
   "$FF" -y -loop 1 -t "${sec}" -i "$img" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}" \
@@ -151,11 +156,14 @@ still() {  # still <png> <출력> <초> <번호> <제목> <설명1> <설명2>
 #    아래끝(1008)과 자막(985)이 겹쳤고, 줄여도 아랫줄이 캔버스 바닥에
 #    18px 까지 닿았습니다. 발표 화면에서는 잘려 보입니다.
 #
-#    1500px → 높이 843. y=28 이면 28~871 을 차지하고, 자막은 900·958 에
-#    놓여 **위로 29px, 아래로 93px** 이 남습니다.
+#    1500px → 높이 843. y=28 이면 28~871 을 차지하고, 자막은 900(제목)·
+#    952·996(설명 2줄)에 놓여 **위로 29px, 아래로 55px** 이 남습니다.
+#
+#    ⚠ 설명이 2줄인 이유는 phone/still 과 같습니다 — 한 줄에 다 넣으려니
+#    주어가 잘려 번역투가 됐습니다. 여기는 가운데 정렬이라 한 줄 46자까지 됩니다.
 # ---------------------------------------------------------------------------
-desktop() {  # desktop <입력> <출력> <번호> <제목> <설명>
-  local in="$1" out="$2" no="$3" title="$4" l1="$5"
+desktop() {  # desktop <입력> <출력> <번호> <제목> <설명1> <설명2>
+  local in="$1" out="$2" no="$3" title="$4" l1="$5" l2="$6"
   local ff fa=""
   ff="$(footfade)"
   if [ "$EFFECTS" = "1" ]; then
@@ -163,7 +171,7 @@ desktop() {  # desktop <입력> <출력> <번호> <제목> <설명>
   fi
   say "  ${no} ${title} — $(dur "$in")s"
   "$FF" -y -i "$in" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}" \
-    -filter_complex "[0:v]scale=1500:-2,fps=${FPS}${ff}[sc];[1:v]trim=duration=999,setpts=PTS-STARTPTS[bg];[bg][sc]overlay=x=(W-w)/2:y=28:shortest=1[v0];[v0]drawtext=fontfile='${FONT_B}':text='${no}  ${title}':fontsize=42:fontcolor=${NAVY}:x=(w-text_w)/2:y=900${fa},drawtext=fontfile='${FONT_R}':text='${l1}':fontsize=29:fontcolor=${MUTED}:x=(w-text_w)/2:y=958${fa}[v]" \
+    -filter_complex "[0:v]scale=1500:-2,fps=${FPS}${ff}[sc];[1:v]trim=duration=999,setpts=PTS-STARTPTS[bg];[bg][sc]overlay=x=(W-w)/2:y=28:shortest=1[v0];[v0]drawtext=fontfile='${FONT_B}':text='${no}  ${title}':fontsize=42:fontcolor=${NAVY}:x=(w-text_w)/2:y=900${fa},drawtext=fontfile='${FONT_R}':text='${l1}':fontsize=29:fontcolor=${MUTED}:x=(w-text_w)/2:y=952${fa},drawtext=fontfile='${FONT_R}':text='${l2}':fontsize=29:fontcolor=${MUTED}:x=(w-text_w)/2:y=996${fa}[v]" \
     -map "[v]" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
 }
 
@@ -206,37 +214,42 @@ mux() {  # mux <파트mp4> <음성이름>
 # ===========================================================================
 say "타이틀 · 마무리 카드"
 card "$P/00_title.mp4" 9 "MULTIMODAL LIFELOG EMOTION CARE" "귀기울임" "먼저 다가가는 정서 케어"
-card "$P/99_outro.mp4" 10 "SMHRD KDT HEALTHCARE 5팀" "귀기울임 LISN" "감지한 것을 사람에게 닿게 합니다"
+card "$P/99_outro.mp4" 10 "SMHRD KDT HEALTHCARE 5팀" "귀기울임 LISN" "감지에서 멈추지 않고 먼저 다가갑니다"
 
 mux "$HERE/parts/00_title.mp4" "00"
 mux "$HERE/parts/99_outro.mp4" "99"
 
 say "앱 컷"
 phone "$D/cuts/cut1_outreach.mp4" "$P/01.mp4" 44 "01" "먼저 말을 겁니다" \
-  "수면 패턴이 5일째 무너진 것을 시스템이 먼저 알아챕니다." \
-  "알림은 먼저 오고, 첫 마디는 앱 안에서 기다립니다."
-phone "$D/cuts/cut2_chat.mp4" "$P/02.mp4" 33 "02" "두 성격으로 듣습니다" \
-  "공감형과 조언형 중에 고릅니다. 같은 말에 다르게 답합니다." \
-  "위기 판정과 응답 생성을 병렬로 돌려 3초 안에 답합니다."
+  "사용자의 수면 패턴이 5일째 무너진 것을 먼저 알아챕니다." \
+  "이상 징후가 발견되면 알림으로 선제 접촉을 합니다." \
+  "앱을 열면 상태를 묻는 첫 마디가 대화를 시작합니다."
+phone "$D/cuts/cut2_chat.mp4" "$P/02.mp4" 33 "02" "성격을 골라 대화합니다" \
+  "사용자는 따스한 공감형과 현실적인 조언형 중에서 고릅니다." \
+  "같은 말을 해도 성격에 따라 답이 달라집니다." \
+  "위기 판정과 응답 생성을 동시에 돌려 3초 안에 답합니다."
 
 mux "$HERE/parts/01.mp4" "01"
 mux "$HERE/parts/02.mp4" "02"
 
 say "긴급 상담 연결"
 still "$D/emg.png" "$P/02b.mp4" 14 "03" "위로가 위험을 덮지 않게" \
-  "위기가 확인되면 챗봇 답변 대신 사람에게 연결합니다." \
-  "경고색을 쓰지 않았습니다 — 불안을 키우면 회피로 이어집니다."
+  "위기가 확인되면 서버는 만들어 둔 챗봇 답변을 버립니다." \
+  "위로를 건네는 대신 상담 연결 화면으로 넘어갑니다." \
+  "경고색은 쓰지 않았습니다. 불안을 키우면 회피로 이어집니다."
 
-phone "$D/cuts/cut3_report.mp4" "$P/03.mp4" 36 "04" "몸의 신호를 정서로" \
-  "수면·활동량·심박이 개인 기준선에서 얼마나 벗어났는지 봅니다." \
-  "데이터가 3일치 미만이면 '정상'이라고 하지 않습니다."
+phone "$D/cuts/cut3_report.mp4" "$P/03.mp4" 36 "04" "몸의 신호에서 마음을 읽습니다" \
+  "앱은 사용자의 수면과 활동량, 심박을 함께 모읍니다." \
+  "그 사람의 평소 기준선에서 얼마나 벗어났는지를 봅니다." \
+  "데이터가 사흘치에 못 미치면 정상이라고 말하지 않습니다."
 
 mux "$HERE/parts/02b.mp4" "02b"
 mux "$HERE/parts/03.mp4" "03"
 
 say "관제 컷"
-desktop "$D/cuts/cut4_admin.mp4" "$P/04.mp4" "05" "관리자는 전체를 봅니다" \
-  "위기 판정이 여기 기록됩니다 — 무엇이 판정했는지도 「모델」 칸에서 확인할 수 있습니다."
+desktop "$D/cuts/cut4_admin.mp4" "$P/04.mp4" "05" "위험한 사람이 먼저 보입니다" \
+  "관리자는 맡은 대상자의 위험도를 한 화면에서 봅니다." \
+  "채팅에서 감지한 위기도 여기 쌓이고, 무엇이 판정했는지는 「모델」 칸에 남습니다."
 
 mux "$HERE/parts/04.mp4" "04"
 
