@@ -17,13 +17,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.security import AdminUser
-from app.models import Emotion, EmotionRiskScore, User
+from app.models import DeviceHealthConnection, Emotion, EmotionRiskScore, User
 from app.schemas.report import (
     AdminDashboard,
     AdminUserRow,
     EmergencyEvent,
     ReportOut,
     RiskDistribution,
+    SyncFailure,
 )
 from app.services.report import build_report
 
@@ -227,4 +228,43 @@ async def emergency_events(
             evaluated_at=s.evaluated_at,
         )
         for s, u, e in rows
+    ]
+
+
+@router.get("/sync-failures", response_model=list[SyncFailure])
+async def sync_failures(
+    admin: AdminUser,
+    db: DbSession,
+    limit: Annotated[int, Query(ge=1, le=200)] = 50,
+    offset: Annotated[int, Query(ge=0)] = 0,
+):
+    """미수신 재시도 실패 목록 — NFR-DV-002 ④ 관리자 알림
+
+    DEVICE_HEALTH_CONNECTIONS 에서 sync_status='RETRY_FAILED' 인 행을
+    조회한다. 별도 알림 테이블을 만들지 않는 이유는 그 컬럼 자체가 곧
+    알림 대상 목록이기 때문이다 — /emergency-events 가 EMOTION_RISK_SCORES
+    를 그대로 쓰는 것과 같다.
+
+    ⚠ **위기 판정과 섞지 않는다.** 미수신은 「데이터가 없다」이지
+      「위험하다」가 아니다. 관제 대시보드의 위험도 분포에 이 사람들을
+      넣으면 안 된다 — 미평가로 남아 있어야 관리자가 따로 확인한다.
+    """
+    rows = await db.execute(
+        select(DeviceHealthConnection, User)
+        .join(User, User.user_id == DeviceHealthConnection.user_id)
+        .where(DeviceHealthConnection.sync_status == "RETRY_FAILED")
+        .order_by(DeviceHealthConnection.nudged_at.desc())
+        .limit(limit)
+        .offset(offset)
+    )
+    return [
+        SyncFailure(
+            connection_id=c.connection_id,
+            user_id=c.user_id,
+            name=u.name,
+            device_name=c.device_name,
+            last_synced_at=c.last_synced_at,
+            nudged_at=c.nudged_at,
+        )
+        for c, u in rows
     ]

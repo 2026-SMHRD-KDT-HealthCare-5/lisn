@@ -62,3 +62,28 @@ async def send(
     )
     # firebase-admin 은 동기 SDK다 — 이벤트 루프를 막지 않도록 스레드로 뺀다.
     return await asyncio.to_thread(messaging.send, message, app=app)
+
+
+async def send_silent(token: str, data: dict[str, str]) -> str:
+    """화면에 뜨지 않는 무음 푸시. 앱을 깨워 동작만 시킬 때 쓴다.
+
+    `NFR-DV-002` 의 「FCM 무음 푸시로 동기화를 유도」가 이것이다. 사용자는
+    아무것도 보지 못하고, 앱만 백그라운드에서 깨어나 밀린 라이프로그를
+    올린다.
+
+    ⚠ **`notification` 을 넣으면 무음이 아니다.** `send()` 는 항상
+      `Notification` 을 붙여 화면에 띄운다 — 동기화를 유도하려고 그걸 쓰면
+      「마음이가 먼저 말을 걸었어요」와 구분 안 되는 알림이 사용자에게
+      쌓인다. 데이터 메시지만 보내야 조용히 깨울 수 있다.
+
+    ⚠ **Android 우선순위를 high 로 준다.** 기본값(normal)이면 Doze 모드에서
+      단말이 깨어날 때까지 배달이 늦춰져, 3시간 미수신을 감지해 보낸 푸시가
+      몇 시간 뒤에 도착할 수 있다. 그러면 미수신 감지 자체가 무의미해진다.
+    """
+    app = _get_app()
+    message = messaging.Message(
+        token=token,
+        data=data,
+        android=messaging.AndroidConfig(priority="high"),
+    )
+    return await asyncio.to_thread(messaging.send, message, app=app)

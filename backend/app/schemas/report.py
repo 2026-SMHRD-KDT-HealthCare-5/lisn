@@ -95,3 +95,19 @@ class EmergencyEvent(BaseModel):
     risk_score: Decimal
     model_version: str
     evaluated_at: datetime
+
+
+class SyncFailure(BaseModel):
+    """미수신 재시도 실패 — NFR-DV-002 ④ 관리자 알림
+
+    별도 알림 테이블을 만들지 않는다. DEVICE_HEALTH_CONNECTIONS 의
+    sync_status='RETRY_FAILED' 행이 곧 알림 대상 목록이다 — 위기 사건
+    이력이 EMOTION_RISK_SCORES 를 그대로 쓰는 것과 같은 방식이다.
+    """
+
+    connection_id: uuid.UUID
+    user_id: uuid.UUID
+    name: str
+    device_name: str | None
+    last_synced_at: datetime | None
+    nudged_at: datetime | None

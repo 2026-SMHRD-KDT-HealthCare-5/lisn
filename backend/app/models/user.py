@@ -114,10 +114,24 @@ class DeviceHealthConnection(Base):
 
     consent_scopes: Mapped[dict] = mapped_column(JSONB, nullable=False)
 
+    # [05-P] 미수신 감지 상태 — NFR-DV-002 (2026.08.24)
+    #   OK           정상. 3시간 안에 들어오고 있다
+    #   NUDGED       미수신을 감지해 FCM 무음 푸시를 보냈다
+    #   RETRY_FAILED 푸시를 보냈는데도 안 들어왔다 → 관리자 알림 대상
+    sync_status: Mapped[str] = mapped_column(
+        String(20), nullable=False, server_default=text("'OK'")
+    )
+    # NUDGED 로 바꾼 시각. 「푸시 후 얼마나 기다렸나」를 재는 기준이다.
+    nudged_at: Mapped[datetime | None] = mapped_column(TimestampTZ)
+
     __table_args__ = (
         CheckConstraint(
             "platform_type IN ('HEALTH_CONNECT', 'APPLE_HEALTH')",
             name="ck_device_platform",
+        ),
+        CheckConstraint(
+            "sync_status IN ('OK', 'NUDGED', 'RETRY_FAILED')",
+            name="ck_device_sync_status",
         ),
     )
 

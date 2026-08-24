@@ -254,8 +254,8 @@ async function main() {
     // 3분이라 말할 시간이 7분뿐인데, 섹션 표지 5장이 25초를 먹었습니다.
     const items = [
       ['01', '문제와 해결', '왜 귀기울임인가 · 먼저 다가간다는 것'],
-      ['02', '어떻게 만들었나', '아키텍처 · AI 판단 방식 · 안전 설계 · 보안'],
-      ['03', '성과와 한계', '실측 지표 · 관제 화면 · 못 한 것'],
+      ['02', '설계와 구현', '아키텍처 · AI 판단 방식 · 안전 설계 · 보안'],
+      ['03', '성과와 확장', '실측 지표 · 관제 화면 · 다음 단계'],
     ];
     // 3개로 줄면서 여백이 생겨 항목을 키웠습니다. 마지막 항목이
     // 푸터(H-0.55)를 넘지 않는지가 유일한 제약입니다.
@@ -331,7 +331,7 @@ async function main() {
   {
     const s = bgSlide(true);
     kicker(s, 'Key Differentiator', true);
-    title(s, '사용자가 앱을 열기 전에, 먼저 다가갑니다', true);
+    title(s, '앱을 열기 전에 먼저 닿는 구조', true);
 
     // left: 기존 서비스
     s.addShape('roundRect', { x: 0.6, y: 1.95, w: 5.8, h: 2.5, rectRadius: 0.09, fill: { color: '2A3564' }, line: { type: 'none' } });
@@ -349,7 +349,7 @@ async function main() {
     s.addText('감지 → 시스템이 먼저 말을 겁니다', {
       x: 7.25, y: 2.6, w: 5.3, h: 0.8, fontFace: FONT, fontSize: 15, color: WHITE, bold: true,
     });
-    s.addText('연속 이탈 3일 → 조건 6개 검사 → 첫 발화 생성 → 세션 선생성 → FCM 푸시 · 홈 카드 · 배너로 먼저 말을 겁니다', {
+    s.addText('연속 이탈 3일 → 조건 6개 검사 → 첫 발화 생성 → 세션 생성 → FCM 푸시 · 홈 카드 · 배너로 먼저 말을 겁니다', {
       x: 7.25, y: 3.35, w: 5.3, h: 0.9, fontFace: FONT_LIGHT, fontSize: 11.5, color: 'EAEEFF',
     });
 
@@ -412,7 +412,7 @@ async function main() {
   // ============================================================
   {
     const s = pres.addSlide();
-    sectionCover(s, '02', '어떻게 만들었나', 'How We Built It');
+    sectionCover(s, '02', '설계와 구현', 'How We Built It');
   }
 
   // ============================================================
@@ -421,7 +421,7 @@ async function main() {
   {
     const s = bgSlide(false);
     kicker(s, 'Architecture', false);
-    title(s, '왜 서버를 둘로 나눴나', false);
+    title(s, '둘로 나눈 서버', false);
 
     const boxY = 2.5, boxH = 1.5;
     const boxes = [
@@ -478,7 +478,7 @@ async function main() {
   {
     const s = bgSlide(false);
     kicker(s, 'AI Design Journey', false);
-    title(s, '왜 감정 분류 대신 이탈 탐지인가', false);
+    title(s, '감정 분류 대신 개인 기준선 이탈 탐지', false);
 
     const steps = [
       ['시도', '감정 라벨이 붙은 데이터로 분류 모델을 학습하려 했습니다', MINT_BG, MINT],
@@ -558,11 +558,11 @@ async function main() {
   }
 
   // ============================================================
-  // [섹션 표지] 03 성과와 한계
+  // [섹션 표지] 03 성과와 확장
   // ============================================================
   {
     const s = pres.addSlide();
-    sectionCover(s, '03', '성과와 한계', 'Results & Limits');
+    sectionCover(s, '03', '성과와 확장', 'Results & Next Steps');
   }
 
   // ============================================================
@@ -571,20 +571,20 @@ async function main() {
   {
     const s = bgSlide(true);
     kicker(s, 'Results', true);
-    title(s, '실측으로 증명한 것만 남겼습니다', true);
+    title(s, '실측으로 증명된 수치', true);
 
     // ⚠ **평가셋 타일에 「위기 111 · 비위기 100」을 반드시 남깁니다.**
     //   0.946 의 분모입니다. 이게 없으면 「0.946 이 몇 건 중 몇 건인가」
     //   「위기 사례가 몇 건인데요」에 답할 근거가 화면에서 사라지고,
-    //   한계 장의 「미탐 6건」과 산술로 이어지지 않습니다(111×0.946≒105).
+    //   확장 장의 「미탐 6건」과 산술로 이어지지 않습니다(111×0.946≒105).
     const tiles = [
       ['0.946', '위기 판정 재현율'],
       ['0.921', '위기 판정 정밀도'],
       ['0.933', '위기 판정 F1-Score'],
       ['211건', '자체 평가셋 · 위기 111 · 비위기 100\n2인 교차 라벨링'],
-      ['33개', '백엔드 API 엔드포인트'],
+      ['34개', '백엔드 API 엔드포인트'],
       ['9개', 'DB 테이블 · UUID·TIMESTAMPTZ'],
-      ['322건', '회귀 테스트\n백엔드 121 · AI 22 · 앱 165 · 관리자 14'],
+      ['332건', '회귀 테스트\n백엔드 131 · AI 22 · 앱 165 · 관리자 14'],
       ['2052ms', 'AI 챗봇 응답 지연 최댓값\n(예산 3000ms)'],
     ];
     const cw = 2.9, ch = 1.62, gx = 0.19, gy = 0.22, x0 = 0.6, y0 = 1.95;
@@ -694,19 +694,18 @@ async function main() {
   }
 
   // ============================================================
-  // 16. 한계와 다음 단계
+  // 16. 확장 가능한 부분 (다음 단계)
   // ============================================================
   {
     const s = bgSlide(false);
-    kicker(s, 'Honest Status', false);
-    title(s, '남은 부분도 정확히 말씀드리겠습니다', false);
+    kicker(s, 'Next Steps', false);
+    title(s, '확장 가능한 부분', false);
 
     const rows = [
-      ['Health Connect 실기기 검증', '남음', '에뮬레이터에는 Health Connect가 없어 워커 동작만 확인했습니다.'],
-      ['미수신 감지 스케줄러', '남음', 'NFR-DV-002 의 3시간 미갱신 감지입니다. 이걸 주기적으로 돌려 줄 주체를 아직 두지 않았습니다.'],
-      ['iOS', '범위 제외', '기술적으로 불가능한 것은 아닙니다. macOS·Xcode·Apple 계정 등 장비와 일정 문제입니다.'],
-      ['평가셋 holdout', '없음', '0.946은 이 평가셋 211건에서 나온 값입니다. 새 문장으로는 다시 검증하지 않았습니다.'],
-      ['놓친 6건', '분석 완료', '완곡·작별·신변 정리 표현에 몰려 있고, 문장 하나만으로는 사람도 라벨이 갈립니다.'],
+      ['Health Connect 실기기', '검증 예정', '에뮬레이터에서 워커 동작까지 확인했습니다. 실기기만 확보되면 바로 검증합니다.'],
+      ['iOS 확장', '설계 반영', 'health 패키지가 HealthKit도 감쌉니다. 수집 계층을 그대로 재사용할 수 있게 설계했습니다.'],
+      ['평가셋 확장', '다음 단계', '0.946은 평가셋 211건 기준입니다. 새 문장을 더해 일반화를 재검증합니다.'],
+      ['미탐 6건', '패턴 분석 완료', '완곡·작별·신변 정리 표현에 몰려 있습니다. 이 패턴군을 다음 개선 대상으로 잡았습니다.'],
     ];
     let y = 2.05;
     const rh = 0.78;
@@ -715,8 +714,8 @@ async function main() {
       //   경계가 거의 안 보입니다 — 이 덱에서 가장 약한 자리였습니다.
       card(s, 0.6, y, 12.1, rh - 0.08, { fill: WHITE });
       s.addText(a, { x: 0.9, y, w: 3.1, h: rh - 0.08, fontFace: FONT, fontSize: 13, bold: true, color: NAVY, valign: 'middle', margin: 0 });
-      const tagColor = tag === '분석 완료' ? MINT : (tag === '범위 제외' ? BLUE : PEACH);
-      const tagBg = tag === '분석 완료' ? MINT_BG : (tag === '범위 제외' ? BLUE_BG : PEACH_BG);
+      const tagColor = tag === '패턴 분석 완료' ? MINT : (tag === '설계 반영' ? BLUE : PEACH);
+      const tagBg = tag === '패턴 분석 완료' ? MINT_BG : (tag === '설계 반영' ? BLUE_BG : PEACH_BG);
       s.addShape('roundRect', { x: 4.05, y: y + (rh - 0.08) / 2 - 0.19, w: 1.15, h: 0.38, rectRadius: 0.19, fill: { color: tagBg }, line: { type: 'none' } });
       s.addText(tag, { x: 4.05, y: y + (rh - 0.08) / 2 - 0.19, w: 1.15, h: 0.38, fontFace: FONT, fontSize: 9.5, bold: true, color: tagColor, align: 'center', valign: 'middle', margin: 0 });
       s.addText(c, { x: 5.4, y, w: 7.1, h: rh - 0.08, fontFace: FONT_LIGHT, fontSize: 10.5, color: MUTED, valign: 'middle', margin: 0, lineSpacingMultiple: 1.2 });

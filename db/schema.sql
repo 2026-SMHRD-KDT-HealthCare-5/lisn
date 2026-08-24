@@ -166,8 +166,36 @@ CREATE TABLE DEVICE_HEALTH_CONNECTIONS (
     agreed_at          TIMESTAMPTZ NOT NULL,
     last_synced_at     TIMESTAMPTZ,                      -- [05-A] 미수신 감지·재시도 판단 기준
     consent_scopes     JSONB NOT NULL DEFAULT
-        '{"activity": true, "sleep": true, "body_composition": false}'
+        '{"activity": true, "sleep": true, "body_composition": false}',
+    --  [05-P] 미수신 감지 상태 — NFR-DV-002 (2026.08.24 추가)
+    sync_status        VARCHAR(20) NOT NULL DEFAULT 'OK'
+        CHECK (sync_status IN ('OK', 'NUDGED', 'RETRY_FAILED')),
+    nudged_at          TIMESTAMPTZ                       -- 무음 푸시를 보낸 시각
 );
+
+-- [05-P] ✅ 2026.08.24 추가 — 미수신 감지 (NFR-DV-002 · 구현_갭 갭3)
+--   NFR-DV-002 는 네 단계를 요구합니다.
+--     ① last_synced_at 이 3시간 이상 갱신되지 않은 사용자를 미수신으로 감지
+--     ② FCM 무음 푸시로 동기화를 유도
+--     ③ 이후에도 수신되지 않으면 연동 상태를 '재시도 실패'로 표시
+--     ④ 관리자 알림을 발송
+--
+--   ③ 을 담을 자리가 없어 컬럼 두 개를 추가했습니다.
+--     sync_status  OK          정상 — 3시간 안에 들어오고 있음
+--                  NUDGED      미수신 감지 후 무음 푸시를 보냄(①②)
+--                  RETRY_FAILED 푸시를 보냈는데도 안 들어옴(③) → 관리자 알림(④)
+--     nudged_at    NUDGED 로 바꾼 시각. 「푸시 후 얼마나 기다렸나」의 기준입니다.
+--
+--   ⚠ **OUTREACH_LOGS 로 대신하려다 접었습니다.** 새 테이블·컬럼 없이 풀려고
+--     그 테이블에 미수신 기록을 넣는 안을 검토했는데, 선제 접촉 쿨다운 조회가
+--     `WHERE user_id = ?` 만 걸고 종류를 안 가립니다(outreach.py). 미수신
+--     기록이 섞이면 **쿨다운이 그걸 「접촉했다」로 읽어, 정작 위기 징후가 있는
+--     사람에게 3일간 선제 접촉이 안 나갑니다.** 스키마를 아끼려다 안전 기능을
+--     망가뜨리는 쪽이라 컬럼을 추가하는 것이 맞습니다.
+--
+--   ⚠ **제출한 데이터베이스요구사항분석서·테이블명세서에는 이 두 컬럼이 없습니다.**
+--     문서 제출이 끝난 뒤의 추가라 스키마가 그 둘보다 앞서 있습니다. 문서를
+--     다시 낼 일이 있으면 객체 정의서에 함께 반영하세요.
 
 -- [05-A] ✅ 2026.07.29 확정 — 앱 push 구조 전환에 따른 개정
 --   Health Connect 는 Android on-device 권한 모델이라 서버가 보유할 OAuth
@@ -379,6 +407,13 @@ CREATE INDEX idx_device_last_synced
 --  「이 사용자에게 마지막으로 보낸 게 언제인가」를 매 판정마다 조회합니다.
 CREATE INDEX idx_outreach_user_sent
     ON OUTREACH_LOGS (user_id, sent_at DESC);
+
+--  [05-P] 미수신 재시도 판정용 (NFR-DV-002)
+--  무음 푸시를 보낸 뒤에도 안 들어온 연동을 찾습니다. NUDGED 만 대상이라
+--  부분 인덱스로 좁힙니다 — 정상(OK)이 대부분이라 전체 스캔은 낭비입니다.
+CREATE INDEX idx_device_nudged
+    ON DEVICE_HEALTH_CONNECTIONS (nudged_at)
+    WHERE sync_status = 'NUDGED';
 
 
 -- =====================================================================

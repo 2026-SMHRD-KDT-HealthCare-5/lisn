@@ -29,6 +29,13 @@ class Settings(BaseSettings):
     smtp_from: str = ""
     smtp_use_tls: bool = True
 
+    # 미수신 감지 스케줄러 — NFR-DV-002 (구현_갭 갭3)
+    # ⚠ **uvicorn 을 여러 워커로 띄우면 워커마다 돈다.** 지금 배포는
+    #   단일 프로세스(infra/docker-compose.yml 의 CMD)라 문제없다. 워커를
+    #   늘릴 거면 이걸 끄고 별도 프로세스나 cron 으로 빼야 중복 발송이 없다.
+    sync_watch_enabled: bool = True
+    sync_watch_interval_minutes: int = 15
+
     # 컬럼 암호화 키(AES-256-GCM). base64 인코딩된 32바이트.
     # 02-F (3) 대상은 현재 USERS.phone 하나다.
     #   생성: python -c "import base64,os; print(base64.b64encode(os.urandom(32)).decode())"
