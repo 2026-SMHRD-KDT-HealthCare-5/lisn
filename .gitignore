@@ -323,5 +323,14 @@ ai/data_raw/company/
 tools/capture/fonts/
 glyph_suspects.png
 
+# build_deck.js 가 만드는 임시 산출물 — 정본은 documents/ 안에만 둡니다
+# (tools/capture/sync_deck.sh 로 옮긴 뒤 여기 남은 건 지웁니다)
+tools/capture/귀기울임_최종발표_*.pptx
+
+# build_deck.js 가 참조하는 시연영상 캐시 — 용량이 커서 커밋하지 않습니다.
+# 없으면 documents/최종발표자료_귀기울임.pptx 의 ppt/media/ 에서 꺼내 채우세요
+# (build_deck.js 상단 VIDEO_DIR 주석 참고)
+tools/capture/.cache/
+
 # CatBoost 가 실행할 때마다 만드는 학습 로그 — 산출물이 아닙니다
 catboost_info/

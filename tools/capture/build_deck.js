@@ -3,12 +3,20 @@ const { iconPng } = require('./icons');
 const Fi = require('react-icons/fi');
 const path = require('path');
 
-const REPO = 'C:\\project\\LISN';
+// ⚠ 예전에는 이 값이 특정 PC 의 절대경로(C:\project\LISN 등)로 박혀
+//   있었습니다. 다른 PC 에서 돌리면 그대로 깨집니다 — 스크립트 위치
+//   기준 상대경로로 고쳤습니다(2026.08.25).
+const REPO = path.resolve(__dirname, '..', '..');
 const DESIGN = path.join(REPO, 'docs', 'design');
 
 // 시연영상 — tools/capture/build_video.sh 의 출력. 2026.08.22 제작본.
 // 다시 만들려면 그 스크립트를 다시 돌리면 됩니다(같은 경로에 씀).
-const VIDEO_DIR = 'C:\\Users\\HOME\\AppData\\Local\\Temp\\claude\\C--project-LISN\\fda14023-1984-4212-8502-e63cf816ef36\\scratchpad\\video\\final';
+//
+// ⚠ 용량이 커서(수 MB) 저장소에 커밋하지 않습니다(.gitignore 대상).
+//   이 폴더가 비어 있으면 documents/최종발표자료_귀기울임.pptx 의
+//   ppt/media/ 에서 media-*.mp4·image-*.png(포스터)를 꺼내 넣으세요 —
+//   내용을 새로 만들 필요가 없다면 이게 가장 빠릅니다.
+const VIDEO_DIR = path.join(REPO, 'tools', 'capture', '.cache', 'video');
 const VIDEO_PATH = path.join(VIDEO_DIR, 'lisn_demo_3min.mp4');
 const fs = require('fs');
 // pptxgenjs 의 addMedia 는 cover 에 base64 데이터 URI를 요구합니다 —
@@ -308,7 +316,7 @@ async function main() {
     });
 
     const steps = [
-      ['01', 'watch', '자동 수집', 'Health Connect로 걸음·수면·심박·HRV를 앱이 읽어 서버로 보냅니다. 사용자가 입력할 것이 없습니다.'],
+      ['01', 'watch', '자동 수집', 'Health Connect로 걸음·수면·심박·HRV를, 화면 사용 시간으로 앱 이용 패턴을 앱이 읽어 서버로 보냅니다. 사용자가 입력할 것이 없습니다.'],
       ['02', 'trend', '평소와 얼마나 다른가', '그 사람 본인의 평소(14일)와 비교해 징후를 봅니다. 감정을 분류하지 않습니다.'],
       ['03', 'chat', '선제 접촉', '콘텐츠 추천에서 그치지 않고, 필요하면 시스템이 먼저 말을 거는 선제 접촉까지 이어집니다.'],
     ];
@@ -444,7 +452,7 @@ async function main() {
     [[3.6, 4.85], [8.45, 9.7]].forEach(([ax1, ax2]) => {
       s.addImage({ data: icon['arrowright'], x: ax1 + (ax2 - ax1) / 2 - 0.15, y: boxY + boxH / 2 - 0.15, w: 0.3, h: 0.3 });
     });
-    s.addText('걸음·수면·심박 push', { x: 3.62, y: boxY - 0.32, w: 1.25, h: 0.3, fontFace: FONT_LIGHT, fontSize: 8.5, color: MUTED, align: 'center' });
+    s.addText('걸음·수면·심박·앱 사용 push', { x: 3.42, y: boxY - 0.32, w: 1.65, h: 0.3, fontFace: FONT_LIGHT, fontSize: 8.5, color: MUTED, align: 'center' });
     s.addText('내부 통신', { x: 8.5, y: boxY - 0.32, w: 1.15, h: 0.3, fontFace: FONT_LIGHT, fontSize: 8.5, color: MUTED, align: 'center' });
 
     s.addText([
@@ -459,7 +467,7 @@ async function main() {
     // ⚠ **WorkManager 15분 주기를 반드시 남깁니다.** 이게 없으면
     //   「앱을 안 여는 사람은 데이터가 안 오는 것 아니냐」에 답할 근거가
     //   사라집니다 — 선제 접촉이라는 차별점의 전제를 무너뜨리는 질문입니다.
-    s.addText('Health Connect는 Android 단말 안의 권한 모델이라 서버가 가질 OAuth 토큰이 없습니다. 그래서 앱이 읽어 push하고, 앱을 열지 않아도 WorkManager가 15분 주기로 백그라운드 전송합니다. 서버가 안 가져오는 것이 아니라, 가져올 수가 없습니다.', {
+    s.addText('Health Connect는 Android 단말 안의 권한 모델이라 서버가 가질 OAuth 토큰이 없습니다. 그래서 앱이 읽어 push하고, 앱을 열지 않아도 WorkManager가 15분 주기로 백그라운드 전송합니다. 서버가 안 가져오는 것이 아니라, 가져올 수가 없습니다. 화면 사용 시간 같은 앱 사용 지표도 같은 경로로 함께 보냅니다 — 패키지명은 저장하지 않고 집계값만 씁니다.', {
       x: 0.95, y: 5.5, w: 11.4, h: 0.85, fontFace: FONT_LIGHT, fontSize: 11.5, color: MUTED, lineSpacingMultiple: 1.3,
     });
 
@@ -481,9 +489,9 @@ async function main() {
     title(s, '감정 분류 대신 개인 기준선 이탈 탐지', false);
 
     const steps = [
-      ['학습', 'GLOBEM 수면·걸음 피처로 LightGBM 분류기를 학습했습니다. 참가자 단위 분할(GroupKFold)로 평가했습니다', MINT_BG, MINT],
-      ['재현 검증', 'ROC-AUC 0.528. 표본 탓인지 확인하려 LifeSnaps(63명·2290일·피처 65개)로 20회 반복했더니 감정 7종이 0.479~0.540 이었습니다', PEACH_BG, PEACH],
-      ['전환', '근거를 갖고 채택하지 않았습니다. 개인 기준선 이탈 탐지로 전환 — 중앙값·MAD robust z, 지표 7개 중 2개 이상 이탈', BLUE_BG, BLUE],
+      ['학습된 집계로 교체', '「상위 3개 평균 ÷ 4.0」이라는 임의 집계식을 로지스틱 회귀로 바꿨습니다. 입력은 하나도 늘리지 않았습니다', MINT_BG, MINT],
+      ['참가자 내부 AUC 0.609', '기존 규칙 0.491 → 학습된 집계 0.609. 이득 +0.115[+0.056,+0.176]. 62명·4086표본, 참가자 분할 + 중첩 교차검증', PEACH_BG, PEACH],
+      ['브리프 지정 방법도 비교', 'Isolation Forest(전역 0.473·개인별 0.494) 등 6종을 같은 조건에서 재보고, 저희 방식이 유의하게 나아 채택했습니다', BLUE_BG, BLUE],
     ];
     const cw = 3.85, gap = 0.3, x0 = 0.6, y0 = 2.15;
     steps.forEach(([h, b, bg, fg], i) => {
@@ -502,11 +510,14 @@ async function main() {
     });
 
     card(s, 0.6, 4.75, 12.1, 1.85, { fill: NAVY, line: false, shadow: false });
-    s.addText('두 번 검증하고 채택하지 않았습니다', {
+    s.addText('감정을 분류하는 게 아닙니다', {
       x: 0.95, y: 4.95, w: 11.4, h: 0.4, fontFace: FONT, fontSize: 14.5, bold: true, color: WHITE,
     });
-    s.addText('표본을 40명에서 63명으로, 피처를 8개에서 65개로 늘려도 결과가 같았습니다. 정작 잡아야 할 SAD(0.485)·TENSE(0.497)가 무작위 이하였습니다. 정신건강 서비스에서 근거 없는 분류기를 쓰는 쪽이 더 위험하다고 판단해, 감정 코드는 학습된 분류기가 아니라 이탈 정도를 표시하는 규칙 기반 산출값으로 두었습니다.', {
+    s.addText('바뀐 것은 지표를 합치는 방식뿐입니다. 개인 기준선 대비 이탈 지표 7개를 하나의 점수로 합치는 방법을 데이터로 정한 것이고, 감정 코드는 여전히 이탈 정도를 표시하는 산출값입니다. model_version 이 hybrid- 로 시작하면 이 집계가 관여한 것이고, rule- 이면 기존 규칙 그대로입니다.', {
       x: 0.95, y: 5.38, w: 11.4, h: 1.1, fontFace: FONT_LIGHT, fontSize: 12, color: 'C7CDEA', lineSpacingMultiple: 1.3,
+    });
+    s.addText('※ 같은 데이터로 70%를 보고한 선행연구를 재현하니, 그 지표의 기준선이 66.7%였습니다 — ai/train/eval_replicate_paper.py', {
+      x: 0.6, y: 6.68, w: 12.1, h: 0.28, fontFace: FONT_LIGHT, fontSize: 9, italic: true, color: MUTED,
     });
     pageNum(s, false);
   }
@@ -584,7 +595,7 @@ async function main() {
       ['211건', '자체 평가셋 · 위기 111 · 비위기 100\n2인 교차 라벨링'],
       ['34개', '백엔드 API 엔드포인트'],
       ['9개', 'DB 테이블 · UUID·TIMESTAMPTZ'],
-      ['332건', '회귀 테스트\n백엔드 131 · AI 22 · 앱 165 · 관리자 14'],
+      ['348건', '회귀 테스트\n백엔드 131 · AI 30 · 앱 173 · 관리자 14'],
       ['2052ms', 'AI 챗봇 응답 지연 최댓값\n(예산 3000ms)'],
     ];
     const cw = 2.9, ch = 1.62, gx = 0.19, gy = 0.22, x0 = 0.6, y0 = 1.95;
@@ -702,13 +713,14 @@ async function main() {
     title(s, '확장 가능한 부분', false);
 
     const rows = [
-      ['Health Connect 실기기', '검증 예정', '에뮬레이터에서 워커 동작까지 확인했습니다. 실기기만 확보되면 바로 검증합니다.'],
+      ['Health Connect·앱 사용 로그 실기기', '검증 예정', '에뮬레이터에서 워커 동작까지 확인했습니다. 실기기만 확보되면 바로 검증합니다.'],
       ['iOS 확장', '설계 반영', 'health 패키지가 HealthKit도 감쌉니다. 수집 계층을 그대로 재사용할 수 있게 설계했습니다.'],
       ['평가셋 확장', '다음 단계', '0.946은 평가셋 211건 기준입니다. 새 문장을 더해 일반화를 재검증합니다.'],
+      ['AI 모델 표본 확대', '다음 단계', '이 분야 표본 중앙값이 60.5명인데 저희는 62명입니다. 표본을 더 늘려 재검증합니다.'],
       ['미탐 6건', '패턴 분석 완료', '완곡·작별·신변 정리 표현에 몰려 있습니다. 이 패턴군을 다음 개선 대상으로 잡았습니다.'],
     ];
-    let y = 2.05;
-    const rh = 0.78;
+    let y = 1.95;
+    const rh = 0.72;
     rows.forEach(([a, tag, c], i) => {
       // ⚠ 그림자를 끄지 마세요. 흰 배경 위의 흰 카드라 1px 테두리만으로는
       //   경계가 거의 안 보입니다 — 이 덱에서 가장 약한 자리였습니다.
