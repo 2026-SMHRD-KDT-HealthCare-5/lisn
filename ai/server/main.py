@@ -49,8 +49,14 @@ app = FastAPI(title="귀기울임 AI 추론 서버", version="0.1.0")
 #
 #   DB 는 비즈니스 서버와 같은 것을 보므로 설정도 그쪽 .env 를 그대로 쓴다.
 #   AI 서버용으로 갈라야 하면 AI_DATABASE_URL 을 환경변수로 준다.
-_BACKEND_ENV = Path(__file__).resolve().parents[2] / "backend" / ".env"
-if _BACKEND_ENV.exists():
+#
+# ⚠ 컨테이너 안에서는 이 파일이 /app/main.py 하나뿐이라 parents[2] 가 없다.
+#   인덱싱을 그대로 하면 IndexError 로 죽어 서버가 통째로 못 뜬다(2026.08.24,
+#   infra/ 배포 첫 기동 때 실제로 겪었다 — crash loop). 로컬(repo 안에 있을
+#   때)만 조상 경로가 3단 이상이므로, 그만큼 깊이가 있을 때만 계산한다.
+_SELF = Path(__file__).resolve()
+_BACKEND_ENV = _SELF.parents[2] / "backend" / ".env" if len(_SELF.parents) > 2 else None
+if _BACKEND_ENV and _BACKEND_ENV.exists():
     load_dotenv(_BACKEND_ENV, override=False)
 
 # 비즈니스 서버와 같은 DB 를 본다. 페이로드로 시퀀스를 실어 보내면 요청이

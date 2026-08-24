@@ -3,7 +3,10 @@
 > 다른 컴퓨터나 새 세션에서 작업을 이어갈 때 이 문서부터 읽으세요.
 > Claude Code 의 대화 기록과 메모리는 **PC 로컬에 프로젝트 경로 기준으로** 저장되므로 기기 간에 따라가지 않습니다. 대신 맥락을 저장소에 남겨두는 방식으로 이어갑니다.
 >
-> **최종 갱신** 2026.08.06
+> **최종 갱신** 2026.08.06 — ⚠ **클라우드 배포(§3-2) 부분만 2026.08.24 에 추가
+> 갱신했습니다.** 그 위 §3 상태표·「지금 해야 할 것」은 8/06 시점 그대로라
+> 날짜가 지난 항목이 섞여 있을 수 있습니다. **지금 당장 이어가야 할 건
+> 배포뿐이면 바로 [§3-2](#32-클라우드-배포-20260824) 로 가세요.**
 
 ## 0. 문서 역할 분담
 
@@ -125,6 +128,7 @@ VS Code 사용자는 `lisn.code-workspace`를 열고 `Ctrl+Shift+B`를 누르면
 | 실서버 관통 점검 | 13건 수정 뒤 **실패 0** ✅ (`tools/smoke_mvp.py`) |
 | 릴리스 빌드 | APK·관리자 웹 **빌드 확인** ✅ · 실기기 전용 결함 3건 선제 수정 |
 | 관리자 관제 4개 항목 | `MLCM_501` ❶분포 ❷목록·검색 ❸상세 ❹위기이력 **전부 완료** (2026.08.02) |
+| 클라우드 배포 | **진행 중** ⏳ NCP VM 1대 + Docker Compose. HTTP 로 관제 웹·API 기동·외부 접속 확인 완료. **서버는 지금 정지 상태**(요금 절약) — 재개·다음 단계는 [§3-2](#3-2-클라우드-배포--진행-중--2026-08-24) |
 
 **8/11 문서 개정 마감 · 8/28 최종 발표. 7/31부터 3주차 — 개발 착수.**
 
@@ -488,6 +492,72 @@ python tools/doc2txt.py
 
 ---
 
+## 3-2. 클라우드 배포 (2026.08.24)
+
+> "왜 이 구성인가"는 [`docs/결정/배포_아키텍처.md`](결정/배포_아키텍처.md),
+> "어떻게 하는가"는 [`infra/README.md`](../infra/README.md) 에 있습니다.
+> 여기는 **지금 어디까지 됐고 다음이 뭔지**만 담습니다.
+
+### 지금까지 한 것
+
+NCP(네이버클라우드플랫폼) VM 1대 + Docker Compose 로 첫 배포를 끝냈습니다.
+
+- VPC(`lisn-vpc`) · Subnet(`lisn-public-subnet`) · ACG(`lisn-vpc-default-acg`,
+  22 는 그때 작업하던 PC IP 만·80/443 전체) · Server(`lisn-server`,
+  Ubuntu 24.04 · s2-g3 · 시간요금제) 생성 완료
+- Docker 설치 → 저장소 clone → `docker compose up -d --build` → **4개
+  컨테이너(postgres·backend·ai-server·nginx) 전부 정상 기동**
+- `http://<공인IP>/health`·`/docs`·`/`(관리자 웹) **외부 접속 확인 완료**
+- 배포 중 코드 버그 1건 발견·수정·push 끝남 — `ai/server/main.py` 가
+  `Path(__file__).parents[2]` 로 `backend/.env` 를 찾는데, 컨테이너 안에서는
+  파일이 `/app/main.py` 하나뿐이라 `IndexError` 로 죽었습니다
+  ([f80f0db](https://github.com/2026-SMHRD-KDT-HealthCare-5/lisn/commit/f80f0db)).
+  **다시 배포해도 이 문제는 안 나옵니다.**
+
+### ⚠ 지금 서버는 정지 상태입니다 (요금 절약)
+
+공인 IP `101.79.24.15` — 콘솔에서 **정지** 확인(SSH 도 타임아웃 확인함).
+NCP Server → **시작** 을 누르면 재개됩니다. 컨테이너는 전부
+`restart: unless-stopped` 라 dockerd 가 뜨면 자동으로 따라 뜰 **것으로
+예상**하지만, 실제로 재개해서 확인한 적은 없습니다 — 첫 재개 때는
+`docker compose ps` 로 4개 다 Up 인지 꼭 확인하세요. 공인 IP 를 고정으로
+안 걸어놨다면 정지→시작 사이에 **IP 가 바뀔 수 있습니다** — 바뀌면
+아래 SSH 명령·관리자 웹 빌드의 IP 도 다시 맞춰야 합니다.
+
+### SSH 키 — 이 PC 에만 있고, 다른 환경이면 없습니다
+
+`docs/SESSION-HANDOFF.md` §4 에 위치를 적어뒀습니다. **재발급이 안 되는
+파일**이라 그 PC 를 벗어나면 접속 방법이 없습니다. 다른 환경에서
+이어가려면:
+
+1. NCP 콘솔 → Server → `lisn-server` 선택 → 서버 관리 및 설정 변경 →
+   **관리자 비밀번호 확인** → 인증키 파일(`.pem`) 선택 → 비밀번호 확인
+   - **원본 pem 이 그 PC 에도 없으면** 인증키 자체를 새로 만들어야
+     합니다(서버 관리 및 설정 변경 → 인증키 변경). 기존 pem 은 못 씁니다.
+2. 그 비밀번호로 `ssh root@<공인IP>` 접속 (비밀번호 인증)
+3. 새 환경의 SSH 공개키를 `~/.ssh/authorized_keys` 에 추가해서 키 인증으로
+   전환 — `infra/README.md` 「인증키 설정」절 참고
+4. **비밀번호는 절대 대화창(Claude 등)에 붙여넣지 마세요.** 서버 관리자
+   권한 그 자체입니다. (2026.08.24 세션에서 실제로 한 번 그렇게 다뤄졌기
+   때문에, 그때 쓴 관리자 비밀번호는 이미 유출된 것으로 간주하고 있습니다
+   — 콘솔에서 **관리자 비밀번호 초기화**로 새로 발급하는 걸 권합니다)
+
+### 다음에 할 일
+
+1. Server 시작 → `docker compose ps` 로 4개 컨테이너 확인
+2. HTTPS 발급 — `infra/README.md` 「HTTPS 발급」절. `<공인IP>.nip.io` 로
+   도메인 없이 Let's Encrypt 인증서를 받을 수 있습니다(아직 안 함)
+3. `backend/firebase-service-account.json` 을 **더미(`{}`)로만** 올려뒀습니다.
+   FCM 발송을 실제로 검증한 팀원 PC 에서 진짜 키를 받아 서버의
+   `~/lisn/backend/firebase-service-account.json` 을 교체하세요(그 뒤
+   `docker compose restart backend`)
+4. Flutter 앱 release APK 를 `--dart-define=API_BASE_URL=https://<도메인>`
+   으로 재빌드 — HTTPS 라 `network_security_config.xml` 은 안 건드려도 됩니다
+5. 관리자 웹으로 실제 로그인·DB 연동까지 확인(지금까지는 화면이 뜨는 것만
+   확인했고, 로그인 플로우 자체는 아직 안 해봄)
+
+---
+
 ## 3-1. 지난 세션 기록은 작업이력에 있습니다
 
 7/30~8/6 의 세션별 기록(무엇을 왜 그렇게 정했는지)은
@@ -511,6 +581,9 @@ python tools/doc2txt.py
 
 - [Notion 프로젝트 페이지](https://app.notion.com/p/3ab02025254781d18e1ac402a0f59d77) — 자료실, 팀원 4명 게스트(보기 전용) 공유
 - [Google Drive 공유 폴더](https://drive.google.com/drive/folders/1myjO0y6uNJW75gCbehvgbTvioo-Te2EW)
+- **NCP 서버 SSH 인증키** — `C:\Users\smhrd1\.ssh\lisn-server-key.pem` (2026.08.24
+  생성한 PC 에만 있음, git 에 없음·재발급 불가). 다른 환경에서 이어가는 방법은
+  [§3-2](#32-클라우드-배포-20260824) 참고
 
 > Notion 은 무료 플랜 1,000블록 제한을 피하려고 팀원을 **게스트**로 초대한 구조입니다. 멤버로 승격하면 제한이 걸립니다.
 

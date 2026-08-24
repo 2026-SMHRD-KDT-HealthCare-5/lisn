@@ -1,0 +1,102 @@
+# 귀기울임(LISN) 배포 오케스트레이션.
+#
+# 실행 위치는 이 파일이 있는 infra/ 디렉터리입니다 — 모든 상대 경로(../backend
+# 등)가 여기 기준입니다.
+#
+#   cd infra
+#   docker compose up -d --build
+#
+# 시크릿은 이 파일에 직접 적지 않습니다. 두 곳에서 옵니다:
+#   1. infra/.env      — POSTGRES_PASSWORD 등 compose 변수 치환용
+#                         (infra/.env.example 을 복사해서 채우세요)
+#   2. ../backend/.env  — 비즈니스 서버 설정. 로컬 개발과 같은 파일이고,
+#                         DATABASE_URL·AI_SERVER_URL 처럼 컨테이너 네트워크
+#                         주소로 바뀌어야 하는 값만 아래 environment: 가
+#                         덮어씁니다(env_file 보다 environment: 가 우선).
+name: lisn
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: lisn
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD 를 infra/.env 에 채우세요}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # db/schema.sql 이 정본입니다(CLAUDE.md). 최초 기동(데이터 볼륨이 빈
+      # 상태) 시 postgres 공식 이미지가 이 파일을 자동 실행합니다. 이후
+      # 재기동에는 실행되지 않으니, 스키마를 바꿨으면 볼륨을 지우고
+      # 다시 만드세요(운영 데이터가 있다면 마이그레이션을 직접 쓰세요 —
+      # CLAUDE.md 는 alembic 을 쓰지 않는다고 명시합니다).
+      - ../db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    # ⚠ ports: 를 추가해 5432 를 열지 마세요. backend·ai-server 만 내부
+    #   네트워크로 접근하면 됩니다 — 요구사항정의서 NFR-DE-002 가 요구하는
+    #   전송 구간 보호와 같은 방향입니다.
+
+  backend:
+    build:
+      context: ../backend
+    env_file:
+      - ../backend/.env
+    environment:
+      # 컨테이너 네트워크 안에서는 localhost 가 아니라 서비스 이름으로
+      # 통신합니다. backend/.env 의 로컬 개발용 값을 여기서 덮어씁니다.
+      DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD}@postgres:5432/lisn
+      AI_SERVER_URL: http://ai-server:8001
+    volumes:
+      # firebase-service-account.json 은 저장소에 없습니다(gitignore 대상).
+      # 배포 전에 scp 로 서버의 backend/ 에 직접 올려두세요 — 안내는
+      # infra/README.md 를 참고하세요. config.py 의 기본 경로(상대 경로
+      # "firebase-service-account.json")가 컨테이너 WORKDIR(/app) 기준으로
+      # 그대로 풀리도록 같은 이름으로 마운트합니다 — 환경변수를 따로
+      # 안 만들어도 됩니다.
+      - ../backend/firebase-service-account.json:/app/firebase-service-account.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    # ⚠ ports: 를 추가해 8000 을 직접 열지 마세요. nginx 가 리버스 프록시로
+    #   443 뒤에서만 노출합니다 — HTTPS 없이 릴리스 앱이 붙지 못하는 것은
+    #   의도된 동작입니다(CLAUDE.md 「릴리스 빌드는 디버그와 다르다」).
+
+  ai-server:
+    build:
+      context: ../ai/server
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/lisn
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    # ⚠ ports: 를 추가해 8001 을 열지 마세요. 위기 문맥 탐지는 backend 에
+    #   있고(NFR-DV-003), ai-server 는 내부 통신 전용이 설계 전제입니다
+    #   (docs/결정/API설계_사전결정.md 7절).
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # 처음 기동할 때는 lisn.conf(HTTP 전용)를, 인증서를 받은 뒤에는
+      # lisn-ssl.conf.sample 을 복사해 바꿔치기하세요. 순서는
+      # infra/README.md 「HTTPS 발급」절에 있습니다.
+      - ./nginx/lisn.conf:/etc/nginx/conf.d/default.conf:ro
+      - ../frontend/admin/dist:/usr/share/nginx/html:ro
+      - certbot-etc:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  certbot-etc:
+  certbot-www:
