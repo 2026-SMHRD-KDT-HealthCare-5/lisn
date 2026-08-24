@@ -17,8 +17,17 @@ class Settings(BaseSettings):
 
     # ⚠ 재설정 토큰을 로그에 찍을지. **기본값 꺼짐을 바꾸지 말 것.**
     #   토큰은 그 자체로 계정 탈취 수단이라, 로그를 보는 사람은 누구나 남의
-    #   비밀번호를 바꿀 수 있다. SMTP 가 없어 개발 중 흐름을 타봐야 할 때만 켠다.
+    #   비밀번호를 바꿀 수 있다. SMTP 가 안 채워졌을 때만 개발 흐름용으로 켠다.
     password_reset_log_token: bool = False
+
+    # SMTP — 비밀번호 재설정 메일 발송 (구현_갭 갭4, 2026.08.24 해소)
+    # 비어 있으면 서버는 뜨되 발송 시도 때 실패한다 — mail.configured() 로 미리 분기.
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_username: str = ""
+    smtp_password: str = ""
+    smtp_from: str = ""
+    smtp_use_tls: bool = True
 
     # 컬럼 암호화 키(AES-256-GCM). base64 인코딩된 32바이트.
     # 02-F (3) 대상은 현재 USERS.phone 하나다.

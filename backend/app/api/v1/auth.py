@@ -26,6 +26,7 @@ from app.core.security import (
     verify_password,
 )
 from app.models import User
+from app.services import mail
 from app.schemas.auth import (
     EmailAvailability,
     LoginRequest,
@@ -144,7 +145,8 @@ async def request_password_reset(body: PasswordResetRequest, db: DbSession):
     if user is not None:
         token = create_password_reset_token(user.user_id)
 
-        # TODO(메일): SMTP 미연동. 붙기 전까지 토큰을 사용자에게 전달할 경로가 없다.
+        # SMTP 연동 (구현_갭 갭4, 2026.08.24 해소). 미설정이어도 서버는 죽지
+        # 않는다 — mail.configured() 가 False 면 로그로만 남긴다.
         #
         # ⚠ **토큰을 로그에 남기지 않는다.** 재설정 토큰은 그 자체로 계정 탈취
         #   수단이라, 로그를 보는 사람은 누구나 남의 비밀번호를 바꿀 수 있다.
@@ -159,8 +161,18 @@ async def request_password_reset(body: PasswordResetRequest, db: DbSession):
                 body.email,
                 token,
             )
+        elif mail.configured():
+            try:
+                await mail.send_password_reset_email(body.email, token)
+                logger.info("[password-reset] 메일 발송: %s", body.email)
+            except Exception:
+                # 발송 실패해도 200 은 그대로 돌려준다 — MLCM_102 5단계가
+                # 가입 여부를 노출하지 말라고 규정한다. 실패는 로그로만 남긴다.
+                logger.exception("[password-reset] 메일 발송 실패: %s", body.email)
         else:
-            logger.info("[password-reset] 요청 수신: %s", body.email)
+            logger.warning(
+                "[password-reset] SMTP 미설정 — 발송하지 않음: %s", body.email
+            )
 
     return MessageResponse(message="입력하신 주소로 재설정 안내를 보냈습니다")
 

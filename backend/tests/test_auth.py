@@ -2,6 +2,7 @@
 
 import pytest
 
+from app.api.v1 import auth as auth_module
 from tests.conftest import BASE
 
 
@@ -54,6 +55,61 @@ async def test_password_reset_hides_membership(client):
         f"{BASE}/auth/password-reset/request", json={"email": "nobody@lisn-test.example"}
     )
     assert r.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_password_reset_sends_mail_when_smtp_configured(client, user, monkeypatch):
+    """구현_갭 갭4 — SMTP 가 설정돼 있으면 실제로 발송을 시도한다."""
+    monkeypatch.setattr(auth_module.mail, "configured", lambda: True)
+    calls = []
+
+    async def fake_send(to_email, token):
+        calls.append((to_email, token))
+
+    monkeypatch.setattr(auth_module.mail, "send_password_reset_email", fake_send)
+
+    r = await client.post(
+        f"{BASE}/auth/password-reset/request", json={"email": user["email"]}
+    )
+    assert r.status_code == 200
+    assert len(calls) == 1
+    assert calls[0][0] == user["email"]
+
+
+@pytest.mark.asyncio
+async def test_password_reset_survives_smtp_failure(client, user, monkeypatch):
+    """발송이 실패해도 200 을 돌려준다 — MLCM_102 5단계가 가입 여부를
+    노출하지 말라고 규정하므로, 여기서 500 이 나면 그 자체로 정보가 샌다."""
+    monkeypatch.setattr(auth_module.mail, "configured", lambda: True)
+
+    async def failing_send(to_email, token):
+        raise RuntimeError("SMTP 연결 실패(테스트)")
+
+    monkeypatch.setattr(auth_module.mail, "send_password_reset_email", failing_send)
+
+    r = await client.post(
+        f"{BASE}/auth/password-reset/request", json={"email": user["email"]}
+    )
+    assert r.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_password_reset_skips_mail_when_smtp_unconfigured(client, user, monkeypatch):
+    """SMTP 미설정이면 발송을 시도하지 않고도 200 을 돌려준다(기본 상태)."""
+    monkeypatch.setattr(auth_module.mail, "configured", lambda: False)
+    called = False
+
+    async def should_not_run(to_email, token):
+        nonlocal called
+        called = True
+
+    monkeypatch.setattr(auth_module.mail, "send_password_reset_email", should_not_run)
+
+    r = await client.post(
+        f"{BASE}/auth/password-reset/request", json={"email": user["email"]}
+    )
+    assert r.status_code == 200
+    assert called is False
 
 
 @pytest.mark.asyncio
