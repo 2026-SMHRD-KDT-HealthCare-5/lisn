@@ -253,6 +253,16 @@ python tools/check_screens.py
   - Python 은 팀 재현성을 위해 **3.12로 고정**합니다. 최신 PyTorch의 지원 여부와 별개로
     프로젝트 환경은 검증된 버전을 통일합니다.
   - PostgreSQL 은 **17 로 고정**.
+  - Flutter 는 **3.47 로 고정**(2026.08.24 · Dart 3.13). `check-env.ps1` 이 대조합니다.
+    - ⚠ **어긋나도 앱은 그냥 돌아갑니다 — 그래서 아무도 모릅니다.** 3.44 로
+      `pub get` 을 돌리면 `pubspec.lock` 이 **조용히 5개 내려가고**(`intl`
+      `matcher` `meta` `test_api` `vector_math`), 새 SDK 인 팀원이 받으면 도로
+      올라갑니다. analyze·테스트·빌드는 **양쪽 다 통과**하고 lock 만 커밋마다
+      흔들립니다. 실제로 8/24 에 겪었습니다.
+    - 어긋난 lock 은 **`flutter pub get --enforce-lockfile`** 로 잡힙니다.
+      맞으면 `Got dependencies!`, 어긋나면 `Unable to satisfy` 가 납니다.
+      **그냥 `pub get` 은 조용히 고쳐 쓰므로 판정에 쓸 수 없습니다.**
+    - 올릴 때는 `flutter upgrade`. 되돌리려면 `flutter downgrade` 입니다.
 - Edge 는 어느 PC 에나 있습니다. 헤드리스 렌더링(`--headless=new --screenshot`)에 쓸 수 있어 Node 없이도 HTML → PNG 가 됩니다.
 - **`flutter analyze` 는 경로에 한글이 있으면 죽습니다.** LSP 채널이 메시지를 잘라먹고 `FormatException: Unterminated string` → 분석 서버 exit 255 가 납니다. `바탕 화면` 아래에 뒀을 때 실제로 겪었습니다. **`dart analyze` 를 쓰면 우회됩니다** — 같은 규칙으로 같은 결과가 나옵니다. `flutter test` 는 영향 없습니다.
   - 2026.08.02 에 저장소를 `C:\LISN` 으로 옮겨 **지금은 `flutter analyze` 도 정상입니다.** 한글 경로로 되돌리지 마세요.
@@ -274,6 +284,12 @@ python tools/check_screens.py
   [IO.File]::WriteAllText($p, [IO.File]::ReadAllText($p, $noBom), $withBom)
   ```
 - Windows 의 `python` / `python3` 은 실제 설치 없이도 Microsoft Store 스텁이 PATH 에 잡힙니다. `Get-Command` 로 존재 여부만 확인하면 오탐이 나므로, 버전 출력까지 확인해야 합니다. `tools/check-env.ps1` 이 이 케이스를 구분해 줍니다.
+- **PATH 에는 실행 파일이 아니라 디렉터리를 넣습니다.** 이 PC 의 시스템 PATH 에
+  `C:\Program Files\PostgreSQL\17\bin\psql.exe` 가 **파일째로** 들어 있어서
+  `psql` 이 통째로 안 잡혔습니다. PostgreSQL 은 멀쩡히 깔려 있는데
+  「미설치」로 보입니다. Flutter 도 `C:\flutter\bin` 이 PATH 에 아예 없어 같은
+  증상이었습니다. **「없다」고 다시 깔지 말고 먼저 PATH 를 보세요** —
+  `check-env.ps1` 이 알려진 설치 위치를 훑어 이 둘을 구분해 줍니다(2026.08.24).
 - **원소가 하나인 배열은 펼쳐집니다.** `@( @('a','b') )` 를 해시테이블 값으로 넣으면 안쪽 배열이 그대로 꺼내져 `$_[0]` 이 문자가 됩니다. 앞에 쉼표를 붙여 `,@('a','b')` 로 강제하세요.
 - 문자열에 `Remove-Item` 같은 위험 명령어가 **정규식 안에라도** 들어가면 샌드박스가 실행을 막을 수 있습니다.
 
