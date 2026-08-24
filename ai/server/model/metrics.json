@@ -1,0 +1,14 @@
+{
+  "dataset": "LifeSnaps RAIS (SEMA MOOD · TENSE/ANXIOUS)",
+  "n_samples": 4086,
+  "n_participants": 62,
+  "rule_within_auc": 0.491,
+  "model_within_auc": 0.609,
+  "gain_within": 0.115,
+  "gain_within_ci95": [
+    0.056,
+    0.176
+  ],
+  "eval": "참가자 분할 GroupKFold(5) + 중첩 CV · 참가자 단위 부트스트랩 2000회",
+  "script": "ai/train/eval_rule_features.py"
+}

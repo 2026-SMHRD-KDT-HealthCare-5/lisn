@@ -7,9 +7,20 @@ pydantic>=2.9
 asyncpg>=0.30
 python-dotenv>=1.0   # backend/.env 를 읽는다
 
-# 모델 도입 시 추가 — 지금은 규칙 판정이라 필요 없습니다.
-# torch>=2.5           1차 LSTM Autoencoder
-# lightgbm>=4.5        2차 위험도 분류
-# numpy>=2.0
-# pandas>=2.2
-# scikit-learn>=1.5    개인별 Min-Max 정규화
+# 학습된 집계(model_score.py) — 2026.08.25 도입.
+#
+# 규칙의 z 계산은 그대로 두고 「상위 3개 평균 / 4.0」이라는 임의 집계만
+# 로지스틱 회귀로 바꿉니다. 입력이 늘지 않아 새 센서가 필요 없습니다.
+# 근거: 참가자 내부 AUC 0.491(규칙) -> 0.609, 이득 +0.115
+#       (95% +0.056~+0.176) · ai/train/eval_rule_features.py
+#
+# ⚠ scikit-learn 은 **학습 때와 같은 계열**이어야 pickle 이 열립니다.
+#   버전이 크게 어긋나면 model_score 가 경고를 남기고 규칙으로 돕니다.
+numpy>=2.0
+pandas>=2.2
+scikit-learn>=1.5
+joblib>=1.4
+
+# 아직 안 씁니다.
+# torch>=2.5           1차 LSTM Autoencoder (설계에서 철회)
+# lightgbm>=4.5        학습 실험용 — ai/train/ 에서만 씁니다

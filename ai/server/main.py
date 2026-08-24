@@ -14,11 +14,31 @@
 ⚠ **감정을 분류하지 않습니다.** 라이프로그로 감정을 맞히는 것은
   빅데이터분석정의서가 실측으로 닫은 방향입니다(GLOBEM ROC-AUC 0.528 ·
   LifeSnaps 0.479~0.540, 참가자 단위 분할). 여기서 하는 일은 **평소와 오늘의
-  대조**이고, 분류가 아니라 기술통계라 라벨이 필요 없습니다.
+  대조**이고, 이탈 정도를 재는 것이지 감정을 맞히는 것이 아닙니다.
 
-⚠ **모델이 아닙니다.** model_version 의 `rule-` 접두사가 그 표시입니다.
-  이 값이 보이면 성능 근거로 쓰지 마세요. 임계값도 선행연구값이 아닌
-  임의값입니다.
+## 두 단계로 나뉩니다 (2026.08.25 개정)
+
+    ① 지표 7개의 개인 기준선 이탈(z)을 잰다      ← 그대로
+    ② 그 z 들을 하나의 이상치 점수로 합친다        ← **학습된 집계로 교체**
+
+②는 원래 「상위 3개 평균 ÷ 4.0」이었고, 여기 주석에 **「임의값이다 · 성능
+근거로 쓰지 말 것」**이라고 적혀 있었습니다. 실제로 재보니 그랬습니다.
+
+    LifeSnaps · 참가자 62명 · 4086 표본 · 참가자 분할 + 중첩 교차검증
+    참가자 내부 AUC   규칙 0.491  →  학습된 집계 0.609
+    이득 +0.115 (참가자 단위 부트스트랩 95% +0.056 ~ +0.176)
+
+**입력은 하나도 안 늘었습니다.** 이 서버가 이미 읽던 컬럼뿐입니다.
+근거와 재현 방법은 `ai/train/eval_rule_features.py` ·
+`docs/검증/학습모델_활용_시도_20260824.md`.
+
+⚠ **경보 총량은 그대로입니다.** 모델 확률을 규칙 점수와 **같은 분포**로
+  옮기기 때문입니다(`model_score.py`). 임계값 0.25·0.5 는 정책이라
+  건드리지 않았고, 바뀐 것은 **누구에게 경보가 가는가**입니다.
+
+⚠ **`model_version` 이 `rule-` 로 시작하면 학습된 집계가 관여하지 않은
+  것입니다.** 모델 파일이 없거나 지표가 모자라면 기존 규칙으로 돕니다.
+  그때는 임계값이 여전히 임의값이니 성능 근거로 쓰지 마세요.
 """
 
 import logging
@@ -31,6 +51,8 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pathlib import Path
 from pydantic import BaseModel
+
+import model_score
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -102,6 +124,9 @@ class AnalyzeResponse(BaseModel):
     streak_days: int = 0
     # 이탈이 큰 지표 이름. 선제 접촉 문구가 "무엇이 달라졌는지" 말할 때 쓴다.
     deviant_features: list[str] = []
+    # 학습된 집계를 쓰기 전의 규칙 점수. 관제에서 둘을 나란히 볼 수 있게 남긴다.
+    # 모델을 못 쓴 경우에는 anomaly_score 와 같은 값이 온다.
+    rule_anomaly_score: float = 0.0
 
 
 @app.get("/health")
@@ -185,6 +210,12 @@ def _has_signal(rows: list) -> bool:
 #
 #   그래서 정확도를 주장하지 않는다. 「평소와 다르다」는 맞고 틀림을 가릴
 #   대상이 아니라 측정값이다.
+#
+# ⚠ **2026.08.25 개정 — 아래 z 계산은 그대로다. 바뀐 것은 합치는 방식뿐이다.**
+#   `_predict` 가 이 z 들을 `model_score` 에 넘겨 학습된 집계를 쓴다.
+#   여전히 감정을 분류하지 않는다. 「평소와 얼마나 다른가」를 더 잘 합치는
+#   방법을 데이터로 고른 것이고, 대상 라벨은 그 합침이 쓸 만한지 검증하는
+#   데만 썼다.
 
 # 판정에 쓰는 지표와 **나쁜 쪽 방향**.
 #
@@ -313,6 +344,23 @@ def _deviations(day, history):
     return out
 
 
+def _measures(day, history):
+    """학습된 집계에 넘길 재료 — 지표마다 (오늘 값, z, 기준선 중앙값).
+
+    ⚠ `_deviations` 와 달리 **좋은 쪽 이탈도 그대로** 넘긴다. 규칙은 나쁜
+      쪽만 세지만, 학습된 집계는 방향까지 스스로 배우기 때문이다.
+    """
+    out = {}
+    for _, key, _ in _FEATURES:
+        v = _value(day, key)
+        hist = [_value(h, key) for h in history]
+        z = _robust_z(v, hist)
+        vals = [x for x in hist if x is not None]
+        base = statistics.median(vals) if vals else None
+        out[key] = (v, z, base)
+    return out
+
+
 def _is_deviant(devs):
     """이탈한 날인가 — 지표 하나만 튀는 것은 측정 오차일 수 있다."""
     return sum(1 for d in devs.values() if d >= DEVIATION_Z) >= MIN_DEVIANT_FEATURES
@@ -371,7 +419,19 @@ def _predict(rows: list) -> dict:
     # 위에서 셋만 본다. 일곱 개 평균을 내면 두 지표가 크게 벗어나도 나머지
     # 다섯에 희석돼 신호가 사라진다.
     top = sorted(devs.values(), reverse=True)[:3]
-    anomaly = min(1.0, (sum(top) / len(top) / FULL_SCALE_Z)) if top else 0.0
+    rule_anomaly = min(1.0, (sum(top) / len(top) / FULL_SCALE_Z)) if top else 0.0
+
+    # ⚠ **여기가 유일하게 바뀐 곳이다.** 위의 z 계산(①단계)은 그대로 두고,
+    #   「상위 3개 평균 / 4.0」이라는 **임의 집계만** 학습된 것으로 바꾼다.
+    #   입력이 늘지 않으므로 지금 읽는 컬럼만으로 돈다.
+    #
+    #   근거 — LifeSnaps 참가자 62명 · 4086 표본 · 참가자 분할 + 중첩 CV
+    #   참가자 내부 AUC 0.491(규칙) -> 0.609(학습), 이득 +0.115
+    #   (참가자 단위 부트스트랩 95% +0.056~+0.176)
+    #   → ai/train/eval_rule_features.py
+    #
+    #   ⚠ 모델을 못 쓰면 version 이 None 으로 와서 **기존 규칙 그대로** 돈다.
+    anomaly, model_ver = model_score.score(_measures(day, history), rule_anomaly)
 
     # ⚠ **감정을 식별하는 것이 아니다.** 이탈 정도를 9종 코드로 옮기는
     #   규칙일 뿐이고, 빅데이터분석정의서가 "감정 코드는 라벨이 없어 규칙 기반으로 산출한다"
@@ -391,7 +451,11 @@ def _predict(rows: list) -> dict:
         "anomaly_score": round(anomaly, 4),
         "risk_level": risk_level_of(emotion_code, emotion_score),
         "risk_score": round(anomaly * 100, 2),
-        "model_version": MODEL_VERSION,
+        # 규칙 점수도 남긴다 — 관제에서 둘을 나란히 볼 수 있어야 한다
+        "rule_anomaly_score": round(rule_anomaly, 4),
+        # ⚠ 규칙으로 돈 경우에는 `rule-` 접두사가 유지된다. 응답만 보고도
+        #   모델이 관여했는지 구분할 수 있어야 하기 때문이다.
+        "model_version": model_ver or MODEL_VERSION,
         # --- MLCM_220 용 부가 정보 (기존 6필드와 별개) ---
         "streak_days": _streak(rows),
         # 이탈이 큰 순서. 선제 접촉 문구가 "무엇이 달라졌는지" 말할 때 쓴다.
