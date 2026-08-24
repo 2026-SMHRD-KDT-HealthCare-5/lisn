@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <!-- ================================================================
@@ -9,6 +9,19 @@
            있어 앱을 열면 보입니다(MLCM_220 6단계).
          ================================================================ -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <!-- [05-U] 앱 사용 로그 — 기업 브리프 개발목표의 「앱 사용 로그 + 웨어러블」.
+
+         ⚠ **일반 권한이 아닙니다.** 시스템 다이얼로그로 요청할 수 없고,
+           사용자가 설정 > 사용 정보 접근 허용에서 직접 켜야 합니다.
+           그래서 tools:ignore 로 린트를 눌러둡니다 — 선언 자체는 필요합니다.
+
+         ⚠ **AccessibilityService 를 쓰지 않습니다.** 그쪽은 화면 내용까지 볼
+           수 있어 Play 정책상 별도 심사 대상이고, 우리가 필요한 것보다 훨씬
+           많은 것을 읽습니다. 여기서는 「어떤 앱이 언제 앞으로 나왔나」만
+           받아 집계값 셋으로 접습니다(패키지명은 저장하지 않습니다). -->
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions"/>
 
     <!-- ================================================================
          Health Connect — MLCM_200

@@ -239,6 +239,9 @@ CREATE TABLE LIFELOG_METRICS (
     sleep_efficiency_pct NUMERIC(5,2) CHECK (sleep_efficiency_pct BETWEEN 0 AND 100),
     heart_rate           INTEGER CHECK (heart_rate >= 0),        -- [05-H]
     hrv                  NUMERIC(5,2) CHECK (hrv >= 0),          -- [05-H]
+    screen_time_min      INTEGER CHECK (screen_time_min >= 0),        -- [05-U]
+    night_screen_min     INTEGER CHECK (night_screen_min >= 0),       -- [05-U]
+    app_session_count    INTEGER CHECK (app_session_count >= 0),      -- [05-U]
     collected_at         TIMESTAMPTZ NOT NULL,
     CONSTRAINT uq_lifelog_user_collected UNIQUE (user_id, collected_at)
 );
@@ -253,6 +256,23 @@ CREATE TABLE LIFELOG_METRICS (
 --     날짜 컬럼과 합쳐야 자정을 넘긴 활동 구간을 표현할 수 있기 때문입니다.
 --   ※ 적재 시 활동 시각이 없는 데이터 출처(PMData·GLOBEM·Health Connect 일부)가
 --     있으므로 NULL 을 허용합니다. 분석은 NOT NULL 인 구간에 한해 수행합니다.
+
+-- [05-U] ✅ 2026.08.25 확정 — 앱 사용 로그 3컬럼 추가
+--   기업 과제 브리프(PROJECT_02)의 개발목표 첫 줄이 「**앱 사용 로그** + 웨어러블
+--   생체신호를 수집·전처리하여 개인별 기저선을 산출」입니다. 웨어러블 쪽만
+--   구현돼 있어 브리프의 두 입력 중 하나가 비어 있었습니다.
+--
+--   ※ 세 지표를 고른 이유 — 「무슨 앱을 썼나」가 아니라 **「평소와 다른가」**를
+--     재기 위해서입니다. 앱 이름·패키지명은 저장하지 않습니다.
+--       screen_time_min    구간 내 화면 사용 시간
+--       night_screen_min   그중 22시~06시 사용 시간 (수면 방해·야간 반추)
+--       app_session_count  앱 전환(포그라운드 진입) 횟수 (짧고 잦은 확인)
+--
+--   ※ 개인정보 — 패키지명·앱 이름·화면 내용은 수집하지 않습니다. 집계값
+--     세 개만 올립니다. 데이터베이스요구사항분석서의 최소수집 원칙과 같은 결입니다.
+--
+--   ※ NULL 을 허용합니다. Android 특별권한(PACKAGE_USAGE_STATS)을 사용자가
+--     승인하지 않으면 값이 없고, 그때는 웨어러블 지표만으로 판정합니다.
 
 -- [05-G] ✅ 2026.07.30 확정 — raw_payload 제거
 --   비고가 "추가 수면단계/활동 확장용"이었으나 무엇을 담는지 정의가 없었습니다.

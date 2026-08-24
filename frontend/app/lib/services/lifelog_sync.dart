@@ -17,6 +17,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import 'app_usage_reader.dart';
 import 'health_reader.dart';
 import 'lifelog_aggregate.dart';
 import 'lifelog_service.dart';
@@ -60,14 +61,20 @@ class LifelogSyncService {
     required HealthReader reader,
     required SyncStore store,
     required LifelogService lifelogService,
+    AppUsageReader? usageReader,
     this.retryDelay = const Duration(seconds: 30),
     this.maxAttempts = 3,
     this.maxLookback = const Duration(days: 14),
   })  : _reader = reader,
         _store = store,
-        _lifelog = lifelogService;
+        _lifelog = lifelogService,
+        //  ⚠ 기본값이 「없음」입니다. 앱 사용 로그는 **선택 권한**이라
+        //    주입하지 않으면 웨어러블만으로 동작합니다 — 기존 호출부를
+        //    하나도 고치지 않아도 됩니다.
+        _usage = usageReader ?? const NullAppUsageReader();
 
   final HealthReader _reader;
+  final AppUsageReader _usage;
   final SyncStore _store;
   final LifelogService _lifelog;
 
@@ -111,7 +118,7 @@ class LifelogSyncService {
     //   여기서 던지면 라이프로그까지 못 가므로 예외를 삼킵니다.
     await _syncBodyComposition(samples);
 
-    final fresh = aggregateDaily(samples);
+    final fresh = await _attachUsage(aggregateDaily(samples), from, at);
     final rows = _merge(await _store.pendingRows(), fresh);
 
     if (rows.isEmpty) {
@@ -121,6 +128,45 @@ class LifelogSyncService {
     }
 
     return _push(rows);
+  }
+
+  /// 하루치 행에 앱 사용 집계를 얹습니다 — 기업 브리프의 「앱 사용 로그」.
+  ///
+  /// ⚠ **권한이 없으면 그냥 원본을 돌려줍니다.** 앱 사용은 특별 권한
+  ///   (`PACKAGE_USAGE_STATS`)이라 승인하지 않은 사용자가 많고, 여기서
+  ///   막히면 웨어러블 지표까지 못 올라갑니다.
+  ///
+  /// ⚠ **하루 경계로 잘라 하루씩 읽습니다.** 구간 전체를 한 번에 읽으면
+  ///   어느 날의 사용인지 갈라낼 수 없습니다.
+  Future<List<DailyLifelog>> _attachUsage(
+    List<DailyLifelog> rows,
+    DateTime from,
+    DateTime to,
+  ) async {
+    if (rows.isEmpty) return rows;
+    try {
+      if (!await _usage.hasPermission()) return rows;
+    } catch (e) {
+      debugPrint('앱 사용 권한 확인 실패: $e');
+      return rows;
+    }
+
+    final out = <DailyLifelog>[];
+    for (final row in rows) {
+      final dayFrom = row.collectedAt;
+      final dayTo = dayFrom.add(const Duration(days: 1));
+      try {
+        final usage = await _usage.read(
+          from: dayFrom.isBefore(from) ? from : dayFrom,
+          to: dayTo.isAfter(to) ? to : dayTo,
+        );
+        out.add(row.withUsage(usage));
+      } catch (e) {
+        debugPrint('앱 사용 읽기 실패(${row.collectedAt}): $e');
+        out.add(row);
+      }
+    }
+    return out;
   }
 
   /// 체성분 전송 — `MAIN_LIFELOG_01` ❺.

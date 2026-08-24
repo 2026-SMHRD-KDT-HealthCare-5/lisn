@@ -44,6 +44,12 @@ class LifelogMetric(Base):
     activity_end_at: Mapped[datetime | None] = mapped_column(TimestampTZ)
     total_active_min: Mapped[int | None] = mapped_column(Integer)
 
+    # [05-U] 앱 사용 로그 — 기업 브리프의 「앱 사용 로그 + 웨어러블」 중 앞쪽.
+    #   ⚠ 패키지명·앱 이름은 저장하지 않는다. 집계값만 받는다.
+    screen_time_min: Mapped[int | None] = mapped_column(Integer)
+    night_screen_min: Mapped[int | None] = mapped_column(Integer)
+    app_session_count: Mapped[int | None] = mapped_column(Integer)
+
     sleep_start_at: Mapped[datetime | None] = mapped_column(TimestampTZ)
     sleep_end_at: Mapped[datetime | None] = mapped_column(TimestampTZ)
     total_sleep_min: Mapped[int | None] = mapped_column(Integer)

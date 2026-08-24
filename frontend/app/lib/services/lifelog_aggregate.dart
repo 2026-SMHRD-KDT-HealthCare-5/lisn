@@ -102,6 +102,9 @@ class DailyLifelog {
     this.sleepEfficiencyPct,
     this.heartRate,
     this.hrv,
+    this.screenTimeMin,
+    this.nightScreenMin,
+    this.appSessionCount,
   });
 
   /// 그날의 **로컬 자정**. 서버로는 UTC 로 보냅니다.
@@ -128,6 +131,13 @@ class DailyLifelog {
   final int? heartRate;
   final double? hrv;
 
+  //  [05-U] 앱 사용 로그. 사용 정보 접근을 승인하지 않은 단말은 셋 다 null.
+  //  ⚠ **0 이 아니라 null 입니다.** 「0분 썼다」와 「권한이 없어 모른다」는
+  //    다르고, 0 으로 적재하면 개인 기준선이 통째로 내려앉습니다.
+  final int? screenTimeMin;
+  final int? nightScreenMin;
+  final int? appSessionCount;
+
   /// 측정된 지표가 하나도 없으면 참. 보낼 이유가 없는 행입니다.
   bool get isEmpty =>
       steps == null &&
@@ -136,7 +146,8 @@ class DailyLifelog {
       totalActiveMin == null &&
       totalSleepMin == null &&
       heartRate == null &&
-      hrv == null;
+      hrv == null &&
+      screenTimeMin == null;
 
   /// 서버 `POST /lifelog/batch` 의 item 규격.
   ///
@@ -173,7 +184,43 @@ class DailyLifelog {
     put('sleep_efficiency_pct', sleepEfficiencyPct);
     put('heart_rate', heartRate);
     put('hrv', hrv);
+    put('screen_time_min', screenTimeMin);
+    put('night_screen_min', nightScreenMin);
+    put('app_session_count', appSessionCount);
     return json;
+  }
+
+  /// 앱 사용 집계를 얹은 사본.
+  ///
+  /// ⚠ **집계(`aggregateDaily`)에서 만들지 않고 여기서 붙입니다.** 앱 사용은
+  ///   Health Connect 가 아니라 `UsageStatsManager` 에서 오고, 권한도 따로
+  ///   입니다. 출처가 다른 것을 한 함수에 섞으면 한쪽 권한이 없을 때 다른
+  ///   쪽까지 못 만들게 됩니다.
+  DailyLifelog withUsage(AppUsageLike? usage) {
+    if (usage == null) return this;
+    return DailyLifelog(
+      collectedAt: collectedAt,
+      steps: steps,
+      distance: distance,
+      calories: calories,
+      activityStartAt: activityStartAt,
+      activityEndAt: activityEndAt,
+      totalActiveMin: totalActiveMin,
+      sleepStartAt: sleepStartAt,
+      sleepEndAt: sleepEndAt,
+      totalSleepMin: totalSleepMin,
+      deepSleepMin: deepSleepMin,
+      lightSleepMin: lightSleepMin,
+      remSleepMin: remSleepMin,
+      awakeMin: awakeMin,
+      sleepOnsetMin: sleepOnsetMin,
+      sleepEfficiencyPct: sleepEfficiencyPct,
+      heartRate: heartRate,
+      hrv: hrv,
+      screenTimeMin: usage.screenTimeMin,
+      nightScreenMin: usage.nightScreenMin,
+      appSessionCount: usage.appSessionCount,
+    );
   }
 
   /// 재시도 큐를 단말에 보관했다가 복원할 때 씁니다(`MLCM_200` 6단계).
@@ -205,8 +252,22 @@ class DailyLifelog {
       sleepEfficiencyPct: d('sleep_efficiency_pct'),
       heartRate: i('heart_rate'),
       hrv: d('hrv'),
+      screenTimeMin: i('screen_time_min'),
+      nightScreenMin: i('night_screen_min'),
+      appSessionCount: i('app_session_count'),
     );
   }
+}
+
+/// [DailyLifelog.withUsage] 가 요구하는 최소 모양.
+///
+/// ⚠ `app_usage_reader.dart` 의 `AppUsage` 를 직접 import 하지 않습니다.
+///   집계 파일이 플랫폼 채널 파일에 의존하면 「실기기 없이 테스트 가능」이
+///   깨집니다. 필드 셋만 요구합니다.
+abstract class AppUsageLike {
+  int get screenTimeMin;
+  int get nightScreenMin;
+  int get appSessionCount;
 }
 
 /// 그날의 로컬 자정.

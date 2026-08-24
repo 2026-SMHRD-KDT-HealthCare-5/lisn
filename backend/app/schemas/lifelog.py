@@ -36,6 +36,12 @@ class LifelogItem(BaseModel):
     heart_rate: int | None = Field(default=None, ge=0)
     hrv: Decimal | None = Field(default=None, ge=0)
 
+    # [05-U] 앱 사용 로그. 특별권한을 승인하지 않은 단말은 전부 None 으로 온다.
+    #   ⚠ 패키지명·앱 이름은 받지 않는다 — 집계값 셋뿐이다.
+    screen_time_min: int | None = Field(default=None, ge=0)
+    night_screen_min: int | None = Field(default=None, ge=0)
+    app_session_count: int | None = Field(default=None, ge=0)
+
 
 class LifelogBatch(BaseModel):
     items: list[LifelogItem] = Field(min_length=1)

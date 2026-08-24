@@ -151,7 +151,8 @@ async def analyze_lifelog(body: AnalyzeRequest):
             """
             SELECT collected_at, steps, total_sleep_min, sleep_efficiency_pct,
                    sleep_start_at, sleep_onset_min, awake_min, activity_start_at,
-                   heart_rate, hrv
+                   heart_rate, hrv,
+                   screen_time_min, night_screen_min, app_session_count
               FROM lifelog_metrics
              WHERE user_id = $1 AND collected_at >= $2
              ORDER BY collected_at ASC
@@ -233,6 +234,20 @@ _FEATURES = [
     ("야간각성",   "awake_min",            "up"),
     ("입면시각",   "_sleep_start_min",     "up"),
     ("활동개시",   "_activity_start_min",  "up"),
+    # [05-U] 앱 사용 로그 — 기업 브리프 개발목표의 「앱 사용 로그 + 웨어러블」.
+    #
+    # ⚠ **무슨 앱을 썼는지는 보지 않는다.** 패키지명·앱 이름은 애초에 수집하지
+    #   않고, 여기서도 「평소와 다른가」만 잰다. 나머지 지표와 완전히 같은
+    #   방식(개인 14일 기준선 대비 robust z)이라 특별 취급이 없다.
+    #
+    # ⚠ 방향이 전부 up 이다 — 화면을 평소보다 **더** 오래 보거나, **밤에** 더
+    #   보거나, **더 자주** 집어들면 이탈로 센다. 줄어드는 쪽은 이탈이 아니다.
+    #
+    # ⚠ 값이 없으면(특별권한 미승인) `_robust_z` 가 None 을 돌려주고 그냥
+    #   빠진다. 웨어러블 지표만으로 판정이 계속된다.
+    ("화면사용",   "screen_time_min",      "up"),
+    ("야간사용",   "night_screen_min",     "up"),
+    ("앱전환",     "app_session_count",    "up"),
 ]
 
 # 이탈로 셀 z 값과, 그런 지표가 몇 개여야 「이탈한 날」로 볼지.
