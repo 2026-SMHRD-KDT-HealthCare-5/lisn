@@ -315,3 +315,6 @@ ai/data_raw/company/
 # 시연영상용 정적 글꼴 — tools/capture/make_fonts.py 로 다시 뽑습니다(10MB)
 tools/capture/fonts/
 glyph_suspects.png
+
+# CatBoost 가 실행할 때마다 만드는 학습 로그 — 산출물이 아닙니다
+catboost_info/
