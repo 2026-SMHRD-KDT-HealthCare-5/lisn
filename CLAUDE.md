@@ -50,6 +50,14 @@
 > ⚠ 이 PPTX 는 **PptxGenJS 로 생성됐는데 생성기 스크립트가 저장소에
 > 없습니다.** 다시 만들어낼 수 없으니 수정은 `tools/patch-pptx-text.ps1`
 > (문안) · `tools/add-pptx-slide.ps1`(슬라이드 추가)로 해야 합니다.
+>
+> ⏳ **클라우드 배포를 2026.08.24 에 시작했습니다** — NCP VM 1대 +
+> Docker Compose. 4개 컨테이너(postgres·backend·ai-server·nginx) 기동과
+> 외부 HTTP 접속까지 확인했고, **지금은 요금 절약을 위해 서버를 정지해
+> 뒀습니다.** HTTPS 발급·FCM 실키 교체·앱 재빌드가 남았습니다. 이어가는
+> 방법은 [`docs/SESSION-HANDOFF.md` §3-2](docs/SESSION-HANDOFF.md#32-클라우드-배포-20260824)
+> 부터, 구성 이유는 [`docs/결정/배포_아키텍처.md`](docs/결정/배포_아키텍처.md)
+> 를 보세요.
 
 이 저장소에서 작업할 때 알아야 할 맥락입니다.
 
