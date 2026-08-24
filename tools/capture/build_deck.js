@@ -467,7 +467,7 @@ async function main() {
     // 이름 나열은 심사위원이 읽으면 되는 정보라 말할 시간을 쓰지 않습니다.
     s.addText([
       { text: 'STACK   ', options: { bold: true, color: INDIGO, charSpacing: 1 } },
-      { text: 'Flutter · Health Connect · WorkManager   |   FastAPI · SQLAlchemy · PostgreSQL 17   |   React · Vite   |   OpenAI API   |   인프라: 로컬 데모', options: { color: MUTED } },
+      { text: 'Flutter · Health Connect · WorkManager   |   FastAPI · SQLAlchemy · PostgreSQL 17   |   React · Vite   |   OpenAI API   |   인프라: NCP + Docker Compose', options: { color: MUTED } },
     ], { x: 0.6, y: 6.6, w: 12.1, h: 0.35, fontFace: FONT_LIGHT, fontSize: 10, margin: 0 });
     pageNum(s, false);
   }
@@ -699,13 +699,12 @@ async function main() {
   {
     const s = bgSlide(false);
     kicker(s, 'Honest Status', false);
-    title(s, '못 한 부분은 그대로 말씀드리겠습니다', false);
+    title(s, '남은 부분도 정확히 말씀드리겠습니다', false);
 
     const rows = [
       ['Health Connect 실기기 검증', '남음', '에뮬레이터에는 Health Connect가 없어 워커 동작만 확인했습니다.'],
       ['미수신 감지 스케줄러', '남음', 'NFR-DV-002 의 3시간 미갱신 감지입니다. 이걸 주기적으로 돌려 줄 주체를 아직 두지 않았습니다.'],
       ['iOS', '범위 제외', '기술적으로 불가능한 것은 아닙니다. macOS·Xcode·Apple 계정 등 장비와 일정 문제입니다.'],
-      ['배포 인프라', '미정', '지금은 로컬 데모 구조입니다. 클라우드 배포는 다음 단계 과제입니다.'],
       ['평가셋 holdout', '없음', '0.946은 이 평가셋 211건에서 나온 값입니다. 새 문장으로는 다시 검증하지 않았습니다.'],
       ['놓친 6건', '분석 완료', '완곡·작별·신변 정리 표현에 몰려 있고, 문장 하나만으로는 사람도 라벨이 갈립니다.'],
     ];
