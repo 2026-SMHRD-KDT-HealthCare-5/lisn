@@ -290,7 +290,7 @@ async function main() {
   {
     const s = bgSlide(false);
     kicker(s, 'Problem & Answer', false);
-    title(s, '데이터는 쌓이는데, 사용자는 앱을 열지 않습니다', false);
+    title(s, '쌓이는 데이터, 열리지 않는 앱', false);
 
     // 위: 문제 — 한 문장으로 압축
     card(s, 0.6, 1.85, 12.1, 1.25, { fill: BG_TINT, line: false, shadow: false });
@@ -478,7 +478,7 @@ async function main() {
   {
     const s = bgSlide(false);
     kicker(s, 'AI Design Journey', false);
-    title(s, '감정 분류 모델은 검증하고 접었습니다', false);
+    title(s, '왜 감정 분류 대신 이탈 탐지인가', false);
 
     const steps = [
       ['시도', '감정 라벨이 붙은 데이터로 분류 모델을 학습하려 했습니다', MINT_BG, MINT],
@@ -517,7 +517,7 @@ async function main() {
   {
     const s = bgSlide(false);
     kicker(s, 'Crisis Detection', false);
-    title(s, '위기 탐지는 2단계입니다', false);
+    title(s, '위기 탐지 2단계 구조', false);
 
     const stages = [
       ['1차', '키워드 규칙', '백엔드 내장', '외부 API가 죽어도 탐지가 멈추지 않습니다', '단독 재현율', '0.081', PEACH_BG, PEACH],
@@ -622,7 +622,7 @@ async function main() {
   {
     const s = bgSlide(false);
     kicker(s, 'Admin Console', false);
-    title(s, '관리자는 위험한 사람부터 봅니다', false);
+    title(s, '위험한 사람부터 보이는 관제 화면', false);
 
     s.addShape('roundRect', { x: 0.54, y: 2.1 - 0.06, w: 7.5 + 0.12, h: 4.69 + 0.12, rectRadius: 0.1, fill: { color: WHITE }, line: { color: LINE, width: 1 }, shadow: { type: 'outer', color: '1B2547', opacity: 0.12, blur: 12, offset: 4, angle: 90 } });
     s.addImage({ path: img('ADMIN_DASH_01'), x: 0.6, y: 2.1, w: 7.5, h: 4.6875 });
@@ -649,7 +649,7 @@ async function main() {
   {
     const s = bgSlide(false);
     kicker(s, 'Security', false);
-    title(s, '"전부 암호화"가 아니라 위험도 기반입니다', false);
+    title(s, '"전부 암호화" 대신 위험도 기반', false);
 
     const rows = [
       ['전송 구간', 'HTTPS / TLS', '앱 ↔ 백엔드, 백엔드 ↔ AI 서버'],
