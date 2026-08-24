@@ -82,15 +82,18 @@ def label_windows():
                 merged[-1] = (merged[-1][0], max(merged[-1][1], hi))
             else:
                 merged.append((lo, hi))
-        win[pid] = (np.array([a.value for a, _ in merged]),
-                    np.array([b.value for _, b in merged]))
+        #  ⚠ 반드시 나노초로 못박습니다. pandas 3 은 to_datetime 기본 해상도를
+        #    마이크로초로 바꿨는데 Timestamp.value 는 여전히 나노초라, 그대로
+        #    비교하면 1000배 어긋나 아무것도 안 걸립니다(실제로 겪었습니다).
+        win[pid] = (np.array(merged, dtype="datetime64[ns]")[:, 0].astype("int64"),
+                    np.array(merged, dtype="datetime64[ns]")[:, 1].astype("int64"))
     return win
 
 
 def near_mask(win, df):
     """구간 안에 드는 행을 참가자별로 한 번에 판정한다."""
     out = np.zeros(len(df), dtype=bool)
-    tsv = df.ts.astype("int64").to_numpy()
+    tsv = df.ts.to_numpy("datetime64[ns]").astype("int64")   # 위 주석 참조
     for pid, idx in df.groupby("pid").indices.items():
         w = win.get(pid)
         if w is None:
