@@ -565,13 +565,23 @@ NCP(네이버클라우드플랫폼) VM 1대 + Docker Compose 로 첫 배포를 �
    `infra/nginx/lisn.conf` 를 SSL 버전으로 서버에서 직접 교체했습니다 —
    **저장소의 `lisn.conf` 는 그대로 HTTP 부팅용입니다**(`infra/README.md`
    가 원래 이렇게 설계돼 있습니다. 서버 재배포 시 다시 SSL 절차를 밟으세요)
-3. `backend/firebase-service-account.json` 을 **더미(`{}`)로만** 올려뒀습니다.
-   FCM 발송을 실제로 검증한 팀원 PC 에서 진짜 키를 받아 서버의
-   `~/lisn/backend/firebase-service-account.json` 을 교체하세요(그 뒤
-   `docker compose restart backend`) — **아직 안 함**
-4. Flutter 앱 release APK 를 `--dart-define=API_BASE_URL=https://101.79.24.15.nip.io`
-   로 재빌드 — HTTPS 라 `network_security_config.xml` 은 안 건드려도 됩니다.
-   **아직 안 함**
+3. ~~`backend/firebase-service-account.json` 을 더미로만 올려뒀던 것~~
+   **8/24 밤 완료** — 실제 서비스 계정 키(`lisn-952c8`,
+   `firebase-adminsdk-fbsvc@...`)를 받아 `scp` 로 올리고
+   `chmod 600` · `docker compose restart backend` 까지 했습니다.
+   컨테이너 안에서 `firebase_admin.initialize_app()` 이 실제로
+   성공하는 것까지 확인했습니다(`project_id: lisn-952c8`).
+   ⚠ **이건 자격증명 파싱 성공까지입니다 — 실기기로 알림을 실제로
+   받아보는 e2e 발송 테스트는 아직 안 했습니다.** 8/21 로컬 실측 때는
+   에뮬레이터로 수신까지 확인했지만, 이 클라우드 인스턴스에서 실제
+   발송을 트리거해 본 적은 없습니다(대상자에게 선제 접촉 조건이
+   맞아떨어져야 자연 발생하거나, `tools/demo_notify.py` 로 재발송).
+4. ~~Flutter 앱 release APK 재빌드~~ **8/24 밤 완료** —
+   `--dart-define=API_BASE_URL=https://101.79.24.15.nip.io` 로 빌드,
+   컴파일된 `libapp.so` 안에 그 URL 문자열이 실제로 박힌 것까지 확인.
+   `flutter pub get --enforce-lockfile` 로 lockfile 무결성도 확인했습니다.
+   산출물: `frontend/app/build/app/outputs/flutter-apk/app-release.apk`
+   (저장소에는 안 넣습니다 — 빌드 산출물)
 5. ✅ 관리자 웹으로 실제 로그인·DB 연동까지 확인 — **클라우드 인스턴스에서도
    2026.08.24 저녁에 확인 끝났습니다.**
    - ⚠ **가는 길에 진짜 버그 하나를 발견·수정했습니다.** 관리자 웹 빌드가
