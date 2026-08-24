@@ -481,9 +481,9 @@ async function main() {
     title(s, '감정 분류 대신 개인 기준선 이탈 탐지', false);
 
     const steps = [
-      ['시도', '감정 라벨이 붙은 데이터로 분류 모델을 학습하려 했습니다', MINT_BG, MINT],
-      ['검증', '국내 라벨 데이터셋을 구하지 못해 공개 데이터(GLOBEM)로 검증했더니 ROC-AUC 0.528, 무작위 수준이었습니다', PEACH_BG, PEACH],
-      ['전환', '개인 기준선 이탈 탐지로 방향을 바꿨습니다 — 중앙값·MAD robust z, 지표 7개 중 2개 이상 이탈', BLUE_BG, BLUE],
+      ['학습', 'GLOBEM 수면·걸음 피처로 LightGBM 분류기를 학습했습니다. 참가자 단위 분할(GroupKFold)로 평가했습니다', MINT_BG, MINT],
+      ['재현 검증', 'ROC-AUC 0.528. 표본 탓인지 확인하려 LifeSnaps(63명·2290일·피처 65개)로 20회 반복했더니 감정 7종이 0.479~0.540 이었습니다', PEACH_BG, PEACH],
+      ['전환', '근거를 갖고 채택하지 않았습니다. 개인 기준선 이탈 탐지로 전환 — 중앙값·MAD robust z, 지표 7개 중 2개 이상 이탈', BLUE_BG, BLUE],
     ];
     const cw = 3.85, gap = 0.3, x0 = 0.6, y0 = 2.15;
     steps.forEach(([h, b, bg, fg], i) => {
@@ -502,10 +502,10 @@ async function main() {
     });
 
     card(s, 0.6, 4.75, 12.1, 1.85, { fill: NAVY, line: false, shadow: false });
-    s.addText('"감정을 분석·분류합니다"라고 말하지 않는 이유', {
+    s.addText('두 번 검증하고 채택하지 않았습니다', {
       x: 0.95, y: 4.95, w: 11.4, h: 0.4, fontFace: FONT, fontSize: 14.5, bold: true, color: WHITE,
     });
-    s.addText('감정 코드는 이탈 정도를 표시하는 규칙 기반 산출값입니다. 학습된 분류기가 정한 값이 아니라, 코드에서 model_version이 "rule-"로 시작하는 것이 그 표시입니다. 대신 그 사람 본인의 평소와 비교하는 개인 기준선 이탈 탐지로 실제 서비스를 완성했습니다.', {
+    s.addText('표본을 40명에서 63명으로, 피처를 8개에서 65개로 늘려도 결과가 같았습니다. 정작 잡아야 할 SAD(0.485)·TENSE(0.497)가 무작위 이하였습니다. 정신건강 서비스에서 근거 없는 분류기를 쓰는 쪽이 더 위험하다고 판단해, 감정 코드는 학습된 분류기가 아니라 이탈 정도를 표시하는 규칙 기반 산출값으로 두었습니다.', {
       x: 0.95, y: 5.38, w: 11.4, h: 1.1, fontFace: FONT_LIGHT, fontSize: 12, color: 'C7CDEA', lineSpacingMultiple: 1.3,
     });
     pageNum(s, false);

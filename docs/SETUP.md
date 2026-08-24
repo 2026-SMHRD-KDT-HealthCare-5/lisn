@@ -315,7 +315,8 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
 ```
 
-> **`torch`·`lightgbm` 은 설치하지 않습니다.** 이번 과제에서는 AI 모델을 학습하지 않기로
+> **`torch`·`lightgbm` 은 설치하지 않습니다.** 학습·검증은 2026.08 초에 끝났고(ai/train/),
+> 그 결과 분류기를 채택하지 않기로
 > 확정했습니다(근거는 [`ai/README.md`](../ai/README.md)). 2GB 짜리 다운로드를 받을 필요가
 > 없습니다.
 >
