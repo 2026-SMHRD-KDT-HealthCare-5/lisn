@@ -48,10 +48,17 @@ ApiClient _client(Object connections, {int status = 200}) {
           : http.Response('{"detail":"실패"}', status, headers: json);
     }
     // 라이프로그 목록은 늘 한 건.
+    // ⚠ 절대 날짜를 쓰지 않습니다 — 실행 시점에 따라 "N일 전"의 N이 바뀌고,
+    // 우연히 다른 테스트의 검사 문자열(예: "3일 전")을 부분 문자열로 포함할
+    // 수 있습니다(CLAUDE.md "시각 의존 테스트" 사례). 항상 "1일 전"으로
+    // 고정되는 상대 날짜를 씁니다.
     return http.Response(
         jsonEncode([
           {
-            'collected_at': '2026-08-02T00:00:00Z',
+            'collected_at': DateTime.now()
+                .subtract(const Duration(days: 1))
+                .toUtc()
+                .toIso8601String(),
             'steps': 8000,
             'total_sleep_min': 420,
           }
@@ -107,7 +114,9 @@ void main() {
       final recent = DateTime.now().subtract(const Duration(minutes: 5));
       await _pump(tester, _client([_conn(old), _conn(recent)]));
       expect(find.textContaining('5분 전'), findsOneWidget);
-      expect(find.textContaining('3일 전'), findsNothing);
+      // 부분 문자열 매칭(textContaining)은 "23일 전" 같은 값에 우연히
+      // 걸릴 수 있으므로 정확히 일치하는 경우만 검사합니다.
+      expect(find.text('3일 전'), findsNothing);
     });
 
     testWidgets('한 번도 동기화한 적 없으면 줄을 그리지 않는다', (tester) async {
