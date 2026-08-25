@@ -376,7 +376,11 @@ async function main() {
       x: 0.62, y: 4.2, w: 11.4, h: 0.35, fontFace: FONT, fontSize: 14, bold: true, color: DARK, margin: 0,
     });
     // ⚠ **WorkManager 15분 주기를 반드시 남깁니다.**
-    s.addText('Health Connect는 Android 단말 안의 권한 모델이라 서버가 가질 OAuth 토큰이 없습니다. 그래서 앱이 읽어 push하고, 앱을 열지 않아도 WorkManager가 15분 주기로 백그라운드 전송합니다. 서버가 안 가져오는 것이 아니라, 가져올 수가 없습니다. 앱 사용 지표도 같은 경로로 보냅니다 — 패키지명 없이 집계값만 씁니다.', {
+    // 2026.08.25 — "OAuth 토큰이 없습니다" 식 101 설명을 걷어냈습니다.
+    // 청중이 이미 아는 이야기를 가르치는 투로 읽힌다는 지적을 받았습니다.
+    // 제약(권한이 기기 밖으로 안 나감)과 그 결과(앱이 push)만 담백하게
+    // 두고, 헤더 줄("서버는 끌어오지 않습니다")과 겹치던 문장은 뺐습니다.
+    s.addText('Health Connect 권한은 Android 단말 밖으로 나가지 않습니다. 그래서 앱이 직접 읽어 push하고, 닫혀 있어도 WorkManager가 15분마다 백그라운드로 보냅니다. 앱 사용 지표도 같은 경로로 갑니다 — 패키지명 없이 집계값만.', {
       x: 0.62, y: 4.58, w: 11.6, h: 0.95, fontFace: FONT_LIGHT, fontSize: 11, color: TXT2, lineSpacingMultiple: 1.35, margin: 0,
     });
 
