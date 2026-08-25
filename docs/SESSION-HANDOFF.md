@@ -263,9 +263,7 @@ AppUsagePlugin.kt (UsageStatsManager) → app_usage_reader.dart
   "한 행 높이"만 더해져 두 번째 행 설명과 겹쳤습니다 — 고쳤습니다.
 - PowerPoint 로 16장 전부 렌더링해 육안 확인 후 `documents/` 반영.
   ⚠ **폰트 임베드가 또 풀렸습니다**(재생성 특성 — 8/24 머리말과 같은
-  문제). **8/28 전에 PowerPoint 로 열어 파일 → 옵션 → 저장 → 파일에
-  글꼴 포함**을 다시 켜세요. 이번엔 Noto Sans KR 계열뿐 아니라
-  **NanumMyeongjo 도 같이** 챙겨야 합니다.
+  문제). → **2026.08.25 밤에 자동화로 해소했습니다.** 아래 §3-2 참조.
 
 ### ③ 앱 빌드 함정 — `google-services.json` 없으면 빌드 자체가 실패
 
@@ -335,7 +333,7 @@ gpt-5.6-sol       0.910    0.927   0.918
 | | 왜 |
 |---|---|
 | 슬라이드 문구 개정(P0/P1) | §3-0 의 5건은 **완료**. §3-1 은 디자인만 바꿨고 문구는 그대로입니다 |
-| **폰트 재임베드** | 리디자인 재생성으로 또 풀렸습니다. **8/28 전 PowerPoint 로 다시 켜세요**(NanumMyeongjo 포함) |
+| ~~폰트 재임베드~~ | **2026.08.25 밤 해소.** §3-2 참조 — 재생성하면 다시 풀리니 그때만 재실행 |
 | 앱 사용 로그 실기기 확인 | 에뮬레이터는 사용 이력이 거의 없어 값이 0 에 가깝습니다 |
 | Health Connect 실기기 검증 | 실기기 없이는 못 넘김 |
 | FCM 실기기 e2e 수신 | 자격증명 초기화까지만 확인 |
@@ -870,6 +868,50 @@ NCP(네이버클라우드플랫폼) VM 1대 + Docker Compose 로 첫 배포를 �
      전부 정상. 코드 경로 자체는 검증됐으니 클라우드에서 막히면 배포 설정
      쪽일 가능성이 큽니다. 자세한 내용은
      [`진행/작업이력.md` 60차](진행/작업이력.md#20260824-60차--pptx-병합-충돌-해소--관리자-웹-로그인-로컬-실측)
+
+---
+
+## 3-2. 폰트 임베드 자동화 (2026.08.25 밤)
+
+> §3-1 이 「폰트 재임베드가 또 풀렸다, PowerPoint 로 다시 켜라」로
+> 끝났습니다. **수동으로 하지 않고 자동화했습니다.**
+
+### 무엇을 확인했나
+
+`Presentation.Save()` 로는 폰트가 임베드되지 않습니다 — `embedTrueTypeFonts="1"`
+을 presentation.xml 에 미리 심어 놔도 소용없습니다. COM 의 `.Save()` 는
+빠른 저장 경로를 타서 폰트 임베드 로직 자체를 안 밟습니다.
+
+**`Presentation.SaveAs(path, 24)`(같은 경로·같은 형식)라면 됩니다.**
+SaveAs 는 전체 재작성 경로를 타고, 그때 `embedTrueTypeFonts` 플래그를
+읽어 실제로 임베드합니다.
+
+```
+① Google Fonts 에서 NanumMyeongjo R/B 를 받는다
+   (내부 진짜 이름은 공백 없는 `NanumMyeongjo` — CSS 별칭과 다르다)
+② NotoSansKR-VF.ttf 를 세 굵기로 인스턴싱하고 name 테이블을 다시 쓴다
+   ("Noto Sans KR" R/B · "Noto Sans KR DemiLight" R)
+   ⚠ OS/2.fsSelection·head.macStyle 의 굵게 비트도 맞춰야
+     PowerPoint 가 "굵게"를 진짜 Bold 파일로 그린다(안 그러면 페이크 볼드)
+③ 5개를 사용자별 설치(관리자 권한 불필요) — AddFontResource + 레지스트리
+④ presentation.xml 에 embedTrueTypeFonts="1" saveSubsetFonts="0" 를 심는다
+⑤ PowerPoint COM 으로 열고 SaveAs(같은 경로, 형식=24) 후 Close·Quit
+```
+
+**결과** — 7.7MB → **25.5MB**, `ppt/fonts/font1~5.fntdata` 확인.
+python-pptx 로 파싱(16슬라이드·276도형)·zip 무결성(`testzip()` 없음)·
+LibreOffice 렌더링(슬라이드 1·9 육안 확인) 전부 통과.
+
+**재현 가능한 스크립트** — `tools/capture/make_embed_fonts.py` 의
+docstring 에 ①~⑤ 전체가 실행 가능한 형태로 있습니다.
+
+⚠ **재생성(`build_deck.js`)하면 이번에도 다시 풀립니다.** 8/24·8/25
+낮·8/25 밤까지 세 번 겪었습니다. **문구·디자인을 더 고치면 마지막에
+이 절차를 한 번 더 돌리세요.**
+
+⚠ 추출본 diff 가 문장 순서만 바뀐 것처럼 보이면 정상입니다 — SaveAs 가
+도형을 내부적으로 재정렬하지만(z-order 재부여) 텍스트 내용·레이아웃은
+그대로입니다(렌더링으로 확인 완료).
 
 ---
 

@@ -323,6 +323,9 @@ ai/data_raw/company/
 tools/capture/fonts/
 glyph_suspects.png
 
+# 발표자료 폰트 임베드용 — tools/capture/make_embed_fonts.py 로 다시 뽑습니다(약 20MB)
+tools/capture/fonts_embed/
+
 # build_deck.js 가 만드는 임시 산출물 — 정본은 documents/ 안에만 둡니다
 # (tools/capture/sync_deck.sh 로 옮긴 뒤 여기 남은 건 지웁니다)
 tools/capture/귀기울임_최종발표_*.pptx
