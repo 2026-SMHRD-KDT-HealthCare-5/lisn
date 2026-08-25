@@ -285,7 +285,11 @@ async function main() {
     });
 
     // guardrails row
-    s.addText('"감시 아닌가요?" — 그래서 장치를 마련했습니다', {
+    // 2026.08.26 — PowerPoint 손수정: 방어적인 반문(""감시 아닌가요?" —
+    // 그래서...") 대신 긍정 문장으로 바꾸고 대시를 뺐습니다. 작은따옴표는
+    // 손수정 원문 그대로입니다(덱의 다른 곳은 큰따옴표를 쓰지만, 이
+    // 자리는 의도적으로 다르게 쓴 것으로 보여 그대로 둡니다).
+    s.addText("'감시'가 아닌 '관심'으로 접근", {
       x: 0.62, y: 4.15, w: 8, h: 0.4, fontFace: FONT, fontSize: 14, bold: true, color: WHITE, margin: 0,
     });
     hr(s, 0.62, 4.62, 12.1, true);
@@ -670,11 +674,18 @@ async function main() {
       // 박스 안에서 "않습니다"만 한 줄에 남는 짧은 줄바꿈이 됐고, 같은
       // 내용을 슬라이드 아래 문단("원문은 어디에도 남지 않고")이 이미
       // 말하고 있어 중복이었습니다.
-      { w: 3.5, fill: GOLD, transparency: 0, textColor: WHITE, subColor: 'F4E6C8',
+      // 2026.08.26 — 가시성 실측(WCAG 대비 공식)으로 셋 다 문제였습니다.
+      // ① 상단: 흰 글자와 크림색 부제가 solid GOLD 위에서 각각 3.95·
+      //   3.20(기준 4.5 미달) — fill 을 더 어두운 GOLD_DARK 로 바꾸고
+      //   부제 색도 F7EDD9(대비 4.68)로 다시 골랐습니다.
+      // ② 중단·하단: 부제에 TXT2 를 썼는데, 옅은 투명도 fill 위에서는
+      //   2.41·3.39 로 더 심각했습니다 — DARK(대비 7.87·11.07)로 바꿨습니다.
+      //   레이블(굵게)과 부제(보통) 굵기 차이로 위계를 대신 표시합니다.
+      { w: 3.5, fill: GOLD_DARK, transparency: 0, textColor: WHITE, subColor: 'F7EDD9',
         label: '비밀번호 · 대화', detail: 'bcrypt 비가역 해시 · 저장 전 PII 마스킹' },
-      { w: 5.25, fill: GOLD, transparency: 55, textColor: DARK, subColor: TXT2,
+      { w: 5.25, fill: GOLD, transparency: 55, textColor: DARK, subColor: DARK,
         label: '연락처', detail: 'AES-256-GCM 컬럼 단위 암호화 (USERS.phone)' },
-      { w: 7.0, fill: GOLD, transparency: 85, textColor: DARK, subColor: TXT2,
+      { w: 7.0, fill: GOLD, transparency: 85, textColor: DARK, subColor: DARK,
         label: '라이프로그 측정치 · 전체 테이블', detail: 'HTTPS/TLS 전송 구간 보호 · UUID v4(9곳 전부, 열거 공격 방지) · 클라우드 배포 시 DB 볼륨 암호화' },
     ];
     const pyCenterX = 0.62 + 7.0 / 2, bh = 0.78, step = 0.92;
