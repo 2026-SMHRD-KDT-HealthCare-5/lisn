@@ -214,16 +214,29 @@ still() {  # still <png> <출력> <초> <번호> <제목> <설명1> <설명2> <�
 #    캡처가 1280x720 이라 1190px(0.93배 축소)로 넣습니다. 확대하면 표 글자가
 #    뭉개집니다 — 여기서 보여줄 것이 그 표입니다.
 # ---------------------------------------------------------------------------
-desktop() {  # desktop <입력> <출력> <번호> <제목> <설명1> <설명2>
+desktop() {  # desktop <입력> <출력> <번호> <제목> <설명1> <설명2> [자막지연초]
   local in="$1" out="$2" no="$3" title="$4" l1="$5" l2="$6"
+  local delay="${7:-0}"
   local ff fa1="" fa2="" fa3="" fa4=""
   ff="$(footfade)"
   # 앱 컷과 똑같이 한 줄씩 시차를 두고 떠오르게 합니다
+  #
+  # ⚠ **delay 는 이전 컷과 크로스페이드로 겹치는 구간만큼 자막을 늦추는
+  #   용도입니다.** phone() 컷(자막이 화면 중간 y=360~410)에서 이
+  #   desktop() 컷(자막이 화면 위쪽 y=80~114)으로 넘어갈 때만 씁니다 —
+  #   두 컷의 자막 높이가 서로 달라서, 크로스페이드 0.6초 동안 두 자막이
+  #   동시에 반투명하게 겹쳐 보였습니다(2026.08.25 실측, "글자가
+  #   들썩인다"는 지적). XFADE 길이만큼 자막 시작을 늦추면 크로스페이드가
+  #   끝난 뒤에야 새 자막이 나타나 안 겹칩니다.
+  #
+  #   max(0, ...) 가드가 필요합니다 — delay 가 있으면 t<delay 구간에서
+  #   (t-delay)/CAP_FADE 가 음수가 되는데, 가드 없이 alpha 에 음수를
+  #   주면 ffmpeg 가 이를 어떻게 다룰지 보장이 없습니다.
   if [ "$EFFECTS" = "1" ]; then
-    fa1=":alpha='min(1,t/${CAP_FADE})'"
-    fa2=":alpha='min(1,(t-0.08)/${CAP_FADE})'"
-    fa3=":alpha='min(1,(t-0.16)/${CAP_FADE})'"
-    fa4=":alpha='min(1,(t-0.24)/${CAP_FADE})'"
+    fa1=":alpha='max(0,min(1,(t-${delay})/${CAP_FADE}))'"
+    fa2=":alpha='max(0,min(1,(t-${delay}-0.08)/${CAP_FADE}))'"
+    fa3=":alpha='max(0,min(1,(t-${delay}-0.16)/${CAP_FADE}))'"
+    fa4=":alpha='max(0,min(1,(t-${delay}-0.24)/${CAP_FADE}))'"
   fi
   say "  ${no} ${title} — $(dur "$in")s"
   "$FF" -y -i "$in" -f lavfi -i "color=c=${BG}:s=${W}x${H}:r=${FPS}"     -filter_complex "[0:v]scale=$((1190-2*6)):-2,pad=iw+$((2*6)):ih+$((2*6)):6:6:color=${FRAME_C},fps=${FPS}${ff}[sc];[1:v]trim=duration=999,setpts=PTS-STARTPTS[bg];[bg][sc]overlay=x=170:y=350:shortest=1[v0];[v0]drawtext=fontfile='${FONT_B}':text='${no}':fontsize=30:fontcolor=${NUM_C}:x=170:y=80${fa1},drawtext=fontfile='${FONT_B}':text='${title}':fontsize=76:fontcolor=${TITLE_C}:x=170:y=114${fa2},drawtext=fontfile='${FONT_R}':text='${l1}':fontsize=30:fontcolor=${BODY_C}:x=170:y=232${fa3},drawtext=fontfile='${FONT_R}':text='${l2}':fontsize=30:fontcolor=${BODY_C}:x=170:y=270${fa4}[v]"     -map "[v]" -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p "$out" 2>/dev/null
@@ -301,9 +314,16 @@ mux "$HERE/parts/02b.mp4" "02b"
 mux "$HERE/parts/03.mp4" "03"
 
 say "관제 컷"
+# ⚠ 자막 지연을 XFADE 만큼 줍니다 — 직전 컷(03, phone 레이아웃)과 자막
+#   높이가 달라 크로스페이드 중 겹쳐 보이는 문제를 desktop() 함수 안에서
+#   고쳤습니다. EFFECTS=0(하드컷)일 때는 크로스페이드 자체가 없으므로
+#   지연도 0으로 둡니다.
+_cut4_delay=0
+[ "$EFFECTS" = "1" ] && [ "$NARRATE" != "1" ] && _cut4_delay="$XFADE"
 desktop "$D/cuts/cut4_admin.mp4" "$P/04.mp4" "05" "이상 징후 사용자 우선 탐색" \
   "관리자는 담당 대상자의 위험도를 한 화면에서 봅니다." \
-  "채팅에서 감지한 위기도 여기 쌓이고, 무엇이 판정했는지는 「모델」 칸에 남습니다."
+  "채팅에서 감지한 위기도 여기 쌓이고, 무엇이 판정했는지는 「모델」 칸에 남습니다." \
+  "$_cut4_delay"
 
 mux "$HERE/parts/04.mp4" "04"
 
