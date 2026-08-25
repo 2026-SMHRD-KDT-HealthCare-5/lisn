@@ -369,6 +369,12 @@ async function main() {
       s.addText(label, { x: ax1 - 0.3, y: boxY - 0.3, w: (ax2 - ax1) + 0.6, h: 0.28, fontFace: FONT_LIGHT, fontSize: 8.5, color: TXT_MUTED, align: 'center', margin: 0 });
     });
 
+    // [TRIAL 2026.08.26 — 확정 전] 배포는 텍스트 카드 대신 다이어그램에
+    // 직접 붙였습니다(레이어·경계에 라벨을 다는 아키텍처 다이어그램
+    // 관행). 3박스 바로 아래, 다이어그램에 속한 캡션으로 배치합니다.
+    s.addText('☁ 클라우드 배포: NCP + Docker Compose · HTTPS(Let’s Encrypt) · FCM 실키 적용', {
+      x: 0.62, y: 3.08, w: 12.1, h: 0.24, fontFace: FONT_LIGHT, fontSize: 9, color: GOLD_DARK, align: 'right', margin: 0,
+    });
     hr(s, 0.62, 3.35, 12.1, false);
     s.addText([
       { text: '위기 키워드 필터는 비즈니스 서버 안에 둡니다.  ', options: { bold: true, color: DARK } },
@@ -378,21 +384,42 @@ async function main() {
     s.addText('앱이 먼저 보내고, 서버는 끌어오지 않습니다', {
       x: 0.62, y: 4.2, w: 11.4, h: 0.35, fontFace: FONT, fontSize: 14, bold: true, color: DARK, margin: 0,
     });
-    // ⚠ **WorkManager 15분 주기를 반드시 남깁니다.**
-    // 2026.08.25 — "OAuth 토큰이 없습니다" 식 101 설명을 걷어냈습니다.
-    // 청중이 이미 아는 이야기를 가르치는 투로 읽힌다는 지적을 받았습니다.
-    // 제약(권한이 기기 밖으로 안 나감)과 그 결과(앱이 push)만 담백하게
-    // 두고, 헤더 줄("서버는 끌어오지 않습니다")과 겹치던 문장은 뺐습니다.
-    s.addText('Health Connect 권한은 Android 단말 밖으로 나가지 않습니다. 그래서 앱이 직접 읽어 push하고, 닫혀 있어도 WorkManager가 15분마다 백그라운드로 보냅니다. 앱 사용 지표도 같은 경로로 갑니다. 패키지명 없이 집계값만 보냅니다.', {
-      x: 0.62, y: 4.58, w: 11.6, h: 0.95, fontFace: FONT_LIGHT, fontSize: 11, color: TXT2, lineSpacingMultiple: 1.35, margin: 0,
+    hr(s, 0.62, 4.62, 12.1, false);
+
+    // 왼쪽: 짧은 카드 2개(프로즈 압축) — 오른쪽: 실제 앱 화면(시연영상
+    // 캡처 프레임, docs/design 시안이 아니라 실제 구현과 대조 확인한
+    // 캡처입니다).
+    // 2026.08.26 — 처음엔 홈 화면(선제 접촉 카드)을 썼는데, 그건 슬라이드
+    // 5 의 내용이라 여기(자동 수집)와 안 맞았습니다. 「라이프로그」 탭
+    // (수면 변화 그래프 · 심박수·수면시간 실측 카드)으로 바꿨습니다 —
+    // 「자동 수집」 카드가 말하는 걸 화면이 그대로 보여줍니다.
+    const cards = [
+      ['자동 수집', 'Health Connect · 앱 사용 로그를 앱이 직접 읽어 push. 닫혀 있어도 WorkManager가 15분마다 백그라운드로 보냅니다.'],
+      ['개인정보 최소화', '앱 사용 지표는 패키지명 없이 화면 시간 · 전환 횟수 등 집계값만 보냅니다.'],
+    ];
+    const cardY0 = 4.85, cardH = 1.05;
+    cards.forEach(([h, b], i) => {
+      const y = cardY0 + i * (cardH + 0.1);
+      s.addText(h, { x: 0.62, y, w: 7.3, h: 0.3, fontFace: FONT, fontSize: 12.5, bold: true, color: GOLD_DARK, margin: 0 });
+      s.addText(b, { x: 0.62, y: y + 0.32, w: 7.3, h: 0.7, fontFace: FONT_LIGHT, fontSize: 10.5, color: TXT2, margin: 0, lineSpacingMultiple: 1.25 });
     });
 
-    hr(s, 0.62, 5.85, 12.1, false);
-    // 기술 스택은 별도 장을 두지 않고 여기 한 줄로 흡수했습니다(2026.08.22).
-    s.addText([
-      { text: 'STACK   ', options: { bold: true, color: GOLD_DARK, charSpacing: 1 } },
-      { text: 'Flutter · Health Connect · WorkManager   |   FastAPI · SQLAlchemy · PostgreSQL 17   |   React · Vite   |   OpenAI API   |   인프라: NCP + Docker Compose', options: { color: TXT_MUTED } },
-    ], { x: 0.62, y: 6.05, w: 12.1, h: 0.35, fontFace: FONT_LIGHT, fontSize: 9.5, margin: 0 });
+    // 2026.08.26 — STACK 한 줄은 뺐습니다. 이미지 캡션·다이어그램 박스
+    // (Flutter/FastAPI 등)에 기술명이 다 나와 있어 중복이었고, 화면
+    // 캡처를 넣으면서 이 아래로 남는 세로 공간이 STACK 한 줄 놓을 만큼도
+    // 안 됐습니다(7.5in 페이지 안에서 빠듯함 — 트라이얼로 실측 확인).
+    // 2026.08.26 — 각진 흰 테두리 박스 대신, 이미지 자체에 둥근 모서리를
+    // 구워 넣고(PIL, 반투명 배경) 소프트 섀도만 얹었습니다. pptx 디자인
+    // 가이드의 "rounded image frames" 모티프 — 덱 다른 곳의 각진 박스와
+    // 구분되는 유일한 둥근 요소라 화면 캡처라는 걸 시각적으로도 알립니다.
+    const imgH = 1.95, imgW = imgH * (530 / 755), imgX = 9.25, imgY = 4.78;
+    s.addImage({
+      path: img('DEMO_VIDEO_LIFELOG_01'), x: imgX, y: imgY, w: imgW, h: imgH,
+      shadow: { type: 'outer', color: '1A1F2B', opacity: 0.35, blur: 10, offset: 4, angle: 90 },
+    });
+    s.addText('Health Connect로 모은 심박 · 수면 데이터가 실제 화면에 그대로 보입니다.', {
+      x: imgX - 0.55, y: imgY + imgH + 0.14, w: imgW + 1.1, h: 0.55, fontFace: FONT_LIGHT, fontSize: 8, color: TXT_MUTED, align: 'center', margin: 0, lineSpacingMultiple: 1.2,
+    });
     pageNum(s, false);
   }
 
@@ -511,16 +538,23 @@ async function main() {
     s.addText('위기를 놓치지 않기 위한 노력', {
       x: 0.62, y: 4.35, w: 11.4, h: 0.35, fontFace: FONT, fontSize: 14.5, bold: true, color: DARK, margin: 0,
     });
-    s.addText([
-      { text: 'CRITICAL이면 답변이 아닌 상담 연결 화면을 노출합니다. ', options: { bold: true, color: DARK } },
-      { text: '위기 판정과 응답 생성을 병렬로 처리하면서도 스트리밍은 배제 하였는데, CRITICAL이면 만들어 둔 응답은 사용하지 않기 때문입니다. 다만, 판정 전에 흘려보낸 글자는 되돌릴 수 없습니다.', options: { color: TXT2 } },
-    ], { x: 0.62, y: 4.78, w: 11.4, h: 0.5, fontFace: FONT_LIGHT, fontSize: 11.5, lineSpacingMultiple: 1.3, margin: 0 });
-    s.addText([
-      { text: '경고색은 쓰지 않습니다. ', options: { bold: true, color: DARK } },
-      { text: '빨강·주황은 불안을 키워 회피를 부릅니다.   ', options: { color: TXT2 } },
-      { text: '데이터가 없다고 "정상"이라 하지도 않습니다. ', options: { bold: true, color: DARK } },
-      { text: '3일 미만이면 422로 끊습니다. 편차 0을 정상으로 적재하면 위험을 놓칩니다.', options: { color: TXT2 } },
-    ], { x: 0.62, y: 5.32, w: 11.4, h: 0.6, fontFace: FONT_LIGHT, fontSize: 11.5, lineSpacingMultiple: 1.3, margin: 0 });
+    hr(s, 0.62, 4.78, 12.1, false);
+
+    // [TRIAL 2026.08.25 저녁 — 확정 전] 프로즈 2문단(세 아이디어가 섞여
+    // 있었음: 상담연결·경고색·422)을 슬라이드 8 과 같은 카드 패턴으로
+    // 쪼갰습니다. 정보량은 그대로, 한 카드당 한 아이디어입니다.
+    const cards = [
+      ['위로보다 안전', 'CRITICAL이면 답변 대신 상담 연결 화면을 보여줍니다. 판정과 응답 생성을 병렬로 처리하되 스트리밍은 쓰지 않아, 판정 전에 흘려보낸 글자가 없습니다.'],
+      ['경고색 대신 배치', '빨강 · 주황은 불안을 키워 회피를 부릅니다. 주목도는 색이 아니라 화면 배치로 만들었습니다.'],
+      ['모른다 ≠ 괜찮다', '데이터가 3일 미만이면 422로 끊습니다. 편차 0을 정상으로 적재하면 위험을 놓칩니다.'],
+    ];
+    const ccw = 3.9, ccx0 = 0.62, cardY = 4.98;
+    cards.forEach(([h, b], i) => {
+      const x = ccx0 + i * (ccw + 0.03);
+      if (i > 0) s.addShape('line', { x: x - 0.03, y: cardY, w: 0, h: 1.55, line: { color: LINE, width: 1 } });
+      s.addText(h, { x: x + 0.12, y: cardY, w: ccw - 0.2, h: 0.32, fontFace: FONT, fontSize: 12.5, bold: true, color: GOLD_DARK, margin: 0 });
+      s.addText(b, { x: x + 0.12, y: cardY + 0.36, w: ccw - 0.28, h: 1.2, fontFace: FONT_LIGHT, fontSize: 10.5, color: TXT2, margin: 0, lineSpacingMultiple: 1.28 });
+    });
     pageNum(s, false);
   }
 
@@ -614,37 +648,48 @@ async function main() {
     const s = bgSlide(false);
     header(s, '"전부 암호화" 대신 위험도 기반', '보안', false);
 
-    const rows = [
-      ['전송 구간', 'HTTPS / TLS', '앱 ↔ 백엔드, 백엔드 ↔ AI 서버'],
-      ['저장 매체', 'DB 볼륨 디스크 암호화', '클라우드 배포 시에만'],
-      ['컬럼 단위', 'AES-256-GCM', 'USERS.phone (연락처만)'],
-      ['비밀번호', 'bcrypt', '복호화하지 않음'],
-      ['대화 저장', '정규식 PII 마스킹', '전화·주민번호·이메일을 저장 전에 마스킹'],
-      ['식별자', 'UUID v4', '테이블 9곳 전부 — 열거 공격 방지'],
-    ];
-    let y = 1.35;
-    const rh = 0.58;
-    hr(s, 0.62, y, 7.4, false);
-    rows.forEach(([a, b2, c]) => {
-      s.addText(a, { x: 0.62, y, w: 1.7, h: rh, fontFace: FONT_LIGHT, fontSize: 11, color: TXT_MUTED, valign: 'middle', margin: 0 });
-      s.addText(b2, { x: 2.35, y, w: 2.15, h: rh, fontFace: SERIF, fontSize: 13.5, color: DARK, valign: 'middle', margin: 0 });
-      s.addText(c, { x: 4.55, y, w: 3.45, h: rh, fontFace: FONT_LIGHT, fontSize: 10.5, color: TXT2, valign: 'middle', margin: 0, lineSpacingMultiple: 1.15 });
-      hr(s, 0.62, y + rh, 7.4, false);
-      y += rh;
+    // 2026.08.26 — 6행짜리 평평한 스펙 표 대신, 이 슬라이드의 실제 주장
+    // ("위험도 기반")을 그대로 그린 3단 피라미드로 바꿨습니다. 원본 6행이
+    // 담던 사실은 하나도 안 뺐고, 데이터 민감도별로 3단에 묶었을 뿐입니다
+    // — 넓을수록(아래) 더 많은 데이터에 적용되는 가벼운 보호, 좁을수록
+    // (위) 더 적은 데이터에 적용되는 강한 보호. 색은 GOLD 하나를
+    // 투명도만 바꿔 썼습니다(단계가 늘 뿐 새 색을 안 씁니다).
+    s.addText('데이터가 민감할수록 보호가 강해집니다 — 테이블 9곳에 같은 방식을 쓰지 않습니다.', {
+      x: 0.62, y: 1.35, w: 7.0, h: 0.4, fontFace: FONT, fontSize: 12.5, bold: true, color: DARK, margin: 0,
     });
 
-    // 오른쪽 박스 — 세로 골드 선으로 왼쪽 표와 분리
-    s.addShape('line', { x: 8.5, y: 1.35, w: 0, h: rh * rows.length, line: { color: GOLD, width: 1.5 } });
+    const tiers = [
+      { w: 3.5, fill: GOLD, transparency: 0, textColor: WHITE, subColor: 'F4E6C8',
+        label: '비밀번호 · 대화', detail: 'bcrypt 비가역 해시 · 저장 전 PII 마스킹 — 원문을 남기지 않습니다' },
+      { w: 5.25, fill: GOLD, transparency: 55, textColor: DARK, subColor: TXT2,
+        label: '연락처', detail: 'AES-256-GCM 컬럼 단위 암호화 (USERS.phone)' },
+      { w: 7.0, fill: GOLD, transparency: 85, textColor: DARK, subColor: TXT2,
+        label: '라이프로그 측정치 · 전체 테이블', detail: 'HTTPS/TLS 전송 구간 보호 · UUID v4(9곳 전부, 열거 공격 방지) · 클라우드 배포 시 DB 볼륨 암호화' },
+    ];
+    const pyCenterX = 0.62 + 7.0 / 2, bh = 0.78, step = 0.92;
+    let ty = 1.85;
+    tiers.forEach((t) => {
+      const tx = pyCenterX - t.w / 2;
+      s.addShape('roundRect', { x: tx, y: ty, w: t.w, h: bh, rectRadius: 0.08, fill: { color: t.fill, transparency: t.transparency }, line: { type: 'none' } });
+      s.addText(t.label, { x: tx + 0.22, y: ty + 0.1, w: t.w - 0.44, h: 0.3, fontFace: FONT, fontSize: 12.5, bold: true, color: t.textColor, margin: 0 });
+      s.addText(t.detail, { x: tx + 0.22, y: ty + 0.4, w: t.w - 0.44, h: 0.34, fontFace: FONT_LIGHT, fontSize: 9, color: t.subColor, margin: 0, lineSpacingMultiple: 1.15 });
+      ty += step;
+    });
+    const pyramidBottom = ty - step + bh; // 마지막 tier 의 아래쪽 끝
+
+    // 오른쪽 박스 — 세로 골드 선으로 피라미드와 분리, 높이를 피라미드에 맞춤
+    const rightH = pyramidBottom - 1.35;
+    s.addShape('line', { x: 7.9, y: 1.35, w: 0, h: rightH, line: { color: GOLD, width: 1.5 } });
     s.addText([
       { text: '왜 전 컬럼 암호화를 하지 않았나', options: { fontFace: FONT, fontSize: 13, bold: true, color: DARK, breakLine: true, paraSpaceAfter: 12 } },
       { text: '라이프로그 측정치를 컬럼 암호화하면 서비스가 동작하지 않습니다. 기간별 집계와 복합 인덱스가 핵심 동작인데, 암호화하면 범위 조회를 할 수 없습니다.', options: { color: TXT2, breakLine: true, paraSpaceAfter: 12 } },
       { text: '그래서 유출 시 즉각적 2차 피해가 나는 항목(연락처)만 컬럼 암호화하고, 측정치는 전송 구간 보호와 접근통제로 지킵니다.', options: { color: TXT2 } },
     ], {
-      x: 8.75, y: 1.35, w: 3.98, h: rh * rows.length,
+      x: 8.15, y: 1.35, w: 4.55, h: rightH,
       fontFace: FONT_LIGHT, fontSize: 10.5, valign: 'middle', lineSpacingMultiple: 1.3, margin: 0,
     });
 
-    const boxY = 1.35 + rh * rows.length + 0.35;
+    const boxY = pyramidBottom + 0.35;
     hr(s, 0.62, boxY, 12.1, false);
     s.addText([
       { text: '"보안을 덜 했다"가 아니라 ', options: { color: TXT2 } },
