@@ -279,7 +279,8 @@ async function main() {
     s.addText('감지 → 시스템이 먼저 말을 겁니다', {
       x: 6.9, y: 2.05, w: 5.83, h: 0.55, fontFace: FONT, fontSize: 16, color: WHITE, bold: true, margin: 0,
     });
-    s.addText('연속 이탈 3일 → 조건 6개 검사 → 첫 발화 생성 → 세션 생성 → FCM 푸시 · 홈 카드 · 배너로 먼저 말을 겁니다', {
+    // 2026.08.25 — PowerPoint 손수정: 문장 끝에 마침표 추가.
+    s.addText('연속 이탈 3일 → 조건 6개 검사 → 첫 발화 생성 → 세션 생성 → FCM 푸시 · 홈 카드 · 배너로 먼저 말을 겁니다.', {
       x: 6.9, y: 2.62, w: 5.83, h: 0.7, fontFace: FONT_LIGHT, fontSize: 11.5, color: DARK_BODY, margin: 0, lineSpacingMultiple: 1.3,
     });
 
@@ -382,7 +383,7 @@ async function main() {
     // 청중이 이미 아는 이야기를 가르치는 투로 읽힌다는 지적을 받았습니다.
     // 제약(권한이 기기 밖으로 안 나감)과 그 결과(앱이 push)만 담백하게
     // 두고, 헤더 줄("서버는 끌어오지 않습니다")과 겹치던 문장은 뺐습니다.
-    s.addText('Health Connect 권한은 Android 단말 밖으로 나가지 않습니다. 그래서 앱이 직접 읽어 push하고, 닫혀 있어도 WorkManager가 15분마다 백그라운드로 보냅니다. 앱 사용 지표도 같은 경로로 갑니다 — 패키지명 없이 집계값만 보냅니다.', {
+    s.addText('Health Connect 권한은 Android 단말 밖으로 나가지 않습니다. 그래서 앱이 직접 읽어 push하고, 닫혀 있어도 WorkManager가 15분마다 백그라운드로 보냅니다. 앱 사용 지표도 같은 경로로 갑니다. 패키지명 없이 집계값만 보냅니다.', {
       x: 0.62, y: 4.58, w: 11.6, h: 0.95, fontFace: FONT_LIGHT, fontSize: 11, color: TXT2, lineSpacingMultiple: 1.35, margin: 0,
     });
 
@@ -402,10 +403,13 @@ async function main() {
     const s = bgSlide(false);
     header(s, '감정 분류 대신 개인 기준선 이탈 탐지', '설계와 구현', false);
 
+    // 2026.08.25 — 아래 1·3 항목은 PowerPoint 로 직접 다듬은 문구입니다.
+    // 3번은 "채택했습니다"를 뺐는데, 오른쪽 막대그래프 라벨이 이미
+    // "학습된 집계(채택)"으로 표시해 문장과 중복이었기 때문입니다.
     const steps = [
-      ['1', '학습된 집계로 교체', '「상위 3개 평균 ÷ 4.0」이라는 임의 집계식을 로지스틱 회귀로 바꿨습니다. 입력은 하나도 늘리지 않았습니다'],
+      ['1', '학습된 집계로 교체', '「상위 3개 평균 ÷ 4.0」이라는 임의 집계식을 입력은 늘리지 않으며 로지스틱 회귀로 교체'],
       ['2', '참가자 내부 AUC 0.609', '기존 규칙 0.491 → 학습된 집계 0.609. 이득 +0.115[+0.056,+0.176]. 62명·4086표본, 참가자 분할 + 중첩 교차검증'],
-      ['3', '브리프 지정 방법도 비교', 'Isolation Forest(전역 0.473·개인별 0.494) 등 6종을 같은 조건에서 재보고, 저희 방식이 유의하게 나아 채택했습니다'],
+      ['3', '브리프 지정 방법도 비교', 'Isolation Forest(전역 0.473·개인별 0.494) 등 6종을 같은 조건에서 유의미한 결과 도출'],
     ];
     let y = 1.35;
     const rh = 0.72;
@@ -426,7 +430,7 @@ async function main() {
     s.addText('감정을 분류하는 게 아닙니다', {
       x: 0.9, y, w: 7.0, h: 0.4, fontFace: FONT, fontSize: 15, bold: true, color: DARK, margin: 0,
     });
-    s.addText('바뀐 것은 지표를 합치는 방식뿐입니다. 개인 기준선 대비 이탈 지표 7개를 하나의 점수로 합치는 방법을 데이터로 정한 것이고, 감정 코드는 여전히 이탈 정도를 표시하는 산출값입니다. model_version 이 hybrid- 로 시작하면 이 집계가 관여한 것이고, rule- 이면 기존 규칙 그대로입니다.', {
+    s.addText('바뀐 것은 지표를 합치는 방식뿐입니다. 개인 기준선 대비 이탈 지표 7개를 하나의 점수로 합치는 방법을 데이터로 골랐을 뿐이고, 감정 코드는 여전히 이탈 정도를 표시하는 산출값입니다. model_version 이 hybrid- 로 시작하면 이 집계가 관여한 것이고, rule- 이면 기존 규칙 그대로입니다.', {
       x: 0.9, y: y + 0.42, w: 7.0, h: 1.15, fontFace: FONT_LIGHT, fontSize: 11.5, color: TXT2, lineSpacingMultiple: 1.35, margin: 0,
     });
     s.addText('※ 같은 데이터로 70%를 보고한 선행연구를 재현하니, 그 지표의 기준선이 66.7%였습니다 — ai/train/eval_replicate_paper.py', {
@@ -472,7 +476,9 @@ async function main() {
     header(s, '위기 탐지 2단계 구조', '설계와 구현', false);
 
     const stages = [
-      ['1차', '키워드 규칙', '외부 API가 죽어도 탐지가 멈추지 않습니다', '단독 재현율', '0.081'],
+      // 2026.08.25 — PowerPoint 손수정: "외부 API가 죽어도"(의인화) 대신
+      // "독립적인 위기 탐지로"를 앞세운 구조적 서술로 바꿨습니다.
+      ['1차', '키워드 규칙', '독립적인 위기 탐지로, 외부 API에 문제가 발생하여도 정상적으로 기능합니다', '단독 재현율', '0.081'],
       ['2차', 'LLM 문맥 판정', '문장 맥락까지 읽어 더 정밀하게 판정합니다', '최종 재현율', '0.946'],
     ];
     const cw = 5.87, x0 = 0.62, y0 = 1.35;
@@ -498,12 +504,16 @@ async function main() {
 
     hr(s, 0.62, 4.15, 12.1, false);
     // ── 「안전 설계 원칙」 중 고유한 2가지만 흡수했습니다(2026.08.22).
-    s.addText('정신건강 서비스라서 다르게 만든 것', {
+    // 2026.08.25 — 아래 제목·문단은 PowerPoint 손수정입니다. 원본 손수정
+    // 문장은 "답변이 아닌 상담 연결을 화면을 노출합니다"로 조사가
+    // 겹쳤는데("연결을"·"화면을" 이중 목적격), "연결 화면을"로만 다듬었습니다
+    // — 문장의 판단(응답 대신 상담 연결 화면을 보여준다)은 그대로입니다.
+    s.addText('위기를 놓치지 않기 위한 노력', {
       x: 0.62, y: 4.35, w: 11.4, h: 0.35, fontFace: FONT, fontSize: 14.5, bold: true, color: DARK, margin: 0,
     });
     s.addText([
-      { text: 'CRITICAL이면 이미 만든 답변도 버립니다. ', options: { bold: true, color: DARK } },
-      { text: '위기 판정과 응답 생성을 동시에 돌리지만, CRITICAL이면 만들어 둔 응답을 버립니다. 그래서 스트리밍을 쓰지 않습니다. 판정 전에 흘려보낸 글자는 되돌릴 수 없습니다.', options: { color: TXT2 } },
+      { text: 'CRITICAL이면 답변이 아닌 상담 연결 화면을 노출합니다. ', options: { bold: true, color: DARK } },
+      { text: '위기 판정과 응답 생성을 병렬로 처리하면서도 스트리밍은 배제 하였는데, CRITICAL이면 만들어 둔 응답은 사용하지 않기 때문입니다. 다만, 판정 전에 흘려보낸 글자는 되돌릴 수 없습니다.', options: { color: TXT2 } },
     ], { x: 0.62, y: 4.78, w: 11.4, h: 0.5, fontFace: FONT_LIGHT, fontSize: 11.5, lineSpacingMultiple: 1.3, margin: 0 });
     s.addText([
       { text: '경고색은 쓰지 않습니다. ', options: { bold: true, color: DARK } },
@@ -639,7 +649,7 @@ async function main() {
     s.addText([
       { text: '"보안을 덜 했다"가 아니라 ', options: { color: TXT2 } },
       { text: '"보안 요구를 기능 제약과 함께 설계했다"', options: { bold: true, color: DARK } },
-      { text: '입니다. 마스킹은 저장 전에 합니다 — 원문은 어디에도 남지 않고, 외부 LLM에도 마스킹된 텍스트만 전송됩니다.', options: { color: TXT2 } },
+      { text: '입니다. 마스킹은 저장 전에 합니다. 원문은 어디에도 남지 않고, 외부 LLM에도 마스킹된 텍스트만 전송됩니다.', options: { color: TXT2 } },
     ], { x: 0.62, y: boxY + 0.22, w: 12.1, h: 0.9, fontFace: FONT, fontSize: 12, lineSpacingMultiple: 1.35, margin: 0 });
     pageNum(s, false);
   }
