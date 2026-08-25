@@ -394,8 +394,10 @@ async function main() {
     // (수면 변화 그래프 · 심박수·수면시간 실측 카드)으로 바꿨습니다 —
     // 「자동 수집」 카드가 말하는 걸 화면이 그대로 보여줍니다.
     const cards = [
-      ['자동 수집', 'Health Connect · 앱 사용 로그를 앱이 직접 읽어 push. 닫혀 있어도 WorkManager가 15분마다 백그라운드로 보냅니다.'],
-      ['개인정보 최소화', '앱 사용 지표는 패키지명 없이 화면 시간 · 전환 횟수 등 집계값만 보냅니다.'],
+      // 2026.08.26 — PowerPoint 손수정: "보냅니다" 종결을 명사 종결
+      // ("전송"/"전달")로 간결하게 바꿨습니다. 그대로 포팅합니다.
+      ['자동 수집', 'Health Connect · 앱 사용 로그를 앱이 직접 읽어 push / 닫혀 있어도 WorkManager가 15분마다 백그라운드로 전송'],
+      ['개인정보 최소화', '앱 사용 지표는 패키지명 없이 화면 시간 · 전환 횟수 등 집계값만 전달'],
     ];
     const cardY0 = 4.85, cardH = 1.05;
     cards.forEach(([h, b], i) => {
@@ -453,7 +455,10 @@ async function main() {
     //   (0.491·0.473·0.494·0.609)를 문장 안에 흩어 놓고 있어, 막대그래프로
     //   한 번 더 나란히 보여주면 "재보고 골랐다"는 주장이 한눈에 들어옵니다.
     const gh = 2.1;
-    s.addShape('line', { x: 0.62, y, w: 0.06, h: gh, line: { color: GOLD, width: 4 } });
+    // 2026.08.26 — w:0.06 이 버그였습니다(다른 세로선은 전부 w:0). pptxgenjs
+    // 는 line 도형을 바운딩박스 대각선으로 그리므로, 폭이 0이 아니면
+    // 아주 살짝이라도 대각선이 됩니다 — 실측 재현: 얇지만 실재하는 기울기.
+    s.addShape('line', { x: 0.62, y, w: 0, h: gh, line: { color: GOLD, width: 4 } });
     s.addText('감정을 분류하는 게 아닙니다', {
       x: 0.9, y, w: 7.0, h: 0.4, fontFace: FONT, fontSize: 15, bold: true, color: DARK, margin: 0,
     });
@@ -654,13 +659,19 @@ async function main() {
     // — 넓을수록(아래) 더 많은 데이터에 적용되는 가벼운 보호, 좁을수록
     // (위) 더 적은 데이터에 적용되는 강한 보호. 색은 GOLD 하나를
     // 투명도만 바꿔 썼습니다(단계가 늘 뿐 새 색을 안 씁니다).
-    s.addText('데이터가 민감할수록 보호가 강해집니다 — 테이블 9곳에 같은 방식을 쓰지 않습니다.', {
+    // 2026.08.26 — 대시 제거(마침표로 문장 분리). 이 세션에서 계속
+    // 지적받은 패턴이라 여기서도 미리 고쳤습니다.
+    s.addText('데이터가 민감할수록 보호가 강해집니다. 테이블 9곳에 같은 방식을 쓰지 않습니다.', {
       x: 0.62, y: 1.35, w: 7.0, h: 0.4, fontFace: FONT, fontSize: 12.5, bold: true, color: DARK, margin: 0,
     });
 
     const tiers = [
+      // "원문을 남기지 않습니다"는 뺐습니다 — 대시로 이어붙여서 좁은
+      // 박스 안에서 "않습니다"만 한 줄에 남는 짧은 줄바꿈이 됐고, 같은
+      // 내용을 슬라이드 아래 문단("원문은 어디에도 남지 않고")이 이미
+      // 말하고 있어 중복이었습니다.
       { w: 3.5, fill: GOLD, transparency: 0, textColor: WHITE, subColor: 'F4E6C8',
-        label: '비밀번호 · 대화', detail: 'bcrypt 비가역 해시 · 저장 전 PII 마스킹 — 원문을 남기지 않습니다' },
+        label: '비밀번호 · 대화', detail: 'bcrypt 비가역 해시 · 저장 전 PII 마스킹' },
       { w: 5.25, fill: GOLD, transparency: 55, textColor: DARK, subColor: TXT2,
         label: '연락처', detail: 'AES-256-GCM 컬럼 단위 암호화 (USERS.phone)' },
       { w: 7.0, fill: GOLD, transparency: 85, textColor: DARK, subColor: TXT2,
@@ -680,10 +691,14 @@ async function main() {
     // 오른쪽 박스 — 세로 골드 선으로 피라미드와 분리, 높이를 피라미드에 맞춤
     const rightH = pyramidBottom - 1.35;
     s.addShape('line', { x: 7.9, y: 1.35, w: 0, h: rightH, line: { color: GOLD, width: 1.5 } });
+    // 2026.08.26 — PowerPoint 손수정 포팅. "범위 조회를 할 수 없습니다"
+    // → "범위 조회 불가"(간결체), "그래서... 피해가 나는" →
+    // "유출 시... 피해에 취약한"(그래서 삭제 + 표현 수정) 그대로
+    // 반영합니다.
     s.addText([
       { text: '왜 전 컬럼 암호화를 하지 않았나', options: { fontFace: FONT, fontSize: 13, bold: true, color: DARK, breakLine: true, paraSpaceAfter: 12 } },
-      { text: '라이프로그 측정치를 컬럼 암호화하면 서비스가 동작하지 않습니다. 기간별 집계와 복합 인덱스가 핵심 동작인데, 암호화하면 범위 조회를 할 수 없습니다.', options: { color: TXT2, breakLine: true, paraSpaceAfter: 12 } },
-      { text: '그래서 유출 시 즉각적 2차 피해가 나는 항목(연락처)만 컬럼 암호화하고, 측정치는 전송 구간 보호와 접근통제로 지킵니다.', options: { color: TXT2 } },
+      { text: '라이프로그 측정치를 컬럼 암호화하면 서비스가 동작하지 않습니다. 기간별 집계와 복합 인덱스가 핵심 동작인데, 암호화하면 범위 조회 불가.', options: { color: TXT2, breakLine: true, paraSpaceAfter: 12 } },
+      { text: '유출 시 즉각적 2차 피해에 취약한 항목(연락처)만 컬럼 암호화하고, 측정치는 전송 구간 보호와 접근통제로 지킵니다.', options: { color: TXT2 } },
     ], {
       x: 8.15, y: 1.35, w: 4.55, h: rightH,
       fontFace: FONT_LIGHT, fontSize: 10.5, valign: 'middle', lineSpacingMultiple: 1.3, margin: 0,
@@ -691,10 +706,16 @@ async function main() {
 
     const boxY = pyramidBottom + 0.35;
     hr(s, 0.62, boxY, 12.1, false);
+    // 2026.08.26 — PowerPoint 손수정: "보안을 덜 했다가 아니라" 대조
+    // 구절을 빼고 곧장 긍정 문장으로 시작하도록 다듬었습니다(그대로
+    // 반영). 다만 손수정 원문은 인용구 뒤 "했습니다"가 빠져 있었고
+    // ("...설계" 뒤 바로 "마스킹은"으로 이어짐 — 서술어 없는 문장)
+    // "원문은 남지"가 "원문은 남기지"(자동사→타동사, 조사 안 맞음)로
+    // 바뀌어 있어 그 두 곳만 문법을 맞췄습니다 — 문장을 합친 방향
+    // 자체는 그대로입니다.
     s.addText([
-      { text: '"보안을 덜 했다"가 아니라 ', options: { color: TXT2 } },
-      { text: '"보안 요구를 기능 제약과 함께 설계했다"', options: { bold: true, color: DARK } },
-      { text: '입니다. 마스킹은 저장 전에 합니다. 원문은 어디에도 남지 않고, 외부 LLM에도 마스킹된 텍스트만 전송됩니다.', options: { color: TXT2 } },
+      { text: '"보안 요구를 기능 제약과 함께 설계"', options: { bold: true, color: DARK } },
+      { text: '했습니다. 마스킹은 저장 전에 하며, 원문은 어디에도 남지 않고, 외부 LLM에도 마스킹된 텍스트만 전송됩니다.', options: { color: TXT2 } },
     ], { x: 0.62, y: boxY + 0.22, w: 12.1, h: 0.9, fontFace: FONT, fontSize: 12, lineSpacingMultiple: 1.35, margin: 0 });
     pageNum(s, false);
   }
