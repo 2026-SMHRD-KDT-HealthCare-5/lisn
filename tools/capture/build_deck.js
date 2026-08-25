@@ -398,15 +398,48 @@ async function main() {
     });
 
     y += 0.25;
-    s.addShape('line', { x: 0.62, y, w: 0.06, h: 1.9, line: { color: GOLD, width: 4 } });
+    // ⚠ 왼쪽(글)·오른쪽(차트) 2단으로 나눕니다. 위 3단계 표가 이미 이 네 숫자
+    //   (0.491·0.473·0.494·0.609)를 문장 안에 흩어 놓고 있어, 막대그래프로
+    //   한 번 더 나란히 보여주면 "재보고 골랐다"는 주장이 한눈에 들어옵니다.
+    const gh = 2.1;
+    s.addShape('line', { x: 0.62, y, w: 0.06, h: gh, line: { color: GOLD, width: 4 } });
     s.addText('감정을 분류하는 게 아닙니다', {
-      x: 0.9, y, w: 11.2, h: 0.4, fontFace: FONT, fontSize: 15, bold: true, color: DARK, margin: 0,
+      x: 0.9, y, w: 7.0, h: 0.4, fontFace: FONT, fontSize: 15, bold: true, color: DARK, margin: 0,
     });
     s.addText('바뀐 것은 지표를 합치는 방식뿐입니다. 개인 기준선 대비 이탈 지표 7개를 하나의 점수로 합치는 방법을 데이터로 정한 것이고, 감정 코드는 여전히 이탈 정도를 표시하는 산출값입니다. model_version 이 hybrid- 로 시작하면 이 집계가 관여한 것이고, rule- 이면 기존 규칙 그대로입니다.', {
-      x: 0.9, y: y + 0.42, w: 11.2, h: 1.0, fontFace: FONT_LIGHT, fontSize: 11.5, color: TXT2, lineSpacingMultiple: 1.35, margin: 0,
+      x: 0.9, y: y + 0.42, w: 7.0, h: 1.15, fontFace: FONT_LIGHT, fontSize: 11.5, color: TXT2, lineSpacingMultiple: 1.35, margin: 0,
     });
     s.addText('※ 같은 데이터로 70%를 보고한 선행연구를 재현하니, 그 지표의 기준선이 66.7%였습니다 — ai/train/eval_replicate_paper.py', {
-      x: 0.9, y: y + 1.48, w: 11.2, h: 0.3, fontFace: FONT_LIGHT, fontSize: 9, italic: true, color: TXT_MUTED, margin: 0,
+      x: 0.9, y: y + 1.62, w: 7.0, h: 0.3, fontFace: FONT_LIGHT, fontSize: 9, italic: true, color: TXT_MUTED, margin: 0,
+    });
+
+    // ── 참가자 내부 AUC 비교 — 3단계 표의 숫자를 그대로 시각화합니다.
+    //   ⚠ 0 부터 그리지 않습니다. AUC 는 0.5 가 "무작위" 기준선이라 0~1
+    //     전체를 쓰면 네 막대가 전부 절반 언저리에 뭉개져 차이가 안
+    //     보입니다. 0.4~0.66 로 축을 좁혀 실제 격차를 드러냅니다 — 값
+    //     라벨을 그대로 남겨 축을 좁힌 사실이 가려지지 않게 합니다.
+    s.addChart(pres.ChartType.bar, [{
+      name: '참가자 내부 AUC',
+      labels: ['현재 규칙', 'Isolation Forest(전역)', 'Isolation Forest(개인별)', '학습된 집계(채택)'],
+      values: [0.491, 0.473, 0.494, 0.609],
+    }], {
+      x: 8.3, y: y - 0.06, w: 4.35, h: gh + 0.12,
+      barDir: 'bar',
+      chartColors: [TXT_FAINT, TXT_FAINT, TXT_FAINT, GOLD],
+      showTitle: true, title: '참가자 내부 AUC 비교',
+      titleFontFace: FONT, titleFontSize: 10.5, titleColor: TXT1, titleBold: true,
+      showValue: true, dataLabelPosition: 'outEnd',
+      dataLabelFontFace: FONT, dataLabelFontSize: 9, dataLabelColor: TXT1,
+      dataLabelFormatCode: '0.000',
+      showLegend: false,
+      catAxisLabelFontFace: FONT_LIGHT, catAxisLabelFontSize: 8.5, catAxisLabelColor: TXT2,
+      catAxisLineShow: false,
+      valAxisHidden: true,
+      valAxisMinVal: 0.4, valAxisMaxVal: 0.66,
+      valGridLine: { style: 'none' },
+      catGridLine: { style: 'none' },
+      chartArea: { fill: { color: LIGHT } },
+      plotArea: { fill: { color: LIGHT } },
     });
     pageNum(s, false);
   }
