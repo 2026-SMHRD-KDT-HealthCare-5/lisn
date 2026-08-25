@@ -280,7 +280,17 @@ async function main() {
       x: 6.9, y: 2.05, w: 5.83, h: 0.55, fontFace: FONT, fontSize: 16, color: WHITE, bold: true, margin: 0,
     });
     // 2026.08.25 — PowerPoint 손수정: 문장 끝에 마침표 추가.
-    s.addText('연속 이탈 3일 → 조건 6개 검사 → 첫 발화 생성 → 세션 생성 → FCM 푸시 · 홈 카드 · 배너로 먼저 말을 겁니다.', {
+    // 2026.08.26 — "홈 카드 · " 뒤 줄바꿈은 PM 이 PowerPoint 에서 Enter 로
+    // 직접 넣은 것입니다. 지금까지는 자동 줄바꿈이 우연히 같은 자리에서
+    // 끊겨 "문제없다"고 착각했는데, 상자 너비가 조금만 바뀌어도 깨지는
+    // 우연이었지 실제로 고정된 줄바꿈이 아니었습니다. \v 는 이 pptxgenjs
+    // 버전에서 그냥 씹혀서(테스트: XML에 아무 흔적도 안 남음) 배열 +
+    // breakLine:true 로 바꿨습니다 — paraSpaceAfter 를 안 줘서 문단
+    // 간격은 그대로고, 이 자리에서만 무조건 줄이 바뀝니다.
+    s.addText([
+      { text: '연속 이탈 3일 → 조건 6개 검사 → 첫 발화 생성 → 세션 생성 → FCM 푸시 · 홈 카드 · ', options: { breakLine: true } },
+      { text: '배너로 먼저 말을 겁니다.' },
+    ], {
       x: 6.9, y: 2.62, w: 5.83, h: 0.7, fontFace: FONT_LIGHT, fontSize: 11.5, color: DARK_BODY, margin: 0, lineSpacingMultiple: 1.3,
     });
 
@@ -348,7 +358,8 @@ async function main() {
   // ============================================================
   {
     const s = bgSlide(false);
-    header(s, '둘로 나눈 서버', '아키텍처', false);
+    // 2026.08.26 — PowerPoint 손수정: 제목 "둘로 나눈 서버" → "서버 분리".
+    header(s, '서버 분리', '아키텍처', false);
 
     const boxY = 1.75, boxH = 1.3;
     const boxes = [
