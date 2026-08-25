@@ -187,7 +187,11 @@ async function main() {
     const rh = 1.15;
     items.forEach(([no, t, dsc], i) => {
       s.addText(no, { x: 0.62, y, w: 1.1, h: rh, fontFace: SERIF, fontSize: 30, color: GOLD, valign: 'middle', margin: 0 });
-      s.addText(t, { x: 1.9, y: y + 0.15, w: 5.5, h: 0.5, fontFace: FONT, fontSize: 22, bold: true, color: WHITE, margin: 0 });
+      // ⚠ y+0.29 — 큰 번호(gold, 30pt, 행 중앙정렬)와 나란해지도록 손으로
+      //   내린 값입니다(2026.08.25, PowerPoint 로 직접 조정). 원래 0.15
+      //   였는데, 번호는 행 높이(1.15)에 valign:'middle' 이라 세로 중심이
+      //   아래쪽인데 제목은 위쪽에 붙어 있어 붕 떠 보였습니다.
+      s.addText(t, { x: 1.9, y: y + 0.29, w: 5.5, h: 0.5, fontFace: FONT, fontSize: 22, bold: true, color: WHITE, margin: 0 });
       s.addText(dsc, { x: 5.9, y, w: 6.5, h: rh, fontFace: FONT_LIGHT, fontSize: 12.5, color: DARK_MUTED, valign: 'middle', margin: 0 });
       hr(s, 0.62, y + rh, 12.1, true);
       y += rh;
@@ -232,7 +236,17 @@ async function main() {
     const cw = 3.87, gap = 0.24, x0 = 0.62, cy = 3.15;
     steps.forEach(([no, h, b], i) => {
       const x = x0 + i * (cw + gap);
-      if (i > 0) s.addShape('line', { x: x - gap / 2, y: cy, w: 0, h: 3.0, line: { color: LINE, width: 1 } });
+      if (i > 0) {
+        s.addShape('line', { x: x - gap / 2, y: cy, w: 0, h: 3.0, line: { color: LINE, width: 1 } });
+        // ⚠ 바로 위 문장이 "«관찰 → 판단 → 선제 접촉»" 이라고 순서를 못박는데,
+        //   지금까지는 세 칸이 그냥 나란히 놓여 화살표가 문장에만 있고
+        //   그림에는 없었습니다. 번호가 있는 줄 높이에만 골드 화살표를 얹어
+        //   "01 다음이 02" 라는 순서를 실제로 보여줍니다.
+        s.addShape(pres.ShapeType.rightArrow, {
+          x: x - gap / 2 - 0.095, y: cy + 0.17, w: 0.19, h: 0.17,
+          fill: { color: GOLD }, line: { type: 'none' },
+        });
+      }
       s.addText(no, { x, y: cy, w: cw, h: 0.5, fontFace: SERIF, fontSize: 22, color: GOLD, margin: 0 });
       s.addText(h, { x, y: cy + 0.6, w: cw, h: 0.45, fontFace: FONT, fontSize: 15.5, bold: true, color: DARK, margin: 0 });
       s.addText(b, { x, y: cy + 1.12, w: cw - 0.15, h: 1.7, fontFace: FONT_LIGHT, fontSize: 11.5, color: TXT2, margin: 0, lineSpacingMultiple: 1.35 });
@@ -458,7 +472,17 @@ async function main() {
     const cw = 5.87, x0 = 0.62, y0 = 1.35;
     stages.forEach(([no, h, b, statL, statV], i) => {
       const x = x0 + i * (cw + 0.36);
-      if (i > 0) s.addShape('line', { x: x - 0.18, y: y0, w: 0, h: 2.55, line: { color: LINE, width: 1 } });
+      if (i > 0) {
+        s.addShape('line', { x: x - 0.18, y: y0, w: 0, h: 2.55, line: { color: LINE, width: 1 } });
+        // ⚠ 두 재현율(0.081→0.946)이 "1차가 놓친 걸 2차가 잡는다"는 하나의
+        //   파이프라인이라는 걸, 나란한 두 숫자만으로는 못 보여줬습니다.
+        //   숫자 줄 높이에 화살표를 얹어 "1차 다음이 2차" 흐름을 보입니다
+        //   (슬라이드 4 와 같은 화살표 처리 — 덱 안에서 일관되게).
+        s.addShape(pres.ShapeType.rightArrow, {
+          x: x - 0.18 - 0.095, y: y0 + 2.115, w: 0.19, h: 0.17,
+          fill: { color: GOLD }, line: { type: 'none' },
+        });
+      }
       s.addText(no, { x, y: y0, w: 1.2, h: 0.35, fontFace: FONT, fontSize: 12.5, bold: true, color: GOLD_DARK, margin: 0 });
       s.addText(h, { x, y: y0 + 0.35, w: cw, h: 0.5, fontFace: FONT, fontSize: 19, bold: true, color: DARK, margin: 0 });
       s.addText(b, { x, y: y0 + 0.95, w: cw - 0.2, h: 0.6, fontFace: FONT_LIGHT, fontSize: 12, color: TXT2, lineSpacingMultiple: 1.3, margin: 0 });
