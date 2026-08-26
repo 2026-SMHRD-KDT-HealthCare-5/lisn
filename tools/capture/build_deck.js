@@ -162,7 +162,7 @@ async function main() {
       x: 0.9, y: 4.15, w: 10, h: 0.5, fontFace: FONT_LIGHT, fontSize: 16, color: DARK_BODY,
     });
 
-    s.addText('최종 발표', { x: 0.9, y: 5.65, w: 3, h: 0.35, fontFace: FONT_LIGHT, fontSize: 12, color: DARK_MUTED });
+    s.addText('최종 발표', { x: 0.9, y: 5.65, w: 3, h: 0.35, fontFace: FONT_LIGHT, fontSize: 12, color: DARK_MUTED, margin: 0 });
 
     const members = [['이응균', 'PM'], ['김건영', 'AI/DATA'], ['윤일준', '백엔드/DB'], ['함은선', '프론트엔드']];
     let mx = 0.9;
