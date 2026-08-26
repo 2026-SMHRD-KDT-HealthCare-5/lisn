@@ -222,7 +222,7 @@ async function main() {
   // ============================================================
   {
     const s = bgSlide(false);
-    header(s, '왜 지금 필요한가', '프로젝트 개요', false);
+    header(s, '서비스 필요성', '프로젝트 개요', false);
 
     const stats = [
       ['46.3%', '심각한 스트레스 경험률(36.0%→46.3%)', '보건복지부·국립정신건강센터, 2024 국민 정신건강 지식 및 태도 조사'],
@@ -260,7 +260,7 @@ async function main() {
   // ============================================================
   {
     const s = bgSlide(false);
-    header(s, '관찰 → 판단 → 선제 접촉', '프로젝트 개요', false);
+    header(s, '서비스 개념', '프로젝트 개요', false);
 
     s.addText('스마트워치·스마트폰의 라이프로그로 정서 변화를 조기에 감지하고, 필요하면 시스템이 먼저 다가가는 정서 케어 서비스', {
       x: 0.62, y: 1.3, w: 12.1, h: 0.5, fontFace: FONT, fontSize: 15, bold: true, color: DARK, margin: 0,
@@ -422,7 +422,7 @@ async function main() {
   // ============================================================
   {
     const s = bgSlide(false);
-    header(s, '정본을 하나로 — 어긋남을 기계가 잡게', '수행 절차 및 방법', false);
+    header(s, '개발 방법론', '수행 절차 및 방법', false);
 
     const methods = [
       ['스키마 정본 하나', 'db/schema.sql 이 유일한 정본입니다. 모델은 이 DDL의 매핑일 뿐이고, Base.metadata.create_all()·alembic 을 쓰지 않습니다 — 정본이 둘이면 문서와 코드가 반드시 갈립니다.'],
@@ -447,7 +447,7 @@ async function main() {
   // ============================================================
   {
     const s = bgSlide(false);
-    header(s, '스물여섯 번 물었고, 근거로 답했습니다', '수행 절차 및 방법', false);
+    header(s, 'AI 모델링 과정', '수행 절차 및 방법', false);
 
     s.addText('개인 기준선 이탈 지표를 하나의 점수로 합치는 방법을 정하기까지, 여섯 각도로 스물여섯 차례 검증했습니다.', {
       x: 0.62, y: 1.32, w: 12.1, h: 0.5, fontFace: FONT, fontSize: 13.5, color: DARK, margin: 0, lineSpacingMultiple: 1.3,
@@ -491,7 +491,7 @@ async function main() {
   // ============================================================
   {
     const s = bgSlide(false);
-    header(s, '왜 2단계로 설계했나', '수행 절차 및 방법', false);
+    header(s, '위기 탐지 설계', '수행 절차 및 방법', false);
 
     const design = [
       ['설계 결정 1', '키워드 규칙은 서버 안에', 'AI 서버·외부 LLM이 죽어도 위기 탐지가 멈추면 안 됩니다(NFR-DV-003). 로컬 함수라 공급자와 무관하게 동작합니다.'],
@@ -856,7 +856,7 @@ async function main() {
   // ============================================================
   {
     const s = bgSlide(false);
-    header(s, '잘된 점과 부족한 점을 같이 적습니다', '자체 평가 의견', false);
+    header(s, '잘된 점과 부족한 점', '자체 평가 의견', false);
 
     s.addText('잘된 점', { x: 0.62, y: 1.35, w: 5.8, h: 0.35, fontFace: FONT, fontSize: 14, bold: true, color: GOLD_DARK, margin: 0 });
     hr(s, 0.62, 1.78, 5.8, false);
