@@ -253,7 +253,7 @@ async function main() {
     s.addText('정부는 이 문제를 정책 목표로 삼고 있습니다', {
       x: 0.62, y: y0 + ch + 0.22, w: 11.4, h: 0.35, fontFace: FONT, fontSize: 14, bold: true, color: DARK, margin: 0,
     });
-    s.addText('「제1차 고독사 예방 기본계획(2023~2027)」 — 2027년까지 고독사 발생률 20% 감축 목표. 2026년 보건복지부 R&D 예산은 전년 대비 12.6% 증가한 1조 652억 원으로, AI·디지털 헬스케어 투자가 지속 확대되고 있습니다.', {
+    s.addText('「제1차 고독사 예방 기본계획(2023~2027)」은 2027년까지 고독사 발생률 20% 감축을 목표로 합니다. 2026년 보건복지부 R&D 예산은 전년 대비 12.6% 증가한 1조 652억 원으로, AI·디지털 헬스케어 투자가 지속 확대되고 있습니다.', {
       x: 0.62, y: y0 + ch + 0.6, w: 11.4, h: 0.7, fontFace: FONT_LIGHT, fontSize: 11.5, color: TXT2, lineSpacingMultiple: 1.35, margin: 0,
     });
 
@@ -386,7 +386,7 @@ async function main() {
       y += rh;
     });
 
-    s.addText('전원이 교내 공용 PostgreSQL 인스턴스에 접속해 동일한 스키마로 개발 — 통합 테스트 시점의 스키마 불일치를 방지했습니다.', {
+    s.addText('전원이 교내 공용 PostgreSQL 인스턴스에 접속해 동일한 스키마로 개발했고, 통합 테스트 시점의 스키마 불일치를 방지했습니다.', {
       x: 0.62, y: y + 0.2, w: 12.1, h: 0.4, fontFace: FONT_LIGHT, fontSize: 10.5, italic: true, color: TXT_MUTED, margin: 0,
     });
     pageNum(s, false);
@@ -424,7 +424,7 @@ async function main() {
       hr(s, 0.62, y + rh, 12.1, false);
       y += rh;
     });
-    s.addText('⚠ 8/11 문서 개정 마감 이후에도 8/24~8/25에 학습 모델 도입·앱 사용 로그 구현이 이어졌습니다 — 마감 이후의 개선도 실제 서비스에 반영돼 있습니다.', {
+    s.addText('⚠ 8/11 문서 개정 마감 이후에도 8/24~8/25에 학습 모델 도입·앱 사용 로그 구현이 이어졌고, 마감 이후의 개선도 실제 서비스에 반영돼 있습니다.', {
       x: 0.62, y: y + 0.15, w: 12.1, h: 0.4, fontFace: FONT_LIGHT, fontSize: 9.5, italic: true, color: TXT_MUTED, margin: 0,
     });
     pageNum(s, false);
@@ -634,7 +634,7 @@ async function main() {
     s.addText('바뀐 것은 지표를 합치는 방식뿐입니다. 개인 기준선 대비 이탈 지표 7개를 하나의 점수로 합치는 방법을 데이터로 골랐을 뿐이고, 감정 코드는 여전히 이탈 정도를 표시하는 산출값입니다. model_version 이 hybrid- 로 시작하면 이 집계가 관여한 것이고, rule- 이면 기존 규칙 그대로입니다.', {
       x: 0.9, y: y + 0.42, w: 7.0, h: 1.15, fontFace: FONT_LIGHT, fontSize: 11.5, color: TXT2, lineSpacingMultiple: 1.35, margin: 0,
     });
-    s.addText('※ 같은 데이터로 70%를 보고한 선행연구를 재현하니, 그 지표의 기준선이 66.7%였습니다 — ai/train/eval_replicate_paper.py', {
+    s.addText('※ 같은 데이터로 70%를 보고한 선행연구를 재현하니, 그 지표의 기준선이 66.7%였습니다(ai/train/eval_replicate_paper.py).', {
       x: 0.9, y: y + 1.62, w: 7.0, h: 0.3, fontFace: FONT_LIGHT, fontSize: 9, italic: true, color: TXT_MUTED, margin: 0,
     });
 
@@ -844,13 +844,13 @@ async function main() {
     s.addText([
       { text: '실서버 관통 점검 ', options: { bold: true, color: WHITE } },
       { text: '13건 수정 뒤 실패 0건    ·    ', options: { color: DARK_MUTED } },
-      { text: '문서 검사기 4종 ', options: { bold: true, color: WHITE } },
-      { text: '— 같은 수치가 문서마다 갈리는 것을 사람이 세지 않고 기계가 대조    ·    ', options: { color: DARK_MUTED } },
-      { text: 'db/schema.sql 정본 ', options: { bold: true, color: WHITE } },
-      { text: '— 드리프트 테스트가 모델과 어긋나면 실패', options: { color: DARK_MUTED } },
+      { text: '문서 검사기 4종은 ', options: { bold: true, color: WHITE } },
+      { text: '같은 수치가 문서마다 갈리는 것을 사람이 세지 않고 기계가 대조합니다    ·    ', options: { color: DARK_MUTED } },
+      { text: 'db/schema.sql 정본은 ', options: { bold: true, color: WHITE } },
+      { text: '드리프트 테스트가 모델과 어긋나면 실패합니다', options: { color: DARK_MUTED } },
     ], { x: 0.62, y: tilesBottom + 0.25, w: 12.1, h: 0.6, fontFace: FONT_LIGHT, fontSize: 10.5, lineSpacingMultiple: 1.35, margin: 0 });
 
-    s.addText('※ 재현율은 8/05 0.793 → 8/12 0.946 — 팀이 확정한 라벨 기준을 프롬프트에 반영하고, 판정 모델을 gpt-5.6 → gpt-5.4로 교체(미탐 23 → 6건, 지연 최댓값 절반 이하)', {
+    s.addText('※ 재현율은 8/05 0.793 → 8/12 0.946으로 올랐습니다. 팀이 확정한 라벨 기준을 프롬프트에 반영하고, 판정 모델을 gpt-5.6 → gpt-5.4로 교체했습니다(미탐 23 → 6건, 지연 최댓값 절반 이하).', {
       x: 0.62, y: 6.6, w: 12.1, h: 0.32, fontFace: FONT_LIGHT, fontSize: 9, italic: true, color: DARK_MUTED, margin: 0,
     });
     pageNum(s, true);
@@ -948,7 +948,7 @@ async function main() {
       x: 0, y: 3.65, w: W, h: 0.6, fontFace: FONT, fontSize: 20, color: DARK_BODY, align: 'center', margin: 0,
     });
     s.addShape('line', { x: W / 2 - 1.2, y: 4.5, w: 2.4, h: 0, line: { color: GOLD, width: 1.5 } });
-    s.addText('귀기울임 — 먼저 다가가는 정서 케어', {
+    s.addText('먼저 다가가는 정서 케어', {
       x: 0, y: 4.7, w: W, h: 0.4, fontFace: FONT_LIGHT, fontSize: 13, color: DARK_MUTED, align: 'center', margin: 0,
     });
 
