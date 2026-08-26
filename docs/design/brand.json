@@ -26,7 +26,9 @@
     "weightBody": 400,
     "_weightBody": "발표자료 본문은 DemiLight(350) 인데 영상은 400 입니다. 일부러 다릅니다 — 발표자료는 PowerPoint 가 고해상도로 그리지만 영상 자막은 29~30px 라서 350 은 획이 날아가 흐려 보입니다. 350/400/500 을 실제로 찍어 보고 400 으로 정했습니다(2026.08.22). 글꼴 가족은 양쪽 다 Noto Sans KR 로 같습니다.",
     "serif": "NanumMyeongjo",
-    "_serif": "2026.08.25 최종발표자료 리디자인에서 큰 제목·강조 수치 전용으로 추가했습니다. Noto Sans KR 단독으로는 파스텔 카드 톤이었는데, 세리프를 큰 글자에만 섞어 컨설팅 보고서 톤으로 바꿨습니다 — 본문은 여전히 Noto Sans KR 입니다. Windows 기본 미탑재라 발표는 PDF 로 내보내거나 대상 PC 에 설치하세요(무료, Google Fonts — fonts.google.com/noto/specimen/Nanum+Myeongjo). ⚠ **PPTX 의 typeface 값은 공백 없는 'NanumMyeongjo' 여야 합니다.** Google Fonts CSS 의 font-family 표기('Nanum Myeongjo', 공백 있음)는 웹용 별칭이고, 실제 TTF 내부 name 레코드는 공백이 없습니다 — 공백을 넣으면 시스템에 폰트가 설치돼 있어도 PowerPoint 가 못 찾고 대체 폰트로 렌더링합니다(2026.08.25 실측)."
+    "_serif": "2026.08.25 최종발표자료 리디자인에서 큰 제목·강조 수치 전용으로 추가했습니다. Noto Sans KR 단독으로는 파스텔 카드 톤이었는데, 세리프를 큰 글자에만 섞어 컨설팅 보고서 톤으로 바꿨습니다 — 본문은 여전히 Noto Sans KR 입니다. Windows 기본 미탑재라 발표는 PDF 로 내보내거나 대상 PC 에 설치하세요(무료, Google Fonts — fonts.google.com/noto/specimen/Nanum+Myeongjo). ⚠ **PPTX 의 typeface 값은 공백 없는 'NanumMyeongjo' 여야 합니다.** Google Fonts CSS 의 font-family 표기('Nanum Myeongjo', 공백 있음)는 웹용 별칭이고, 실제 TTF 내부 name 레코드는 공백이 없습니다 — 공백을 넣으면 시스템에 폰트가 설치돼 있어도 PowerPoint 가 못 찾고 대체 폰트로 렌더링합니다(2026.08.25 실측).",
+    "serifBold": "NanumMyeongjoBold",
+    "_serifBold": "2026.08.26 실측 — 'NanumMyeongjo' 에 bold:true 를 얹으면 PowerPoint 가 볼드 서체 파일을 못 찾고 합성(faux) 볼드를 만드는데, 이 합성 과정이 공백 글자 폭까지 같이 늘려버립니다. 숫자만 있는 문자열('01', '0.946')은 안 보이지만 띄어쓰기가 있는 문자열('프로젝트 개요', '팀 구성 및 역할')은 단어 사이가 비정상적으로 벌어집니다(섹션 표지 슬라이드에서 발견). 레지스트리 확인 결과 볼드 파일은 'NanumMyeongjo' 가 아니라 별도 패밀리명 'NanumMyeongjoBold' 로 설치돼 있습니다(NanumMyeongjo-Bold.ttf) — 그래서 볼드가 필요하면 bold:true 를 얹지 말고 이 패밀리명을 직접 지정해야 합니다."
   },
   "deck": {
     "_": "2026.08.25 최종발표자료 리디자인 — 팀이 받은 참고 시안(다크 네이비 + 오프화이트 + 골드, 세리프 헤드라인)을 따릅니다. color.* (navy/mint/peach 등)는 여전히 앱 UI 값이고 다른 산출물이 참조할 수 있게 남겨뒀습니다 — 발표자료만 이 deck.* 토큰으로 갈아탔습니다. 앱과 피치덱이 서로 다른 톤을 쓰는 건 흔한 선택입니다.",
