@@ -199,7 +199,7 @@ async function main() {
     let y = 1.55;
     const rh = 0.98;
     items.forEach(([no, t, dsc]) => {
-      s.addText(no, { x: 0.62, y, w: 1.0, h: rh, fontFace: SERIF, fontSize: 26, color: GOLD, valign: 'middle', margin: 0 });
+      s.addText(no, { x: 0.62, y: y + 0.13, w: 1.0, h: 0.45, fontFace: SERIF, fontSize: 26, color: GOLD, valign: 'middle', margin: 0 });
       s.addText(t, { x: 1.8, y: y + 0.13, w: 4.6, h: 0.45, fontFace: FONT, fontSize: 19, bold: true, color: WHITE, margin: 0 });
       s.addText(dsc, { x: 5.9, y, w: 6.5, h: rh, fontFace: FONT_LIGHT, fontSize: 12, color: DARK_MUTED, valign: 'middle', margin: 0 });
       hr(s, 0.62, y + rh, 12.1, true);
@@ -405,7 +405,7 @@ async function main() {
     const rh = 0.98;
     hr(s, 0.62, y, 12.1, false);
     weeks.forEach(([w, h, b]) => {
-      s.addText(w, { x: 0.62, y, w: 1.3, h: rh, fontFace: SERIF, fontSize: 16, color: GOLD, valign: 'middle', margin: 0 });
+      s.addText(w, { x: 0.62, y: y + 0.15, w: 1.3, h: 0.4, fontFace: SERIF, fontSize: 16, color: GOLD, valign: 'middle', margin: 0 });
       s.addText(h, { x: 2.1, y: y + 0.15, w: 4.3, h: 0.4, fontFace: FONT, fontSize: 13, bold: true, color: DARK, margin: 0 });
       s.addText(b, { x: 6.5, y, w: 6.0, h: rh, fontFace: FONT_LIGHT, fontSize: 10.5, color: TXT2, valign: 'middle', margin: 0, lineSpacingMultiple: 1.25 });
       hr(s, 0.62, y + rh, 12.1, false);
