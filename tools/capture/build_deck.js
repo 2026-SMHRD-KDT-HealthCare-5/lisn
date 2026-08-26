@@ -493,7 +493,7 @@ async function main() {
     s.addText('재봤더니 근거가 없어서 유지합니다.', {
       x: 0.62, y: y + 0.35, w: 11.4, h: 0.4, fontFace: FONT, fontSize: 12.5, bold: true, color: DARK, margin: 0,
     });
-    s.addText('참가자 분할 GroupKFold(5) + 중첩 교차검증 · 부트스트랩 2000회 · LifeSnaps 62명 4086표본. 3일 앞 예측이 안 된다는 것도 중요한 발견입니다 — 선제 접촉은 "곧 나빠질 사람을 미리 찾는다"가 아니라 "지금 평소와 다른 사람에게 먼저 말을 건다"입니다.', {
+    s.addText('참가자 분할 GroupKFold(5) + 중첩 교차검증 · 부트스트랩 2000회 · LifeSnaps 62명 4086표본. 3일 앞 예측이 안 된다는 것도 중요한 발견입니다. 선제 접촉은 지금 평소와 다른 사람에게 먼저 말을 겁니다.', {
       x: 0.62, y: y + 0.78, w: 11.4, h: 0.7, fontFace: FONT_LIGHT, fontSize: 10.5, color: TXT2, lineSpacingMultiple: 1.3, margin: 0,
     });
     pageNum(s, false);
