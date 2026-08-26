@@ -515,14 +515,14 @@ async function main() {
     const rh = 1.55;
     design.forEach(([tag, h, b], i) => {
       if (i > 0) hr(s, 0.62, y, 12.1, false);
-      s.addText(tag, { x: 0.62, y: y + 0.12, w: 1.9, h: 0.35, fontFace: FONT, fontSize: 11, bold: true, color: GOLD_DARK, margin: 0 });
-      s.addText(h, { x: 2.6, y: y + 0.08, w: 4.4, h: 0.5, fontFace: FONT, fontSize: 13.5, bold: true, color: DARK, margin: 0, lineSpacingMultiple: 1.15 });
+      s.addText(tag, { x: 0.62, y, w: 1.9, h: rh, fontFace: FONT, fontSize: 11, bold: true, color: GOLD_DARK, valign: 'middle', margin: 0 });
+      s.addText(h, { x: 2.6, y, w: 4.4, h: rh, fontFace: FONT, fontSize: 13.5, bold: true, color: DARK, valign: 'middle', margin: 0, lineSpacingMultiple: 1.15 });
       s.addText(b, { x: 7.15, y, w: 5.35, h: rh, fontFace: FONT_LIGHT, fontSize: 11, color: TXT2, valign: 'middle', margin: 0, lineSpacingMultiple: 1.3 });
       y += rh;
     });
     hr(s, 0.62, y, 12.1, false);
 
-    s.addText('그 결과 — 재현율 0.081 → 0.946', {
+    s.addText('재현율 0.081 → 0.946', {
       x: 0.62, y: y + 0.2, w: 11.4, h: 0.4, fontFace: FONT, fontSize: 13, bold: true, color: DARK, margin: 0,
     });
     s.addText('키워드 단독 재현율 0.081(직접 표현만 잡음) → 문맥 판정 결합 후 0.946. 정신건강 서비스라 경고색은 쓰지 않고, 데이터가 3일 미만이면 422로 끊어 편차 0을 "정상"으로 적재하지 않습니다.', {
