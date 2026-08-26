@@ -297,7 +297,7 @@ async function main() {
   // ============================================================
   {
     const s = bgSlide(true);
-    header(s, '앱을 열기 전에 먼저 닿는 구조', '프로젝트 개요 · 차별성', true);
+    header(s, '차별성', '프로젝트 개요 · 차별성', true);
 
     hr(s, 0.62, 1.55, 5.75, true);
     s.addText('기존 서비스', { x: 0.62, y: 1.68, w: 5.75, h: 0.32, fontFace: FONT, fontSize: 12.5, bold: true, color: DARK_MUTED, margin: 0 });
@@ -354,7 +354,7 @@ async function main() {
   // ============================================================
   {
     const s = bgSlide(false);
-    header(s, '4인, 각자의 영역에서 전체를 관통', '팀 구성 및 역할', false);
+    header(s, '역할 분담', '팀 구성 및 역할', false);
 
     const roles = [
       ['이응균', 'PM · 기획 · 문서', '요구사항정의서·데이터베이스요구사항분석서 등 5종 산출물 총괄. 기업 브리프 대조·발표 방어 자료 작성.'],
@@ -595,7 +595,7 @@ async function main() {
   // ============================================================
   {
     const s = bgSlide(false);
-    header(s, '감정 분류 대신 개인 기준선 이탈 탐지', '수행 경과 · AI', false);
+    header(s, 'AI 설계 결과', '수행 경과 · AI', false);
 
     const steps = [
       ['1', '학습된 집계로 교체', '「상위 3개 평균 ÷ 4.0」이라는 임의 집계식을 입력은 늘리지 않으며 로지스틱 회귀로 교체'],
@@ -705,7 +705,7 @@ async function main() {
   // ============================================================
   {
     const s = bgSlide(false);
-    header(s, '3분으로 보는 귀기울임', '수행 경과 · 시연', false);
+    header(s, '시연 영상', '수행 경과 · 시연', false);
     s.addText('클릭하면 재생됩니다', {
       x: 0.62, y: 1.22, w: 8, h: 0.32, fontFace: FONT_LIGHT, fontSize: 12, color: TXT_MUTED, margin: 0,
     });
@@ -728,7 +728,7 @@ async function main() {
   // ============================================================
   {
     const s = bgSlide(false);
-    header(s, '위험한 사람부터 보이는 관제 화면', '수행 경과 · 관제', false);
+    header(s, '관제 화면', '수행 경과 · 관제', false);
 
     s.addShape('rect', { x: 0.6, y: 1.35, w: 7.5, h: 4.7, fill: { color: WHITE }, line: { color: LINE, width: 1 } });
     s.addImage({ path: img('ADMIN_DASH_01'), x: 0.6, y: 1.35, w: 7.5, h: 4.6875 });
@@ -755,7 +755,7 @@ async function main() {
   // ============================================================
   {
     const s = bgSlide(false);
-    header(s, '"전부 암호화" 대신 위험도 기반', '수행 경과 · 보안', false);
+    header(s, '보안 설계', '수행 경과 · 보안', false);
 
     s.addText('데이터가 민감할수록 보호가 강해집니다. 테이블 9곳에 같은 방식을 쓰지 않습니다.', {
       x: 0.62, y: 1.35, w: 7.0, h: 0.4, fontFace: FONT, fontSize: 12.5, bold: true, color: DARK, margin: 0,
@@ -805,7 +805,7 @@ async function main() {
   // ============================================================
   {
     const s = bgSlide(true);
-    header(s, '실측으로 증명된 수치', '수행 경과 · 성과', true);
+    header(s, '성과 지표', '수행 경과 · 성과', true);
 
     const tiles = [
       ['0.946', '위기 판정 재현율'],
