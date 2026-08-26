@@ -879,9 +879,12 @@ async function main() {
       ['정본을 하나로', '색·글꼴·스키마 값을 여러 곳에 반복 적지 않아, 나중에 값이 갈리는 사고 자체를 구조로 막았습니다.'],
     ];
     let gy = 2.0;
-    good.forEach(([h, b]) => {
+    // ⚠ 마지막 행("정본을 하나로")의 설명 글상자만 PM 이 PowerPoint 에서
+    // 0.85in → 0.67in 으로 직접 줄여뒀습니다(2026.08.26). 그대로 유지합니다.
+    good.forEach(([h, b], i) => {
+      const detailH = i === good.length - 1 ? 0.67 : 0.85;
       s.addText(h, { x: 0.62, y: gy, w: 5.8, h: 0.35, fontFace: FONT, fontSize: 11.5, bold: true, color: DARK, margin: 0 });
-      s.addText(b, { x: 0.62, y: gy + 0.35, w: 5.8, h: 0.85, fontFace: FONT_LIGHT, fontSize: 10, color: TXT2, margin: 0, lineSpacingMultiple: 1.25 });
+      s.addText(b, { x: 0.62, y: gy + 0.35, w: 5.8, h: detailH, fontFace: FONT_LIGHT, fontSize: 10, color: TXT2, margin: 0, lineSpacingMultiple: 1.25 });
       gy += 1.35;
     });
 
