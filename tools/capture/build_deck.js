@@ -807,7 +807,7 @@ async function main() {
     const boxY = pyramidBottom + 0.35;
     hr(s, 0.62, boxY, 12.1, false);
     s.addText([
-      { text: '"보안 요구를 기능 제약과 함께 설계"', options: { bold: true, color: DARK } },
+      { text: '보안 요구를 기능 제약과 함께 설계', options: { bold: true, color: DARK } },
       { text: '했습니다. 마스킹은 저장 전에 하며, 원문은 어디에도 남지 않고, 외부 LLM에도 마스킹된 텍스트만 전송됩니다.', options: { color: TXT2 } },
     ], { x: 0.62, y: boxY + 0.22, w: 12.1, h: 0.9, fontFace: FONT, fontSize: 12, lineSpacingMultiple: 1.35, margin: 0 });
     pageNum(s, false);
