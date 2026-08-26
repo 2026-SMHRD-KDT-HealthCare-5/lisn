@@ -358,16 +358,16 @@ async function main() {
 
     const roles = [
       ['이응균', 'PM · 기획 · 문서', '요구사항정의서·데이터베이스요구사항분석서 등 5종 산출물 총괄. 기업 브리프 대조·발표 방어 자료 작성.'],
-      ['김건영', 'AI · Data Analysis / Modeling', '개인 기준선 이탈 탐지 모델링. 26회 검증 시도 끝에 학습된 집계 채택. 위기 판정 프롬프트·평가셋 설계.'],
-      ['윤일준', 'Back-end · DB · Health Connect 연동', 'FastAPI 34개 엔드포인트, PostgreSQL 9테이블 스키마 정본 관리. Health Connect 연동·클라우드 배포(NCP).'],
-      ['함은선', 'Front-end · App UI', 'Flutter 앱 13개 화면·관리자 관제 웹 2개 화면. 화면설계서 기준 전체 UI 구현 및 API 연동.'],
+      ['김건영', 'AI · 모델링', '개인 기준선 이탈 탐지 모델링. 26회 검증 시도 끝에 학습된 집계 채택. 위기 판정 프롬프트·평가셋 설계.'],
+      ['윤일준', '백엔드 · DB', 'FastAPI 34개 엔드포인트, PostgreSQL 9테이블 스키마 정본 관리. Health Connect 연동·클라우드 배포(NCP).'],
+      ['함은선', '프론트엔드 · UI', 'Flutter 앱 13개 화면·관리자 관제 웹 2개 화면. 화면설계서 기준 전체 UI 구현 및 API 연동.'],
     ];
     let y = 1.35;
     const rh = 1.32;
     hr(s, 0.62, y, 12.1, false);
     roles.forEach(([n, role, detail]) => {
       s.addText(n, { x: 0.62, y, w: 1.7, h: rh, fontFace: SERIF, fontSize: 20, color: GOLD, valign: 'middle', margin: 0 });
-      s.addText(role, { x: 2.5, y: y + 0.18, w: 3.6, h: 0.95, fontFace: FONT, fontSize: 13, bold: true, color: DARK, valign: 'top', margin: 0, lineSpacingMultiple: 1.2 });
+      s.addText(role, { x: 2.5, y, w: 3.6, h: rh, fontFace: FONT, fontSize: 13, bold: true, color: DARK, valign: 'middle', margin: 0, lineSpacingMultiple: 1.2 });
       s.addText(detail, { x: 6.3, y, w: 6.2, h: rh, fontFace: FONT_LIGHT, fontSize: 11, color: TXT2, valign: 'middle', margin: 0, lineSpacingMultiple: 1.3 });
       hr(s, 0.62, y + rh, 12.1, false);
       y += rh;
