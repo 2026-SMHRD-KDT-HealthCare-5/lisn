@@ -135,6 +135,16 @@ async function main() {
     pageNum(s, true);
   }
 
+  // PM 이 PowerPoint 에서 직접 줄바꿈(Enter)을 넣어둔 자리를 재생성 후에도
+  // 그대로 유지하기 위한 헬퍼입니다. pptxgenjs 는 문자열 안의 개행을 인식하지
+  // 않고, 런(run) 배열에서 breakLine:true 를 준 런 다음에만 단락을 끊습니다.
+  function detailWithBreak(before, after) {
+    return [
+      { text: before, options: { breakLine: true } },
+      { text: after },
+    ];
+  }
+
   function hr(s, x, y, w, dark) {
     s.addShape('line', { x, y, w, h: 0, line: { color: dark ? DARK_LINE : LINE, width: 1 } });
   }
@@ -356,10 +366,13 @@ async function main() {
     const s = bgSlide(false);
     header(s, '역할 분담', '팀 구성 및 역할', false);
 
+    // ⚠ 아래 세 detail 은 PM 이 PowerPoint 에서 직접 줄바꿈 위치를 잡아둔
+    // 자리입니다(2026.08.26 — documents/ 의 손수정을 detailWithBreak 로 포팅).
+    // 재구성하더라도 이 줄바꿈 지점을 건드리지 마세요.
     const roles = [
-      ['이응균', 'PM · 기획 · 문서', '요구사항정의서·데이터베이스요구사항분석서 등 5종 산출물 총괄. 기업 브리프 대조·발표 방어 자료 작성.'],
-      ['김건영', 'AI · 모델링', '개인 기준선 이탈 탐지 모델링. 26회 검증 시도 끝에 학습된 집계 채택. 위기 판정 프롬프트·평가셋 설계.'],
-      ['윤일준', '백엔드 · DB', 'FastAPI 34개 엔드포인트, PostgreSQL 9테이블 스키마 정본 관리. Health Connect 연동·클라우드 배포(NCP).'],
+      ['이응균', 'PM · 기획 · 문서', detailWithBreak('요구사항정의서·데이터베이스요구사항분석서 등 5종 산출물 총괄. 기업 브리프 대조·발표 방어', '자료 작성.')],
+      ['김건영', 'AI · 모델링', detailWithBreak('개인 기준선 이탈 탐지 모델링. 26회 검증 시도 끝에 학습된 집계 채택. 위기 판정 프롬프트·', '평가셋 설계.')],
+      ['윤일준', '백엔드 · DB', detailWithBreak('FastAPI 34개 엔드포인트, PostgreSQL 9테이블 스키마 정본 관리. Health Connect 연동·', '클라우드 배포(NCP).')],
       ['함은선', '프론트엔드 · UI', 'Flutter 앱 13개 화면·관리자 관제 웹 2개 화면. 화면설계서 기준 전체 UI 구현 및 API 연동.'],
     ];
     let y = 1.35;
@@ -425,7 +438,7 @@ async function main() {
     header(s, '개발 방법론', '수행 절차 및 방법', false);
 
     const methods = [
-      ['스키마 정본 하나', 'db/schema.sql 이 유일한 정본입니다. 모델은 이 DDL의 매핑일 뿐이고, Base.metadata.create_all()·alembic 을 쓰지 않습니다 — 정본이 둘이면 문서와 코드가 반드시 갈립니다.'],
+      ['스키마 정본 하나', 'db/schema.sql 이 유일한 정본입니다. 모델은 이 DDL의 매핑일 뿐이고, Base.metadata.create_all()·alembic 을 쓰지 않습니다. 정본이 둘이면 문서와 코드가 반드시 갈립니다.'],
       ['문서 검사기 4종', '같은 수치가 문서마다 다르게 적히는 것을 사람이 세지 않고 기계가 대조합니다(check_docs·check_numbers·check_dup·check_screens). 실제로 API 30→33건, 테이블 8→9개가 이렇게 잡혔습니다.'],
       ['브랜치 · 병합 규율', '팀원별 브랜치(함은선·backend·docs) → main. 산출물 HWP·PPTX는 바이너리라 브랜치가 갈리면 병합이 안 돼, 문서 작업은 main에서 바로 커밋·푸시합니다.'],
       ['화면설계서가 정본', '앱이 화면설계서를 참조하지 않고 만들어진 결함을 8/02 전수 대조로 6건 발견·수정했습니다. 어긋나면 앱을 고치는 쪽입니다.'],
