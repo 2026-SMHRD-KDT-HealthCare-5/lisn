@@ -438,10 +438,10 @@ async function main() {
     header(s, '개발 방법론', '수행 절차 및 방법', false);
 
     const methods = [
-      ['스키마 정본 하나', 'db/schema.sql이 유일한 정본입니다. 모델은 이 DDL의 매핑일 뿐이며, Base.metadata.create_all()·alembic은 사용하지 않습니다. 정본이 둘이면 문서와 코드 간 불일치가 발생합니다.'],
-      ['문서 검사기 4종', '같은 수치가 문서마다 다르게 기재되는 문제를 사람이 아닌 검사 도구가 대조합니다(check_docs·check_numbers·check_dup·check_screens). 실제로 API 30→33건, 테이블 8→9개의 불일치를 이 방식으로 발견했습니다.'],
-      ['브랜치 · 병합 규율', '팀원별 브랜치(함은선·backend·docs)를 운영해 main으로 병합합니다. 산출물 HWP·PPTX는 바이너리 형식이라 브랜치가 분리되면 병합이 불가능해, 문서 작업은 main에서 직접 커밋·푸시합니다.'],
-      ['화면설계서가 정본', '앱이 화면설계서를 참조하지 않고 구현된 결함을 8/02 전수 대조를 통해 6건 발견·수정했습니다. 문서와 구현이 어긋날 경우 앱을 수정하는 것을 원칙으로 합니다.'],
+      ['스키마 정본 일원화', 'db/schema.sql이 유일한 정본입니다. 모델은 이 DDL의 매핑일 뿐이며, Base.metadata.create_all()·alembic은 사용하지 않습니다. 정본이 둘이면 문서와 코드 간 불일치가 발생합니다.'],
+      ['문서 정합성 자동 검증', '같은 수치가 문서마다 다르게 기재되는 문제를 사람이 아닌 검사 도구가 대조합니다(check_docs·check_numbers·check_dup·check_screens). 실제로 API 30→33건, 테이블 8→9개의 불일치를 이 방식으로 발견했습니다.'],
+      ['브랜치 운영·병합 정책', '팀원별 브랜치(함은선·backend·docs)를 운영해 main으로 병합합니다. 산출물 HWP·PPTX는 바이너리 형식이라 브랜치가 분리되면 병합이 불가능해, 문서 작업은 main에서 직접 커밋·푸시합니다.'],
+      ['화면설계서 기준 UI 검증', '앱이 화면설계서를 참조하지 않고 구현된 결함을 8/02 전수 대조를 통해 6건 발견·수정했습니다. 문서와 구현이 어긋날 경우 앱을 수정하는 것을 원칙으로 합니다.'],
     ];
     let y = 1.35;
     const rh = 1.28;
@@ -844,8 +844,8 @@ async function main() {
     s.addText([
       { text: '실서버 관통 점검 ', options: { bold: true, color: WHITE } },
       { text: '13건 수정 뒤 실패 0건    ·    ', options: { color: DARK_MUTED } },
-      { text: '문서 검사기 4종은 ', options: { bold: true, color: WHITE } },
-      { text: '같은 수치가 문서마다 갈리는 것을 사람이 세지 않고 기계가 대조합니다    ·    ', options: { color: DARK_MUTED } },
+      { text: '문서 정합성 자동 검증은 ', options: { bold: true, color: WHITE } },
+      { text: '같은 수치가 문서마다 달라지는 문제를 사람이 아닌 도구가 대조합니다    ·    ', options: { color: DARK_MUTED } },
       { text: 'db/schema.sql 정본은 ', options: { bold: true, color: WHITE } },
       { text: '드리프트 테스트가 모델과 어긋나면 실패합니다', options: { color: DARK_MUTED } },
     ], { x: 0.62, y: tilesBottom + 0.25, w: 12.1, h: 0.6, fontFace: FONT_LIGHT, fontSize: 10.5, lineSpacingMultiple: 1.35, margin: 0 });
