@@ -208,7 +208,7 @@ async function main() {
       ['01', '프로젝트 개요', '서비스 필요성 · 서비스 개념 · 차별성'],
       ['02', '수행 절차 및 방법', '일정 · 개발 방법론 · AI 모델링 · 위기 탐지 설계'],
       ['03', '수행 경과', '아키텍처 · 시연 · 관제 · 보안 · 실측 지표'],
-      ['04', '자체 평가 의견', '잘된 점 · 부족한 점 · 다음 단계'],
+      ['04', '자체 평가 의견', '트러블 슈팅 · 다음 단계'],
       ['05', '팀 구성 및 역할', '4인 역할 분담'],
     ];
     let y = 1.55;
@@ -265,7 +265,7 @@ async function main() {
     hr(s, 0.62, y0 + ch + 1.45, 12.1, false);
     s.addText([
       { text: '문제는 "자각"입니다. ', options: { bold: true, color: DARK } },
-      { text: '정서적 이상 징후는 본인이 자각하기 어렵고, 자각하지 못하는 사용자는 앱을 열지도 않습니다. 지원 서비스 인지도가 감소하는데 스트레스·우울감 경험률은 느는 이 간극을, 사용자가 앱을 열길 기다리지 않는 구조로 좁히려 합니다.', options: { color: TXT2 } },
+      { text: '정서적 이상 징후는 본인이 자각하기 어렵고, 자각하지 못하는 사용자는 앱을 열지도 않습니다. 지원 서비스 인지도가 감소하는데 스트레스·우울감 경험률은 늘어나는 이 간극을, 사용자가 앱을 열길 기다리지 않는 구조로 좁히려 합니다.', options: { color: TXT2 } },
     ], { x: 0.62, y: y0 + ch + 1.68, w: 11.4, h: 0.9, fontFace: FONT, fontSize: 12, lineSpacingMultiple: 1.35, margin: 0 });
     pageNum(s, false);
   }
@@ -546,7 +546,7 @@ async function main() {
     hr(s, 0.62, 4.62, 12.1, false);
 
     const cards = [
-      ['자동 수집', 'Health Connect · 앱 사용 로그를 앱이 직접 읽어 push / 닫혀 있어도 WorkManager가 15분마다 백그라운드로 전송'],
+      ['자동 수집', 'Health Connect · 앱 사용 로그를 앱이 직접 읽어 push 닫혀 있더라도 WorkManager가 15분마다 백그라운드로 전송'],
       ['개인정보 최소화', '앱 사용 지표는 패키지명 없이 화면 시간 · 전환 횟수 등 집계값만 전달'],
     ];
     const cardY0 = 4.85, cardH = 1.05;
@@ -683,10 +683,6 @@ async function main() {
   {
     const s = bgSlide(false);
     header(s, '시연 영상', '수행 경과 · 시연', false);
-    s.addText('클릭하면 재생됩니다', {
-      x: 0.62, y: 1.22, w: 8, h: 0.32, fontFace: FONT_LIGHT, fontSize: 12, color: TXT_MUTED, margin: 0,
-    });
-
     const vw = 8.6, vh = (vw * 9) / 16;
     const vx = (W - vw) / 2, vy = 1.75;
     s.addShape('rect', {
@@ -825,7 +821,7 @@ async function main() {
   // ============================================================
   {
     const s = pres.addSlide();
-    sectionCover(s, '04', '자체 평가 의견', '네 번째', '잘된 점 · 부족한 점 · 다음 단계');
+    sectionCover(s, '04', '자체 평가 의견', '네 번째', '트러블 슈팅 · 다음 단계');
   }
 
   // ============================================================
@@ -833,14 +829,14 @@ async function main() {
   // ============================================================
   {
     const s = bgSlide(false);
-    header(s, '잘된 점과 부족한 점', '자체 평가 의견', false);
+    header(s, '트러블 슈팅', '자체 평가 의견', false);
 
-    s.addText('잘된 점', { x: 0.62, y: 1.35, w: 5.8, h: 0.35, fontFace: FONT, fontSize: 14, bold: true, color: GOLD_DARK, margin: 0 });
+    s.addText('해결', { x: 0.62, y: 1.35, w: 5.8, h: 0.35, fontFace: FONT, fontSize: 14, bold: true, color: GOLD_DARK, margin: 0 });
     hr(s, 0.62, 1.78, 5.8, false);
     const good = [
-      ['검증 없이 채택 안 함', '학습 모델 채택에 26회, 위기 판정 개선에 4회차 재측정. "동작한다"가 아니라 "재봤더니 낫다"만 반영했습니다.'],
-      ['문서-구현 갭 스스로 해소', '요구사항 갭 9건 전부 해소. 마지막 갭(채팅 위기가 관제에 안 뜨던 것)은 발표 준비 중 직접 찾았습니다.'],
-      ['정본을 하나로', '색·글꼴·스키마 값을 여러 곳에 반복 적지 않아, 나중에 값이 갈리는 사고 자체를 구조로 막았습니다.'],
+      ['검증 없이 채택 안 함', '학습 모델 채택에 26회, 위기 판정 개선에 4회차 재측정.'],
+      ['문서-구현 갭 해소', '요구사항 9건 전부 해소. 채팅 위기 관제 누락 건 해소.'],
+      ['정본을 하나로', '다양한 환경에서 작업하더라도 일관성 있는 결과물 산출'],
     ];
     let gy = 2.0;
     // ⚠ 마지막 행("정본을 하나로")의 설명 글상자만 PM 이 PowerPoint 에서
@@ -854,7 +850,7 @@ async function main() {
 
     s.addShape('line', { x: 6.75, y: 1.35, w: 0, h: gy - 1.5, line: { color: LINE, width: 1 } });
 
-    s.addText('부족한 점', { x: 7.05, y: 1.35, w: 5.6, h: 0.35, fontFace: FONT, fontSize: 14, bold: true, color: TXT_FAINT, margin: 0 });
+    s.addText('미해결', { x: 7.05, y: 1.35, w: 5.6, h: 0.35, fontFace: FONT, fontSize: 14, bold: true, color: TXT_FAINT, margin: 0 });
     hr(s, 7.05, 1.78, 5.6, false);
     const bad = [
       ['실기기 검증 남음', 'Health Connect·FCM 모두 에뮬레이터·자격증명 초기화까지만 확인했습니다. 실기기 하나면 반나절 안에 끝나는 검증인데, 확보하지 못했습니다.'],
@@ -922,7 +918,7 @@ async function main() {
     // 자리입니다(2026.08.26 — documents/ 의 손수정을 detailWithBreak 로 포팅).
     // 재구성하더라도 이 줄바꿈 지점을 건드리지 마세요.
     const roles = [
-      ['이응균', 'PM · 기획 · 문서', detailWithBreak('요구사항정의서·데이터베이스요구사항분석서 등 5종 산출물 총괄. 기업 브리프 대조·발표 방어', '자료 작성.')],
+      ['이응균', 'PM', '기획서·요구사항정의서·데이터베이스요구사항분석서 등 5종 산출물 및 프로젝트 총괄.'],
       ['김건영', 'AI · 모델링', detailWithBreak('개인 기준선 이탈 탐지 모델링. 26회 검증 시도 끝에 학습된 집계 채택. 위기 판정 프롬프트·', '평가셋 설계.')],
       ['윤일준', '백엔드 · DB', detailWithBreak('FastAPI 34개 엔드포인트, PostgreSQL 9테이블 스키마 정본 관리. Health Connect 연동·', '클라우드 배포(NCP).')],
       ['함은선', '프론트엔드 · UI', 'Flutter 앱 13개 화면·관리자 관제 웹 2개 화면. 화면설계서 기준 전체 UI 구현 및 API 연동.'],
