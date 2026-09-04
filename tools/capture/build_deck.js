@@ -206,9 +206,9 @@ async function main() {
 
     const items = [
       ['01', '프로젝트 개요', '서비스 필요성 · 서비스 개념 · 차별성'],
-      ['02', '수행 절차 및 방법', '일정 · 개발 방법론 · AI 모델링 · 위기 탐지 설계'],
-      ['03', '수행 경과', '아키텍처 · 시연 · 관제 · 보안 · 실측 지표'],
-      ['04', '자체 평가 의견', '잘된 점 · 부족한 점 · 다음 단계'],
+      ['02', '수행 절차 및 방법', '일정 · 개발 방법론 · 데이터 · AI 모델링 · 위기 탐지 설계'],
+      ['03', '수행 경과', '아키텍처 · 화면 · 시연 · 관제 · 보안 · 실측 지표'],
+      ['04', '자체 평가 의견', '트러블 슈팅 · 다음 단계'],
       ['05', '팀 구성 및 역할', '4인 역할 분담'],
     ];
     let y = 1.55;
@@ -264,7 +264,7 @@ async function main() {
 
     hr(s, 0.62, y0 + ch + 1.45, 12.1, false);
     s.addText([
-      { text: '문제는 "자각"입니다. ', options: { bold: true, color: DARK } },
+      { text: '문제는 자각입니다. ', options: { bold: true, color: DARK } },
       { text: '정서적 이상 징후는 본인이 자각하기 어렵고, 자각하지 못하는 사용자는 앱을 열지도 않습니다. 지원 서비스 인지도가 감소하는데 스트레스·우울감 경험률은 늘어나는 이 간극을, 사용자가 앱을 열길 기다리지 않는 구조로 좁히려 합니다.', options: { color: TXT2 } },
     ], { x: 0.62, y: y0 + ch + 1.68, w: 11.4, h: 0.9, fontFace: FONT, fontSize: 12, lineSpacingMultiple: 1.35, margin: 0 });
     pageNum(s, false);
@@ -316,10 +316,10 @@ async function main() {
 
     hr(s, 0.62, 1.55, 5.75, true);
     s.addText('기존 서비스', { x: 0.62, y: 1.68, w: 5.75, h: 0.32, fontFace: FONT, fontSize: 12.5, bold: true, color: DARK_MUTED, margin: 0 });
-    s.addText('감지 → 사용자가 앱을 열어야 확인 → 끝', {
+    s.addText('감지 → 사용자가 앱을 열어야 확인', {
       x: 0.62, y: 2.05, w: 5.75, h: 0.55, fontFace: FONT, fontSize: 16, color: WHITE, bold: true, margin: 0,
     });
-    s.addText('위기일수록 앱을 열 힘이 없는데, 확인 자체를 사용자에게 맡깁니다.', {
+    s.addText('위기일수록 타인의 힘이 필요하기 마련이지만, 스스로 모든 것을 직접 해야합니다.', {
       x: 0.62, y: 2.62, w: 5.75, h: 0.7, fontFace: FONT_LIGHT, fontSize: 11.5, color: DARK_BODY, margin: 0, lineSpacingMultiple: 1.3,
     });
 
@@ -361,7 +361,7 @@ async function main() {
   // ============================================================
   {
     const s = pres.addSlide();
-    sectionCover(s, '02', '수행 절차 및 방법', '두 번째', '일정 · 개발 방법론 · AI 모델링 · 위기 탐지 설계');
+    sectionCover(s, '02', '수행 절차 및 방법', '두 번째', '일정 · 개발 방법론 · 데이터 · AI 모델링 · 위기 탐지 설계');
   }
 
   // ============================================================
@@ -396,25 +396,146 @@ async function main() {
 
   // ============================================================
   // 개발 방법론
+  //   ⚠ 2026-09-04 재작성. 이전 판은 「스키마 정본 일원화 · 문서 정합성
+  //     자동 검증 · 브랜치 정책 · 화면설계서 UI 검증」 네 항목이었는데,
+  //     방법론(개발을 어떤 방식으로 진행했는가)이 아니라 정합성 관리
+  //     실무 나열에 가까웠습니다. 원칙 → 구조 → 강제 → 운영 순으로
+  //     다시 세웠습니다.
+  //   ⚠ 이전 판의 「API 30→33」은 8/06 시점 기록이라 덱의 다른 곳(34개)과
+  //     어긋났습니다. 시점이 붙지 않은 수치는 뺐습니다.
   // ============================================================
   {
     const s = bgSlide(false);
     header(s, '개발 방법론', '수행 절차 및 방법', false);
 
+    s.addText([
+      { text: '문서를 정본으로 두고, 문서와 구현이 일치하는지를 사람이 아니라 검사 도구가 확인합니다. ',
+        options: { bold: true, color: DARK } },
+      { text: '4인이 각자 구현하면 같은 값이 문서마다 달라지는데, 그 대조를 사람이 기억으로 하면 반드시 새어 나갑니다.',
+        options: { color: TXT2 } },
+    ], { x: 0.62, y: 1.3, w: 12.1, h: 0.52, fontFace: FONT, fontSize: 12.5, margin: 0, lineSpacingMultiple: 1.35 });
+
     const methods = [
-      ['스키마 정본 일원화', 'db/schema.sql이 유일한 정본입니다. 모델은 이 DDL의 매핑일 뿐이며, Base.metadata.create_all()·alembic은 사용하지 않습니다. 정본이 둘이면 문서와 코드 간 불일치가 발생합니다.'],
-      ['문서 정합성 자동 검증', '같은 수치가 문서마다 다르게 기재되는 문제를 사람이 아닌 검사 도구가 대조합니다(check_docs·check_numbers·check_dup·check_screens). 실제로 API 30→33건, 테이블 8→9개의 불일치를 이 방식으로 발견했습니다.'],
-      ['브랜치 운영·병합 정책', '팀원별 브랜치(함은선·backend·docs)를 운영해 main으로 병합합니다. 산출물 HWP·PPTX는 바이너리 형식이라 브랜치가 분리되면 병합이 불가능해, 문서 작업은 main에서 직접 커밋·푸시합니다.'],
-      ['화면설계서 기준 UI 검증', '앱이 화면설계서를 참조하지 않고 구현된 결함을 8/02 전수 대조를 통해 6건 발견·수정했습니다. 문서와 구현이 어긋날 경우 앱을 수정하는 것을 원칙으로 합니다.'],
+      ['원칙', '문서가 정본이다',
+       '요구사항정의서와 화면설계서가 정본이고 구현이 그것을 따릅니다. 어긋나면 문서가 아니라 앱을 고칩니다. 8/02 전수 대조에서 6건을 발견해 정합하였습니다.'],
+      ['구조', '정본은 하나만 둔다',
+       '스키마는 db/schema.sql 하나입니다. ORM 모델은 그 DDL 의 매핑일 뿐이고 create_all 과 alembic 을 쓰지 않습니다. 정본이 둘이 되면 산출 문서와 대조할 기준이 사라집니다.'],
+      ['강제', '세는 일은 사람이 하지 않는다',
+       '검사 도구 4종(check_docs · check_numbers · check_dup · check_screens)이 문서 간 수치와 문서↔구현을 대조합니다. 회귀 테스트 348건이 그 상태를 유지합니다.'],
+      ['운영', '바이너리는 병합되지 않는다',
+       '팀원별 브랜치를 main 으로 병합하되, HWP·PPTX 산출물은 바이너리라 브랜치가 갈리면 병합할 수 없습니다. 문서 작업만 main 에서 직접 커밋합니다.'],
     ];
-    let y = 1.35;
-    const rh = 1.28;
+
+    let y = 2.02;
+    const rh = 1.16;
     hr(s, 0.62, y, 12.1, false);
-    methods.forEach(([h, b]) => {
-      s.addText(h, { x: 0.62, y, w: 3.3, h: rh, fontFace: FONT, fontSize: 13.5, bold: true, color: GOLD_DARK, valign: 'middle', margin: 0 });
-      s.addText(b, { x: 4.15, y, w: 8.35, h: rh, fontFace: FONT_LIGHT, fontSize: 11, color: TXT2, valign: 'middle', margin: 0, lineSpacingMultiple: 1.3 });
+    methods.forEach(([tag, h, b]) => {
+      s.addText(tag, { x: 0.62, y, w: 0.9, h: rh, fontFace: FONT, fontSize: 10.5, bold: true, color: GOLD, valign: 'middle', margin: 0 });
+      s.addText(h, { x: 1.6, y, w: 3.0, h: rh, fontFace: FONT, fontSize: 13, bold: true, color: DARK, valign: 'middle', margin: 0, lineSpacingMultiple: 1.15 });
+      s.addText(b, { x: 4.85, y, w: 7.87, h: rh, fontFace: FONT_LIGHT, fontSize: 10.5, color: TXT2, valign: 'middle', margin: 0, lineSpacingMultiple: 1.3 });
       hr(s, 0.62, y + rh, 12.1, false);
       y += rh;
+    });
+
+    s.addText('명명된 방법론을 도입하는 것보다, 어긋남이 생기는 자리를 찾아 그 자리마다 검사를 두는 편이 4인 6주 규모에 맞았습니다.', {
+      x: 0.62, y: y + 0.2, w: 12.1, h: 0.4, fontFace: FONT_LIGHT, fontSize: 10.5, color: TXT_MUTED, margin: 0,
+    });
+    pageNum(s, false);
+  }
+
+  // ============================================================
+  // 데이터 확보
+  //   ⚠ 기업 브리프 원문이 「데이터 확보 — 오픈 데이터 활용」을 지정했습니다.
+  //     「기업이 데이터를 안 줘서 못 했다」로 읽히는 문장을 쓰지 마세요 —
+  //     사실과 다르고 브리프를 안 읽은 것으로 보입니다.
+  //     근거: docs/검증/기업과제_대조_방어_20260825.md
+  // ============================================================
+  {
+    const s = bgSlide(false);
+    header(s, '데이터 확보', '수행 절차 및 방법 · 데이터', false);
+
+    s.addText('기업 브리프가 「오픈 데이터 활용」을 지정했습니다. 공개 데이터셋 3종을 받아 라벨 적합성을 각각 확인하고 한 종을 채택했습니다.', {
+      x: 0.62, y: 1.28, w: 12.1, h: 0.4, fontFace: FONT_LIGHT, fontSize: 11.5,
+      color: TXT2, margin: 0, lineSpacingMultiple: 1.3,
+    });
+
+    const cols = [
+      ['데이터셋', 0.62, 2.75],
+      ['확보 범위', 3.45, 2.6],
+      ['라벨', 6.15, 3.15],
+      ['판정', 9.4, 3.32],
+    ];
+    let y = 1.9;
+    cols.forEach(([h, x, w]) => {
+      s.addText(h, { x, y, w, h: 0.32, fontFace: FONT, fontSize: 11, bold: true, color: TXT_MUTED, margin: 0 });
+    });
+    y += 0.36;
+    hr(s, 0.62, y, 12.1, false);
+    y += 0.12;
+
+    const rows = [
+      ['GLOBEM', 'INS-W 공개 샘플 4종\n(수면 · 걸음수)', '우울 척도(dep_endterm)\n감정 라벨 없음', '감정 분류로 치환 불가', false],
+      ['PMData', 'Fitbit 수면 JSON\n(deep · light · rem · wake)', '감정 라벨 없음', '표본 규모 부족 · 미채택', false],
+      ['LifeSnaps RAIS', '62명 · 4,086표본', 'SEMA MOOD ·\nTENSE/ANXIOUS', '채택 — 학습·검증 정본', true],
+    ];
+    rows.forEach(([a, b, c, d, pick]) => {
+      const rh = 1.02;
+      if (pick) {
+        s.addShape('rect', { x: 0.5, y: y - 0.06, w: 12.34, h: rh, fill: { color: 'F1EADD' }, line: { color: 'FFFFFF', width: 0 } });
+        s.addShape('line', { x: 0.5, y: y - 0.06, w: 0, h: rh, line: { color: GOLD, width: 3 } });
+      }
+      s.addText(a, { x: 0.62, y, w: 2.75, h: rh - 0.1, fontFace: FONT, fontSize: 12.5, bold: true, color: DARK, valign: 'middle', margin: 0 });
+      s.addText(b, { x: 3.45, y, w: 2.6, h: rh - 0.1, fontFace: FONT_LIGHT, fontSize: 10, color: TXT2, valign: 'middle', margin: 0, lineSpacingMultiple: 1.25 });
+      s.addText(c, { x: 6.15, y, w: 3.15, h: rh - 0.1, fontFace: FONT_LIGHT, fontSize: 10, color: TXT2, valign: 'middle', margin: 0, lineSpacingMultiple: 1.25 });
+      s.addText(d, { x: 9.4, y, w: 3.32, h: rh - 0.1, fontFace: FONT, fontSize: 10.5, bold: pick, color: pick ? GOLD_DARK : TXT2, valign: 'middle', margin: 0, lineSpacingMultiple: 1.25 });
+      y += rh;
+      hr(s, 0.62, y - 0.06, 12.1, false);
+    });
+
+    s.addText('AI Hub 는 내국인 안심존 접근 제한으로 사용하지 못해 위 3종으로 대체했습니다.', {
+      x: 0.62, y: y + 0.16, w: 12.1, h: 0.36, fontFace: FONT_LIGHT, fontSize: 10.5,
+      color: TXT_MUTED, margin: 0,
+    });
+    pageNum(s, false);
+  }
+
+  // ============================================================
+  // 전처리
+  // ============================================================
+  {
+    const s = bgSlide(false);
+    header(s, '전처리', '수행 절차 및 방법 · 데이터', false);
+
+    const steps = [
+      ['원천 파싱', '수면 단계 · 걸음수 ·\n심박 · HRV · 체성분'],
+      ['개인 기준선', '참가자별 평소 분포를\n먼저 세웁니다'],
+      ['이탈 지표 7개', '평소 대비 오늘의\n편차를 수치화'],
+      ['학습 행렬', '결측은 0이 아니라\nnull 로 유지'],
+    ];
+    const bw = 2.86, bh = 1.42, gap = 0.22;
+    steps.forEach(([t, d], i) => {
+      const x = 0.62 + i * (bw + gap);
+      s.addShape('rect', { x, y: 1.5, w: bw, h: bh, fill: { color: WHITE }, line: { color: LINE, width: 1 } });
+      s.addShape('line', { x, y: 1.5, w: bw, h: 0, line: { color: GOLD, width: 3 } });
+      s.addText(t, { x: x + 0.18, y: 1.66, w: bw - 0.36, h: 0.34, fontFace: FONT, fontSize: 12.5, bold: true, color: DARK, margin: 0 });
+      s.addText(d, { x: x + 0.18, y: 2.04, w: bw - 0.36, h: 0.72, fontFace: FONT_LIGHT, fontSize: 9.5, color: TXT2, margin: 0, lineSpacingMultiple: 1.25 });
+      if (i < steps.length - 1) {
+        s.addText('→', { x: x + bw, y: 1.5, w: gap, h: bh, fontFace: FONT, fontSize: 13, color: TXT_MUTED, align: 'center', valign: 'middle', margin: 0 });
+      }
+    });
+
+    let y = 3.28;
+    const notes = [
+      ['스크린타임을 일부러 뺐습니다', 'GLOBEM 에는 screen.csv 가 있지만 쓰지 않았습니다. LISN 은 폰 사용량을 수집하지 않으므로, 그 피처로 학습하면 배포 시 그 자리가 비어 성능이 나오지 않습니다. 서비스가 만들 수 있는 피처만 씁니다.'],
+      ['결측을 0 으로 채우지 않습니다', '「0걸음」과 「측정 안 됨」은 다른 사건입니다. 실측치가 3일치 미만이면 판정을 422 로 끊어, 편차 0 을 「정상」으로 적재하지 않습니다.'],
+    ];
+    hr(s, 0.62, y, 12.1, false);
+    y += 0.16;
+    notes.forEach(([h, b]) => {
+      s.addText(h, { x: 0.62, y, w: 3.5, h: 0.7, fontFace: FONT, fontSize: 12, bold: true, color: DARK, valign: 'top', margin: 0, lineSpacingMultiple: 1.2 });
+      s.addText(b, { x: 4.3, y, w: 8.42, h: 0.86, fontFace: FONT_LIGHT, fontSize: 10.5, color: TXT2, valign: 'top', margin: 0, lineSpacingMultiple: 1.35 });
+      y += 1.0;
+      hr(s, 0.62, y - 0.1, 12.1, false);
     });
     pageNum(s, false);
   }
@@ -432,7 +553,9 @@ async function main() {
     hr(s, 0.62, 1.9, 12.1, false);
 
     const rows = [
-      ['채택', '학습된 집계(로지스틱 회귀)', 'AUC 0.609', GOLD_DARK],
+      // ⚠ 0.609 에는 반드시 「참가자 내부」를 붙입니다(상위 CLAUDE.md 절대규칙 2).
+      //   전체 AUC 는 0.546 이라, 조건 없는 0.609 는 방어할 수 없습니다.
+      ['채택', '학습된 집계(로지스틱 회귀)', '참가자 내부 AUC 0.609', GOLD_DARK],
       ['비교', 'Isolation Forest(전역 · 개인별)', '0.473 · 0.494', TXT_FAINT],
       ['비교', 'ElasticNet · 상호작용 모델', '+0.005(ns) · −0.034', TXT_FAINT],
       ['비교', '추세 검정 → 3일 앞 예측', '전부 0.5 미만', TXT_FAINT],
@@ -454,10 +577,10 @@ async function main() {
     });
 
     hr(s, 0.62, y + 0.15, 12.1, false);
-    s.addText('재봤더니 근거가 없어서 유지합니다.', {
+    s.addText('이상 감지를 위한 과정', {
       x: 0.62, y: y + 0.35, w: 11.4, h: 0.4, fontFace: FONT, fontSize: 12.5, bold: true, color: DARK, margin: 0,
     });
-    s.addText('참가자 분할 GroupKFold(5) + 중첩 교차검증 · 부트스트랩 2000회 · LifeSnaps 62명 4086표본. 3일 앞 예측이 안 된다는 것도 중요한 발견입니다. 선제 접촉은 지금 평소와 다른 사람에게 먼저 말을 겁니다.', {
+    s.addText('참가자 분할 GroupKFold(5) + 중첩 교차검증으로 과적합 방지 · 부트스트랩 2000회 · LifeSnaps 62명 4086표본.', {
       x: 0.62, y: y + 0.78, w: 11.4, h: 0.7, fontFace: FONT_LIGHT, fontSize: 10.5, color: TXT2, lineSpacingMultiple: 1.3, margin: 0,
     });
     pageNum(s, false);
@@ -486,11 +609,12 @@ async function main() {
     });
     hr(s, 0.62, y, 12.1, false);
 
-    s.addText('재현율 0.081 → 0.946', {
-      x: 0.62, y: y + 0.2, w: 11.4, h: 0.4, fontFace: FONT, fontSize: 13, bold: true, color: DARK, margin: 0,
-    });
-    s.addText('키워드 단독 재현율 0.081(직접 표현만 잡음) → 문맥 판정 결합 후 0.946. 정신건강 서비스라 경고색은 쓰지 않고, 데이터가 3일 미만이면 422로 끊어 편차 0을 "정상"으로 적재하지 않습니다.', {
-      x: 0.62, y: y + 0.6, w: 11.4, h: 0.6, fontFace: FONT_LIGHT, fontSize: 10.5, color: TXT2, lineSpacingMultiple: 1.3, margin: 0,
+    // 2026-09-04 — 「재현율 0.081 → 0.946 · 경고색 · 3일 미만 422」 요약 문단을
+    //   여기서 뺐습니다. 세 항목이 전부 슬라이드 19(위기 탐지 2단계 구조)에
+    //   다시 나옵니다. 02 는 설계 결정, 03 은 결과와 수치로 역할을 가릅니다.
+    s.addText('세 결정 모두 「응답 품질보다 안전을 먼저」라는 한 기준에서 나왔습니다. 결과 수치는 수행 경과에서 제시합니다.', {
+      x: 0.62, y: y + 0.24, w: 11.4, h: 0.4, fontFace: FONT_LIGHT, fontSize: 11,
+      color: TXT_MUTED, margin: 0,
     });
     pageNum(s, false);
   }
@@ -500,69 +624,202 @@ async function main() {
   // ============================================================
   {
     const s = pres.addSlide();
-    sectionCover(s, '03', '수행 경과', '세 번째', '아키텍처 · 시연 · 관제 · 보안 · 실측 지표');
+    sectionCover(s, '03', '수행 경과', '세 번째', '아키텍처 · 화면 · 시연 · 관제 · 보안 · 실측 지표');
   }
 
   // ============================================================
-  // 서버 분리 (아키텍처)
+  // 시스템 아키텍처 — 다이어그램 1장
+  //   그림은 docs/design/src/ARCH_SYSTEM_01.html 을 Edge 헤드리스로 구운 것이다.
+  //   HTML 을 고쳤으면 다시 굽고 나서 이 스크립트를 돌릴 것 —
+  //   PNG 는 빌드 산출물이 아니라 입력이다.
+  //     msedge --headless=new --disable-gpu --hide-scrollbars
+  //            --force-device-scale-factor=2 --window-size=1600,790
+  //            --virtual-time-budget=4000
+  //            --screenshot=docs/design/ARCH_SYSTEM_01.png <html>
   // ============================================================
   {
     const s = bgSlide(false);
-    header(s, '서버 분리', '수행 경과 · 아키텍처', false);
+    header(s, '시스템 아키텍처', '수행 경과 · 아키텍처', false);
 
-    const boxY = 1.75, boxH = 1.3;
-    const boxes = [
-      { x: 0.62, w: 3.05, title: 'Flutter 앱', sub: '사용자 · 관리자 웹', dark: true },
-      { x: 4.9, w: 3.62, title: '비즈니스 서버', sub: 'FastAPI · 인증·대화·위기키워드·정책', dark: false },
-      { x: 9.75, w: 2.97, title: 'AI 추론 서버', sub: 'FastAPI · 개인 기준선 이탈 탐지', dark: false },
+    // 3200x1580 (비율 2.025). 폭을 본문에 맞추고 높이를 비율로 잡는다.
+    const iw = 12.1, ih = iw * (1580 / 3200);
+    s.addImage({ path: img('ARCH_SYSTEM_01'), x: 0.62, y: 1.42, w: iw, h: ih });
+    pageNum(s, false);
+  }
+
+  // ============================================================
+  // 배포 구성 — 컨테이너 · 데이터 계층
+  //   수치 재현:
+  //     테이블  grep -icE '^\s*CREATE TABLE' db/schema.sql              → 9
+  //     API     grep -rhoE '@router\.(get|post|put|patch|delete)' backend/app/api/ | wc -l → 34
+  //     인덱스  grep -icE '^\s*CREATE( UNIQUE)? INDEX' db/schema.sql    → 8
+  //   컨테이너 구성: infra/docker-compose.yml
+  // ============================================================
+  {
+    const s = bgSlide(false);
+    header(s, '배포 구성', '수행 경과 · 아키텍처', false);
+
+    // --- 컨테이너 4종 : nginx 만 외부에 열려 있습니다 ---
+    s.addText('컨테이너 4종 · NCP VM 1대', {
+      x: 0.62, y: 1.32, w: 6.0, h: 0.32, fontFace: FONT, fontSize: 13, bold: true, color: DARK, margin: 0,
+    });
+
+    const conts = [
+      ['nginx 1.27', '80 · 443 공개', 'Let’s Encrypt 자동 갱신 등록', true],
+      ['backend', '8000 내부', 'FastAPI 비즈니스 서버', false],
+      ['ai-server', '8001 내부', 'FastAPI 추론 서버', false],
+      ['postgres 17', '5432 내부', '볼륨으로 데이터 보존', false],
     ];
-    boxes.forEach((b) => {
-      if (b.dark) {
-        s.addShape('rect', { x: b.x, y: boxY, w: b.w, h: boxH, fill: { color: DARK }, line: { type: 'none' } });
-        s.addText(b.title, { x: b.x + 0.25, y: boxY + 0.3, w: b.w - 0.5, h: 0.35, fontFace: FONT, fontSize: 14.5, bold: true, color: WHITE, margin: 0 });
-        s.addText(b.sub, { x: b.x + 0.25, y: boxY + 0.72, w: b.w - 0.5, h: 0.45, fontFace: FONT_LIGHT, fontSize: 10, color: DARK_MUTED, margin: 0, lineSpacingMultiple: 1.2 });
-      } else {
-        s.addShape('rect', { x: b.x, y: boxY, w: b.w, h: boxH, fill: { color: WHITE }, line: { color: LINE, width: 1 } });
-        s.addText(b.title, { x: b.x + 0.25, y: boxY + 0.3, w: b.w - 0.5, h: 0.35, fontFace: FONT, fontSize: 14.5, bold: true, color: DARK, margin: 0 });
-        s.addText(b.sub, { x: b.x + 0.25, y: boxY + 0.72, w: b.w - 0.5, h: 0.45, fontFace: FONT_LIGHT, fontSize: 10, color: TXT_MUTED, margin: 0, lineSpacingMultiple: 1.2 });
-      }
+    let cy = 1.74;
+    conts.forEach(([n, port, desc, open]) => {
+      s.addShape('rect', {
+        x: 0.62, y: cy, w: 6.0, h: 0.74,
+        fill: { color: open ? 'F1EADD' : WHITE }, line: { color: open ? GOLD : LINE, width: open ? 2 : 1 },
+      });
+      s.addText(n, { x: 0.82, y: cy + 0.12, w: 2.1, h: 0.3, fontFace: FONT, fontSize: 12, bold: true, color: DARK, margin: 0 });
+      s.addText(port, {
+        x: 0.82, y: cy + 0.44, w: 2.1, h: 0.26, fontFace: FONT_LIGHT, fontSize: 9.5,
+        color: open ? GOLD_DARK : TXT_MUTED, margin: 0,
+      });
+      s.addText(desc, { x: 3.05, y: cy + 0.26, w: 3.4, h: 0.4, fontFace: FONT_LIGHT, fontSize: 10, color: TXT2, valign: 'middle', margin: 0 });
+      cy += 0.82;
     });
-    [[3.67, 4.9, '걸음·수면·심박·앱 사용 push'], [8.52, 9.75, '내부 통신']].forEach(([ax1, ax2, label]) => {
-      s.addShape('line', { x: ax1, y: boxY + boxH / 2, w: ax2 - ax1, h: 0, line: { color: GOLD, width: 1.5 } });
-      s.addText(label, { x: ax1 - 0.3, y: boxY - 0.3, w: (ax2 - ax1) + 0.6, h: 0.28, fontFace: FONT_LIGHT, fontSize: 8.5, color: TXT_MUTED, align: 'center', margin: 0 });
+
+    s.addText('외부로 여는 포트는 nginx 의 80 · 443 둘뿐입니다. DB · 두 서버는 컨테이너 네트워크 안에만 있어 인터넷에서 직접 닿지 않습니다.', {
+      x: 0.62, y: cy + 0.08, w: 6.0, h: 0.6, fontFace: FONT_LIGHT, fontSize: 9.5,
+      color: TXT_MUTED, margin: 0, lineSpacingMultiple: 1.3,
     });
-    s.addText('☁ 클라우드 배포: NCP + Docker Compose · HTTPS(Let\u2019s Encrypt) · FCM 실키 적용', {
-      x: 0.62, y: 3.08, w: 12.1, h: 0.24, fontFace: FONT_LIGHT, fontSize: 9, color: GOLD_DARK, align: 'right', margin: 0,
+
+    // --- 가동 확인 (2026.09.04 실측) ---
+    //   curl https://101.79.24.15.nip.io/health      → {"status":"ok"}
+    //   curl https://101.79.24.15.nip.io/health/db   → {"status":"ok","database":"connected"}
+    //   openssl s_client … | openssl x509 -dates     → notAfter Nov 22 2026
+    s.addShape('rect', { x: 0.62, y: cy + 0.78, w: 6.0, h: 1.32, fill: { color: 'F1EADD' }, line: { color: GOLD, width: 1 } });
+    s.addText('가동 확인 · 2026.09.04', {
+      x: 0.82, y: cy + 0.9, w: 5.6, h: 0.28, fontFace: FONT, fontSize: 11, bold: true, color: GOLD_DARK, margin: 0,
     });
-    hr(s, 0.62, 3.35, 12.1, false);
     s.addText([
-      { text: '위기 키워드 필터는 비즈니스 서버 안에 둡니다.  ', options: { bold: true, color: DARK } },
-      { text: 'AI 서버가 죽어도 탐지가 멈추면 안 되기 때문입니다.', options: { color: TXT2 } },
-    ], { x: 0.62, y: 3.55, w: 12.1, h: 0.4, fontFace: FONT, fontSize: 13, margin: 0 });
-
-    s.addText('앱이 먼저 보내고, 서버는 끌어오지 않습니다', {
-      x: 0.62, y: 4.2, w: 11.4, h: 0.35, fontFace: FONT, fontSize: 14, bold: true, color: DARK, margin: 0,
+      { text: 'https://101.79.24.15.nip.io', options: { bold: true, color: DARK } },
+      { text: '   · /health 200  · /health/db connected', options: { color: TXT2 } },
+    ], { x: 0.82, y: cy + 1.2, w: 5.6, h: 0.3, fontFace: FONT, fontSize: 10, margin: 0 });
+    s.addText('HTTPS 인증서 2026.11.22 까지 유효 · 컨테이너 4종 모두 restart 정책으로 재기동 시 자동 복구', {
+      x: 0.82, y: cy + 1.5, w: 5.6, h: 0.5, fontFace: FONT_LIGHT, fontSize: 9,
+      color: TXT2, margin: 0, lineSpacingMultiple: 1.25,
     });
-    hr(s, 0.62, 4.62, 12.1, false);
 
-    const cards = [
-      ['자동 수집', 'Health Connect · 앱 사용 로그를 앱이 직접 읽어 push닫혀 있더라도 WorkManager가 15분마다 백그라운드로 전송'],
-      ['개인정보 최소화', '앱 사용 지표는 패키지명 없이 화면 시간 · 전환 횟수 등 집계값만 전달'],
+    // --- 데이터 계층 ---
+    s.addText('데이터 계층', {
+      x: 7.0, y: 1.32, w: 5.72, h: 0.32, fontFace: FONT, fontSize: 13, bold: true, color: DARK, margin: 0,
+    });
+
+    const stats = [['9', '테이블'], ['34', 'REST API'], ['8', '인덱스']];
+    stats.forEach(([v, l], i) => {
+      const x = 7.0 + i * 1.95;
+      s.addText(v, { x, y: 1.74, w: 1.8, h: 0.62, fontFace: SERIF_BOLD, fontSize: 34, color: GOLD, margin: 0 });
+      s.addText(l, { x, y: 2.4, w: 1.8, h: 0.28, fontFace: FONT_LIGHT, fontSize: 10, color: TXT_MUTED, margin: 0 });
+    });
+
+    hr(s, 7.0, 2.86, 5.72, false);
+    const dnotes = [
+      ['UUID v4 · TIMESTAMPTZ · JSONB', '전 테이블 공통 표준. 시각 컬럼에 tz 를 빠뜨리면 tz-aware 값을 넣는 순간 드라이버가 죽습니다.'],
+      ['(user_id, collected_at DESC)', '라이프로그는 기간별 조회가 핵심 동작이라 복합 인덱스를 먼저 설계했습니다.'],
+      ['탈퇴 시 CASCADE', '회원 삭제가 하위 기록까지 함께 지웁니다.'],
     ];
-    const cardY0 = 4.85, cardH = 1.05;
-    cards.forEach(([h, b], i) => {
-      const y = cardY0 + i * (cardH + 0.1);
-      s.addText(h, { x: 0.62, y, w: 7.3, h: 0.3, fontFace: FONT, fontSize: 12.5, bold: true, color: GOLD_DARK, margin: 0 });
-      s.addText(b, { x: 0.62, y: y + 0.32, w: 7.3, h: 0.7, fontFace: FONT_LIGHT, fontSize: 10.5, color: TXT2, margin: 0, lineSpacingMultiple: 1.25 });
+    let dy = 3.02;
+    dnotes.forEach(([h, b]) => {
+      s.addText(h, { x: 7.0, y: dy, w: 5.72, h: 0.28, fontFace: FONT, fontSize: 11, bold: true, color: DARK, margin: 0 });
+      s.addText(b, { x: 7.0, y: dy + 0.28, w: 5.72, h: 0.62, fontFace: FONT_LIGHT, fontSize: 9.5, color: TXT2, margin: 0, lineSpacingMultiple: 1.3 });
+      dy += 0.98;
     });
 
-    const imgH = 1.95, imgW = imgH * (530 / 755), imgX = 9.25, imgY = 4.78;
-    s.addImage({
-      path: img('DEMO_VIDEO_LIFELOG_01'), x: imgX, y: imgY, w: imgW, h: imgH,
-      shadow: { type: 'outer', color: '1A1F2B', opacity: 0.35, blur: 10, offset: 4, angle: 90 },
+    // --- 심사용 테스트 계정 ---
+    //   ⚠ 이 두 줄만 채우고 다시 생성하세요. 계정은 운영 DB 에 직접 만듭니다 —
+    //     docs/가이드/심사용_계정_발급.md 절차를 그대로 따르면 됩니다.
+    //     빈 문자열이면 이 상자를 통째로 건너뜁니다(빈 칸이 찍히는 것보다 낫습니다).
+    // 자격증명은 소스에 두지 않는다 — 이 저장소는 공개다.
+    //   tools/capture/demo_account.json (gitignore 대상) 에서 읽는다:
+    //     { "id": "demo.admin@lisn-test.example", "pw": "..." }
+    //   파일이 없으면 빈 값이 되어 아래 상자를 통째로 건너뛴다.
+    //   심사 제출본을 만들 때만 그 파일을 두고 빌드하세요.
+    let DEMO_ID = '', DEMO_PW = '';
+    try {
+      const a = JSON.parse(require('fs').readFileSync(
+        require('path').join(__dirname, 'demo_account.json'), 'utf8'));
+      DEMO_ID = a.id || ''; DEMO_PW = a.pw || '';
+    } catch (e) { /* 파일 없음 — 계정 상자 생략 */ }
+    if (DEMO_ID && DEMO_PW) {
+      s.addShape('rect', { x: 7.0, y: 6.06, w: 5.72, h: 0.84, fill: { color: 'F1EADD' }, line: { color: GOLD, width: 1 } });
+      s.addText('심사용 계정', {
+        x: 7.2, y: 6.16, w: 5.32, h: 0.26, fontFace: FONT, fontSize: 11, bold: true, color: GOLD_DARK, margin: 0,
+      });
+      s.addText([
+        { text: DEMO_ID, options: { bold: true, color: DARK } },
+        { text: '   ·   ', options: { color: TXT_MUTED } },
+        { text: DEMO_PW, options: { bold: true, color: DARK } },
+      ], { x: 7.2, y: 6.44, w: 5.32, h: 0.26, fontFace: FONT, fontSize: 10, margin: 0 });
+      s.addText('관제 웹 로그인용. 앱은 demo.crisis@lisn-test.example · 같은 비밀번호', {
+        x: 7.2, y: 6.68, w: 5.32, h: 0.22, fontFace: FONT_LIGHT, fontSize: 8.5, color: TXT2, margin: 0,
+      });
+    }
+
+    pageNum(s, false);
+  }
+
+  // ============================================================
+  // 라이브러리 — 계층별 채택과 이유
+  //   근거: frontend/app/pubspec.yaml · backend/requirements.txt ·
+  //         frontend/admin/package.json (실제 의존성만 적습니다)
+  // ============================================================
+  {
+    const s = bgSlide(false);
+    header(s, '라이브러리', '수행 경과 · 아키텍처', false);
+
+    const cols = [
+      ['앱 — Flutter', [
+        ['health 13.3.1', 'Health Connect 래퍼. HealthKit 도 감싸지만 iOS 는 장비·계정 문제로 제외'],
+        ['workmanager', '앱이 꺼져 있어도 15분 주기로 깨어나 수집'],
+        ['firebase_messaging', '선제 접촉 푸시 발송'],
+        ['flutter_secure_storage', 'JWT 를 평문 저장하지 않음'],
+        ['url_launcher', '109 직통 연결'],
+      ]],
+      ['서버 — FastAPI', [
+        ['fastapi · uvicorn', '비동기 I/O 로 LLM 대기와 시계열 적재를 동시에 감당'],
+        ['sqlalchemy · asyncpg', '비동기 드라이버. schema.sql 이 정본이고 ORM 은 매핑'],
+        ['bcrypt · pyjwt', '비밀번호 단방향 해시 · 세션 토큰'],
+        ['openai', '페르소나 대화 · 위기 문맥 판정'],
+        ['firebase-admin', 'FCM 서버 발송'],
+      ]],
+      ['관제 웹 — React', [
+        ['react 19 · vite', '화면 2개 규모라 번들러와 런타임만 둠'],
+        ['라우터 미도입', '화면이 둘이라 상태로 전환. 의존성을 늘리지 않음'],
+        ['상태관리 미도입', '전역 상태가 세션 하나뿐이라 Context 로 충분'],
+        ['차트 미도입', '위험도 분포는 막대 폭 계산으로 직접 그림'],
+        ['fetch 직접 호출', 'HTTP 클라이언트를 따로 두지 않음'],
+      ]],
+    ];
+
+    const cw = 3.86, cgap = 0.26;
+    cols.forEach(([title, items], ci) => {
+      const x = 0.62 + ci * (cw + cgap);
+      s.addShape('line', { x, y: 1.45, w: cw, h: 0, line: { color: GOLD, width: 3 } });
+      s.addText(title, {
+        x, y: 1.58, w: cw, h: 0.36, fontFace: FONT, fontSize: 13.5, bold: true, color: DARK, margin: 0,
+      });
+      let y = 2.06;
+      items.forEach(([n, why]) => {
+        s.addText(n, { x, y, w: cw, h: 0.28, fontFace: FONT, fontSize: 11, bold: true, color: DARK, margin: 0 });
+        s.addText(why, {
+          x, y: y + 0.28, w: cw, h: 0.52, fontFace: FONT_LIGHT, fontSize: 9.5,
+          color: TXT2, margin: 0, lineSpacingMultiple: 1.25,
+        });
+        y += 0.86;
+      });
     });
-    s.addText('Health Connect로 모은 심박 · 수면 데이터가 실제 화면에 그대로 보입니다.', {
-      x: imgX - 0.55, y: imgY + imgH + 0.14, w: imgW + 1.1, h: 0.55, fontFace: FONT_LIGHT, fontSize: 8, color: TXT_MUTED, align: 'center', margin: 0, lineSpacingMultiple: 1.2,
+
+    hr(s, 0.62, 6.5, 12.1, false);
+    s.addText('관제 웹의 「미도입」은 빠뜨린 것이 아니라 화면 2개 규모에 맞춘 결정입니다. 의존성이 늘면 그만큼 갱신·취약점 대응 부담이 따라옵니다.', {
+      x: 0.62, y: 6.66, w: 12.1, h: 0.4, fontFace: FONT_LIGHT, fontSize: 10.5,
+      color: TXT_MUTED, margin: 0,
     });
     pageNum(s, false);
   }
@@ -592,7 +849,7 @@ async function main() {
     y += 0.25;
     const gh = 2.1;
     s.addShape('line', { x: 0.62, y, w: 0, h: gh, line: { color: GOLD, width: 4 } });
-    s.addText('감정을 분류하는 게 아닙니다', {
+    s.addText('감정 분류 결과', {
       x: 0.9, y, w: 7.0, h: 0.4, fontFace: FONT, fontSize: 15, bold: true, color: DARK, margin: 0,
     });
     s.addText('바뀐 것은 지표를 합치는 방식뿐입니다. 개인 기준선 대비 이탈 지표 7개를 하나의 점수로 합치는 방법을 데이터로 골랐을 뿐이고, 감정 코드는 여전히 이탈 정도를 표시하는 산출값입니다. model_version 이 hybrid- 로 시작하면 이 집계가 관여한 것이고, rule- 이면 기존 규칙 그대로입니다.', {
@@ -663,7 +920,7 @@ async function main() {
     hr(s, 0.62, 4.78, 12.1, false);
 
     const cards = [
-      ['위로보다 안전', 'CRITICAL이면 답변 대신 상담 연결 화면을 보여줍니다. 판정과 응답 생성을 병렬로 처리하되 스트리밍은 쓰지 않아, 판정 전에 흘려보낸 글자가 없습니다.'],
+      ['위로보다 안전', 'CRITICAL 이면 답변 대신 상담 연결 화면을 보여줍니다. 판정 전에 화면으로 흘러나간 글자가 하나도 없습니다.'],
       ['경고색 대신 배치', '빨강 · 주황은 불안을 키워 회피를 부릅니다. 주목도는 색이 아니라 화면 배치로 만들었습니다.'],
       ['모른다 ≠ 괜찮다', '데이터가 3일 미만이면 422로 끊습니다. 편차 0을 정상으로 적재하면 위험을 놓칩니다.'],
     ];
@@ -674,6 +931,68 @@ async function main() {
       s.addText(h, { x: x + 0.12, y: cardY, w: ccw - 0.2, h: 0.32, fontFace: FONT, fontSize: 12.5, bold: true, color: GOLD_DARK, margin: 0 });
       s.addText(b, { x: x + 0.12, y: cardY + 0.36, w: ccw - 0.28, h: 1.2, fontFace: FONT_LIGHT, fontSize: 10.5, color: TXT2, margin: 0, lineSpacingMultiple: 1.28 });
     });
+    pageNum(s, false);
+  }
+
+  // ============================================================
+  // 앱 화면 — 핵심 기능 6종
+  //   화면명은 화면설계서(정본)의 「화면이름」을 그대로 씁니다.
+  //   docs/extracted/화면설계서_귀기울임.txt 에서 확인했습니다.
+  //   시안 PNG 는 780x1688(비율 0.462) 이라 폭에서 6장이 딱 맞습니다.
+  // ============================================================
+  function screenGrid(s, items, gap) {
+    const x0 = 0.62, total = 12.1;
+    const n = items.length;
+    const iw = (total - gap * (n - 1)) / n;
+    const ih = iw / 0.462;
+    const y0 = 1.5;
+    items.forEach(([id, name, desc], i) => {
+      const x = x0 + i * (iw + gap);
+      s.addShape('rect', {
+        x: x - 0.015, y: y0 - 0.015, w: iw + 0.03, h: ih + 0.03,
+        fill: { color: WHITE }, line: { color: LINE, width: 1 },
+      });
+      s.addImage({ path: img(id), x, y: y0, w: iw, h: ih });
+      s.addText(name, {
+        x, y: y0 + ih + 0.1, w: iw, h: 0.3, fontFace: FONT, fontSize: 10.5,
+        bold: true, color: DARK, align: 'center', margin: 0,
+      });
+      s.addText(desc, {
+        x, y: y0 + ih + 0.42, w: iw, h: 0.5, fontFace: FONT_LIGHT, fontSize: 8.5,
+        color: TXT2, align: 'center', margin: 0, lineSpacingMultiple: 1.25,
+      });
+    });
+  }
+
+  {
+    const s = bgSlide(false);
+    header(s, '앱 화면', '수행 경과 · 화면', false);
+    screenGrid(s, [
+      ['MAIN_HOME_01', '메인 홈 대시보드', '오늘의 마음 상태 · 라이프로그 요약'],
+      ['MAIN_CHAT_01', '챗봇 성격 선택', 'F형 공감 · T형 조언 중 선택'],
+      ['MAIN_CHAT_02', '실시간 대화', '대화와 기록 조회를 한 화면에서'],
+      ['MAIN_EMERGENCY_01', '긴급 상담 연결', 'CRITICAL 판정 시 109 직통'],
+      ['MAIN_LIFELOG_01', '라이프로그 조회', '활동량 · 수면 · 심박 · HRV 추이'],
+      ['MAIN_REPORT_01', '정서 리포트', '기간별 감정 추이와 PDF 내보내기'],
+    ], 0.16);
+    pageNum(s, false);
+  }
+
+  // ============================================================
+  // 앱 화면 — 가입 · 설정 7종
+  // ============================================================
+  {
+    const s = bgSlide(false);
+    header(s, '가입 · 설정', '수행 경과 · 화면', false);
+    screenGrid(s, [
+      ['MAIN_LOGIN_01', '로그인', '자체 인증 · JWT 세션'],
+      ['MAIN_LOGIN_02', '비밀번호 재설정', '메일 인증 후 재설정'],
+      ['MAIN_JOIN_01', '약관 동의', '필수 · 선택 항목 분리'],
+      ['MAIN_JOIN_02', '정보 입력', '신체 정보는 선택 입력'],
+      ['MAIN_JOIN_03', '웨어러블 연동', 'Health Connect 권한 설정'],
+      ['MAIN_SETTING_01', '설정', '알림 · 연동 · 개인정보'],
+      ['MAIN_SETTING_02', '계정 관리', '탈퇴 시 CASCADE 삭제'],
+    ], 0.14);
     pageNum(s, false);
   }
 
@@ -854,7 +1173,7 @@ async function main() {
     hr(s, 7.05, 1.78, 5.6, false);
     const bad = [
       ['실기기 검증 남음', 'Health Connect·FCM 모두 에뮬레이터·자격증명 초기화까지만 확인했습니다. 실기기 하나면 반나절 안에 끝나는 검증인데, 확보하지 못했습니다.'],
-      ['평가셋 holdout 없음', '재현율 0.946은 이 211건 안에서의 값입니다. 라벨링에 관여하지 않은 사람이 새로 쓴 문장으로 재검증하는 게 다음 단계입니다.'],
+      ['평가셋 holdout 없음', '재현율 0.946은 이 211건 안에서의 값입니다. 라벨을 만든 사람과 평가 문장을 쓴 사람이 겹칩니다.'],
       ['AI 모델 표본 수 적음', '이 분야 표본 중앙값이 60.5명인데 저희는 62명입니다. 42편 중 외부 검증은 1편뿐이라는 것도 함께 봐야 할 맥락입니다.'],
     ];
     let by = 2.0;
@@ -865,9 +1184,7 @@ async function main() {
     });
 
     hr(s, 0.62, Math.max(gy, by) + 0.05, 12.1, false);
-    s.addText('부족한 점을 먼저 찾아 적었다는 것 자체가, "확인되지 않은 걸 확인됐다고 말하지 않는다"는 이 프로젝트의 원칙이 발표자료 작성에도 그대로 적용됐다는 뜻입니다.', {
-      x: 0.62, y: Math.max(gy, by) + 0.25, w: 12.1, h: 0.6, fontFace: FONT_LIGHT, fontSize: 11, italic: true, color: TXT_MUTED, lineSpacingMultiple: 1.3, margin: 0,
-    });
+    // 2026.08.27 PM 손수정 — 마무리 문장 삭제. 구분선(hr)은 유지합니다.
     pageNum(s, false);
   }
 
@@ -881,8 +1198,8 @@ async function main() {
     const rows = [
       ['실기기 검증', '검증 예정', 'Health Connect·앱 사용 로그 모두 에뮬레이터 워커 동작까지 확인했고, 실기기만 확보되면 바로 검증합니다.'],
       ['iOS 확장', '설계 반영', 'health 패키지가 HealthKit도 감쌉니다. 수집 계층을 그대로 재사용할 수 있게 설계했습니다.'],
-      ['평가셋 확장', '다음 단계', '0.946은 평가셋 211건 기준입니다. 새 문장을 더해 일반화를 재검증합니다.'],
-      ['AI 모델 표본 확대', '다음 단계', '이 분야 표본 중앙값이 60.5명인데 저희는 62명입니다. 표본을 더 늘려 재검증합니다.'],
+      ['평가셋 확장', '다음 단계', '라벨링에 관여하지 않은 사람이 새로 쓴 문장을 더해 일반화를 재검증합니다.'],
+      ['AI 모델 표본 확대', '다음 단계', '표본을 늘려 재검증하고, 참가자 수에 따른 성능 변화를 함께 봅니다.'],
       ['미탐 6건', '패턴 분석 완료', '완곡·작별·신변 정리 표현에 몰려 있습니다. 이 패턴군을 다음 개선 대상으로 잡았습니다.'],
     ];
     let y = 1.35;

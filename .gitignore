@@ -337,3 +337,6 @@ tools/capture/.cache/
 
 # CatBoost 가 실행할 때마다 만드는 학습 로그 — 산출물이 아닙니다
 catboost_info/
+
+# 심사용 데모 계정 — 저장소가 공개라 커밋하지 않는다
+tools/capture/demo_account.json

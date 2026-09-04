@@ -1,0 +1,259 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>시스템 아키텍처</title>
+<!--
+  발표자료 「시스템 아키텍처」 슬라이드용 다이어그램.
+
+  docs/design/README.md 의 방식 그대로 HTML 로 그리고 Edge 헤드리스로 굽는다.
+  색은 docs/design/brand.json 의 deck 팔레트에서 가져왔다 — 값을 여기 직접
+  적지 말고 brand.json 이 바뀌면 같이 고칠 것.
+
+  아이콘은 이모지가 아니라 인라인 SVG 다. 이모지는 OS 가 자기 색으로 렌더해
+  팔레트 밖으로 튄다(CLAUDE.md 「화면 시안을 코드로 만들기」).
+
+  굽는 명령:
+    msedge --headless=new --disable-gpu --hide-scrollbars
+           --force-device-scale-factor=2 --window-size=1600,900
+           --virtual-time-budget=4000
+           --screenshot=docs/design/ARCH_SYSTEM_01.png
+           file:///.../docs/design/src/ARCH_SYSTEM_01.html
+-->
+<style>
+  :root {
+    --dark: #1D2733;
+    --light: #ECEEF0;
+    --txt1: #2B3542;
+    --txt2: #5D6870;
+    --muted: #838D96;
+    --gold: #A8763A;
+    --gold-dark: #8A6229;
+    --gold-light: #C39A4E;
+    --line: #DFE3E6;
+    --white: #FFFFFF;
+    --tint: #F1EADD;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1600px; height: 790px; }
+  body {
+    background: var(--light);
+    font-family: "Malgun Gothic", "맑은 고딕", sans-serif;
+    color: var(--txt1);
+    padding: 34px 44px;
+    position: relative;
+  }
+
+  /* 쌓임 순서 — 구역 < 화살표 < 노드 < 라벨.
+     이걸 정하지 않으면 DOM 순서상 구역이 SVG 를 덮어 어두운 구역 안의
+     화살표가 통째로 사라진다(2차 렌더에서 확인). */
+  .zone { z-index: 1; }
+  svg.wire { z-index: 2; }
+  .node { z-index: 3; }
+  .lbl, .note { z-index: 4; }
+
+  .zone {
+    position: absolute;
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    background: var(--white);
+  }
+  .zone.dark { background: var(--dark); border-color: #2E3A47; }
+  .zone-label {
+    position: absolute; top: -11px; left: 20px;
+    background: var(--light); padding: 0 10px;
+    font-size: 13px; font-weight: 700; color: var(--muted);
+    letter-spacing: .04em;
+  }
+  .zone.dark .zone-label { background: var(--light); }
+
+  .node {
+    position: absolute;
+    background: var(--white);
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 11px;
+  }
+  .node.on-dark { background: #26313E; border-color: #38434F; }
+  .node.accent  { background: var(--tint); border-color: var(--gold); border-width: 2px; }
+  .ico { flex: 0 0 auto; }
+  .nm  { font-size: 14.5px; font-weight: 700; line-height: 1.25; }
+  .sub { font-size: 11px; color: var(--txt2); line-height: 1.35; margin-top: 3px; }
+  .on-dark .nm  { color: #E8ECEF; }
+  .on-dark .sub { color: #9BA5AE; }
+  /* accent 는 어두운 구역 안이지만 배경이 밝다 — on-dark 색을 되돌린다.
+     이걸 빼면 흰 글씨가 베이지 위에 올라가 이름이 안 보인다(1차 렌더에서 확인). */
+  .node.accent .nm  { color: var(--txt1); }
+  .node.accent .sub { color: var(--gold-dark); }
+
+  svg.wire { position: absolute; inset: 0; width: 1600px; height: 790px; pointer-events: none; }
+  .lbl {
+    position: absolute; font-size: 11.5px; color: var(--txt2);
+    background: var(--light); padding: 1px 6px; font-weight: 600;
+  }
+  .lbl.on-white { background: var(--white); }
+  .note { position: absolute; font-size: 11.5px; color: var(--muted); line-height: 1.45; }
+</style>
+
+<svg class="wire">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8A939B"/>
+    </marker>
+    <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#A8763A"/>
+    </marker>
+    <!-- 어두운 구역 안에서는 밝은 화살촉을 쓴다 -->
+    <marker id="ahd" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#93A0AC"/>
+    </marker>
+  </defs>
+  <!-- 노드 실제 좌표 기준. 카드 높이는 padding 24 + 제목 18 + 여백 3 + 설명 15 = 60px.
+       Flutter 앱 150..210 · nginx 176..236 · 비즈니스 330..390 ·
+       AI 추론 330..390 · PostgreSQL 536..596 · 관제 웹 600..660 -->
+  <g fill="none" stroke="#8A939B" stroke-width="1.6" marker-end="url(#ah)">
+    <!-- 앱 → nginx -->
+    <path d="M 288 180 H 420 V 206 H 544"/>
+    <!-- 비즈니스 → 외부 연동 : AI 추론(1006~1156)을 피해 아래로 우회한다 -->
+    <path d="M 830 390 V 448 H 1385 V 312"/>
+  </g>
+  <!-- 어두운 구역 내부 — 배경이 어두워 선을 밝게 쓴다 -->
+  <g fill="none" stroke="#93A0AC" stroke-width="1.6" marker-end="url(#ahd)">
+    <!-- nginx → 비즈니스 서버 -->
+    <path d="M 700 236 V 322"/>
+    <!-- 비즈니스 ↔ AI 추론 -->
+    <path d="M 906 360 H 998" marker-start="url(#ahd)"/>
+    <!-- 비즈니스 → PostgreSQL -->
+    <path d="M 700 390 V 528"/>
+    <!-- AI 추론 → PostgreSQL : AI 아래로 내려 좌측으로 붙인다 -->
+    <path d="M 1081 390 V 566 H 914"/>
+  </g>
+  <g fill="none" stroke="#A8763A" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#ahg)">
+    <!-- 관제 웹 → nginx -->
+    <path d="M 288 596 H 462 V 220 H 544"/>
+  </g>
+</svg>
+
+<!-- ───────────── 수집 계층 ───────────── -->
+<div class="zone" style="left:44px; top:120px; width:256px; height:190px;">
+  <div class="zone-label">수집</div>
+</div>
+<div class="node" style="left:64px; top:150px; width:216px;">
+  <svg class="ico" width="26" height="26" viewBox="0 0 24 24" fill="#5D6870">
+    <rect x="6" y="1.5" width="12" height="21" rx="2.6" stroke="#5D6870" stroke-width="1.6" fill="none"/>
+    <circle cx="12" cy="19.2" r="1.1"/>
+  </svg>
+  <div>
+    <div class="nm">Flutter 앱</div>
+    <div class="sub">13화면 · Health Connect</div>
+  </div>
+</div>
+<div class="node" style="left:64px; top:236px; width:216px;">
+  <svg class="ico" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#5D6870" stroke-width="1.6">
+    <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.4 2"/>
+  </svg>
+  <div>
+    <div class="nm">WorkManager</div>
+    <div class="sub">15분 주기 백그라운드 수집</div>
+  </div>
+</div>
+
+<!-- ───────────── 관제 웹 ───────────── -->
+<div class="zone" style="left:44px; top:536px; width:256px; height:132px;">
+  <div class="zone-label">관제</div>
+</div>
+<div class="node" style="left:64px; top:566px; width:216px;">
+  <svg class="ico" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#5D6870" stroke-width="1.6">
+    <rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 21h8M12 18v3"/>
+  </svg>
+  <div>
+    <div class="nm">React 관제 웹</div>
+    <div class="sub">ADMIN 역할만 세션 허용</div>
+  </div>
+</div>
+
+<!-- ───────────── NCP VM ───────────── -->
+<div class="zone dark" style="left:520px; top:96px; width:660px; height:504px;">
+  <div class="zone-label">NCP VM · Docker Compose</div>
+</div>
+
+<div class="node on-dark accent" style="left:552px; top:176px; width:296px;">
+  <svg class="ico" width="26" height="26" viewBox="0 0 24 24" fill="#A8763A">
+    <path d="M12 2 3 6.6v6.1c0 5 3.8 9.1 9 10.2 5.2-1.1 9-5.2 9-10.2V6.6L12 2z" opacity=".22"/>
+    <path d="M12 2 3 6.6v6.1c0 5 3.8 9.1 9 10.2 5.2-1.1 9-5.2 9-10.2V6.6L12 2z"
+          fill="none" stroke="#C39A4E" stroke-width="1.6"/>
+    <path d="M8.4 12.2l2.5 2.5 4.7-4.9" fill="none" stroke="#C39A4E" stroke-width="1.8"/>
+  </svg>
+  <div>
+    <div class="nm">nginx</div>
+    <div class="sub">80 · 443 만 외부 공개 · Let's Encrypt</div>
+  </div>
+</div>
+
+<div class="node on-dark" style="left:552px; top:330px; width:354px;">
+  <svg class="ico" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9BA5AE" stroke-width="1.6">
+    <rect x="2.5" y="5" width="19" height="14" rx="2.2"/><path d="M6.5 9.5h5M6.5 13h8"/>
+  </svg>
+  <div>
+    <div class="nm">비즈니스 서버 · FastAPI</div>
+    <div class="sub">REST API 34개 · JWT · 위기 키워드 필터</div>
+  </div>
+</div>
+
+<div class="node on-dark" style="left:1006px; top:330px; width:150px;">
+  <svg class="ico" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9BA5AE" stroke-width="1.6">
+    <circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8.6" stroke-dasharray="3 3"/>
+  </svg>
+  <div>
+    <div class="nm">AI 추론</div>
+    <div class="sub">이탈 탐지</div>
+  </div>
+</div>
+
+<div class="node on-dark" style="left:552px; top:536px; width:354px;">
+  <svg class="ico" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9BA5AE" stroke-width="1.6">
+    <ellipse cx="12" cy="6" rx="7.6" ry="3"/><path d="M4.4 6v12c0 1.7 3.4 3 7.6 3s7.6-1.3 7.6-3V6"/>
+    <path d="M4.4 12c0 1.7 3.4 3 7.6 3s7.6-1.3 7.6-3"/>
+  </svg>
+  <div>
+    <div class="nm">PostgreSQL 17</div>
+    <div class="sub">9개 테이블 · (user_id, collected_at DESC)</div>
+  </div>
+</div>
+
+<!-- ───────────── 외부 ───────────── -->
+<div class="zone" style="left:1240px; top:120px; width:290px; height:180px;">
+  <div class="zone-label">외부 연동</div>
+</div>
+<div class="node" style="left:1260px; top:150px; width:250px;">
+  <svg class="ico" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5D6870" stroke-width="1.6">
+    <path d="M12 3v18M4 8l8-5 8 5M4 16l8 5 8-5"/>
+  </svg>
+  <div><div class="nm">OpenAI API</div><div class="sub">페르소나 대화 · 위기 문맥</div></div>
+</div>
+<div class="node" style="left:1260px; top:228px; width:250px;">
+  <svg class="ico" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5D6870" stroke-width="1.6">
+    <path d="M4 5h16v11H7l-3 3z"/>
+  </svg>
+  <div><div class="nm">FCM</div><div class="sub">선제 접촉 푸시</div></div>
+</div>
+
+<!-- 화살표 라벨 — 선 위에 얹어 배경으로 선을 끊는다 -->
+<div class="lbl" style="left:306px; top:152px;">HTTPS · 앱이 push</div>
+<div class="lbl" style="left:710px; top:268px; background:#1D2733; color:#B9C2C9;">8000</div>
+<div class="lbl" style="left:912px; top:326px; background:#1D2733; color:#B9C2C9;">8001 내부</div>
+<div class="lbl" style="left:710px; top:452px; background:#1D2733; color:#B9C2C9;">5432 내부</div>
+<div class="lbl" style="left:1240px; top:430px;">OpenAI · FCM</div>
+<div class="lbl" style="left:474px; top:392px; color:#8A6229;">HTTPS</div>
+
+<!-- 하단 주석 -->
+<div class="note" style="left:44px; top:700px; width:700px;">
+  <b style="color:var(--txt1);">서버를 둘로 나눈 이유</b><br>
+  시계열 적재와 LLM 추론이 서로를 막지 않도록 비즈니스 서버와 추론 서버를 분리하였다.
+</div>
+<div class="note" style="left:790px; top:700px; width:740px;">
+  <b style="color:var(--txt1);">위기 키워드 필터는 비즈니스 서버 안에 둔다</b><br>
+  외부 LLM 이 죽어도 안전 기능이 단독으로 동작해야 하기 때문이다. 2차 문맥 판정만 OpenAI 가 맡는다.
+</div>
